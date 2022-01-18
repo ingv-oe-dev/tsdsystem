@@ -2,8 +2,8 @@
 
 require_once("..\classes\SimpleREST.php");
 
-// Generic PNet class
-Class PNetController extends SimpleREST {
+// Generic REST Controller class
+Class RESTController extends SimpleREST {
 	
 	public $obj;
 	
@@ -57,11 +57,16 @@ Class PNetController extends SimpleREST {
 	// ****************** get - channel(s) ********************//
 	// ====================================================================//
 	
-	public function get() {
+	public function get($jsonfields=array()) {
 	
 		$result = $this->obj->getList($this->getParams());
 	
 		if ($result["status"]) {
+			for($i=0; $i<count($result["data"]); $i++) {
+				foreach($jsonfields as $fieldname) {
+					$result["data"][$i][$fieldname] = isset($result["data"][$i][$fieldname]) ? json_decode($result["data"][$i][$fieldname]) : NULL;
+				}
+			}
 			$this->setData($result["data"]);
 		} else {
 			$this->setStatusCode(404);

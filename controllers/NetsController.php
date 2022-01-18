@@ -1,10 +1,10 @@
 <?php
 
-require_once("PNetController.php");
+require_once("RESTController.php");
 require_once("..\classes\Nets.php");
 
 // Nets Controller class
-Class NetsController extends PNetController {
+Class NetsController extends RESTController {
 	
 	public function __construct() {
 		$this->obj = new Nets();

@@ -1,10 +1,10 @@
 <?php
 
-require_once("PNetController.php");
+require_once("RESTController.php");
 require_once("..\classes\Sensortypes.php");
 
 // Sensortypes Controller class
-Class SensortypesController extends PNetController {
+Class SensortypesController extends RESTController {
 	
 	public function __construct() {
 		$this->obj = new Sensortypes();
@@ -35,6 +35,15 @@ Class SensortypesController extends PNetController {
 		}
 		
 		return true;
+	}
+
+	// ====================================================================//
+	// ****************** get  ********************//
+	// ====================================================================//
+	public function get($jsonfields=array("default_props")) {
+	
+		parent::get($jsonfields);
+		
 	}
 }
 ?>

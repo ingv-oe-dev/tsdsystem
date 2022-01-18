@@ -14,7 +14,7 @@ Class Timeseries extends QueryManager {
 	// ******************* TIMESERIES REGISTRATION ************************//
 	// ====================================================================//
 	
-	public function registration($input) {
+	public function insert($input) {
 		
 		// create schema
 		$sql_commands = array(

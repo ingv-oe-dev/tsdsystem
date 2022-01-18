@@ -1,64 +1,19 @@
 <?php
 
-require_once("..\classes\SimpleREST.php");
+require_once("RESTController.php");
 require_once("..\classes\Timeseries.php");
 
 // Timeseries class
-Class TimeseriesController extends SimpleREST {
-	
-	private $ts;
+Class TimeseriesController extends RESTController {
 	
 	public function __construct() {
-		$this->ts = new Timeseries();
+		$this->obj = new Timeseries();
 		$this->route();
-	}
-	
-	public function route() {
-
-		if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-			$this->readInput();
-			$this->post();
-		}
-		if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-			$this->getInput();
-			$this->get();
-		}
-		/*
-		if ($_SERVER['REQUEST_METHOD'] === 'PATCH') {
-			$this->update();
-		}
-		if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
-			$this->remove();
-		}
-		*/
-		$this->elaborateResponse();
 	}
 	
 	// ====================================================================//
 	// ****************** post - timeseries instance **********************//
 	// ====================================================================//
-	
-	public function post() {
-
-		if ($this->check_input_post()) {
-
-			$result = $this->ts->registration($this->getParams());
-		
-			if ($result["status"]) {
-				$this->setData($result);
-				if (isset($result["id"])) {
-					$this->setStatusCode(201);
-				} else {
-					// Registrazione effettuata ma non sono riuscito a ritornare l'id della serie (id)
-					$this->setStatusCode(206);
-				}
-			} else {
-				$this->setStatusCode(409);
-				$this->setError($result);
-			}
-		}
-	}
-	
 	public function check_input_post() {
 		
 		if ($this->isEmptyInput()) {
@@ -84,14 +39,9 @@ Class TimeseriesController extends SimpleREST {
 			return false;
 		}
 		// (4) $input["metadata"] is json
-		if (array_key_exists("metadata", $input)){
-			try {
-				json_decode($input["metadata"]);
-			}
-			catch (Exception $e) {
-				$this->setInputError("Error on decoding 'metadata' JSON input");
-				return false;
-			}
+		if (array_key_exists("metadata", $input) and !$this->validate_json($input["metadata"])){
+			$this->setInputError("Error on decoding 'metadata' JSON input");
+			return false;
 		}
 		// default sampling value is null
 		if (!array_key_exists("sampling", $input) || !is_int($input["sampling"]) || $input["sampling"] < 0) {
@@ -106,19 +56,10 @@ Class TimeseriesController extends SimpleREST {
 	// ****************** get - timeseries instance(s) ********************//
 	// ====================================================================//
 	
-	public function get() {
-	
-		$result = $this->ts->getList($this->getParams());
-	
-		if ($result["status"]) {
-			for($i=0; $i<count($result["data"]); $i++) {
-				$result["data"][$i]["metadata"] = json_decode($result["data"][$i]["metadata"]);
-			}
-			$this->setData($result["data"]);
-		} else {
-			$this->setStatusCode(404);
-			$this->setError($result);
-		}
+	public function get($jsonfields=array("metadata")) {
+		
+		parent::get($jsonfields);
+
 	}
 	
 }
