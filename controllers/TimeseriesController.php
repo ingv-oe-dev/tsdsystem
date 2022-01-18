@@ -83,7 +83,16 @@ Class TimeseriesController extends SimpleREST {
 			$this->setInputError("This required input is missing: 'columns'[array]");
 			return false;
 		}
-		
+		// (4) $input["metadata"] is json
+		if (array_key_exists("metadata", $input)){
+			try {
+				json_decode($input["metadata"]);
+			}
+			catch (Exception $e) {
+				$this->setInputError("Error on decoding 'metadata' JSON input");
+				return false;
+			}
+		}
 		// default sampling value is null
 		if (!array_key_exists("sampling", $input) || !is_int($input["sampling"]) || $input["sampling"] < 0) {
 			$this->setInputError("This required input is missing: 'sampling'[integer > 0] <in seconds>");
