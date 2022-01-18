@@ -258,9 +258,20 @@ Class QueryManager extends Utils {
 	}
 
 	public function matchFieldByValue($params) {
-		$str = " AND " . $params["fieldname"];
-		$str .= $params["exact_match"] ? " = " : " LIKE";
-		$str .= $params["quoted"] ? ("'" .  ($params["exact_match"] ? '' : '%') . $params["value"] . ($params["exact_match"] ? '' : '%') . "'") : $params["value"];
+		$str = " AND ";
+		if ($params["exact_match"]) {
+			if ($params["quoted"]) {
+				$str .= $params["fieldname"] . " = '" . $params["value"] . "'";
+			} else {
+				$str .= $params["fieldname"] . " = " . $params["value"];
+			}
+		} else {
+			if ($params["quoted"]) {
+				$str .=  "UPPER(" . $params["fieldname"] . ") LIKE UPPER('%" . $params["value"] . "%')";
+			} else {
+				$str .= $params["fieldname"] . " LIKE " . $params["value"];
+			}
+		}
 		return $str;
 	}
 }
