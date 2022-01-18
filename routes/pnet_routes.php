@@ -24,3 +24,10 @@
 		
 		$nc = new SensortypesController();
 	}
+
+	if (strripos($_SERVER["REQUEST_URI"], "sensors")) {
+		
+		require_once("../controllers/SensorsController.php");
+		
+		$nc = new SensorsController();
+	}
