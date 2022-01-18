@@ -24,4 +24,15 @@ Class Utils {
 		return $array_two;
 	}
 	
+	public function validate_json($json=NULL) {
+		if (is_string($json)) {
+			@json_decode($json);
+			return (json_last_error() === JSON_ERROR_NONE);
+		}
+		if (is_array($json)) {
+			@json_encode($json, JSON_NUMERIC_CHECK);
+			return (json_last_error() === JSON_ERROR_NONE);
+		}
+		return false;
+	}
 }
