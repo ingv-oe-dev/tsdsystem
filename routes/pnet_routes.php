@@ -18,3 +18,9 @@
 		$nc = new NetsController();
 	}
 	
+	if (strripos($_SERVER["REQUEST_URI"], "sensortypes")) {
+		
+		require_once("../controllers/SensortypesController.php");
+		
+		$nc = new SensortypesController();
+	}
