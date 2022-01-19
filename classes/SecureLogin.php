@@ -5,7 +5,7 @@ class SecureLogin extends QueryManager{
 
 	function login($email, $password) {
 	   
-		$query = "SELECT id, password, salt FROM users.members WHERE email = :email AND deleted IS NULL AND NOT confirmed IS NULL LIMIT 1";
+		$query = "SELECT id, password, salt FROM tsd_users.members WHERE email = :email AND deleted IS NULL AND NOT confirmed IS NULL LIMIT 1";
 		$rs = $this->executeReadPreparedStatement($query, array(':email' => $email));
 		if (isset($rs) and $rs["status"] and count($rs["data"]) > 0) { 
 			$password = hash('sha512', $password.$rs["data"][0]["salt"]); // codifica la password usando una chiave univoca.
@@ -28,7 +28,7 @@ class SecureLogin extends QueryManager{
 		
 		$rows = array();
 		
-		$query = "SELECT id FROM users.members WHERE email = :email AND NOT deleted IS NULL LIMIT 1";
+		$query = "SELECT id FROM tsd_users.members WHERE email = :email AND NOT deleted IS NULL LIMIT 1";
 		$rs = $this->executeReadPreparedStatement($query, array(':email' => $email));
 
 		if (isset($rs) and $rs["status"]) {
@@ -39,7 +39,7 @@ class SecureLogin extends QueryManager{
 				$password = hash('sha512', $password.$random_salt);
 				// Inserisci a questo punto il codice SQL per eseguire la INSERT nel tuo database
 				// Assicurati di usare statement SQL 'prepared'.
-				$sql = "INSERT INTO users.members (email, password, salt) VALUES (:email, :password, :random_salt)";
+				$sql = "INSERT INTO tsd_users.members (email, password, salt) VALUES (:email, :password, :random_salt)";
 				$rs = $this->executeWritePreparedStatement($sql, array(
 					':email' => $email,
 					':password' => $password,

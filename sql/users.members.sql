@@ -1,8 +1,8 @@
--- Table: users.members
+-- Table: tsd_users.members
 
--- DROP TABLE IF EXISTS users.members;
+-- DROP TABLE IF EXISTS tsd_users.members;
 
-CREATE TABLE IF NOT EXISTS users.members
+CREATE TABLE IF NOT EXISTS tsd_users.members
 (
     id SERIAL NOT NULL,
     email character varying(255) COLLATE pg_catalog."default" NOT NULL,
@@ -17,5 +17,5 @@ CREATE TABLE IF NOT EXISTS users.members
 
 TABLESPACE pg_default;
 
-ALTER TABLE IF EXISTS users.members
+ALTER TABLE IF EXISTS tsd_users.members
     OWNER to postgres;
