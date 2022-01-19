@@ -33,8 +33,22 @@ Class ChannelsController extends RESTController {
 			$this->setInputError("This required input is missing: 'name' [string]");
 			return false;
 		}
+		// (3) $input["info"] is json
+		if (array_key_exists("info", $input) and !$this->validate_json($input["info"])){
+			$this->setInputError("Error on decoding 'info' JSON input");
+			return false;
+		}
 		
 		return true;
+	}
+
+	// ====================================================================//
+	// ****************** get  ********************//
+	// ====================================================================//
+	public function get($jsonfields=array("info")) {
+	
+		parent::get($jsonfields);
+		
 	}
 }
 ?>

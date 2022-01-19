@@ -17,8 +17,10 @@ Class Channels extends QueryManager {
 			// start transaction
 			$this->myConnection->beginTransaction();
 
-			$next_query = "INSERT INTO " . $this->tablename . " (name, sensor_id) 
-				VALUES ('" . $input["name"] . "'," . $input["sensor_id"]. ") 
+			$next_query = "INSERT INTO " . $this->tablename . " (name, sensor_id, info) VALUES (
+				'" . $input["name"] . "',
+				" . $input["sensor_id"]. ", " .
+				(isset($input["info"]) ? ("'" . json_encode($input["info"], JSON_NUMERIC_CHECK) . "'") : "NULL") . ") 
 				ON CONFLICT (LOWER(name), sensor_id) DO NOTHING";
 			$stmt = $this->myConnection->prepare($next_query);
 			$stmt->execute();
@@ -53,7 +55,7 @@ Class Channels extends QueryManager {
 	
 	public function getList($input) {
 		
-		$query = "SELECT id, name, sensor_id FROM " . $this->tablename . " WHERE remove_time IS NULL ";
+		$query = "SELECT id, name, sensor_id, info FROM " . $this->tablename . " WHERE remove_time IS NULL ";
 		
 		if (isset($input) and is_array($input)) { 
 			$query .= $this->composeWhereFilter($input, array(
