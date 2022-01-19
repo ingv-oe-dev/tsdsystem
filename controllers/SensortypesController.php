@@ -28,9 +28,9 @@ Class SensortypesController extends RESTController {
 			$this->setInputError("This required input is missing: 'name' [string]");
 			return false;
 		}
-		// (2) $input["default_props"] is json
-		if (array_key_exists("default_props", $input) and !$this->validate_json($input["default_props"])){
-			$this->setInputError("Error on decoding 'default_props' JSON input");
+		// (2) $input["json_schema"] is json
+		if (array_key_exists("json_schema", $input) and !$this->validate_json($input["json_schema"])){
+			$this->setInputError("Error on decoding 'json_schema' JSON input");
 			return false;
 		}
 		
@@ -40,7 +40,7 @@ Class SensortypesController extends RESTController {
 	// ====================================================================//
 	// ****************** get  ********************//
 	// ====================================================================//
-	public function get($jsonfields=array("default_props")) {
+	public function get($jsonfields=array("json_schema")) {
 	
 		parent::get($jsonfields);
 		

@@ -17,9 +17,9 @@ Class Sensortypes extends QueryManager {
 			// start transaction
 			$this->myConnection->beginTransaction();
 
-			$next_query = "INSERT INTO " . $this->tablename . " (name, default_props) VALUES ('" . 
+			$next_query = "INSERT INTO " . $this->tablename . " (name, json_schema) VALUES ('" . 
 				$input["name"] . "', " .
-				(isset($input["default_props"]) ? ("'" . json_encode($input["default_props"], JSON_NUMERIC_CHECK) . "'") : "NULL") . ") 
+				(isset($input["json_schema"]) ? ("'" . json_encode($input["json_schema"], JSON_NUMERIC_CHECK) . "'") : "NULL") . ") 
 				ON CONFLICT (LOWER(name)) DO NOTHING";
 			$stmt = $this->myConnection->prepare($next_query);
 			$stmt->execute();
@@ -54,7 +54,7 @@ Class Sensortypes extends QueryManager {
 	
 	public function getList($input) {
 		
-		$query = "SELECT id, name, default_props FROM " . $this->tablename . " WHERE remove_time IS NULL ";
+		$query = "SELECT id, name, json_schema FROM " . $this->tablename . " WHERE remove_time IS NULL ";
 		
 		if (isset($input) and is_array($input)) { 
 			$query .= $this->composeWhereFilter($input, array(
