@@ -59,7 +59,7 @@ Class Timeseries extends QueryManager {
 				'" . $input["schema"] . "',
 				'" . $input["name"]. "',
 				" . $input["sampling"] . ",
-				'" . (isset($input["metadata"]) ? ("'" . json_encode($input["metadata"], JSON_NUMERIC_CHECK) . "'") : "NULL") . "'
+				" . (isset($input["metadata"]) ? ("'" . json_encode($input["metadata"], JSON_NUMERIC_CHECK) . "'") : "NULL") . "
 			) ON CONFLICT (LOWER(schema), LOWER(name)) DO NOTHING";
 			$stmt = $this->myConnection->prepare($next_query);
 			$stmt->execute();	
