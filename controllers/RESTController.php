@@ -41,10 +41,11 @@ Class RESTController extends SimpleREST {
 			if ($result["status"]) {
 				$this->setData($result);
 				if (isset($result["id"])) {
-					$this->setStatusCode(201);
-				} else {
-					// Registrazione effettuata ma non sono riuscito a ritornare l'id della serie (id)
-					$this->setStatusCode(206);
+					if(isset($result["rows"]) and $result["rows"] > 0) {
+						$this->setStatusCode(201);
+					} else {
+						$this->setStatusCode(207);
+					}
 				}
 			} else {
 				$this->setStatusCode(409);

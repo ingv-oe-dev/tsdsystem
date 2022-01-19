@@ -6,6 +6,10 @@ Class Timeseries extends QueryManager {
 	
 	private $TIME_COLUMN_NAME = "time";
 	private $tablename = "public.timeseries";
+	private $mapping_tables = array(
+		"sensor_id" => "public.timeseries_mapping_sensors",
+		"channel_id" => "public.timeseries_mapping_channels"
+	);
 	
 	public function getTimeColumnName() {
 		return $this->TIME_COLUMN_NAME;
@@ -16,50 +20,103 @@ Class Timeseries extends QueryManager {
 	
 	public function insert($input) {
 		
-		// create schema
-		$sql_commands = array(
-			"CREATE SCHEMA IF NOT EXISTS " . $input["schema"] . ";"
+		$next_query = "";
+		$response = array(
+			"status" => false,
+			"rows" => null
 		);
-		
-		// create table
-		$create_table_sql = "CREATE TABLE IF NOT EXISTS " . $input["schema"] . "." . $input["name"] . " (" . $this->TIME_COLUMN_NAME . " TIMESTAMP WITHOUT TIME ZONE UNIQUE NOT NULL, ";
-			// make columns
-		for($i=0; $i<count($input["columns"]); $i++) {
-			$create_table_sql .= $input["columns"][$i]["name"] . " " . $input["columns"][$i]["type"] . " NULL, ";
+
+		try {
+			// start transaction
+			$this->myConnection->beginTransaction();
+
+			// create schema
+			$next_query = "CREATE SCHEMA IF NOT EXISTS " . $input["schema"];
+			$stmt = $this->myConnection->prepare($next_query);
+			$stmt->execute();
+			
+			// create table
+			$next_query = "CREATE TABLE IF NOT EXISTS " . $input["schema"] . "." . $input["name"] . " (" . $this->TIME_COLUMN_NAME . " TIMESTAMP WITHOUT TIME ZONE UNIQUE NOT NULL, ";
+				// make columns
+			for($i=0; $i<count($input["columns"]); $i++) {
+				$next_query .= $input["columns"][$i]["name"] . " " . $input["columns"][$i]["type"] . " NULL, ";
+			}
+			$next_query = rtrim($next_query, ", ");
+			$next_query .= ");";
+			$stmt = $this->myConnection->prepare($next_query);
+			$stmt->execute();
+			
+			// create hypertable (TimescaleDB)
+				// calculate chunk_time_interval
+			$chunk_time_interval = $this->getChunkTimeInterval($input);
+			$chunk_time_interval_string = isset($chunk_time_interval) ? ", chunk_time_interval => $chunk_time_interval" : "";
+			$next_query = "SELECT create_hypertable('" . $input["schema"] . "." . $input["name"] . "','" . $this->TIME_COLUMN_NAME . "'" . $chunk_time_interval_string . ", if_not_exists => TRUE)";
+			$stmt = $this->myConnection->prepare($next_query);
+			$stmt->execute();
+			
+			// insert into timeseries table
+			$next_query = "INSERT INTO " . $this->tablename . " (schema, name, sampling, metadata) 
+				VALUES ('" . $input["schema"] . "','" . $input["name"]. "'," . $input["sampling"] . ",'" . json_encode($input["metadata"], JSON_NUMERIC_CHECK) . "') 
+				ON CONFLICT (LOWER(schema), LOWER(name)) DO NOTHING";
+			$stmt = $this->myConnection->prepare($next_query);
+			$stmt->execute();	
+			
+			$response["rows"] = $stmt->rowCount();
+			
+			// select inserted id
+			$next_query = "SELECT id FROM " . $this->tablename . " WHERE LOWER(schema) = LOWER('" . $input["schema"] . "') AND LOWER(name) = LOWER('" . $input["name"] . "')";
+			$sqlResult = $this->myConnection->query($next_query);
+			$inserted_id = $sqlResult->fetchColumn();
+			$response["id"] = $inserted_id;
+
+			// insert mappings
+			$input["timeseries_id"] = $inserted_id;
+			$mapping_result = $this->insertMappings($input);
+			
+			// commit
+			$this->myConnection->commit();
+
+			$response["mapping_result"] = $mapping_result;
+			$response["status"] = $mapping_result["status"];
+
+			// return result
+			return $response;
 		}
-		$create_table_sql = rtrim($create_table_sql, ", ");
-		$create_table_sql .= ");";
-		array_push($sql_commands, $create_table_sql);
-		
-		// create hypertable (TimescaleDB)
-			// calculate chunk_time_interval
-		$chunk_time_interval = $this->getChunkTimeInterval($input);
-		$chunk_time_interval_string = isset($chunk_time_interval) ? ", chunk_time_interval => $chunk_time_interval" : "";
-		array_push($sql_commands, "SELECT create_hypertable('" . $input["schema"] . "." . $input["name"] . "','" . $this->TIME_COLUMN_NAME . "'" . $chunk_time_interval_string . ", if_not_exists => TRUE)");
-		
-		// insert into timeseries table
-		$reg_sql = "INSERT INTO " . $this->tablename . " (schema, name, sampling, metadata) 
-			VALUES ('" . $input["schema"] . "','" . $input["name"]. "'," . $input["sampling"] . ",'" . json_encode($input["columns"], JSON_NUMERIC_CHECK) . "')";
-		array_push($sql_commands, $reg_sql);		
-		
-		// execute sql commands
-		//var_dump($sql_commands);
-		$executeSQLCommand = $this->executeSQLCommand($sql_commands);
-		
-		// return result
-		if (end($executeSQLCommand)["status"]) {
-			// get inserted id
-			$query = "SELECT id FROM " . $this->tablename . " WHERE schema = '" . $input["schema"] . "' AND name = '" . $input["name"] . "'";
-			$inserted_id = $this->getSingleField($query);
+		catch (Exception $e){
+			
+			// rollback
+			$this->myConnection->rollback();
+
 			return array(
-				"status" => true,
-				"id" => $inserted_id["status"] ? $inserted_id["data"] : null,
-				"warning" => $inserted_id["status"] ? null : $inserted_id["error"],
+				"status" => false,
+				"failed_query" => $next_query,
+				"error" => $e->getMessage()
 			);
-		} else {
-			return end($executeSQLCommand);
 		}
-		
+	}
+
+	function insertMappings($input) {
+		$response = array("status" => false);
+		try {
+			if (isset($input["mapping"])) {
+				foreach($this->mapping_tables as $key => $value) {
+					if (isset($input["mapping"][$key])) {
+						$next_query = "INSERT INTO " . $value . " VALUES "; 
+						foreach($input["mapping"][$key] as $index => $id) {
+							$next_query .= " ('" . $input["timeseries_id"] . "', " . strval($id) . "), "; 	
+						}
+						$next_query = rtrim($next_query, ", ");
+						$next_query .= " ON CONFLICT (timeseries_id, " . $key . ") DO NOTHING";
+						//echo $next_query;
+						$stmt = $this->myConnection->prepare($next_query);
+						$stmt->execute();
+						$response[$key]["rows"] = $stmt->rowCount();
+					}
+				}
+				$response["status"] = true;
+			}
+		} catch (Exception $e) {}
+		return $response;
 	}
 	
 	function getChunkTimeInterval($input) {

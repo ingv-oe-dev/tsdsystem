@@ -10,7 +10,7 @@ Class QueryManager extends Utils {
 	private $default_db = "tsdsystem";
 	private $default_port = "5432";
 	
-	private $myConnection; 
+	public $myConnection; 
 	
 	//CONSTRUCTOR
 	function __construct($connection_vars = null) {

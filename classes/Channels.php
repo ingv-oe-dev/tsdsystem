@@ -6,23 +6,48 @@ Class Channels extends QueryManager {
 	private $tablename = "pnet.channels";
 	
 	public function insert($input) {
-		$sql = "INSERT INTO " . $this->tablename . " (name, sensor_id) 
-			VALUES ('" . $input["name"] . "'," . $input["sensor_id"]. ")";
-		
-		$executeSQLCommand = $this->executeSQLCommand($sql);
-		
-		// return result
-		if (end($executeSQLCommand)["status"]) {
-			// get inserted id
-			$query = "SELECT id FROM " . $this->tablename . " WHERE name = '" . $input["name"] . "' AND sensor_id = " . $input["sensor_id"];
-			$inserted_id = $this->getSingleField($query);
+
+		$next_query = "";
+		$response = array(
+			"status" => false,
+			"rows" => null
+		);
+
+		try {
+			// start transaction
+			$this->myConnection->beginTransaction();
+
+			$next_query = "INSERT INTO " . $this->tablename . " (name, sensor_id) 
+				VALUES ('" . $input["name"] . "'," . $input["sensor_id"]. ") 
+				ON CONFLICT (LOWER(name), sensor_id) DO NOTHING";
+			$stmt = $this->myConnection->prepare($next_query);
+			$stmt->execute();
+			$response["rows"] = $stmt->rowCount();
+
+			// select inserted id
+			$next_query = "SELECT id FROM " . $this->tablename . " WHERE LOWER(name) = LOWER('" . $input["name"] . "') AND sensor_id = " . $input["sensor_id"];
+			$sqlResult = $this->myConnection->query($next_query);
+			$inserted_id = $sqlResult->fetchColumn();
+			$response["id"] = $inserted_id;
+
+			// commit
+			$this->myConnection->commit();
+
+			$response["status"] = true;
+
+			// return result
+			return $response;
+		}
+		catch (Exception $e){
+			
+			// rollback
+			$this->myConnection->rollback();
+
 			return array(
-				"status" => true,
-				"id" => $inserted_id["status"] ? $inserted_id["data"] : null,
-				"warning" => $inserted_id["status"] ? null : $inserted_id["error"],
+				"status" => false,
+				"failed_query" => $next_query,
+				"error" => $e->getMessage()
 			);
-		} else {
-			return end($executeSQLCommand);
 		}
 	}
 	
