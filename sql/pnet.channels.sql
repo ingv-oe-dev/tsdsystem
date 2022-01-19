@@ -1,8 +1,8 @@
--- Table: pnet.channels
+-- Table: tsd_pnet.channels
 
--- DROP TABLE IF EXISTS pnet.channels;
+-- DROP TABLE IF EXISTS tsd_pnet.channels;
 
-CREATE TABLE IF NOT EXISTS pnet.channels
+CREATE TABLE IF NOT EXISTS tsd_pnet.channels
 (
     id SERIAL NOT NULL,
     name character varying(255) COLLATE pg_catalog."default" NOT NULL,
@@ -17,9 +17,9 @@ CREATE TABLE IF NOT EXISTS pnet.channels
     CONSTRAINT channels_pkey PRIMARY KEY (id)
 );
 
-CREATE UNIQUE INDEX pnet_channels_lower_name_sensor_id_idx ON pnet.channels (LOWER(name), sensor_id)
+CREATE UNIQUE INDEX tsd_pnet_channels_lower_name_sensor_id_idx ON tsd_pnet.channels (LOWER(name), sensor_id)
 
 TABLESPACE pg_default;
 
-ALTER TABLE IF EXISTS pnet.channels
+ALTER TABLE IF EXISTS tsd_pnet.channels
     OWNER to postgres;

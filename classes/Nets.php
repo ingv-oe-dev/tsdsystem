@@ -3,7 +3,7 @@ require_once("QueryManager.php");
 
 Class Nets extends QueryManager {
 	
-	private $tablename = "pnet.nets";
+	private $tablename = "tsd_pnet.nets";
 	
 	public function insert($input) {
 

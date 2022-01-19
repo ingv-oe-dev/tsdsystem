@@ -3,7 +3,7 @@ require_once("QueryManager.php");
 
 Class Sensors extends QueryManager {
 	
-	private $tablename = "pnet.sensors";
+	private $tablename = "tsd_pnet.sensors";
 	
 	public function insert($input) {
 

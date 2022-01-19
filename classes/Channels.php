@@ -3,7 +3,7 @@ require_once("QueryManager.php");
 
 Class Channels extends QueryManager {
 	
-	private $tablename = "pnet.channels";
+	private $tablename = "tsd_pnet.channels";
 	
 	public function insert($input) {
 

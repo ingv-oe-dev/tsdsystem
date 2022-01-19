@@ -1,8 +1,8 @@
--- Table: pnet.sensortypes
+-- Table: tsd_pnet.sensortypes
 
--- DROP TABLE IF EXISTS pnet.sensortypes;
+-- DROP TABLE IF EXISTS tsd_pnet.sensortypes;
 
-CREATE TABLE IF NOT EXISTS pnet.sensortypes
+CREATE TABLE IF NOT EXISTS tsd_pnet.sensortypes
 (
     id SERIAL NOT NULL,
     name character varying(255) COLLATE pg_catalog."default" NOT NULL,
@@ -16,9 +16,9 @@ CREATE TABLE IF NOT EXISTS pnet.sensortypes
     CONSTRAINT sensortypes_pkey PRIMARY KEY (id)
 );
 
-CREATE UNIQUE INDEX pnet_sensortypes_lower_name_idx ON pnet.sensortypes (LOWER(name))
+CREATE UNIQUE INDEX tsd_pnet_sensortypes_lower_name_idx ON tsd_pnet.sensortypes (LOWER(name))
 
 TABLESPACE pg_default;
 
-ALTER TABLE IF EXISTS pnet.sensortypes
+ALTER TABLE IF EXISTS tsd_pnet.sensortypes
     OWNER to postgres;

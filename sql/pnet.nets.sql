@@ -1,8 +1,8 @@
--- Table: pnet.nets
+-- Table: tsd_pnet.nets
 
--- DROP TABLE IF EXISTS pnet.nets;
+-- DROP TABLE IF EXISTS tsd_pnet.nets;
 
-CREATE TABLE IF NOT EXISTS pnet.nets
+CREATE TABLE IF NOT EXISTS tsd_pnet.nets
 (
     id SERIAL NOT NULL,
     name character varying(255) COLLATE pg_catalog."default" NOT NULL,
@@ -15,9 +15,9 @@ CREATE TABLE IF NOT EXISTS pnet.nets
     CONSTRAINT nets_pkey PRIMARY KEY (id)
 );
 
-CREATE UNIQUE INDEX pnet_nets_lower_name_idx ON pnet.nets (LOWER(name))
+CREATE UNIQUE INDEX tsd_pnet_nets_lower_name_idx ON tsd_pnet.nets (LOWER(name))
 
 TABLESPACE pg_default;
 
-ALTER TABLE IF EXISTS pnet.nets
+ALTER TABLE IF EXISTS tsd_pnet.nets
     OWNER to postgres;
