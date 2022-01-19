@@ -1,8 +1,8 @@
--- Table: public.timeseries
+-- Table: tsd_main.timeseries
 
--- DROP TABLE IF EXISTS public.timeseries;
+-- DROP TABLE IF EXISTS tsd_main.timeseries;
 
-CREATE TABLE IF NOT EXISTS public.timeseries
+CREATE TABLE IF NOT EXISTS tsd_main.timeseries
 (
     id uuid NOT NULL DEFAULT uuid_generate_v4(),
     schema character varying(63) COLLATE pg_catalog."default" NOT NULL,
@@ -19,9 +19,9 @@ CREATE TABLE IF NOT EXISTS public.timeseries
     CONSTRAINT timeseries_pkey PRIMARY KEY (id)
 );
 
-CREATE UNIQUE INDEX public_timeseries_lower_schema_lower_name_idx ON public.timeseries (LOWER(schema), LOWER(name))
+CREATE UNIQUE INDEX tsd_main_timeseries_lower_schema_lower_name_idx ON tsd_main.timeseries (LOWER(schema), LOWER(name))
 
 TABLESPACE pg_default;
 
-ALTER TABLE IF EXISTS public.timeseries
+ALTER TABLE IF EXISTS tsd_main.timeseries
     OWNER to postgres;

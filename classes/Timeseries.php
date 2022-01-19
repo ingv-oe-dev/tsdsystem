@@ -5,10 +5,10 @@ require_once("QueryManager.php");
 Class Timeseries extends QueryManager {
 	
 	private $TIME_COLUMN_NAME = "time";
-	private $tablename = "public.timeseries";
+	private $tablename = "tsd_main.timeseries";
 	private $mapping_tables = array(
-		"sensor_id" => "public.timeseries_mapping_sensors",
-		"channel_id" => "public.timeseries_mapping_channels"
+		"sensor_id" => "tsd_main.timeseries_mapping_sensors",
+		"channel_id" => "tsd_main.timeseries_mapping_channels"
 	);
 	
 	public function getTimeColumnName() {
@@ -126,8 +126,8 @@ Class Timeseries extends QueryManager {
 						$response[$key]["rows"] = $stmt->rowCount();
 					}
 				}
-				$response["status"] = true;
 			}
+			$response["status"] = true;
 		} catch (Exception $e) {}
 		return $response;
 	}

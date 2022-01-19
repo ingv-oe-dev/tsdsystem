@@ -43,7 +43,7 @@ Class TimeseriesValues extends Timeseries {
 			$response = end($sql_response);
 			if ($response["status"]) {
 				$input_params = explode(".", $insert_sql["tablename"]);
-				$output = $this->executeSQLCommand("CALL public.\"updateTimeseriesLastTime\"('".$input_params[0]."','".$input_params[1]."')");
+				$output = $this->executeSQLCommand("CALL tsd_main.\"updateTimeseriesLastTime\"('".$input_params[0]."','".$input_params[1]."')");
 				$response["updatedTimeseriesTable"] = end($output)["status"];
 			}
 			// hide sql query into response
