@@ -13,9 +13,10 @@ CREATE TABLE IF NOT EXISTS pnet.sensortypes
     create_user integer,
     update_user integer,
     remove_user integer,
-    CONSTRAINT sensortypes_pkey PRIMARY KEY (id),
-	CONSTRAINT sensortypes_name_key UNIQUE (name)
-)
+    CONSTRAINT sensortypes_pkey PRIMARY KEY (id)
+);
+
+CREATE UNIQUE INDEX pnet_sensortypes_lower_name_idx ON pnet.sensortypes (LOWER(name))
 
 TABLESPACE pg_default;
 

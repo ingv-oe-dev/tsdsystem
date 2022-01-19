@@ -12,9 +12,10 @@ CREATE TABLE IF NOT EXISTS pnet.nets
     create_user integer,
     update_user integer,
     remove_user integer,
-    CONSTRAINT nets_pkey PRIMARY KEY (id),
-	CONSTRAINT nets_name_key UNIQUE (name)
-)
+    CONSTRAINT nets_pkey PRIMARY KEY (id)
+);
+
+CREATE UNIQUE INDEX pnet_nets_lower_name_idx ON pnet.nets (LOWER(name))
 
 TABLESPACE pg_default;
 

@@ -16,9 +16,10 @@ CREATE TABLE IF NOT EXISTS public.timeseries
     create_user integer,
     update_user integer,
     remove_user integer,
-    CONSTRAINT timeseries_pkey PRIMARY KEY (id),
-    UNIQUE (schema, name)
-)
+    CONSTRAINT timeseries_pkey PRIMARY KEY (id)
+);
+
+CREATE UNIQUE INDEX public_timeseries_lower_schema_lower_name_idx ON public.timeseries (LOWER(schema), LOWER(name))
 
 TABLESPACE pg_default;
 
