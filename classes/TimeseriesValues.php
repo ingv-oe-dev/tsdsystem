@@ -4,10 +4,10 @@ require_once("Timeseries.php");
 // Timeseries class
 Class TimeseriesValues extends Timeseries {
 	
-	// ============== Retrieve tablename by guid ======================
-	private function getTablename($ts_guid) {
+	// ============== Retrieve tablename by timeseries_id ======================
+	private function getTablename($timeseries_id) {
 		$response = $this->getList(array(
-			"id" => $ts_guid
+			"id" => $timeseries_id
 		));
 		if ($response["status"] and count($response["data"]) > 0) {
 			return $response["data"][0]["schema"] . "." . $response["data"][0]["name"];
@@ -29,7 +29,7 @@ Class TimeseriesValues extends Timeseries {
 		);
 		try {
 			$insert_sql = $this->makeInsertSQL(
-				$input["guid"], 
+				$input["timeseries_id"], 
 				$input["columns"], 
 				$input["data"], 
 				$input["insert"]
@@ -56,17 +56,17 @@ Class TimeseriesValues extends Timeseries {
 	}
 	
 	// ============== Make insert SQL for postgresql ======================
-	private function makeInsertSQL($guid, $columns, $data, $insert_mode="IGNORE") {
+	private function makeInsertSQL($timeseries_id, $columns, $data, $insert_mode="IGNORE") {
 
 		$TIME_COLUMN_INDEX = array_search($this->getTimeColumnName(), $columns);
 		
 		$separator=", ";
 		
-		$tablename = $this->getTablename($guid);
+		$tablename = $this->getTablename($timeseries_id);
 		
 		if (empty($tablename)) return array(
 			"status"=> false, 
-			"error" => "Timeseries with id=$guid not found"
+			"error" => "Timeseries with id=$timeseries_id not found"
 		);
 		
 		$sql = "INSERT INTO " . $tablename . " (" . implode($separator, $columns) . ") VALUES ";
@@ -150,14 +150,14 @@ Class TimeseriesValues extends Timeseries {
 	// ============== Make select SQL for postgresql ======================
 	private function makeQuerySQL($input) {
 		
-		$guid = $input["guid"];
+		$timeseries_id = $input["timeseries_id"];
 		$columns = isset($input["columns"]) ? $input["columns"] : null;
 		
 		$separator=", ";
 		
 		$fields = is_array($columns) ? $this->getTimeColumnName() . ", " . implode($separator, $columns) : "*";
 		
-		$tablename = $this->getTablename($guid);
+		$tablename = $this->getTablename($timeseries_id);
 		
 		$query = "SELECT " . $fields . " FROM " . $tablename . " WHERE true ";
 		

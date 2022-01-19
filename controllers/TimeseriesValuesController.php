@@ -75,9 +75,9 @@ Class TimeseriesValuesController extends SimpleREST {
 		
 		$input = $this->getParams();
 		
-		// (1) $input["guid"]
-		if (!array_key_exists("guid", $input)){
-			$this->setInputError("This required input is missing: 'guid' [string]");
+		// (1) $input["timeseries_id"]
+		if (!array_key_exists("timeseries_id", $input)){
+			$this->setInputError("This required input is missing: 'timeseries_id' [string]");
 			return false;
 		}
 		// (2) $input["columns"] 
@@ -135,9 +135,9 @@ Class TimeseriesValuesController extends SimpleREST {
 			$input["transpose"] = ($input["transpose"] === true);
 		}
 		
-		// guid
-		if(!array_key_exists("guid", $input)) {
-			$this->setInputError("This required input is missing: 'guid' [string]");
+		// timeseries_id
+		if(!array_key_exists("timeseries_id", $input)) {
+			$this->setInputError("This required input is missing: 'timeseries_id' [string]");
 			return false;
 		}
 		

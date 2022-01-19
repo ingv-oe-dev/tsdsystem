@@ -17,10 +17,11 @@ Class RESTController extends SimpleREST {
 			$this->getInput();
 			$this->get();
 		}
-		/*
 		if ($_SERVER['REQUEST_METHOD'] === 'PATCH') {
-			$this->update();
+			$this->readInput();
+			$this->patch();
 		}
+		/*
 		if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
 			$this->remove();
 		}
@@ -29,7 +30,7 @@ Class RESTController extends SimpleREST {
 	}
 	
 	// ====================================================================//
-	// ****************** post - channel **********************//
+	// *************************      POST       **************************//
 	// ====================================================================//
 	
 	public function post() {
@@ -55,7 +56,7 @@ Class RESTController extends SimpleREST {
 	}
 	
 	// ====================================================================//
-	// ****************** get - channel(s) ********************//
+	// *************************      GET       ***************************//
 	// ====================================================================//
 	
 	public function get($jsonfields=array()) {
@@ -74,6 +75,31 @@ Class RESTController extends SimpleREST {
 			$this->setError($result);
 		}
 	}
+
+	// ====================================================================//
+	// *************************      PATCH       *************************//
+	// ====================================================================//
 	
+	public function patch() {
+
+		if ($this->check_input_patch()) {
+
+			$result = $this->obj->update($this->getParams());
+		
+			if ($result["status"]) {
+				$this->setData($result);
+				if (isset($result["id"])) {
+					if(isset($result["rows"]) and $result["rows"] > 0) {
+						$this->setStatusCode(202);
+					} else {
+						$this->setStatusCode(207);
+					}
+				}
+			} else {
+				$this->setStatusCode(409);
+				$this->setError($result);
+			}
+		}
+	}
 }
 ?>

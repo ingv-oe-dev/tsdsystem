@@ -55,9 +55,12 @@ Class Timeseries extends QueryManager {
 			$stmt->execute();
 			
 			// insert into timeseries table
-			$next_query = "INSERT INTO " . $this->tablename . " (schema, name, sampling, metadata) 
-				VALUES ('" . $input["schema"] . "','" . $input["name"]. "'," . $input["sampling"] . ",'" . json_encode($input["metadata"], JSON_NUMERIC_CHECK) . "') 
-				ON CONFLICT (LOWER(schema), LOWER(name)) DO NOTHING";
+			$next_query = "INSERT INTO " . $this->tablename . " (schema, name, sampling, metadata) VALUES (
+				'" . $input["schema"] . "',
+				'" . $input["name"]. "',
+				" . $input["sampling"] . ",
+				'" . (isset($input["metadata"]) ? ("'" . json_encode($input["metadata"], JSON_NUMERIC_CHECK) . "'") : "NULL") . "'
+			) ON CONFLICT (LOWER(schema), LOWER(name)) DO NOTHING";
 			$stmt = $this->myConnection->prepare($next_query);
 			$stmt->execute();	
 			
@@ -68,16 +71,18 @@ Class Timeseries extends QueryManager {
 			$sqlResult = $this->myConnection->query($next_query);
 			$inserted_id = $sqlResult->fetchColumn();
 			$response["id"] = $inserted_id;
-
+			$response["status"] = true;
+			
 			// insert mappings
 			$input["timeseries_id"] = $inserted_id;
-			$mapping_result = $this->insertMappings($input);
-			
+			if ($response["rows"] > 0) {
+				$mapping_result = $this->insertMappings($input);
+				$response["mapping_result"] = $mapping_result;
+				$response["status"] = $mapping_result["status"];
+			}
+
 			// commit
 			$this->myConnection->commit();
-
-			$response["mapping_result"] = $mapping_result;
-			$response["status"] = $mapping_result["status"];
 
 			// return result
 			return $response;
@@ -101,6 +106,14 @@ Class Timeseries extends QueryManager {
 			if (isset($input["mapping"])) {
 				foreach($this->mapping_tables as $key => $value) {
 					if (isset($input["mapping"][$key])) {
+						// delete old mappings, if forced
+						if (isset($input["mapping"]["force"]) and $input["mapping"]["force"] === true) {
+							$next_query = "DELETE FROM " . $value . " WHERE timeseries_id = '" . $input["timeseries_id"] . "'"; 	
+							//echo $next_query;
+							$stmt = $this->myConnection->prepare($next_query);
+							$stmt->execute();
+							$response[$key]["deleted_rows"] = $stmt->rowCount();
+						}
 						$next_query = "INSERT INTO " . $value . " VALUES "; 
 						foreach($input["mapping"][$key] as $index => $id) {
 							$next_query .= " ('" . $input["timeseries_id"] . "', " . strval($id) . "), "; 	
@@ -155,6 +168,53 @@ Class Timeseries extends QueryManager {
 	// ====================================================================//
 	// *********************** TIMESERIES UPDATE **************************//
 	// ====================================================================//
+
+	public function update($input) {
+
+		$next_query = "";
+		$response = array(
+			"status" => false,
+			"rows" => null
+		);
+
+		try {
+			// start transaction
+			$this->myConnection->beginTransaction();
+
+			// update into timeseries table
+			if (isset($input["metadata"])) {
+				$next_query = "UPDATE " . $this->tablename . " SET metadata =
+					'" . json_encode($input["metadata"], JSON_NUMERIC_CHECK) . "'  
+					WHERE id = '" . $input["timeseries_id"] . "'";
+				$stmt = $this->myConnection->prepare($next_query);
+				$stmt->execute();	
+				$response["rows"] = $stmt->rowCount();
+			}
+					
+			// insert mappings
+			$mapping_result = $this->insertMappings($input);
+			
+			// commit
+			$this->myConnection->commit();
+
+			$response["mapping_result"] = $mapping_result;
+			$response["status"] = $mapping_result["status"];
+
+			// return result
+			return $response;
+		}
+		catch (Exception $e){
+			
+			// rollback
+			$this->myConnection->rollback();
+
+			return array(
+				"status" => false,
+				"failed_query" => $next_query,
+				"error" => $e->getMessage()
+			);
+		}
+	}
 	// update json metadata example
 	// -- update public.timeseries set metadata = jsonb_set(metadata, '{columns,0,unit}', '"C"') WHERE id = '7c82e5bb-37c7-4195-9a64-cb389140f795';
 }

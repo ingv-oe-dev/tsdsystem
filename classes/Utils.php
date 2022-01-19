@@ -35,4 +35,8 @@ Class Utils {
 		}
 		return false;
 	}
+
+	public function isValidUUID($uuid) {
+		return (is_string($uuid) and (preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/', $uuid) == 1));
+	}
 }

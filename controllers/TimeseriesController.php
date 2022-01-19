@@ -104,5 +104,33 @@ Class TimeseriesController extends RESTController {
 
 	}
 	
+	// ====================================================================//
+	// ****************** patch - timeseries instance **********************//
+	// ====================================================================//
+	public function check_input_patch() {
+		
+		if ($this->isEmptyInput()) {
+			$this->setInputError("Empty input or malformed JSON");
+			return false;
+		}
+		
+		$input = $this->getParams();
+		// (0) $input["timeseries_id"]
+		if (!array_key_exists("timeseries_id", $input) or !$this->isValidUUID($input["timeseries_id"])) {
+			$this->setInputError("This required input is missing: 'timeseries_id' [uuid string]");
+			return false;
+		}
+		// $input["metadata"] is json
+		if (array_key_exists("metadata", $input) and !$this->validate_json($input["metadata"])){
+			$this->setInputError("Error on decoding 'metadata' JSON input");
+			return false;
+		}
+		// check mapping values
+		if (array_key_exists("mapping", $input) and !$this->check_mapping_values($input["mapping"])) {
+			return false;
+		}
+
+		return true;
+	}
 }
 ?>
