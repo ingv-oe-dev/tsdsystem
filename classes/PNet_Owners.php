@@ -1,9 +1,9 @@
 <?php
 require_once("QueryManager.php");
 
-Class Nets extends QueryManager {
+Class Owners extends QueryManager {
 	
-	private $tablename = "tsd_pnet.nets";
+	private $tablename = "tsd_pnet.owners";
 	
 	public function insert($input) {
 
@@ -17,9 +17,8 @@ Class Nets extends QueryManager {
 			// start transaction
 			$this->myConnection->beginTransaction();
 
-			$next_query = "INSERT INTO " . $this->tablename . " (name, owner_id) VALUES (
-				'" . $input["name"] . "', " . 
-				(isset($input["owner_id"]) ? $input["owner_id"] : "NULL") . "
+			$next_query = "INSERT INTO " . $this->tablename . " (name) VALUES (
+				'" . $input["name"] . "'
 			) ON CONFLICT (LOWER(name)) DO NOTHING";
 			$stmt = $this->myConnection->prepare($next_query);
 			$stmt->execute();

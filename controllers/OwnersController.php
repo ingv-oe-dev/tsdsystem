@@ -1,13 +1,13 @@
 <?php
 
 require_once("RESTController.php");
-require_once("..\classes\PNet_Nets.php");
+require_once("..\classes\PNet_Owners.php");
 
-// Nets Controller class
-Class NetsController extends RESTController {
+// Owners Controller class
+Class OwnersController extends RESTController {
 	
 	public function __construct() {
-		$this->obj = new Nets();
+		$this->obj = new Owners();
 		$this->route();
 	}
 	
@@ -25,11 +25,6 @@ Class NetsController extends RESTController {
 		// (1) $input["name"] 
 		if (!array_key_exists("name", $input)){
 			$this->setInputError("This required input is missing: 'name' [string]");
-			return false;
-		}
-		// (2) $input["owner_id"] is integer
-		if (array_key_exists("owner_id", $input) and !is_int($input["owner_id"])){
-			$this->setInputError("Uncorrect input: 'owner_id' [int]");
 			return false;
 		}
 		
