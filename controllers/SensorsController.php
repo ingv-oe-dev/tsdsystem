@@ -58,6 +58,11 @@ Class SensorsController extends RESTController {
 			$this->setInputError("Uncorrect input: 'net_id' [int]");
 			return false;
 		}
+		// (7) $input["site_id"] is integer
+		if (array_key_exists("site_id", $input) and !is_int($input["site_id"])){
+			$this->setInputError("Uncorrect input: 'site_id' [int]");
+			return false;
+		}
 		return true;
 	}
 

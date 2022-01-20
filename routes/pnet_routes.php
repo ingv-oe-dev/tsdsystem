@@ -25,3 +25,7 @@
 		require_once("../controllers/OwnersController.php");
 		$controller = new OwnersController();
 	}
+	if (strripos($_SERVER["REQUEST_URI"], "sites")) {
+		require_once("../controllers/SitesController.php");
+		$controller = new SitesController();
+	}

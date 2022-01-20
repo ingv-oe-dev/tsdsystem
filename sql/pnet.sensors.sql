@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS tsd_pnet.sensors
 	custom_props jsonb,
 	sensortype_id integer,
 	net_id integer,
+    site_id integer,
     create_time timestamp without time zone DEFAULT (now() AT TIME ZONE 'utc'::text),
     update_time timestamp without time zone,
     remove_time timestamp without time zone,
