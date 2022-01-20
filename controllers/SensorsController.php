@@ -1,7 +1,7 @@
 <?php
 
 require_once("RESTController.php");
-require_once("..\classes\pnet\Sensors.php");
+require_once("..\classes\PNet_Sensors.php");
 
 // Sensors Controller class
 Class SensorsController extends RESTController {
