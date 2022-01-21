@@ -14,6 +14,25 @@ Class TimeseriesValues extends Timeseries {
 		}
 		return null;
 	}
+
+	public function getColumnList($timeseries_id) {
+
+		$query = "with info as (
+			select schema, name from tsd_main.timeseries where id = '$timeseries_id'
+		)
+		SELECT column_name 
+		  FROM information_schema.columns
+		 WHERE table_schema = (select schema from info)
+		   AND table_name   = (select name from info)
+		   and column_name <> '" . $this->getTimeColumnName() . "'
+			 ;";
+
+		$result = $this->getRecordSet($query);
+		if ($result["status"]) {
+			return $this->transpose($result["data"])["column_name"];
+		}
+		return null;
+	}
 	
 	// ====================================================================//
 	// ******************* insert - timeseries values ***********************//
@@ -150,26 +169,80 @@ Class TimeseriesValues extends Timeseries {
 	// ============== Make select SQL for postgresql ======================
 	private function makeQuerySQL($input) {
 		
+		$output_column_time = "timestamp";
+
 		$timeseries_id = $input["timeseries_id"];
-		$columns = isset($input["columns"]) ? $input["columns"] : null;
+
+		$time_bucket = isset($input["time_bucket"]) ? 
+			("time_bucket_gapfill('" . $input["time_bucket"] . "', " . $this->getTimeColumnName() . ")") : 
+			$this->getTimeColumnName();
+
+		$columns = array();
+		foreach($input["columns"] as $column) {
+			$selector = "";
+			// aggregate
+			if (isset($input["time_bucket"])) {
+				$aggregate = isset($column["aggregate"]) ? $column["aggregate"] : $input["aggregate"];
+				if (strtoupper($aggregate) == "MEDIAN") {
+					$selector .= "percentile_cont(0.5) within group (order by " . $column["name"] . ")";
+				} else {
+					$selector .= $aggregate . "(" . $column["name"] . ")";
+				}
+			} else {
+				$selector .= $column["name"];
+			}
+			// gain
+			$gain = isset($column["gain"]) ? $column["gain"] : (isset($input["gain"]) ? $input["gain"] : NULL);
+			if (isset($gain)) {
+				$selector .= " * $gain";
+			}
+			// offset
+			$offset = isset($column["offset"]) ? $column["offset"] : (isset($input["offset"]) ? $input["offset"] : NULL);
+			if (isset($offset)) {
+				$selector .= " + $offset";
+			}
+			// alias for selected column
+			$selector .= " AS " . $column["name"];
+			array_push($columns, $selector);
+		}
 		
 		$separator=", ";
-		
-		$fields = is_array($columns) ? $this->getTimeColumnName() . ", " . implode($separator, $columns) : "*";
+		$fields = "$time_bucket AS $output_column_time, " . implode($separator, $columns);
 		
 		$tablename = $this->getTablename($timeseries_id);
 		
 		$query = "SELECT " . $fields . " FROM " . $tablename . " WHERE true ";
-		
+
 		// starttime
-		if (array_key_exists("starttime", $input)){
-			$query .= " AND time >= '" . $input["starttime"] . "'";
+		if (isset($input["starttime"])){
+			$query .= " AND " . $this->getTimeColumnName() . " >= '" . $input["starttime"] . "'";
 		}
 		
 		// endtime
-		if (array_key_exists("endtime", $input)){
-			$query .= " AND time <= '" . $input["endtime"] . "'";
+		if (isset($input["endtime"])){
+			$query .= " AND " . $this->getTimeColumnName() . " <= '" . $input["endtime"] . "'";
 		}
+
+		// thresholds
+		foreach($input["columns"] as $column) {
+			// minthreshold
+			$minthreshold = isset($column["minthreshold"]) ? $column["minthreshold"] : (isset($input["minthreshold"]) ? $input["minthreshold"] : NULL);
+			if (isset($minthreshold)) {
+				$query .= " AND " . $column["name"] . " >= $minthreshold";
+			}
+			// maxthreshold
+			$maxthreshold = isset($column["maxthreshold"]) ? $column["maxthreshold"] : (isset($input["maxthreshold"]) ? $input["maxthreshold"] : NULL);
+			if (isset($maxthreshold)) {
+				$query .= " AND " . $column["name"] . " <= $maxthreshold";
+			}
+		}
+
+		// group by
+		if (isset($input["time_bucket"])){
+			$query .= " GROUP BY $output_column_time";
+		}
+
+		$query .= " ORDER BY $output_column_time";
 
 		//echo $query;
 		return $query;
