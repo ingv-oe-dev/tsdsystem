@@ -88,12 +88,10 @@ Class RESTController extends SimpleREST {
 		
 			if ($result["status"]) {
 				$this->setData($result);
-				if (isset($result["id"])) {
-					if(isset($result["rows"]) and $result["rows"] > 0) {
-						$this->setStatusCode(202);
-					} else {
-						$this->setStatusCode(207);
-					}
+				if(isset($result["rows"]) and $result["rows"] > 0) {
+					$this->setStatusCode(202);
+				} else {
+					$this->setStatusCode(207);
 				}
 			} else {
 				$this->setStatusCode(409);

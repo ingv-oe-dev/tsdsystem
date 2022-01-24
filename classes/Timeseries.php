@@ -192,6 +192,14 @@ Class Timeseries extends QueryManager {
 			}
 
 			if (isset($input["sampling"])) {
+				//update into timeseries table
+				$next_query = "UPDATE " . $this->tablename . " SET sampling = 
+					" . $input["sampling"] . " 
+					WHERE id = '" . $input["timeseries_id"] . "'";
+				$stmt = $this->myConnection->prepare($next_query);
+				$stmt->execute();	
+				$response["rows"] = isset($response["rows"]) ? ($response["rows"] + $stmt->rowCount()) : $stmt->rowCount();
+
 				// select schema and name from timeseries_id
 				$next_query = "SELECT schema, name FROM " . $this->tablename . " WHERE id = '" . $input["timeseries_id"] . "'";
 				$sqlResult = $this->myConnection->query($next_query);
