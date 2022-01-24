@@ -211,6 +211,7 @@ Class TimeseriesValues extends Timeseries {
 		
 		$tablename = $this->getTablename($timeseries_id);
 		
+		// string containing the final query
 		$query = "SELECT " . $fields . " FROM " . $tablename . " WHERE true ";
 
 		// starttime
@@ -243,6 +244,17 @@ Class TimeseriesValues extends Timeseries {
 		}
 
 		$query .= " ORDER BY $output_column_time";
+
+		// timeformat format
+		if (isset($input["timeformat"]) and strtoupper($input["timeformat"]) == "UNIX") {
+			$sup_query = "SELECT EXTRACT(EPOCH from t.timestamp) as timestamp";
+			foreach($input["columns"] as $column) {
+				$sup_query .= $separator . $column["name"];
+			}
+			$sup_query .= " FROM ( " . $query . ") t ";
+			// assign to final query
+			$query = $sup_query;
+		}
 
 		//echo $query;
 		return $query;

@@ -212,19 +212,11 @@ Class TimeseriesValuesController extends SimpleREST {
 			$input["columns"] = $this->ts->getColumnList($input["timeseries_id"]); // select all columns
 		}
 
-		/*
-		// returndatetype
-		if(isset($_GET["returndatetype"])) {
-			if (in_array($_GET["returndatetype"], $this->datetype_array)) {
-				$this->responseData["params"]["returndatetype"] = $_GET["returndatetype"];
-			} else {
-				$this->responseData["error"]["returndatetype"] = "must be a value in the following list: " . implode(", ", $this->datetype_array) . " (your value=" . $_GET["returndatetype"] . ")";
-				$this->responseData["statusCode"] = 400;
-			}
-		} else {
-			$this->responseData["params"]["returndatetype"] = '';
+		// timestamp
+		if(array_key_exists("timeformat", $input) and strtoupper($input["timeformat"]) != "UNIX") {
+			$this->setInputError("This input is incorrect: 'timeformat' [string]. Default 'ISO 8601' format <YYYY-MM-DD hh:mm:ss>. Only alternative value: 'unix'. Your value = " . strval($input["columns"]));
+			return false;
 		}
-		*/
 
 		$this->setParams($input);
 		
