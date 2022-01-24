@@ -125,6 +125,11 @@ Class TimeseriesController extends RESTController {
 			$this->setInputError("Error on decoding 'metadata' JSON input");
 			return false;
 		}
+		// $input["sampling"]
+		if (array_key_exists("sampling", $input) and (!is_int($input["sampling"]) || $input["sampling"] < 0)) {
+			$this->setInputError("This required input is missing: 'sampling'[integer > 0] <in seconds>");
+			return false;
+		}
 		// check mapping values
 		if (array_key_exists("mapping", $input) and !$this->check_mapping_values($input["mapping"])) {
 			return false;

@@ -190,7 +190,21 @@ Class Timeseries extends QueryManager {
 				$stmt->execute();	
 				$response["rows"] = $stmt->rowCount();
 			}
-					
+
+			if (isset($input["sampling"])) {
+				// select schema and name from timeseries_id
+				$next_query = "SELECT schema, name FROM " . $this->tablename . " WHERE id = '" . $input["timeseries_id"] . "'";
+				$sqlResult = $this->myConnection->query($next_query);
+				$record = $sqlResult->fetch(PDO::FETCH_ASSOC);	
+
+				// calculate chunk_time_interval
+				$chunk_time_interval = $this->getChunkTimeInterval($input);
+				$next_query = "SELECT set_chunk_time_interval('" . $record["schema"] . "." . $record["name"] . "', " . $chunk_time_interval . ");";
+				//echo $next_query;
+				$stmt = $this->myConnection->prepare($next_query);
+				$stmt->execute();
+			}
+
 			// insert mappings
 			$mapping_result = $this->insertMappings($input);
 			
