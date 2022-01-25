@@ -202,14 +202,13 @@ Class TimeseriesValuesController extends SimpleREST {
 			} else {
 				if (empty($input["columns"])) {
 					$input["columns"] = $this->obj->getColumnList($input["timeseries_id"]); // select all columns
-				} else {
-					// check settings into each column 
-					if (!$this->checkColumnSettings($input)) return false;
 				}
 			}
 		} else {
 			$input["columns"] = $this->obj->getColumnList($input["timeseries_id"]); // select all columns
 		}
+		// check settings into each column 
+		if (!$this->checkColumnSettings($input)) return false;
 
 		// timestamp
 		if(array_key_exists("timeformat", $input) and strtoupper($input["timeformat"]) != "UNIX") {
