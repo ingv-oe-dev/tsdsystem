@@ -33,10 +33,20 @@ Class TimeseriesController extends RESTController {
 			$this->setInputError("This required input is missing: 'name' [string]");
 			return false;
 		}
-		// (3) $input["columns"] 
-		if (!array_key_exists("columns", $input) || !is_array($input["columns"])){
-			$this->setInputError("This required input is missing: 'columns'[array]");
+		// (3) $input["sampling"]
+		if (!array_key_exists("sampling", $input) || !is_int($input["sampling"]) || $input["sampling"] < 0) {
+			$this->setInputError("This required input is missing: 'sampling'[integer > 0] <in seconds>");
 			return false;
+		}
+		// (3) $input["columns"] 
+		if (array_key_exists("columns", $input)){
+			if(!is_array($input["columns"])) {
+				$this->setInputError("Uncorrect input: 'columns'[array]");
+				return false;
+			}
+		} else {
+			// default columns
+			$input["columns"] = array(array("name"=>"value", "type"=>"double precision"));
 		}
 		// (4) $input["metadata"] is json
 		if (array_key_exists("metadata", $input) and !$this->validate_json($input["metadata"])){
@@ -45,11 +55,7 @@ Class TimeseriesController extends RESTController {
 		} else {
 			$input["metadata"] = $input["columns"];
 		}
-		// default sampling value is null
-		if (!array_key_exists("sampling", $input) || !is_int($input["sampling"]) || $input["sampling"] < 0) {
-			$this->setInputError("This required input is missing: 'sampling'[integer > 0] <in seconds>");
-			return false;
-		}
+		
 		// check mapping values
 		if (array_key_exists("mapping", $input) and !$this->check_mapping_values($input["mapping"])) {
 			return false;
