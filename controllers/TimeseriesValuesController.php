@@ -6,12 +6,11 @@ require_once("..\classes\TimeseriesValues.php");
 // Timeseries class
 Class TimeseriesValuesController extends SimpleREST {
 	
-	private $ts;
 	private $time_interval_regex = '/([0-9]+)\s((\bsecond[s]{0,1}\b)|(\bminute[s]{0,1}\b)|(\bhour[s]{0,1}\b)|(\bday[s]{0,1}\b)|(\bweek[s]{0,1}\b)|(\bmonth[s]{0,1}\b)|(\byear[s]{0,1}\b))/';
 	private $aggregate_array = array("AVG","MEDIAN","COUNT","MAX","MIN","SUM");
 
 	public function __construct() {
-		$this->ts = new TimeseriesValues();
+		$this->obj = new TimeseriesValues();
 		$this->readInput();
 		$this->route();
 	}
@@ -41,7 +40,7 @@ Class TimeseriesValuesController extends SimpleREST {
 
 		if ($this->check_input_post()) {
 
-			$result = $this->ts->insert_values($this->getParams());
+			$result = $this->obj->insert_values($this->getParams());
 		
 			// evito di aggiungere l'input inviato nella risposta (in questi casi potrebbe essere molto grande)
 			$this->setParams(null); 
@@ -87,9 +86,9 @@ Class TimeseriesValuesController extends SimpleREST {
 			$this->setInputError("This required input is missing: 'columns' [array of string]");
 			return false;
 		}
-		// (2.1) $input["columns"][$this->ts->getTimeColumnName()] 
-		if (!in_array($this->ts->getTimeColumnName(), $input["columns"])){
-			$this->setInputError("This required column is missing: '" . $this->$ts->getTimeColumnName() . "'. Your columns:" . implode(",", $input["columns"]));
+		// (2.1) $input["columns"][$this->obj->getTimeColumnName()] 
+		if (!in_array($this->obj->getTimeColumnName(), $input["columns"])){
+			$this->setInputError("This required column is missing: '" . $this->$obj->getTimeColumnName() . "'. Your columns:" . implode(",", $input["columns"]));
 			return false;
 		}
 		// (3) $input["data"] 
@@ -109,7 +108,7 @@ Class TimeseriesValuesController extends SimpleREST {
 		
 		if ($this->check_input_get()) {
 			
-			$result = $this->ts->select_values($this->getParams());
+			$result = $this->obj->select_values($this->getParams());
 			if (isset($result) and $result["status"]) {
 				$this->setData($result["data"]);
 			} else {
@@ -198,18 +197,18 @@ Class TimeseriesValuesController extends SimpleREST {
 					$this->setInputError("This input is incorrect: 'columns'[array]. Your value = " . strval($input["columns"]));
 					return false;
 				} else {
-					$input["columns"] = $this->ts->getColumnList($input["timeseries_id"]); // select all columns
+					$input["columns"] = $this->obj->getColumnList($input["timeseries_id"]); // select all columns
 				}
 			} else {
 				if (empty($input["columns"])) {
-					$input["columns"] = $this->ts->getColumnList($input["timeseries_id"]); // select all columns
+					$input["columns"] = $this->obj->getColumnList($input["timeseries_id"]); // select all columns
 				} else {
 					// check settings into each column 
 					if (!$this->checkColumnSettings($input)) return false;
 				}
 			}
 		} else {
-			$input["columns"] = $this->ts->getColumnList($input["timeseries_id"]); // select all columns
+			$input["columns"] = $this->obj->getColumnList($input["timeseries_id"]); // select all columns
 		}
 
 		// timestamp
@@ -225,7 +224,7 @@ Class TimeseriesValuesController extends SimpleREST {
 
 
 	public function checkColumnSettings(&$input) {
-		$column_list = $this->ts->getColumnList($input["timeseries_id"]);
+		$column_list = $this->obj->getColumnList($input["timeseries_id"]);
 		$paramsToCheck = array(
 			"aggregate",
 			"minthreshold",
