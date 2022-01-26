@@ -11,7 +11,6 @@ Class TimeseriesValuesController extends SimpleREST {
 
 	public function __construct() {
 		$this->obj = new TimeseriesValues();
-		$this->readInput();
 		$this->route();
 	}
 	
@@ -20,6 +19,7 @@ Class TimeseriesValuesController extends SimpleREST {
 		if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 			$checkToken = $this->checkJWTToken();
 			if ($checkToken["status"]) {
+				$this->readInput();
 				$this->post();
 			} else {
 				$this->setStatusCode(401);
@@ -27,11 +27,16 @@ Class TimeseriesValuesController extends SimpleREST {
 			}
 		}
 		if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+			$this->getInput();
 			$this->get();
 		}
 		$this->elaborateResponse();
 	}
 	
+	public function getInput() {
+		$this->setParams(array_key_exists("request", $_GET) ? json_decode($_GET["request"], true) : NULL);
+	}
+
 	// ====================================================================//
 	// ******************* post - timeseries values **********************//
 	// ====================================================================//
