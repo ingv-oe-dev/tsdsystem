@@ -8,6 +8,7 @@ class SimpleREST extends Utils{
 	
 	private $contentType = 'application/json';
 	private $httpVersion = "HTTP/1.1";
+	public $JWT_payload = null;
 	public $response = array(
 		"params" => null,
 		"data" => null,
@@ -133,8 +134,8 @@ class SimpleREST extends Utils{
 	
 	/* ============== check jwt token ============== */
 	public function checkJWTToken() {
-		$token = null;    
-		if (isset($_SERVER["HTTP_AUTHORIZATION"])) {$token = $_SERVER["HTTP_AUTHORIZATION"];}
+		
+		$token = isset($_SERVER["HTTP_AUTHORIZATION"]) ? $_SERVER["HTTP_AUTHORIZATION"] : NULL;
 		//echo $token;
 		
 		if (!is_null($token)) {
@@ -145,29 +146,23 @@ class SimpleREST extends Utils{
 			$serverKey = file_get_contents("../server_key");
 
 			try {
-				$payload = JWT::decode($token, $serverKey, array('HS256'));
-				//var_dump($payload);
-				$returnArray = array(
-					'status' =>	true,
-					'userId' => $payload->userId
-				);
-				if (isset($payload->exp)) {
-					$returnArray['exp'] = $payload->exp;
-				}
-				return $returnArray;
+				$this->JWT_payload = JWT::decode($token, $serverKey, array('HS256'));
+				//var_dump($this->JWT_payload);
 			}
 			catch(Exception $e) {
-				return array(
-					'status' =>	false,
-					'error' => $e->getMessage()
-				);
+				$this->setStatusCode(401);
+				$this->setError($e->getMessage());
 			}	
 		} 
 		else {
-			return array(
-				'status' =>	false,
-				'error' => 'Authorization token required'
-			);
+			$this->setStatusCode(401);
+			$this->setError('Authorization token required');
+		}
+
+		// if is null JWT_payload exit with error
+		if (!isset($this->JWT_payload)) {
+			$this->elaborateResponse();
+			exit();
 		}
 	}
 }
