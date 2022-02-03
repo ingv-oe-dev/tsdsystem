@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS tsd_users.roles
     update_time timestamp without time zone,
     remove_time timestamp without time zone,
     CONSTRAINT roles_pkey PRIMARY KEY (id)
-);
+)
 
 TABLESPACE pg_default;
 
@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS tsd_users.members_mapping_roles
     member_id integer NOT NULL,
     role_id integer NOT NULL,
 	CONSTRAINT members_mapping_roles_pkey PRIMARY KEY (member_id, role_id)
-);
+)
 
 TABLESPACE pg_default;
 
@@ -78,7 +78,7 @@ CREATE TABLE IF NOT EXISTS tsd_users.members_permissions
     update_time timestamp without time zone,
     remove_time timestamp without time zone,
     CONSTRAINT members_permissions_pkey PRIMARY KEY (id)
-);
+)
 
 TABLESPACE pg_default;
 
@@ -101,7 +101,7 @@ CREATE TABLE IF NOT EXISTS tsd_users.roles_permissions
     update_time timestamp without time zone,
     remove_time timestamp without time zone,
     CONSTRAINT roles_permissions_pkey PRIMARY KEY (id)
-);
+)
 
 TABLESPACE pg_default;
 
@@ -120,7 +120,7 @@ CREATE TABLE IF NOT EXISTS tsd_users.tokens
     token text,
 	create_time timestamp without time zone DEFAULT (now() AT TIME ZONE 'utc'::text),
     CONSTRAINT tokens_pkey PRIMARY KEY (id)
-);
+)
 
 TABLESPACE pg_default;
 
