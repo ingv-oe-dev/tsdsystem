@@ -74,26 +74,13 @@ Class TimeseriesController extends RESTController {
 		if (array_key_exists("channel_id", $input)){
 			if(is_array($input["channel_id"])) {
 				foreach($input["channel_id"] as $index => $id) {
-					if (!is_int($id)) {
-						$this->setInputError("Error on index $index into 'mapping->channel_id' [array of int]: NOT AN INTEGER VALUE. Your value = " . strval($id));
+					if (!is_int($id) or $id < 1) {
+						$this->setInputError("Error on index $index into 'mapping->channel_id' [array of int]: NOT A POSITIVE INTEGER VALUE. Your value = " . strval($id));
 						return false;
 					}
 				}
 			} else {
 				$this->setInputError("Error on input 'mapping->channel_id' [array of int]");
-				return false;
-			}
-		}
-		if (array_key_exists("sensor_id", $input)){
-			if(is_array($input["sensor_id"])) {
-				foreach($input["sensor_id"] as $index => $id) {
-					if (!is_int($id)) {
-						$this->setInputError("Error on index $index into 'mapping->sensor_id' [array of int]: NOT AN INTEGER VALUE. Your value = " . strval($id));
-						return false;
-					}
-				}
-			} else {
-				$this->setInputError("Error on input 'mapping->sensor_id' [array of int]");
 				return false;
 			}
 		}

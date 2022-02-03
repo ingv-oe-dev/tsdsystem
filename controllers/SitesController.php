@@ -38,6 +38,11 @@ Class SitesController extends RESTController {
 			$this->setInputError("This required input is missing: 'lon' [float]");
 			return false;
 		}
+		// (3) $input["quote"] 
+		if (array_key_exists("quote", $input) and !is_numeric($input["quote"])) {
+			$this->setInputError("Uncorrect input: 'quote' [float]");
+			return false;
+		}
 		// (4) $input["info"] is json
 		if (array_key_exists("info", $input) and !$this->validate_json($input["info"])){
 			$this->setInputError("Error on decoding 'info' JSON input");

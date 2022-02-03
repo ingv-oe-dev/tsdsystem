@@ -94,7 +94,11 @@ Class RESTController extends SimpleREST {
 					$this->setStatusCode(207);
 				}
 			} else {
-				$this->setStatusCode(409);
+				if ($result["rows"] == 0) {
+					$this->setStatusCode(404);
+				} else {
+					$this->setStatusCode(409);
+				}
 				$this->setError($result);
 			}
 		}

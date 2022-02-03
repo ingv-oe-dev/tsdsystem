@@ -17,9 +17,10 @@ Class Sensors extends QueryManager {
 			// start transaction
 			$this->myConnection->beginTransaction();
 
-			$next_query = "INSERT INTO " . $this->tablename . " (name, coords, sensortype_id, net_id, site_id, metadata, custom_props) VALUES (".
+			$next_query = "INSERT INTO " . $this->tablename . " (name, coords, quote, sensortype_id, net_id, site_id, metadata, custom_props) VALUES (".
 				"'" . $input["name"] . "', " . 
 				((isset($input["lon"]) and isset($input["lat"])) ? ("'POINT(" . $input["lon"] . " " . $input["lat"] . ")'::geometry") : "NULL") . ", " .
+				(isset($input["quote"]) ? $input["quote"] : "NULL") . ", " .
 				(isset($input["sensortype_id"]) ? $input["sensortype_id"] : "NULL") . ", " .
 				(isset($input["net_id"]) ? $input["net_id"] : "NULL") . ", " .
 				(isset($input["site_id"]) ? $input["site_id"] : "NULL") . ", " .

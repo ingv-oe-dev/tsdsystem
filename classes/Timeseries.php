@@ -6,10 +6,7 @@ Class Timeseries extends QueryManager {
 	
 	private $TIME_COLUMN_NAME = "time";
 	private $tablename = "tsd_main.timeseries";
-	private $mapping_tables = array(
-		"sensor_id" => "tsd_main.timeseries_mapping_sensors",
-		"channel_id" => "tsd_main.timeseries_mapping_channels"
-	);
+	private $mapping_table = "tsd_main.timeseries_mapping_channels";
 	
 	public function getTimeColumnName() {
 		return $this->TIME_COLUMN_NAME;
@@ -104,27 +101,25 @@ Class Timeseries extends QueryManager {
 		$response = array("status" => false);
 		try {
 			if (isset($input["mapping"])) {
-				foreach($this->mapping_tables as $key => $value) {
-					if (isset($input["mapping"][$key])) {
-						// delete old mappings, if forced
-						if (isset($input["mapping"]["force"]) and $input["mapping"]["force"] === true) {
-							$next_query = "DELETE FROM " . $value . " WHERE timeseries_id = '" . $input["timeseries_id"] . "'"; 	
-							//echo $next_query;
-							$stmt = $this->myConnection->prepare($next_query);
-							$stmt->execute();
-							$response[$key]["deleted_rows"] = $stmt->rowCount();
-						}
-						$next_query = "INSERT INTO " . $value . " VALUES "; 
-						foreach($input["mapping"][$key] as $index => $id) {
-							$next_query .= " ('" . $input["timeseries_id"] . "', " . strval($id) . "), "; 	
-						}
-						$next_query = rtrim($next_query, ", ");
-						$next_query .= " ON CONFLICT (timeseries_id, " . $key . ") DO NOTHING";
+				if (isset($input["mapping"]["channel_id"])) {
+					// delete old mappings, if forced
+					if (isset($input["mapping"]["force"]) and $input["mapping"]["force"] === true) {
+						$next_query = "DELETE FROM " . $this->mapping_table . " WHERE timeseries_id = '" . $input["timeseries_id"] . "'"; 	
 						//echo $next_query;
 						$stmt = $this->myConnection->prepare($next_query);
 						$stmt->execute();
-						$response[$key]["rows"] = $stmt->rowCount();
+						$response["channel_id"]["deleted_rows"] = $stmt->rowCount();
 					}
+					$next_query = "INSERT INTO " . $this->mapping_table . " VALUES "; 
+					foreach($input["mapping"]["channel_id"] as $index => $id) {
+						$next_query .= " ('" . $input["timeseries_id"] . "', " . strval($id) . "), "; 	
+					}
+					$next_query = rtrim($next_query, ", ");
+					$next_query .= " ON CONFLICT (timeseries_id, channel_id) DO NOTHING";
+					//echo $next_query;
+					$stmt = $this->myConnection->prepare($next_query);
+					$stmt->execute();
+					$response["channel_id"]["rows"] = $stmt->rowCount();
 				}
 			}
 			$response["status"] = true;
@@ -178,6 +173,17 @@ Class Timeseries extends QueryManager {
 		);
 
 		try {
+
+			// check if timeseries with input id exists
+			$requested = $this->getList(array(
+				"id" => $input["timeseries_id"]
+			));
+			if (!$requested["status"] or count($requested["data"]) == 0) {
+				$response["status"] = false;
+				$response["rows"] = 0;
+				return $response;
+			}
+
 			// start transaction
 			$this->myConnection->beginTransaction();
 

@@ -17,9 +17,10 @@ Class Sites extends QueryManager {
 			// start transaction
 			$this->myConnection->beginTransaction();
 
-			$next_query = "INSERT INTO " . $this->tablename . " (name, coords, info) VALUES (".
+			$next_query = "INSERT INTO " . $this->tablename . " (name, coords, quote, info) VALUES (".
 				"'" . $input["name"] . "', " . 
 				((isset($input["lon"]) and isset($input["lat"])) ? ("'POINT(" . $input["lon"] . " " . $input["lat"] . ")'::geometry") : "NULL") . ", " .
+				(isset($input["quote"]) ? $input["quote"] : "NULL") . ", " .
 				(isset($input["info"]) ? ("'" . json_encode($input["info"], JSON_NUMERIC_CHECK) . "'") : "NULL") .
 			") ON CONFLICT (LOWER(name)) DO NOTHING";
 

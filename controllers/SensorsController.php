@@ -38,6 +38,11 @@ Class SensorsController extends RESTController {
 			$this->setInputError("Uncorrect input: 'lat' [float]");
 			return false;
 		}
+		// (3) $input["quote"] 
+		if (array_key_exists("quote", $input) and !is_numeric($input["quote"])) {
+			$this->setInputError("Uncorrect input: 'quote' [float]");
+			return false;
+		}
 		// (4) $input["metadata"] is json
 		if (array_key_exists("metadata", $input) and !$this->validate_json($input["metadata"])){
 			$this->setInputError("Error on decoding 'metadata' JSON input");
