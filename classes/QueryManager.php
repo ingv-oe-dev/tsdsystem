@@ -269,7 +269,7 @@ Class QueryManager extends Utils {
 			if ($params["quoted"]) {
 				$str .=  "UPPER(" . $params["fieldname"] . ") LIKE UPPER('%" . $params["value"] . "%')";
 			} else {
-				$str .= $params["fieldname"] . " LIKE " . $params["value"];
+				$str .= $params["fieldname"] . " = " . $params["value"];
 			}
 		}
 		return $str;
