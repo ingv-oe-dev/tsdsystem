@@ -1,28 +1,15 @@
 <?php
-require_once("..\classes\SimpleREST.php");
+require_once("RESTController.php");
 require_once("..\classes\Tokens.php");
 
-Class TokensController extends SimpleREST {
+Class TokensController extends RESTController {
 	
     // Token validity in days
     private $validity_days = 30;
 
-    // define scopes
-    private $resources = array("owners","nets","sensortypes","sensors","channels","timeseries");
-    private $actions = array("read", "edit");
-    private $scopes;
-
     //CONSTRUCTOR
 	function __construct() {
-		
-        // initialize scopes
-        $this->scopes = array_merge(array("all"), $this->resources);
-        foreach($this->resources as $resource) {
-            foreach($this->actions as $action) {
-                array_push($this->scopes, "$resource-$action");
-            }
-        }
-
+        parent::__construct();
         $this->route();
 	}
 
@@ -34,7 +21,10 @@ Class TokensController extends SimpleREST {
         $this->elaborateResponse();
     }
 
-    public function get() {
+    /**
+     * OVERRIDE RESTController 'get' function
+    */
+    public function get($jsonfields=null) {
 
         if (!$this->check_input()) {
             $this->setStatusCode(400);

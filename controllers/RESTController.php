@@ -6,7 +6,24 @@ require_once("..\classes\SimpleREST.php");
 Class RESTController extends SimpleREST {
 	
 	public $obj;
+
+	// define scopes
+    public $resources = array("owners","nets","sensortypes","sensors","channels","timeseries");
+    public $actions = array("read", "edit");
+    public $scopes;
 	
+	//CONSTRUCTOR
+	public function __construct() {
+
+        // initialize scopes
+        $this->scopes = array_merge(array("all"), $this->resources);
+        foreach($this->resources as $resource) {
+            foreach($this->actions as $action) {
+                array_push($this->scopes, "$resource-$action");
+            }
+        }
+	}
+
 	public function route() {
 
 		if ($_SERVER['REQUEST_METHOD'] === 'POST') {
