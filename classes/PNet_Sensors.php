@@ -61,7 +61,7 @@ Class Sensors extends QueryManager {
 	
 	public function getList($input) {
 		
-		$query = "SELECT id, name, ST_AsGeoJSON(coords) AS coords, sensortype_id, net_id, site_id, metadata, custom_props FROM " . $this->tablename . " WHERE remove_time IS NULL ";
+		$query = "SELECT id, name, ST_AsGeoJSON(coords) AS coords, quote, sensortype_id, net_id, site_id, metadata, custom_props FROM " . $this->tablename . " WHERE remove_time IS NULL ";
 		
 		if (isset($input) and is_array($input)) { 
 			$query .= $this->composeWhereFilter($input, array(

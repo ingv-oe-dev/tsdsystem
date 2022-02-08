@@ -57,7 +57,7 @@ Class Sites extends QueryManager {
 	
 	public function getList($input) {
 		
-		$query = "SELECT id, name, ST_AsGeoJSON(coords) AS coords, info FROM " . $this->tablename . " WHERE remove_time IS NULL ";
+		$query = "SELECT id, name, ST_AsGeoJSON(coords) AS coords, quote, info FROM " . $this->tablename . " WHERE remove_time IS NULL ";
 		
 		if (isset($input) and is_array($input)) { 
 			$query .= $this->composeWhereFilter($input, array(
