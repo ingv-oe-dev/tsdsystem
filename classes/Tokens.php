@@ -76,7 +76,8 @@ Class Tokens extends QueryManager {
         
         $login = $sl->login($input['email'], $input['password']);
 
-        $this->userId = $login["user_id"];
+        if (array_key_exists("user_id", $login))
+            $this->userId = $login["user_id"];
 
         return $login["status"];
     }
@@ -100,13 +101,7 @@ Class Tokens extends QueryManager {
             $payloadArray = array(
                 "userId" => $this->userId
             );
-            if (isset($this->permissions)) {
-                if (count($this->input["scope"]) > 0 and $this->input["scope"][0] != "all") {
-                    $append = (count($this->input["scope"]) > 1) ? array($this->input["scope"][1] => $this->permissions) : $this->permissions;
-                    $this->permissions = array("resources" => array($this->input["scope"][0] => $append));
-                }
-                $payloadArray['rights'] = $this->permissions;
-            }
+            if (isset($this->permissions)) {$payloadArray['rights'] = $this->permissions;}
             if (isset($this->nbf)) {$payloadArray['nbf'] = $this->nbf;}
             if (isset($this->exp)) {$payloadArray['exp'] = $this->exp;}
 

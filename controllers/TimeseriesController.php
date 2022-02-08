@@ -7,7 +7,11 @@ require_once("..\classes\Timeseries.php");
 Class TimeseriesController extends RESTController {
 	
 	public function __construct() {
+		
+		// instantiate the object model
 		$this->obj = new Timeseries();
+		
+		// handle the request
 		$this->route();
 	}
 	

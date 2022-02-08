@@ -11,7 +11,7 @@ Class Users extends QueryManager {
         parent::__construct();
 	}
 
-	public function getPermissions($scope) {
+	public function getPermissions($scope=array()) {
 
         /**
          * Define json path where extract permissions
@@ -28,6 +28,8 @@ Class Users extends QueryManager {
             case 2: // edit or read
                 $json_extract_path_str = "json_extract_path(rp.settings::json, 'resources', '" . $scope[0] . "', '" . $scope[1] . "') as rp, 
                     json_extract_path(mp.settings::json, 'resources', '" . $scope[0] . "', '" . $scope[1] . "') as mp";
+                break;
+            default:
                 break;
         }
 
@@ -49,7 +51,14 @@ Class Users extends QueryManager {
 
         // return result
         if ($result["status"] and isset($result["data"])) {
-            return json_decode($result["data"], true);
+
+            // FOR HOMOGENEOUS RESULTS
+            $permissions = json_decode($result["data"], true);
+            if (count($scope) > 0 and $scope[0] != "all") {
+                $append = (count($scope) > 1) ? array($scope[1] => $permissions) : $permissions;
+                $permissions = array("resources" => array($scope[0] => $append));
+            }
+            return $permissions;
         }
         return null;
 	}

@@ -10,17 +10,22 @@ Class TimeseriesValuesController extends SimpleREST {
 	private $aggregate_array = array("AVG","MEDIAN","COUNT","MAX","MIN","SUM");
 
 	public function __construct() {
-		$this->checkJWTToken();
+		
+		// instantiate the object model
 		$this->obj = new TimeseriesValues();
+		
+		// handle the request
 		$this->route();
 	}
 	
 	public function route() {
 		if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-				$this->readInput();
-				$this->post();
+			$this->authorizedAction("timeseries-edit");
+			$this->readInput();
+			$this->post();
 		}
 		if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+			$this->authorizedAction("timeseries-read");
 			$this->getInput();
 			$this->get();
 		}
