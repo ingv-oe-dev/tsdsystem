@@ -118,6 +118,7 @@ CREATE TABLE IF NOT EXISTS tsd_users.tokens
 (
     id SERIAL NOT NULL,
     token text,
+    remote_addr character varying(255) COLLATE pg_catalog."default" NOT NULL,
 	create_time timestamp without time zone DEFAULT (now() AT TIME ZONE 'utc'::text),
     CONSTRAINT tokens_pkey PRIMARY KEY (id)
 )

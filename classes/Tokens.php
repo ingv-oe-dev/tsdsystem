@@ -113,7 +113,7 @@ Class Tokens extends QueryManager {
     }
 
     public function saveTokenIntoDB($token) {
-        $query = "INSERT INTO tsd_users.tokens (token) VALUES ('" . $token . "')";
+        $query = "INSERT INTO tsd_users.tokens (token, remote_addr) VALUES ('" . $token . "','" . $_SERVER["REMOTE_ADDR"] . "')";
         $this->executeSQLCommand($query);
     }
 	
