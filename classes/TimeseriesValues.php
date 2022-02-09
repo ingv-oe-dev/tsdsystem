@@ -29,7 +29,9 @@ Class TimeseriesValues extends Timeseries {
 
 		$result = $this->getRecordSet($query);
 		if ($result["status"]) {
-			return $this->transpose($result["data"])["column_name"];
+			$response = $this->transpose($result["data"]);
+			if (array_key_exists("column_name", $response)) return $response["column_name"];
+			return null;
 		}
 		return null;
 	}

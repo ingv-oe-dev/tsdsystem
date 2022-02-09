@@ -262,8 +262,13 @@ Class TimeseriesValuesController extends SimpleREST {
 				);
 			}
 			// final check if columns name are in table
-			if (!in_array($input["columns"][$i]["name"], $column_list)) {
-				$this->setInputError("The column with name '" . $input["columns"][$i]["name"] . "' does not exist. Available columns: [" . implode(", ", $column_list) . "]");
+			if (isset($column_list)) {
+				if (!in_array($input["columns"][$i]["name"], $column_list)) {
+					$this->setInputError("The column with name '" . $input["columns"][$i]["name"] . "' does not exist. Available columns: [" . implode(", ", $column_list) . "]");
+					return false;
+				}
+			} else {
+				$this->setInputError("Unable to retrieve columns name for timeseries with id = '" . $input["timeseries_id"] . "'.");
 				return false;
 			}
 		}
