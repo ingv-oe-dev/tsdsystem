@@ -11,6 +11,36 @@ Class Timeseries extends QueryManager {
 	public function getTimeColumnName() {
 		return $this->TIME_COLUMN_NAME;
 	}
+
+	public function getDependencies($timeseries_id) {
+		// mapping dependencies from timeseries to nets
+		$query = "select
+			tmc.timeseries_id, tmc.channel_id, c.sensor_id, s.net_id 
+		from
+			tsd_main.timeseries t
+		left join tsd_main.timeseries_mapping_channels tmc on
+			t.id = tmc.timeseries_id
+		left join tsd_pnet.channels c on
+			tmc.channel_id  = c.id
+		left join tsd_pnet.sensors s on
+			c.sensor_id = s.id
+		left join tsd_pnet.nets n on
+			s.net_id = n.id
+		where t.id ='$timeseries_id'";
+
+		$result = $this->getRecordSet($query);
+		
+		if ($result["status"] and isset($result["data"]) and (count($result["data"]) > 0)) {
+			$array_one = $result["data"];
+			$array_two = $this->transpose($array_one);
+			foreach ($array_two as $key => $item) {
+				$array_two[$key] = array_unique($array_two[$key]);
+			}
+			return $array_two;
+		}
+
+		return null;
+	}
 	// ====================================================================//
 	// ******************* TIMESERIES REGISTRATION ************************//
 	// ====================================================================//
