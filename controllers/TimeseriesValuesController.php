@@ -1,13 +1,17 @@
 <?php
 
-require_once("..\classes\SimpleREST.php");
+require_once("RESTController.php");
 require_once("..\classes\TimeseriesValues.php");
 
 // Timeseries class
-Class TimeseriesValuesController extends SimpleREST {
+Class TimeseriesValuesController extends RESTController {
 	
 	private $time_interval_regex = '/([0-9]+)\s((\bsecond[s]{0,1}\b)|(\bminute[s]{0,1}\b)|(\bhour[s]{0,1}\b)|(\bday[s]{0,1}\b)|(\bweek[s]{0,1}\b)|(\bmonth[s]{0,1}\b)|(\byear[s]{0,1}\b))/';
 	private $aggregate_array = array("AVG","MEDIAN","COUNT","MAX","MIN","SUM");
+	public $default_permission = array(
+		"last_days" => true,
+		"number_of_days" => 1
+	);
 
 	public function __construct() {
 		
@@ -18,22 +22,303 @@ Class TimeseriesValuesController extends SimpleREST {
 		$this->route();
 	}
 	
+	/**
+	 * !! OVERRIDE RESTController function getInput !!
+	 */
 	public function route() {
-		if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-			$this->authorizedAction("timeseries-edit");
-			$this->readInput();
-			$this->post();
+
+		switch ($_SERVER['REQUEST_METHOD']) {
+			// POST method
+			case 'POST':				
+				// read input
+				$this->readInput();
+
+				// check if correct input
+				if (!$this->check_input_post()) break;
+					
+				// check if authorized action
+				$this->authorizedAction(array(
+					"scope"=>"timeseries-edit",
+					"resource_id" => $this->getParams()["timeseries_id"]
+				));
+
+				// post action
+				$this->post();
+
+				break;
+			
+			// GET method
+			case 'GET':
+				
+				// read input
+				$this->getInput();
+
+				// check if correct input
+				if (!$this->check_input_get()) break;
+
+				// check if authorized action
+				$this->authorizedAction(array(
+					"scope"=>"timeseries-read",
+					"resource_id" => $this->getParams()["timeseries_id"]
+				));
+
+				// get action
+				$this->get();
+
+				break;
+			
+			// default action
+			default:
+				break;		
 		}
-		if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-			$this->authorizedAction("timeseries-read");
-			$this->getInput();
-			$this->get();
-		}
+		// elaborate response
 		$this->elaborateResponse();
 	}
 	
+	/**
+	 * !! OVERRIDE SimpleREST function getInput !!
+	 */
 	public function getInput() {
 		$this->setParams(array_key_exists("request", $_GET) ? json_decode($_GET["request"], true) : NULL);
+	}
+
+	/**
+	 * !! OVERRIDE SimpleREST function comparePermissions !!
+	 * Check authorization contained into $auth_data 
+	 * by $auth_params["scope"] <resource>-<read|edit> 
+	 * and/or $auth_params["resource_id"]
+	 */
+	public function comparePermissions($auth_params, $auth_data) {
+		
+		// check if exists the section related to the scope
+		try {
+			$scope = explode('-', $auth_params['scope']); // view scope
+			$rights = $auth_data["rights"]["resources"][$scope[0]][$scope[1]];
+			// echo "rights:";
+			// var_dump($rights);
+		} catch (Exception $e) {
+			throw new Exception($errorMessagePrefix . $e->getMessage());
+		}
+
+		// Differentiate check between read and edit for timeseries values
+		switch ($scope[1]) {
+
+			// EDIT criterion
+			case "edit":
+				$this->_comparePermissionsEdit($auth_params, $auth_data);
+				break;
+
+			// READ criterion
+			case "read":
+				$this->_comparePermissionsRead($auth_params, $auth_data);
+				break;
+
+			// not enabled other criteria
+			default:
+				throw new Exception($errorMessagePrefix . " Not enabled scope: " . $auth_params['scope']);
+				break;
+		}
+	}
+
+	/**
+	 * Sub function of comparePermissions for EDIT scope
+	 */
+	private function _comparePermissionsEdit($auth_params, $auth_data) {
+		
+		$scope = explode('-', $auth_params['scope']); // view scope
+		$rights = $auth_data["rights"]["resources"][$scope[0]][$scope[1]];
+		$errorMessagePrefix = "Unauthorized action - ";
+
+		// Check if exists 'rights' section
+		if (!isset($rights)) 
+			throw new Exception($errorMessagePrefix . "No 'rights' section found into auth_data");
+
+		// Check if enabled === true
+		if (!array_key_exists("enabled", $rights) or !$rights["enabled"]) 
+			throw new Exception($errorMessagePrefix . $auth_params['scope'] . " not enabled");
+
+		// Check for ip address restrictions
+		if (
+			array_key_exists("ip", $rights) and 
+			is_array($rights["ip"]) and 
+			(count($rights["ip"]) > 0) and 
+			!in_array($_SERVER["REMOTE_ADDR"], $rights["ip"])
+		) throw new Exception($errorMessagePrefix . "IP restriction raised");
+
+		// If here, return true if not exists a specific 'permissions' 
+		if (!array_key_exists("permissions", $rights)) return true;
+		
+		// If here, return true if the timeseries with id = $auth_params["resource_id"] is into $rights["permissions"]["id"] array
+		if (
+			array_key_exists("resource_id", $auth_params) and 
+			array_key_exists("id", $rights["permissions"]) and 
+			is_array($rights["permissions"]["id"]) and 
+			in_array($auth_params["resource_id"], $rights["permissions"]["id"])
+		) return true;
+
+		// Check if the timeseries with id = $auth_params["resource_id"] is into the not empty $rights["permissions"]["id"] array
+		if (
+			array_key_exists("resource_id", $auth_params) and 
+			array_key_exists("id", $rights["permissions"]) and 
+			is_array($rights["permissions"]["id"]) and 
+			count($rights["permissions"]["id"]) > 0 and
+			!in_array($auth_params["resource_id"], $rights["permissions"]["id"])
+		) throw new Exception($errorMessagePrefix . "Not allowed for id = " . $auth_params["resource_id"]);
+
+		// Launch db query to retrieve all timeseries (with id = $auth_params["resource_id"]) dependencies
+		$dependencies = $this->obj->getDependencies($auth_params["resource_id"]);
+		// echo "dependencies:";
+		// var_dump($dependencies);
+
+		// Check if empty or null dependencies
+		if (!isset($dependencies)) 
+			throw new Exception($errorMessagePrefix . " Error on retrieving resource dependencies");
+
+		// Check if empty or null $rights["permissions"]["net_id"] array
+		if (
+			!array_key_exists("net_id", $rights["permissions"])
+			or
+			(is_array($rights["permissions"]["net_id"]) and 
+			count($rights["permissions"]["net_id"]) == 0)
+			or
+			!isset($rights["permissions"]["net_id"])
+			or 
+			(count(array_intersect($dependencies["net_id"], $rights["permissions"]["net_id"])) == 0)
+		) throw new Exception($errorMessagePrefix . " Resource dependencies (net) not satisfied");
+
+	}
+
+	/**
+	 * Sub function of comparePermissions for READ scope
+	 */ 
+	private function _comparePermissionsRead($auth_params, $auth_data) {
+		
+		$scope = explode('-', $auth_params['scope']); // view scope
+		$rights = $auth_data["rights"]["resources"][$scope[0]][$scope[1]];
+		$errorMessagePrefix = "Unauthorized action - ";
+
+		// check if exists the section related to the scope
+		try {
+			$scope = explode('-', $auth_params['scope']); // view scope
+			$rights = $auth_data["rights"]["resources"][$scope[0]][$scope[1]];
+			// echo "rights:";
+			// var_dump($rights);
+		} catch (Exception $e) {
+			throw new Exception($errorMessagePrefix . $e->getMessage());
+		}
+
+		// Check if exists 'rights' section
+		if (!isset($rights)) 
+			throw new Exception($errorMessagePrefix . "No 'rights' section found into auth_data");
+
+		// Check if enabled === true
+		if (!array_key_exists("enabled", $rights) or !$rights["enabled"]) 
+			throw new Exception($errorMessagePrefix . $auth_params['scope'] . " not enabled");
+
+		// Check for ip address restrictions
+		if (
+			array_key_exists("ip", $rights) and 
+			is_array($rights["ip"]) and 
+			(count($rights["ip"]) > 0) and 
+			!in_array($_SERVER["REMOTE_ADDR"], $rights["ip"])
+		) throw new Exception($errorMessagePrefix . "IP restriction raised");
+
+		// If here, return true if not exists a specific 'permissions' 
+		if (!array_key_exists("permissions", $rights)) return true;
+		
+		// go to select the permission
+		$selected_permission = $this->default_permission;
+
+		// view if there is an 'all' section
+		if (array_key_exists("all", $rights["permissions"])) 
+			$selected_permission = $rights["permissions"]["all"]; 
+
+		// If here, return true if the timeseries with id = $auth_params["resource_id"] is into $rights["permissions"]["id"] section
+		if (
+			array_key_exists("resource_id", $auth_params) and 
+			array_key_exists("id", $rights["permissions"]) and 
+			is_array($rights["permissions"]["id"]) and 
+			in_array($auth_params["resource_id"], array_keys($rights["permissions"]["id"]))
+		) {
+			$selected_permission = $rights["permissions"]["id"][$auth_params["resource_id"]];
+		} 
+		else {
+			// Launch db query to retrieve all timeseries (with id = $auth_params["resource_id"]) dependencies
+			$dependencies = $this->obj->getDependencies($auth_params["resource_id"]);
+			// echo "dependencies:";
+			// var_dump($dependencies);
+
+			// Check if empty or null dependencies
+			if (!isset($dependencies)) 
+				throw new Exception($errorMessagePrefix . " Error on retrieving resource dependencies");
+
+			// Check if empty or null $rights["permissions"]["net_id"] array/section
+			if (
+				array_key_exists("net_id", $rights["permissions"]) and
+				is_array($rights["permissions"]["net_id"]) and 
+				count($rights["permissions"]["net_id"]) > 0
+			) {
+				$intersect = array_intersect($dependencies["net_id"], array_keys($rights["permissions"]["net_id"]));
+				if (count($intersect)>0)
+					$selected_permission = $rights["permissions"]["net_id"][$intersect[0]];
+			}	
+		}
+
+		// check time interval rights
+		$this->checkTimeIntervalRights($selected_permission);
+	}
+
+	/**
+	 * Match $permission time with input time request
+	 * Default permissions structure: {
+	 * 		"last_days": true, 
+	 * 		"end_period": null, 
+	 * 		"start_period": null, 
+	 * 		"number_of_days": 1
+	 * }
+	 */
+	public function checkTimeIntervalRights($permission) {
+
+		$input = $this->getParams();
+
+		// defalt allowed starttime and endtime (1 day)
+		$allowed_endtime = new DateTime("now", new DateTimeZone('UTC'));
+		$allowed_starttime = new DateTime("now", new DateTimeZone('UTC'));
+		$allowed_starttime->sub(new DateInterval('P'.$this->default_permission["number_of_days"].'D'));
+
+		// calculate allowed starttime and endtime
+		if (
+			array_key_exists("last_days", $permission) and 
+			$permission["last_days"] === true and 
+			array_key_exists("number_of_days", $permission) and 
+			is_int($permission["number_of_days"]) and 
+			$permission["number_of_days"] >= 0
+		) {
+			$allowed_endtime = new DateTime("now", new DateTimeZone('UTC'));
+			$allowed_starttime = new DateTime("now", new DateTimeZone('UTC'));
+			$allowed_starttime->sub(new DateInterval('P'.intval($permission["number_of_days"]).'D'));
+		}
+
+		// force allowed starttime if start_period is set
+		if (array_key_exists("start_period", $permission) and isset($permission["start_period"]) and $this->verifyDate($permission["start_period"])) {
+			$allowed_starttime = DateTime::createFromFormat($this->DATE_ISO_FORMAT, $permission["start_period"], new DateTimeZone('UTC'));
+		}
+
+		// force allowed endtime if start_period is set
+		if (array_key_exists("end_period", $permission) and isset($permission["end_period"]) and $this->verifyDate($permission["end_period"])) {
+			$allowed_endtime = DateTime::createFromFormat($this->DATE_ISO_FORMAT, $permission["end_period"], new DateTimeZone('UTC'));
+		}
+		
+		//check user rights on period
+		$starttime = DateTime::createFromFormat($this->DATE_ISO_FORMAT, $input["starttime"], new DateTimeZone('UTC'));
+		$endtime = DateTime::createFromFormat($this->DATE_ISO_FORMAT, $input["endtime"], new DateTimeZone('UTC'));
+		
+		if ($allowed_starttime > $starttime) 
+			throw new Exception("Requested period unauthorized - Not before " . $allowed_starttime->format($this->DATE_ISO_FORMAT));
+
+		if ($allowed_endtime < $endtime)
+			throw new Exception("Requested period unauthorized - Not after " . $allowed_starttime->format($this->DATE_ISO_FORMAT));
+		
 	}
 
 	// ====================================================================//
@@ -42,31 +327,28 @@ Class TimeseriesValuesController extends SimpleREST {
 
 	public function post() {
 
-		if ($this->check_input_post()) {
-
-			$result = $this->obj->insert_values($this->getParams());
+		$result = $this->obj->insert_values($this->getParams());
 		
-			// evito di aggiungere l'input inviato nella risposta (in questi casi potrebbe essere molto grande)
-			$this->setParams(null); 
-			
-			if ($result["status"]) {
-				$this->setData($result);
-				$this->setStatusCode(201);
-				if (array_key_exists("updatedTimeseriesTable", $result) and !$result["updatedTimeseriesTable"]) {
-					// Valori inseriti ma non è stata aggiornata la tabella delle serie temporali (last_time)
-					$this->setStatusCode(202);
-				}
-				if (is_array($this->response["data"]) and array_key_exists("rows", $this->response["data"]) and ($this->response["data"]["rows"] == 0)) {
-					$this->setStatusCode(207);
-				}
+		// evito di aggiungere l'input inviato nella risposta (in questi casi potrebbe essere molto grande)
+		$this->setParams(null); 
+		
+		if ($result["status"]) {
+			$this->setData($result);
+			$this->setStatusCode(201);
+			if (array_key_exists("updatedTimeseriesTable", $result) and !$result["updatedTimeseriesTable"]) {
+				// Valori inseriti ma non è stata aggiornata la tabella delle serie temporali (last_time)
+				$this->setStatusCode(202);
+			}
+			if (is_array($this->response["data"]) and array_key_exists("rows", $this->response["data"]) and ($this->response["data"]["rows"] == 0)) {
+				$this->setStatusCode(207);
+			}
+		} else {
+			if (array_key_exists("make_sql_error", $result) and $result["make_sql_error"]) {
+				$this->setError($result["error"]);
+				$this->setStatusCode(400);
 			} else {
-				if (array_key_exists("make_sql_error", $result) and $result["make_sql_error"]) {
-					$this->setError($result["error"]);
-					$this->setStatusCode(400);
-				} else {
-					$this->setError($result["error"]);
-					$this->setStatusCode(500);
-				}
+				$this->setError($result["error"]);
+				$this->setStatusCode(500);
 			}
 		}
 	}
@@ -107,21 +389,18 @@ Class TimeseriesValuesController extends SimpleREST {
 	// ====================================================================//
 	// ******************* get - timeseries values ***********************//
 	// ====================================================================//
-	
-	public function get() {
+	/**
+	 * OVERRIDE RESTController 'get' function
+	 */
+	public function get($jsonfields=null) {
 		
-		if ($this->check_input_get()) {
-			
-			$result = $this->obj->select_values($this->getParams());
-			if (isset($result) and $result["status"]) {
-				$this->setData($result["data"]);
-			} else {
-				$this->setStatusCode(500);
-				$this->setError($result);
-			}
-			
+		$result = $this->obj->select_values($this->getParams());
+		if (isset($result) and $result["status"]) {
+			$this->setData($result["data"]);
+		} else {
+			$this->setStatusCode(500);
+			$this->setError($result);
 		}
-
 	}
 	
 	public function check_input_get() {

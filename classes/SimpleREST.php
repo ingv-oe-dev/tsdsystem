@@ -238,16 +238,16 @@ class SimpleREST extends Utils{
 			$auth_data["rights"] = $UserObj->getPermissions();
 		}
 		
-		// Check authorization
-        $check_data = $this->comparePermissions($auth_params, $auth_data); 
-
-        // Exit if not authorized
-        if (!$check_data) {
+		// Check permissions
+        try {
+			$this->comparePermissions($auth_params, $auth_data); 
+		} catch (Exception $e) {
 			$this->setStatusCode(401);
-			$this->setError("Unauthorized action");
+			$this->setError($e->getMessage());
 			$this->elaborateResponse();
 			exit();
-        } 
+		}
+
     }
 
 	/**
