@@ -39,4 +39,20 @@ Class Utils {
 	public function isValidUUID($uuid) {
 		return (is_string($uuid) and (preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/', $uuid) == 1));
 	}
+
+	public function object_to_array($obj) {
+		//only process if it's an object or array being passed to the function
+		if(is_object($obj) || is_array($obj)) {
+			$ret = (array) $obj;
+			foreach($ret as &$item) {
+				//recursively process EACH element regardless of type
+				$item = $this->object_to_array($item);
+			}
+			return $ret;
+		}
+		//otherwise (i.e. for scalar values) return without modification
+		else {
+			return $obj;
+		}
+	}
 }

@@ -149,7 +149,7 @@ class SimpleREST extends Utils{
 			$serverKey = file_get_contents("../server_key");
 
 			try {
-				$this->JWT_payload = (array) JWT::decode($token, $serverKey, array('HS256'));
+				$this->JWT_payload = $this->object_to_array(JWT::decode($token, $serverKey, array('HS256')));
 				//var_dump($this->JWT_payload);
 			}
 			catch(Exception $e) {
@@ -184,7 +184,7 @@ class SimpleREST extends Utils{
 			$serverKey = file_get_contents("../server_key");
 
 			try { 
-				$this->JWT_payload = (array) JWT::decode($token, $serverKey, array('HS256')); 
+				$this->JWT_payload = $this->object_to_array(JWT::decode($token, $serverKey, array('HS256'))); 
 			}
 			catch(Exception $e) { /* do nothing */ }	
 		}
@@ -195,9 +195,11 @@ class SimpleREST extends Utils{
 		// Check if valid token
         if (isset($this->JWT_payload) and isset($this->JWT_payload["userId"])) {
             // Auth user info from token as array
-            return ( (array) $this->JWT_payload);
+            return $this->object_to_array($this->JWT_payload);
         }
 		// Try to catch info from session data
+		// Start the session
+		session_start();
 		if (isset($_SESSION["userData"])) {
 			return array(
 				'userId' => $_SESSION["userData"]['userId']
@@ -228,7 +230,7 @@ class SimpleREST extends Utils{
 		}
 		
 		// Check if 'rights' are into $auth_data
-		if (!array_key_exists("rights", $auth_data)) {
+		if (!array_key_exists("rights", $auth_data) and array_key_exists("userId", $auth_data) and isset($auth_data["userId"])) {
 			
 			// load rights from users database by userId
 			require_once ("Users.php");
@@ -254,7 +256,7 @@ class SimpleREST extends Utils{
 	 * and/or $auth_params["resource_id"]
 	 */
 	public function comparePermissions($auth_params, $auth_data) {
-		return true;
+		return false;
 	}
 }
 ?>
