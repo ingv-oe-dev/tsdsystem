@@ -106,7 +106,7 @@ Class TimeseriesController extends RESTController {
 					$result["data"][$i][$fieldname] = isset($result["data"][$i][$fieldname]) ? json_decode($result["data"][$i][$fieldname]) : NULL;
 					// add columns list on response if by id
 					if (array_key_exists("showColDefs", $params) and $params["showColDefs"]) {
-						$result["data"][$i]["columns"] = $this->obj->getColumnList($params["id"]);
+						$result["data"][$i]["columns"] = $this->obj->getColumnList($result["data"][$i]["id"]);
 					}
 				}
 			}
