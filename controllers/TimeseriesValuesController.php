@@ -317,7 +317,7 @@ Class TimeseriesValuesController extends RESTController {
 			throw new Exception("Requested period unauthorized - Not before " . $allowed_starttime->format($this->DATE_ISO_FORMAT));
 
 		if ($allowed_endtime < $endtime)
-			throw new Exception("Requested period unauthorized - Not after " . $allowed_starttime->format($this->DATE_ISO_FORMAT));
+			throw new Exception("Requested period unauthorized - Not after " . $allowed_endtime->format($this->DATE_ISO_FORMAT));
 		
 	}
 
