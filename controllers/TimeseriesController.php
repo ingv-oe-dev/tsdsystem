@@ -94,11 +94,27 @@ Class TimeseriesController extends RESTController {
 	// ====================================================================//
 	// ****************** get - timeseries instance(s) ********************//
 	// ====================================================================//
-	
 	public function get($jsonfields=array("metadata")) {
-		
-		parent::get($jsonfields);
+	
+		$params = $this->getParams();
 
+		$result = $this->obj->getList($params);
+
+		if ($result["status"]) {
+			for($i=0; $i<count($result["data"]); $i++) {
+				foreach($jsonfields as $fieldname) {
+					$result["data"][$i][$fieldname] = isset($result["data"][$i][$fieldname]) ? json_decode($result["data"][$i][$fieldname]) : NULL;
+					// add columns list on response if by id
+					if (array_key_exists("showColDefs", $params) and $params["showColDefs"]) {
+						$result["data"][$i]["columns"] = $this->obj->getColumnList($params["id"]);
+					}
+				}
+			}
+			$this->setData($result["data"]);
+		} else {
+			$this->setStatusCode(404);
+			$this->setError($result);
+		}
 	}
 	
 	// ====================================================================//
