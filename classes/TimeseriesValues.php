@@ -14,27 +14,6 @@ Class TimeseriesValues extends Timeseries {
 		}
 		return null;
 	}
-
-	public function getColumnList($timeseries_id) {
-
-		$query = "with info as (
-			select schema, name from tsd_main.timeseries where id = '$timeseries_id'
-		)
-		SELECT column_name 
-		  FROM information_schema.columns
-		 WHERE table_schema = (select schema from info)
-		   AND table_name   = (select name from info)
-		   and column_name <> '" . $this->getTimeColumnName() . "'
-			 ;";
-
-		$result = $this->getRecordSet($query);
-		if ($result["status"]) {
-			$response = $this->transpose($result["data"]);
-			if (array_key_exists("column_name", $response)) return $response["column_name"];
-			return null;
-		}
-		return null;
-	}
 	
 	// ====================================================================//
 	// ******************* insert - timeseries values ***********************//

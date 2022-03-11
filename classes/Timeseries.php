@@ -17,7 +17,7 @@ Class Timeseries extends QueryManager {
 		$query = "select
 			tmc.timeseries_id, tmc.channel_id, c.sensor_id, s.net_id 
 		from
-			tsd_main.timeseries t
+			" . $this->tablename . " t
 		left join tsd_main.timeseries_mapping_channels tmc on
 			t.id = tmc.timeseries_id
 		left join tsd_pnet.channels c on
@@ -41,6 +41,28 @@ Class Timeseries extends QueryManager {
 
 		return null;
 	}
+
+	public function getColumnList($timeseries_id) {
+
+		$query = "with info as (
+			select schema, name from " . $this->tablename . " where id = '$timeseries_id'
+		)
+		SELECT column_name 
+		  FROM information_schema.columns
+		 WHERE table_schema = (select schema from info)
+		   AND table_name   = (select name from info)
+		   and column_name <> '" . $this->getTimeColumnName() . "'
+			 ;";
+
+		$result = $this->getRecordSet($query);
+		if ($result["status"]) {
+			$response = $this->transpose($result["data"]);
+			if (array_key_exists("column_name", $response)) return $response["column_name"];
+			return null;
+		}
+		return null;
+	}
+
 	// ====================================================================//
 	// ******************* TIMESERIES REGISTRATION ************************//
 	// ====================================================================//
