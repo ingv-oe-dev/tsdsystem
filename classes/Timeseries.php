@@ -198,15 +198,21 @@ Class Timeseries extends QueryManager {
 	
 	public function getList($input) {
 		
-		$query = "SELECT id, schema, name, sampling, metadata FROM " . $this->tablename . " WHERE remove_time IS NULL ";
-		
+		$query = "SELECT t.id, t.schema, t.name, t.sampling, t.metadata " .
+			" FROM " . $this->tablename . " t " .
+			" LEFT JOIN tsd_main.timeseries_mapping_channels tmc ON t.id = tmc.timeseries_id " . 
+			" WHERE t.remove_time IS NULL ";
+
 		if (isset($input) and is_array($input)) { 
 			$query .= $this->composeWhereFilter($input, array(
-				"id" => array("id" => true, "quoted" => true),
-				"name" => array("quoted" => true),
-				"schema" => array("quoted" => true)
+				"id" => array("id" => true, "quoted" => true, "alias" => "t.id"),
+				"name" => array("quoted" => true, "alias" => "t.name"),
+				"schema" => array("quoted" => true, "alias" => "t.schema"),
+				"channel_id" => array("id" => true, "quoted" => false, "alias" => "tmc.channel_id")
 			));
 		}
+
+		$query .= " GROUP BY t.id";
 		
 		//echo $query;
 		return $this->getRecordSet($query);
