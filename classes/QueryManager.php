@@ -247,7 +247,7 @@ Class QueryManager extends Utils {
 		foreach($search_params as $key => $value) {
 			if (array_key_exists($key, $input) and isset($input[$key])){
 				$where_filter .= $this->matchFieldByValue(array(
-					"fieldname" => $key,
+					"fieldname" => array_key_exists("alias", $value) ? $value["alias"] : $key,
 					"value" => $input[$key],
 					"exact_match" => isset($value["id"]) or (array_key_exists("exact_match", $input) and ($input["exact_match"] == 'true')),
 					"quoted" => $value["quoted"]
