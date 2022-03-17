@@ -70,6 +70,29 @@ Class Tokens extends QueryManager {
         return $token;
 	}
 
+    public function generateOnTheFly($userId) {
+		
+		$this->userId = $userId;
+
+        $now = new DateTime("now", new DateTimeZone("UTC"));
+        
+        $this->nbf = $now->getTimestamp();
+        //var_dump($nbf);
+        
+        $this->exp = $now->add(new DateInterval('PT1S'))->getTimestamp(); // expire in 1 second
+        //var_dump($exp);
+
+        $this->permissions = $this->getPermissions();
+        
+        // Get our server-side secret key from a secure location.
+        $this->serverKey = file_get_contents($_SERVER["DOCUMENT_ROOT"]."/tsdws/server_key");
+
+        //Create a token
+        $token = $this->createToken();
+        
+        return $token;
+	}
+
     public function login_phase($input) {
         
         $sl = new SecureLogin();
