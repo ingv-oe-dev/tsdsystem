@@ -79,7 +79,7 @@ Class Tokens extends QueryManager {
         $this->nbf = $now->getTimestamp();
         //var_dump($nbf);
         
-        $this->exp = $now->add(new DateInterval('PT1S'))->getTimestamp(); // expire in 1 second
+        $this->exp = $now->add(new DateInterval('PT10S'))->getTimestamp(); // expire in 10 seconds
         //var_dump($exp);
 
         $this->permissions = $this->getPermissions();
