@@ -4,12 +4,7 @@ require_once("Utils.php");
 /* This class handle postgresql connection and query by the PDO library */
 Class QueryManager extends Utils {
 
-	private $default_host = "localhost";
-	private $default_user = "postgres";
-	private $default_pass = "development";
-	private $default_db = "tsdsystem";
-	private $default_port = "5432";
-	
+	private $credentials;
 	public $myConnection; 
 	
 	//CONSTRUCTOR
@@ -17,6 +12,7 @@ Class QueryManager extends Utils {
 		if (isset($connection_vars)) {
 			$this->connectToMySQL($connection_vars);
 		} else {
+			$this->readCredentials();
 			$this->defaultConnectToMySQL();
 		}
 	}
@@ -26,14 +22,13 @@ Class QueryManager extends Utils {
 		$this->closeConnection();
 	}
 	
+	private function readCredentials() {
+		$config_read = file_get_contents($_SERVER["DOCUMENT_ROOT"]."/tsdws/configs/db.json");
+		$this->credentials = json_decode($config_read, true);
+	}
+
 	public function defaultConnectToMySQL() {
-		$this->connectToMySQL(array(
-			"host" => $this->default_host,
-			"user" => $this->default_user,
-			"pwd" => $this->default_pass,
-			"db" => $this->default_db,
-			"port" => $this->default_port
-		));
+		$this->connectToMySQL($this->credentials);
 	}
 	
 	public function connectToMySQL($connection_vars) {
