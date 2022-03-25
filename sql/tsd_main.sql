@@ -6,7 +6,8 @@
 
 CREATE TABLE IF NOT EXISTS tsd_main.timeseries
 (
-    id uuid NOT NULL DEFAULT uuid_generate_v4(),
+    -- id uuid NOT NULL DEFAULT uuid_generate_v4(),
+    id uuid NOT NULL DEFAULT gen_random_uuid(),
     schema character varying(63) COLLATE pg_catalog."default" NOT NULL,
     name character varying(63) COLLATE pg_catalog."default" NOT NULL,
     sampling integer,
