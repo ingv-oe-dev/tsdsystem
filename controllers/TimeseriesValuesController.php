@@ -374,7 +374,7 @@ Class TimeseriesValuesController extends RESTController {
 		}
 		// (2.1) $input["columns"][$this->obj->getTimeColumnName()] 
 		if (!in_array($this->obj->getTimeColumnName(), $input["columns"])){
-			$this->setInputError("This required column is missing: '" . $this->$obj->getTimeColumnName() . "'. Your columns:" . implode(",", $input["columns"]));
+			$this->setInputError("This required column is missing: '" . $this->obj->getTimeColumnName() . "'. Your columns:" . implode(",", $input["columns"]));
 			return false;
 		}
 		// (3) $input["data"] 
