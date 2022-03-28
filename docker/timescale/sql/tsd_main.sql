@@ -26,8 +26,6 @@ CREATE UNIQUE INDEX tsd_main_timeseries_lower_schema_lower_name_idx ON tsd_main.
 
 TABLESPACE pg_default;
 
-ALTER TABLE IF EXISTS tsd_main.timeseries;
-
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------
 -- Table: tsd_main.timeseries_mapping_channels
@@ -42,8 +40,6 @@ CREATE TABLE IF NOT EXISTS tsd_main.timeseries_mapping_channels
 )
 
 TABLESPACE pg_default;
-
-ALTER TABLE IF EXISTS tsd_main.timeseries_mapping_channels;
 
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------

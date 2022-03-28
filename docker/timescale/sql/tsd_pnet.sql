@@ -20,8 +20,6 @@ CREATE UNIQUE INDEX tsd_pnet_owners_lower_name_idx ON tsd_pnet.owners (LOWER(nam
 
 TABLESPACE pg_default;
 
-ALTER TABLE IF EXISTS tsd_pnet.owners;
-
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------
 -- Table: tsd_pnet.nets
@@ -46,8 +44,6 @@ CREATE UNIQUE INDEX tsd_pnet_nets_lower_name_idx ON tsd_pnet.nets (LOWER(name))
 
 TABLESPACE pg_default;
 
-ALTER TABLE IF EXISTS tsd_pnet.nets;
-
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------
 -- Table: tsd_pnet.sensortypes
@@ -71,8 +67,6 @@ CREATE TABLE IF NOT EXISTS tsd_pnet.sensortypes
 CREATE UNIQUE INDEX tsd_pnet_sensortypes_lower_name_idx ON tsd_pnet.sensortypes (LOWER(name))
 
 TABLESPACE pg_default;
-
-ALTER TABLE IF EXISTS tsd_pnet.sensortypes;
 
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------
@@ -99,8 +93,6 @@ CREATE TABLE IF NOT EXISTS tsd_pnet.sites
 CREATE UNIQUE INDEX tsd_pnet_sites_lower_name_idx ON tsd_pnet.sites (LOWER(name))
 
 TABLESPACE pg_default;
-
-ALTER TABLE IF EXISTS tsd_pnet.sites;
 
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------
@@ -132,8 +124,6 @@ CREATE UNIQUE INDEX tsd_pnet_sensors_lower_name_idx ON tsd_pnet.sensors (LOWER(n
 
 TABLESPACE pg_default;
 
-ALTER TABLE IF EXISTS tsd_pnet.sensors;
-
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------
 -- Table: tsd_pnet.channels
@@ -158,8 +148,6 @@ CREATE TABLE IF NOT EXISTS tsd_pnet.channels
 CREATE UNIQUE INDEX tsd_pnet_channels_lower_name_sensor_id_idx ON tsd_pnet.channels (LOWER(name), sensor_id)
 
 TABLESPACE pg_default;
-
-ALTER TABLE IF EXISTS tsd_pnet.channels;
 
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------

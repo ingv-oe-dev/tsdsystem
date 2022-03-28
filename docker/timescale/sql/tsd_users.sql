@@ -19,7 +19,6 @@ CREATE TABLE IF NOT EXISTS tsd_users.members
 
 TABLESPACE pg_default;
 
-ALTER TABLE IF EXISTS tsd_users.members;
 
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------
@@ -40,8 +39,6 @@ CREATE TABLE IF NOT EXISTS tsd_users.roles
 
 TABLESPACE pg_default;
 
-ALTER TABLE IF EXISTS tsd_users.roles;
-
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------
 -- Table: tsd_users.members_mapping_roles
@@ -56,8 +53,6 @@ CREATE TABLE IF NOT EXISTS tsd_users.members_mapping_roles
 )
 
 TABLESPACE pg_default;
-
-ALTER TABLE IF EXISTS tsd_users.members_mapping_roles;
 
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------
@@ -79,8 +74,6 @@ CREATE TABLE IF NOT EXISTS tsd_users.members_permissions
 
 TABLESPACE pg_default;
 
-ALTER TABLE IF EXISTS tsd_users.members_permissions;
-
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------
 -- Table: tsd_users.roles_permissions
@@ -101,8 +94,6 @@ CREATE TABLE IF NOT EXISTS tsd_users.roles_permissions
 
 TABLESPACE pg_default;
 
-ALTER TABLE IF EXISTS tsd_users.roles_permissions;
-
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------
 -- Table: tsd_users.tokens
@@ -120,4 +111,3 @@ CREATE TABLE IF NOT EXISTS tsd_users.tokens
 
 TABLESPACE pg_default;
 
-ALTER TABLE IF EXISTS tsd_users.tokens;
