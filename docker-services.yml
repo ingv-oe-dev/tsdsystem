@@ -1,0 +1,14 @@
+version: '3'
+services:
+    db:
+      build:
+        context: ./docker/timescale/
+      image: tsdsystem-db
+      container_name: db
+      restart: always
+      environment:
+        - "POSTGRES_USER=webapp_user"
+        - "POSTGRES_PASSWORD=smoketest"
+        - "POSTGRES_DB=tsdsystem"
+      ports:
+        - "5432:5432"
