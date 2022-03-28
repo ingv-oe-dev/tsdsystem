@@ -1,7 +1,7 @@
 {
     "host": "localhost",
-    "user": "postgres",
-    "pwd": "development",
+    "user": "webapp_user",
+    "pwd": "#m?2U9xZ",
     "db": "tsdsystem",
     "port": "5432"
 }
