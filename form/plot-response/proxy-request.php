@@ -5,7 +5,7 @@
     //var_dump($request);
 
     session_start();
-    $userId = isset($_SESSION["userId"]) ? $_SESSION["userId"] : 1;
+    $userId = isset($_SESSION["userId"]) ? $_SESSION["userId"] : null;
 
     // load users class
     require_once("..".DIRECTORY_SEPARATOR."..".DIRECTORY_SEPARATOR."classes".DIRECTORY_SEPARATOR."Tokens.php");

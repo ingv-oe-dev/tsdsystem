@@ -1,8 +1,8 @@
 <?php
-
+/*
 error_reporting(-1);
 ini_set('display_errors', 'On');
-	
+*/	
 header("Content-Type: application/json");
 $result = array();
 
@@ -12,6 +12,12 @@ if (empty($_POST['email']) or empty($_POST['password'])) {
 	$result["error"] = "Email or password are not correct";
 } else {
 	$result = $sl->login($_POST['email'], $_POST['password']);
+}
+
+if ($result["status"]) {
+	session_start();
+	$_SESSION["userId"] = $result["user_id"];
+	$_SESSION["email"] = $_POST['email'];
 }
 
 echo json_encode($result);

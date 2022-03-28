@@ -20,7 +20,7 @@ class SecureLogin extends QueryManager{
 		} 
 		return array(
 			"status" => false,
-			"error" => "Something goes wrong"
+			"error" => "Login failed"
 		); 
 	}
 	
@@ -51,7 +51,7 @@ class SecureLogin extends QueryManager{
 					$rows["error"] = $rs["error"];
 				}
 			} else {
-				$rows["error"] = "Esiste una registrazione con questa email";
+				$rows["error"] = "There is a registration with this email";
 			}
 		} else {
 			$rows["error"] = $rs["error"];
