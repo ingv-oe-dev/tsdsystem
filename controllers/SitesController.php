@@ -1,7 +1,7 @@
 <?php
 
 require_once("RESTController.php");
-require_once("..\classes\PNet_Sites.php");
+require_once("..".DIRECTORY_SEPARATOR."classes".DIRECTORY_SEPARATOR."PNet_Sites.php");
 
 // Sites Controller class
 Class SitesController extends RESTController {

@@ -133,43 +133,6 @@ class SimpleREST extends Utils{
 	}
 	
 	/**
-	 * Check JWT Token
-	 */
-/*
-	protected function checkJWTToken() {
-		
-		$token = isset($_SERVER["HTTP_AUTHORIZATION"]) ? $_SERVER["HTTP_AUTHORIZATION"] : NULL;
-		//echo $token;
-		
-		if (!is_null($token)) {
-
-			require_once('JWT.php');
-
-			// Get our server-side secret key from a secure location.
-			$serverKey = file_get_contents("../server_key");
-
-			try {
-				$this->JWT_payload = $this->object_to_array(JWT::decode($token, $serverKey, array('HS256')));
-				//var_dump($this->JWT_payload);
-			}
-			catch(Exception $e) {
-				$this->setStatusCode(401);
-				$this->setError($e->getMessage());
-			}	
-		} 
-		else {
-			$this->setStatusCode(401);
-			$this->setError('Authorization token required');
-		}
-
-		// if is null JWT_payload exit with error
-		if (!isset($this->JWT_payload)) {
-			$this->elaborateResponse();
-			exit();
-		}
-	}
-*/
-	/**
 	 * Check for a valid token in the header authorization and set into class variable JWT_payload
 	 */
 	private function _setJWT_payload() {
@@ -181,7 +144,7 @@ class SimpleREST extends Utils{
 			require_once('JWT.php');
 
 			// Get our server-side secret key from a secure location.
-			$serverKey = file_get_contents("../server_key");
+			$serverKey = file_get_contents("..".DIRECTORY_SEPARATOR."server_key");
 
 			try { 
 				$this->JWT_payload = $this->object_to_array(JWT::decode($token, $serverKey, array('HS256'))); 

@@ -6,7 +6,7 @@ require_once("SecureLogin.php");
 
 Class Tokens extends QueryManager {
 	
-    private $server_key_path = "../server_key";
+    private $server_key_path = "..".DIRECTORY_SEPARATOR."server_key";
     private $serverKey;
    
     public $input;
@@ -85,7 +85,7 @@ Class Tokens extends QueryManager {
         $this->permissions = $this->getPermissions();
         
         // Get our server-side secret key from a secure location.
-        $this->serverKey = file_get_contents($_SERVER["DOCUMENT_ROOT"]."/tsdws/server_key");
+        $this->serverKey = file_get_contents($_SERVER["DOCUMENT_ROOT"]."".DIRECTORY_SEPARATOR."tsdws".DIRECTORY_SEPARATOR."server_key");
 
         //Create a token
         $token = $this->createToken();

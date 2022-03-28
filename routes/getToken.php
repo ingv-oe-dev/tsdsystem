@@ -37,13 +37,13 @@ if (!array_key_exists('password',$_POST)) {
 }
 
 // login phase
-require_once ('../classes/SecureLogin.php');
+require_once ('..'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'SecureLogin.php');
 $sl = new SecureLogin();
 $login = $sl->login($_POST['email'], $_POST['password']);
 
 if($login["status"]) {
 
-	require_once('../classes/JWT.php');
+	require_once('..'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'JWT.php');
 
 	$now = new DateTime("now", new DateTimeZone("UTC"));
 
@@ -62,7 +62,7 @@ if($login["status"]) {
 	if (isset($_POST['scope'])) {
 		if (in_array($_POST['scope'], $scopes)) {
 			// load users class
-			require_once ('../classes/Users.php');
+			require_once ('..'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'Users.php');
 			$user = new Users($userId);
 			
 			// retrieve permissions
@@ -92,7 +92,7 @@ if($login["status"]) {
 	//var_dump($exp);
 
 	// Get our server-side secret key from a secure location.
-	$serverKey = file_get_contents("../server_key");
+	$serverKey = file_get_contents("..".DIRECTORY_SEPARATOR."server_key");
 	
 	// create a token
 	$payloadArray = array();
@@ -112,7 +112,7 @@ if($login["status"]) {
 	// save generated token into db
 	try {
 		// load query manager class
-		require_once ('../classes/QueryManager.php');
+		require_once ('..'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'QueryManager.php');
 		$QueryManager = new QueryManager();
 		$query = "INSERT INTO tsd_users.tokens (token) VALUES ('$token')";
 		//echo $query;

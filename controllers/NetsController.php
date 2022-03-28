@@ -1,7 +1,7 @@
 <?php
 
 require_once("RESTController.php");
-require_once("..\classes\PNet_Nets.php");
+require_once("..".DIRECTORY_SEPARATOR."classes".DIRECTORY_SEPARATOR."PNet_Nets.php");
 
 // Nets Controller class
 Class NetsController extends RESTController {

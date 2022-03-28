@@ -6,13 +6,13 @@
 	
 	if (strripos($_SERVER["REQUEST_URI"], "values")) {
 		
-		require_once("../controllers/TimeseriesValuesController.php");
+		require_once("..".DIRECTORY_SEPARATOR."controllers".DIRECTORY_SEPARATOR."TimeseriesValuesController.php");
 		
 		$tsc = new TimeseriesValuesController();
 	}
 	else {
 		
-		require_once("../controllers/TimeseriesController.php");
+		require_once("..".DIRECTORY_SEPARATOR."controllers".DIRECTORY_SEPARATOR."TimeseriesController.php");
 		
 		$tsc = new TimeseriesController();
 	}

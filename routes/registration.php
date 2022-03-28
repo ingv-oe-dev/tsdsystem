@@ -12,7 +12,7 @@ $pattern = '/[.]*@[ct\.]*ingv\.it/i'; // solo ingv
 
 if(preg_match($pattern, $email)) {
 
-	require_once('../classes/SecureLogin.php');
+	require_once('..'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'SecureLogin.php');
 	$sl = new SecureLogin();
 	if (empty($_POST['email']) or empty($_POST['password'])) {
 		$result["error"] = "Email or password are not correct";

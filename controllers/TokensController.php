@@ -1,6 +1,6 @@
 <?php
 require_once("RESTController.php");
-require_once("..\classes\Tokens.php");
+require_once("..".DIRECTORY_SEPARATOR."classes".DIRECTORY_SEPARATOR."Tokens.php");
 
 Class TokensController extends RESTController {
 	

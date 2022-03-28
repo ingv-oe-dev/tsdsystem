@@ -6,7 +6,7 @@ ini_set('display_errors', 'On');
 header("Content-Type: application/json");
 $result = array();
 
-require_once('../classes/SecureLogin.php');
+require_once('..'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'SecureLogin.php');
 $sl = new SecureLogin();
 if (empty($_POST['email']) or empty($_POST['password'])) {
 	$result["error"] = "Email or password are not correct";

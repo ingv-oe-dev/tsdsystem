@@ -23,7 +23,7 @@ Class QueryManager extends Utils {
 	}
 	
 	private function readCredentials() {
-		$config_read = file_get_contents($_SERVER["DOCUMENT_ROOT"]."/tsdws/configs/db.json");
+		$config_read = file_get_contents($_SERVER["DOCUMENT_ROOT"].DIRECTORY_SEPARATOR."tsdws".DIRECTORY_SEPARATOR."configs".DIRECTORY_SEPARATOR."db.json");
 		$this->credentials = json_decode($config_read, true);
 	}
 

@@ -1,7 +1,7 @@
 <?php
 
 require_once("RESTController.php");
-require_once("..\classes\TimeseriesValues.php");
+require_once("..".DIRECTORY_SEPARATOR."classes".DIRECTORY_SEPARATOR."TimeseriesValues.php");
 
 // Timeseries class
 Class TimeseriesValuesController extends RESTController {

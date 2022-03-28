@@ -1,6 +1,6 @@
 <?php
 
-require_once("..\classes\SimpleREST.php");
+require_once("..".DIRECTORY_SEPARATOR."classes".DIRECTORY_SEPARATOR."SimpleREST.php");
 
 // Generic REST Controller class
 Class RESTController extends SimpleREST {
