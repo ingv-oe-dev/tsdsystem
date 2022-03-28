@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <script src="js-download/axios.min.js"></script>
+
+    <!-- Load required Bootstrap and BootstrapVue CSS -->
+    <link type="text/css" rel="stylesheet" href="js-download/bootstrap.min.css" />
+    <link type="text/css" rel="stylesheet" href="js-download/bootstrap-vue.min.css" />
+
+    <!-- Load Vue followed by BootstrapVue -->
+    <script src="js-download/vue.min.js"></script>
+    <script src="js-download/vee-validate.js"></script>
+    <script src="js-download/bootstrap-vue.min.js"></script>
+
+    <!-- Load the following for BootstrapVueIcons support -->
+    <script src="js-download/bootstrap-vue-icons.min.js"></script>
+
+    <!-- Load Leaflet -->
+    <link rel="stylesheet" href="js-download/leaflet.css" />
+    <script src="js-download/leaflet.js"></script>
+
+    <!-- Load custom script -->
+    <script src="stationMapComponent.js"></script>
+    <script src="tsdrequestComponent.js"></script>
+    <style>
+        .circle-marker-label {
+            color: white;
+            font-weight: bold;
+            min-width: 64px;
+            text-shadow: -1px 1px 1px #000, 1px -1px 1px #000, 1px 1px 1px #000, -1px -1px 1px #000;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container" id="app">
+        <h3 class=" title mt-3">TSDSystem Request Form</h3>
+        <hr>
+        <b-form-checkbox class="text-right" v-model="period.setForAllRequests" name="checkbox-period" :value="true" :unchecked-value="false" size="sm" switch>
+            Set period for all requests
+        </b-form-checkbox>
+        <b-form-group label-align="right" label="Start:" label-for="input-group-starttime" label-size="sm" label-cols="2">
+            <b-input-group size="sm">
+                <b-form-input :disabled="!period.setForAllRequests" v-model="period.start.Date" type="text" placeholder="YYYY-MM-DD" autocomplete="on" :state="period.start.isValidDate"></b-form-input>
+                <b-input-group-append>
+                    <b-form-datepicker :disabled="!period.setForAllRequests" v-model="period.start.Date" button-only right locale="it" aria-controls="startDate-input" size="sm" @context="onContextStartPeriod"></b-form-datepicker>
+                </b-input-group-append>
+                <b-form-input :disabled="!period.setForAllRequests" v-model="period.start.Time" type="text" placeholder="HH:mm:ss" :state="period.start.isValidTime"></b-form-input>
+                <b-input-group-append>
+                    <b-form-timepicker :disabled="!period.setForAllRequests" v-model="period.start.Time" button-only right show-seconds now-button reset-button locale="it" aria-controls="startTime-input" size="sm"></b-form-timepicker>
+                </b-input-group-append>
+            </b-input-group>
+        </b-form-group>
+        <b-form-group label-align="right" label="End:" label-for="input-group-endtime" label-size="sm" label-cols="2">
+            <b-input-group size="sm">
+                <b-form-input :disabled="!period.setForAllRequests" v-model="period.end.Date" type="text" placeholder="YYYY-MM-DD" autocomplete="on" :state="period.end.isValidDate"></b-form-input>
+                <b-input-group-append>
+                    <b-form-datepicker :disabled="!period.setForAllRequests" v-model="period.end.Date" button-only right locale="it" aria-controls="endDate-input" size="sm" @context="onContextEndPeriod"></b-form-datepicker>
+                </b-input-group-append>
+                <b-form-input :disabled="!period.setForAllRequests" v-model="period.end.Time" type="text" placeholder="HH:mm:ss" :state="period.end.isValidTime"></b-form-input>
+                <b-input-group-append>
+                    <b-form-timepicker :disabled="!period.setForAllRequests" v-model="period.end.Time" button-only right show-seconds now-button reset-button locale="it" aria-controls="endTime-input" size="sm"></b-form-timepicker>
+                </b-input-group-append>
+            </b-input-group>
+        </b-form-group>
+        <div class="mb-3">
+            <button class="btn btn-primary" @click="addRequest">Add request</button> &nbsp;
+            <button class="btn btn-danger" @click="removeAllRequests">Remove all</button> &nbsp;
+            <button class="btn btn-success float-right" @click="sendRequests" v-show="requests.length>0">Send</button>
+            <div v-if="n_requests>0"><small class='text-muted'>Number of requests: {{ n_requests }}</small></div>
+        </div>
+        <!-- form starts here -->
+        <div class="mt-3" v-if="n_requests>0">
+            <b-card no-body>
+                <b-tabs card>
+                    <b-tab :active="currentUUID==item.request_id" v-if="item.request_id!=null" v-for="item in requests" :title="item.title" @click="currentUUID=item.request_id">
+                        <b-card-text>
+                            <tsdformrequest class="mt-3" :request="item"></tsdformrequest>
+                        </b-card-text>
+                    </b-tab>
+                </b-tabs>
+            </b-card>
+        </div>
+        <div class="alert alert-info mt-3" v-if="n_requests==0">No requests yet</div>
+    </div>
+    <script src="index-form.js"></script>
+
+</body>
+
+</html>
