@@ -11,7 +11,7 @@
     <!-- Load required Bootstrap and BootstrapVue CSS -->
     <link type="text/css" rel="stylesheet" href="../form/js-download/bootstrap.min.css" />
     <link type="text/css" rel="stylesheet" href="../form/js-download/bootstrap-vue.min.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="../form/js-download/bootstrap-icons.css" />
 
     <!-- Load Vue followed by BootstrapVue -->
     <script src="../form/js-download/vue.min.js"></script>
@@ -28,6 +28,7 @@
   <header>
     <style>
       #intro {
+		  background-image: url(/tsdws/login/Setto_VOR_BN.jpg);
         height: 100vh;
       }
     </style>
@@ -46,7 +47,7 @@
                 <!-- Email input -->
                 <div class="mb-4">
                     <div class="form-outline">
-                        <input type="email" v-model="email" class="form-control"/>
+                        <input type="email" v-model="email" class="form-control active" autofocus/>
                         <label class="form-label" for="form1Example1">Email address</label>
                     </div>
                     <span class='small text-primary text-right'>{{ warningEmail }}</span>
@@ -55,7 +56,7 @@
                 <!-- Password input -->
                 <div class="mb-1">
                     <div class="form-outline">
-                        <input :type="passwordInputType" v-model="password" class="form-control"/>
+                        <input :type="passwordInputType" v-model="password" class="form-control active"/>
                         <label class="form-label" for="form1Example2">Password</label>
                     </div>
                     <span class='small text-primary text-right'>{{ warningPassword }}</span>
@@ -73,10 +74,14 @@
                     <a href="/forgot-password">Forgot password ?</a>
                 </p>         
                 
+                <div class="form-group">
+                    <p class="text-center text-danger"> {{ errorLogin }}</p>
+                </div>
+
                 <div class="col-md-12 "><hr></div>
 
                 <div class="form-group">
-                    <p class="text-center small">Don't have account? <a href="#" id="signup">Sign up here</a></p>
+                    <p class="text-center small">Don't have account? <a href="reg.php" id="signup">Sign up here</a></p>
                 </div>
               </form>
             </div>
@@ -90,6 +95,6 @@
     <!-- MDB -->
     <script type="text/javascript" src="js/mdb.min.js"></script>
     <!-- Custom scripts -->
-    <script type="text/javascript" src="js/app.js"></script>
+    <script type="text/javascript" src="js/login.js"></script>
 </body>
 </html>
