@@ -144,7 +144,7 @@ class SimpleREST extends Utils{
 			require_once('JWT.php');
 
 			// Get our server-side secret key from a secure location.
-			$serverKey = file_get_contents("..".DIRECTORY_SEPARATOR."server_key");
+			$serverKey = getenv("SERVER_KEY");
 
 			try { 
 				$this->JWT_payload = $this->object_to_array(JWT::decode($token, $serverKey, array('HS256'))); 
