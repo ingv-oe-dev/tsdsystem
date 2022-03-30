@@ -11,12 +11,17 @@ services:
     depends_on:
       - db
     environment:
-      DATABASE_URL: postgresql://dbuser:smoketest@db:5432/tsdsystem
+      DB_HOST: "${DB_HOST}"
+      DB_USER: "${DB_USER}"
+      DB_PASSWORD: "${DB_PASSWORD}"
+      DB_NAME: "${DB_NAME}"
+      DB_PORT: "${DB_PORT}"
+      SERVER_KEY: "${SERVER_KEY}"
     ports:
       - "8000:80"
     working_dir: /var/www/html/tsdws
     volumes:
-      - ./src/tsdws:/var/www/html/tsdws
+      - ./src:/var/www/html
   db:
     extends:
       file: docker-services.yml

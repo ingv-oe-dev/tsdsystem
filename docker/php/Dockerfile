@@ -26,3 +26,9 @@ RUN groupmod -o -g ${PGID} www-data && \
     usermod -o -u ${PUID} -g www-data www-data
 
 RUN chown -R www-data:www-data /var/www
+
+COPY ./docker-entrypoint.sh /
+
+ENTRYPOINT ["/bin/bash", "/docker-entrypoint.sh"]
+
+CMD ["apache2-foreground"]
