@@ -2,7 +2,7 @@
 
 set -e
 
-cat > ./config/db.json << EOF
+cat > ./configs/db.json << EOF
 {
     "host": "${DB_HOST}",
     "user": "${DB_USER}",
