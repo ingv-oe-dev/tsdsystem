@@ -1,8 +1,8 @@
 <?php
-
+/*
 error_reporting(-1);
 ini_set('display_errors', 'On');
-
+*/
 // Token validity in days
 $validity_days = 30;
 
@@ -92,7 +92,7 @@ if($login["status"]) {
 	//var_dump($exp);
 
 	// Get our server-side secret key from a secure location.
-	$serverKey = getenv("SERVER_KEY");
+	$serverKey = $_SERVER["SERVER_KEY"];
 	
 	// create a token
 	$payloadArray = array();

@@ -54,7 +54,7 @@ Class Tokens extends QueryManager {
         $this->permissions = $this->getPermissions();
         
         // Get our server-side secret key from a secure location.
-        $this->serverKey = getenv("SERVER_KEY");
+        $this->serverKey = $_SERVER["SERVER_KEY"];
 
         /**
          * Create a token
@@ -84,7 +84,7 @@ Class Tokens extends QueryManager {
         $this->permissions = $this->getPermissions();
         
         // Get our server-side secret key from a secure location.
-        $this->serverKey = getenv("SERVER_KEY");
+        $this->serverKey = $_SERVER["SERVER_KEY"];
 
         //Create a token
         $token = $this->createToken();
