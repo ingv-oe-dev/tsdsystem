@@ -23,8 +23,35 @@ Class QueryManager extends Utils {
 	}
 	
 	private function readCredentials() {
+		
+		try {
+			$this->credentials = $this->readCredentialsFromEnv();
+			if (empty($this->credentials)) {
+				$this->credentials = $this->readCredentialsFromConfigFile();
+			}
+		} catch (Exception $e) {
+			// do nothing - if here and empty($this->credentials) is true, then the app is unable to connect
+		}
+	}
+
+	private function readCredentialsFromEnv() {
+		if (!isset($_SERVER["DB_HOST"])) return null;
+		if (!isset($_SERVER["DB_USER"])) return null;
+		if (!isset($_SERVER["DB_PASSWORD"])) return null;
+		if (!isset($_SERVER["DB_NAME"])) return null;
+		return array(
+			"host" => $_SERVER["DB_HOST"],
+			"user" => $_SERVER["DB_USER"],
+			"pwd" => $_SERVER["DB_PASSWORD"],
+			"db" => $_SERVER["DB_NAME"],
+			"port" => isset($_SERVER["DB_PORT"]) ? $_SERVER["DB_PORT"] : null
+		);
+		
+	}
+
+	private function readCredentialsFromConfigFile() {
 		$config_read = file_get_contents($_SERVER["DOCUMENT_ROOT"].DIRECTORY_SEPARATOR."tsdws".DIRECTORY_SEPARATOR."configs".DIRECTORY_SEPARATOR."db.json");
-		$this->credentials = json_decode($config_read, true);
+		return json_decode($config_read, true);
 	}
 
 	public function defaultConnectToMySQL() {
