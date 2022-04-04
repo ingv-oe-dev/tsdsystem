@@ -7,7 +7,8 @@ var app = new Vue({
             password: '',
             password2: '',
             showPassword: false,
-            errorLogin: ''
+            errorLogin: '',
+            successLogin: ''
         }
     },
     computed: {
@@ -37,6 +38,9 @@ var app = new Vue({
         },
         validateForm: function() {
             return this.validateEmail && this.validatePassword && this.validatePassword2 && this.samePassword;
+        },
+        showWelcomeLink: function() {
+            return this.successLogin !== '';
         }
     },
     methods: {
@@ -52,10 +56,11 @@ var app = new Vue({
                         password: this.password
                     },
                     success: function(response) {
-                        console.log(response);
+                        self.successLogin = response["message"] +
+                            ". A message was sent to your registration email address (" + self.email + ").";
                     },
                     error: function(error) {
-                        console.log(error);
+                        self.errorLogin = response["error"];
                     }
                 });
             }

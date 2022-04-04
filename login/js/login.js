@@ -6,7 +6,8 @@ var app = new Vue({
             email: '',
             password: '',
             showPassword: false,
-            errorLogin: ''
+            errorLogin: '',
+            successLogin: ''
         }
     },
     computed: {

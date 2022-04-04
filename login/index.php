@@ -76,6 +76,7 @@
                 
                 <div class="form-group">
                     <p class="text-center text-danger"> {{ errorLogin }}</p>
+                    <p class="text-center text-primary"> {{ successLogin }}</p>
                 </div>
 
                 <div class="col-md-12 "><hr></div>

@@ -81,6 +81,7 @@
                 
                 <div class="form-group">
                     <p class="text-center text-danger"> {{ errorLogin }}</p>
+                    <p class="text-center text-primary"> {{ successLogin }}<br><div v-if='showWelcomeLink'>Return to <a href='welcome.php'>welcome page</a></div></p>
                 </div>
               </form>
             </div>

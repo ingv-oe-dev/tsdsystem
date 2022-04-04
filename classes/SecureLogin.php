@@ -46,16 +46,43 @@ class SecureLogin extends QueryManager{
 					':random_salt' => $random_salt
 				));
 				if (isset($rs) and $rs["status"]) {
+					$rows["status"] = true;
 					$rows["message"] = 'Success: You have been registered!';
+					$rows["salt"] = $random_salt;
 				} else {
+					$rows["status"] = false;
 					$rows["error"] = $rs["error"];
 				}
 			} else {
+				$rows["status"] = false;
 				$rows["error"] = "There is a registration with this email";
 			}
 		} else {
+			$rows["status"] = false;
 			$rows["error"] = $rs["error"];
 		}
+		
+		return $rows;
+	}
+
+	function confirm_registration($email, $salt) {
+		
+		$rows = array();
+		
+		$query = "SELECT id FROM tsd_users.members WHERE email = :email AND salt = :salt AND deleted IS NULL AND confirmed IS NULL LIMIT 1";
+		$rs = $this->executeReadPreparedStatement($query, array(':email' => $email, ':salt' => $salt));
+		if (isset($rs) and $rs["status"] and count($rs["data"]) > 0) {
+			$sql = "UPDATE tsd_users.members SET confirmed = timezone('utc'::text, now()) WHERE id=:id";
+			$rs = $this->executeWritePreparedStatement($sql, array(
+				':id' => $rs["data"][0]["id"]
+			));
+			$rows["status"] = true;
+			$rows["message"] = 'Registration confirmed!';
+		} else {
+			$rows["status"] = false;
+			$rows["error"] = "The email " . $email . " does not exist or something gone wrong";
+		}
+		
 		
 		return $rows;
 	}
