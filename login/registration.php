@@ -44,11 +44,11 @@ if(preg_match($pattern, $email)) {
 			$adminbody = "A new registration:<br><br>
 			<b>Username</b>: " . $_POST['email'] . "<br><br>
 			Registration result:<br><pre>" . json_encode($result) . "</pre><br><br>
-			By clicking the following (local) URL (or reachable by VPN) you confirm the registration and allow the new user to access into website:<br><a href='" . $_SERVER["PUBLIC_URL"] . "tsdws/login/registration_confirm.php?email=" . $_POST['email'] . "&secret=" . $result['salt'] . "'>Confirm here</a>";
+			By clicking the following (local) URL (or reachable by VPN) you confirm the registration and allow the new user to access into website:<br><a href='" . getenv("PUBLIC_URL") . "tsdws/login/registration_confirm.php?email=" . $_POST['email'] . "&secret=" . $result['salt'] . "'>Confirm here</a>";
 			
 			$mail_addresses = array();
 			array_push($mail_addresses, array(
-				"email" => $_SERVER["ADMIN_EMAIL"]
+				"email" => getenv("ADMIN_EMAIL")
 			));
 			$mail_addresses_sent = Mailer::sendMailSingly($mail_addresses, $subject, $adminbody);
 			$result["mail_address_sent_admin"] = $mail_addresses_sent;
@@ -65,7 +65,7 @@ if(preg_match($pattern, $email)) {
 	
 	$mail_addresses = array();
 	array_push($mail_addresses, array(
-		"email" => $_SERVER["ADMIN_EMAIL"]
+		"email" => getenv("ADMIN_EMAIL")
 	));
 	$mail_addresses_sent = sendMailSingly($mail_addresses, $subject, $adminbody);
 	

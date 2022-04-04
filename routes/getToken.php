@@ -92,7 +92,7 @@ if($login["status"]) {
 	//var_dump($exp);
 
 	// Get our server-side secret key from a secure location.
-	$serverKey = $_SERVER["SERVER_KEY"];
+	$serverKey = getenv("SERVER_KEY");
 	
 	// create a token
 	$payloadArray = array();

@@ -35,18 +35,13 @@ Class QueryManager extends Utils {
 	}
 
 	private function readCredentialsFromEnv() {
-		if (!isset($_SERVER["DB_HOST"])) return null;
-		if (!isset($_SERVER["DB_USER"])) return null;
-		if (!isset($_SERVER["DB_PASSWORD"])) return null;
-		if (!isset($_SERVER["DB_NAME"])) return null;
 		return array(
-			"host" => $_SERVER["DB_HOST"],
-			"user" => $_SERVER["DB_USER"],
-			"pwd" => $_SERVER["DB_PASSWORD"],
-			"db" => $_SERVER["DB_NAME"],
-			"port" => isset($_SERVER["DB_PORT"]) ? $_SERVER["DB_PORT"] : null
+			"host" => getenv("DB_HOST"),
+			"user" => getenv("DB_USER"),
+			"pwd" => getenv("DB_PASSWORD"),
+			"db" => getenv("DB_NAME"),
+			"port" => getenv("DB_PORT")
 		);
-		
 	}
 
 	private function readCredentialsFromConfigFile() {

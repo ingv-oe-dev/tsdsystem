@@ -14,7 +14,7 @@ if ($result["status"]) {
 	$subject = "Your TSDSystem registration (CONFIRMED)";
 	$body = "Hi " . $_GET['email'] . ",<br><br> 
 		Your successful registration was confirmed!<br><br>
-	If you need to send some specific requests, please contacts " . $_SERVER["ADMIN_EMAIL"] . ".<br><br>
+	If you need to send some specific requests, please contacts " . getenv("ADMIN_EMAIL") . ".<br><br>
 
 	TSDSystem Admin Group";
 
@@ -23,7 +23,7 @@ if ($result["status"]) {
 		"email" => $_GET['email']
 	));
 	array_push($mail_addresses, array(
-		"email" => $_SERVER["ADMIN_EMAIL"]
+		"email" => getenv("ADMIN_EMAIL")
 	));
 
 	$mail_addresses_sent = Mailer::sendMailSingly($mail_addresses, $subject, $body);
