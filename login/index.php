@@ -28,7 +28,7 @@
   <header>
     <style>
       #intro {
-		  background-image: url(/tsdws/login/Setto_VOR_BN.jpg);
+		  background-image: url(/tsdws/login/ingv.jpeg);
         height: 100vh;
       }
     </style>
