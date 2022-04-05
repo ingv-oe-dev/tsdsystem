@@ -1,26 +1,13 @@
 RewriteEngine On
-RewriteRule ^timeseries/values$ routes/ts_routes.php [NC]
 
-RewriteEngine On
-RewriteRule ^timeseries$ routes/ts_routes.php [NC]
-
-RewriteEngine On
 RewriteRule ^token$ routes/generateToken.php [NC]
 
-RewriteEngine On
-RewriteRule ^channels$ routes/routes/pnet_routes.php [NC]
+RewriteRule ^timeseries/values(/)?$ routes/ts_routes.php [NC]
+RewriteRule ^timeseries(/)?$ routes/ts_routes.php [NC]
 
-RewriteEngine On
-RewriteRule ^nets$ routes/routes/pnet_routes.php [NC]
-
-RewriteEngine On
-RewriteRule ^sensortypes$ routes/routes/pnet_routes.php [NC]
-
-RewriteEngine On
-RewriteRule ^sensors$ routes/routes/pnet_routes.php [NC]
-
-RewriteEngine On
-RewriteRule ^owners$ routes/routes/pnet_routes.php [NC]
-
-RewriteEngine On
-RewriteRule ^sites$ routes/routes/pnet_routes.php [NC]
+RewriteRule ^channels(/)?$ routes/pnet_routes.php [NC]
+RewriteRule ^nets(/)?$ routes/pnet_routes.php [NC]
+RewriteRule ^sensortypes(/)?$ routes/pnet_routes.php [NC]
+RewriteRule ^sensors(/)?$ routes/pnet_routes.php [NC]
+RewriteRule ^owners(/)?$ routes/pnet_routes.php [NC]
+RewriteRule ^sites(/)?$ routes/pnet_routes.php [NC]
