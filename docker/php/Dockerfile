@@ -12,6 +12,9 @@ RUN apt-get update \
 
 RUN docker-php-ext-install pdo pdo_pgsql
 
+# ENABLE mod rewrite 
+RUN a2enmod rewrite
+
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /var/www/html/tsdws

@@ -27,6 +27,6 @@ services:
       file: docker-services.yml
       service: db
     volumes:
-      - "db_data:/var/lib/postgresql/data"
+      - "db_data:/home/postgres/pgdata/data"
 volumes:
   db_data:
