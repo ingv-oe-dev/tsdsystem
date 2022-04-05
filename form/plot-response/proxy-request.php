@@ -16,7 +16,10 @@
     
     $dataArray = ['request' => $body];
     $data = http_build_query($dataArray);
-    $url = "http://localhost/tsdws/timeseries/values/?" . $data;
+    $url = "http://";
+    if(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') $url = "https://";        
+    // Append the host(domain name, ip) to the URL.   
+    $url.= $_SERVER['HTTP_HOST'] . "/tsdws/timeseries/values/?" . $data;
     ///echo $url;
     
     // prepare cURL request
@@ -36,13 +39,13 @@
     $header_size = curl_getinfo($curl, CURLINFO_HEADER_SIZE);
     $header = substr($resp, 0, $header_size);
     $body = substr($resp, $header_size, strlen($resp));
-
+/*
     // set this request header the same of the returned by the cURL request
     $headerList = explode(PHP_EOL, $header);
     foreach($headerList as $h) {
         header($h);
     }
-    
+*/  
     // echo body response
     echo $body;
 ?>

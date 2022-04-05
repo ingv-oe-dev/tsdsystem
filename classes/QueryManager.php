@@ -35,6 +35,10 @@ Class QueryManager extends Utils {
 	}
 
 	private function readCredentialsFromEnv() {
+		if (!isset($_SERVER["DB_HOST"])) return null;
+		if (!isset($_SERVER["DB_USER"])) return null;
+		if (!isset($_SERVER["DB_PASSWORD"])) return null;
+		if (!isset($_SERVER["DB_NAME"])) return null;
 		return array(
 			"host" => getenv("DB_HOST"),
 			"user" => getenv("DB_USER"),
