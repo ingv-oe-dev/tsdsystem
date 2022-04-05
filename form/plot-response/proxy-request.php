@@ -39,13 +39,18 @@
     $header_size = curl_getinfo($curl, CURLINFO_HEADER_SIZE);
     $header = substr($resp, 0, $header_size);
     $body = substr($resp, $header_size, strlen($resp));
-/*
+
     // set this request header the same of the returned by the cURL request
     $headerList = explode(PHP_EOL, $header);
     foreach($headerList as $h) {
+
+        // Fix ERR_INVALID_CHUNKED_ENCODING error. Different headers on different web server (e.g. APACHE vs IIS) [because CURLOPT_RETURNTRANSFER == true]
+        if (str_contains($h,"Transfer-Encoding: chunked")) continue; 
+        
         header($h);
+        
     }
-*/  
+  
     // echo body response
     echo $body;
 ?>
