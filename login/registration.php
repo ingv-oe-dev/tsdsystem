@@ -2,6 +2,8 @@
 
 error_reporting(-1);
 ini_set('display_errors', 'On');
+
+require_once('..'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'Mailer.php');
 	
 header("Content-Type: application/json");
 $result = array();
@@ -20,10 +22,13 @@ if(preg_match($pattern, $email)) {
 	} else {
 		$result = $sl->registration($_POST['email'], $_POST['password']);
 
-		if ($result["message"] and $result["salt"] and $send_mail) {
-
-			require_once('..'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'Mailer.php');
-		
+		if (
+			array_key_exists("message", $result) and 
+			$result["message"] and 
+			array_key_exists("salt", $result) and 
+			$result["salt"] and 
+			$send_mail
+		) {		
 			/** invio email **/
 			$subject = "Your TSDSystem registration";
 			$body = "Hi " . $_POST['email'] . ",<br><br> 
@@ -35,7 +40,7 @@ if(preg_match($pattern, $email)) {
 				"email" => $_POST['email']
 			));
 			
-			$mail_addresses_sent = Mailer::sendMailSingly($mail_addresses, $subject, $body);
+			$mail_addresses_sent = Mailer::sendMailSingly_PHPMailer($mail_addresses, $subject, $body);
 			$result["mail_address_sent"] = $mail_addresses_sent;
 			
 			
@@ -50,7 +55,7 @@ if(preg_match($pattern, $email)) {
 			array_push($mail_addresses, array(
 				"email" => getenv("ADMIN_EMAIL")
 			));
-			$mail_addresses_sent = Mailer::sendMailSingly($mail_addresses, $subject, $adminbody);
+			$mail_addresses_sent = Mailer::sendMailSingly_PHPMailer($mail_addresses, $subject, $adminbody);
 			$result["mail_address_sent_admin"] = $mail_addresses_sent;
 		}
 	}
@@ -67,7 +72,7 @@ if(preg_match($pattern, $email)) {
 	array_push($mail_addresses, array(
 		"email" => getenv("ADMIN_EMAIL")
 	));
-	$mail_addresses_sent = sendMailSingly($mail_addresses, $subject, $adminbody);
+	$mail_addresses_sent = Mailer::sendMailSingly_PHPMailer($mail_addresses, $subject, $adminbody);
 	
 	$result["mail_address_sent_admin"] = $mail_addresses_sent;
 }

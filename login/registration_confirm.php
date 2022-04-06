@@ -26,7 +26,7 @@ if ($result["status"]) {
 		"email" => getenv("ADMIN_EMAIL")
 	));
 
-	$mail_addresses_sent = Mailer::sendMailSingly($mail_addresses, $subject, $body);
+	$mail_addresses_sent = Mailer::sendMailSingly_PHPMailer($mail_addresses, $subject, $body);
 
 	if ($mail_addresses_sent) {
 		echo "<br>An email was sent to:<br>";
