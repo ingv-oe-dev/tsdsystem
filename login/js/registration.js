@@ -51,16 +51,24 @@ var app = new Vue({
                 $.ajax({
                     url: "registration.php",
                     type: "POST",
+                    beforeSend: function() {
+                        self.successLogin = '';
+                        self.errorLogin = '';
+                    },
                     data: {
                         email: this.email,
                         password: this.password
                     },
                     success: function(response) {
-                        self.successLogin = response["message"] +
-                            ". A message was sent to your registration email address (" + self.email + ").";
+                        if (response["status"]) {
+                            self.successLogin = response["message"] +
+                                ". A message was sent to your registration email address (" + self.email + ").";
+                        } else {
+                            self.errorLogin = response["error"];
+                        }
                     },
                     error: function(error) {
-                        self.errorLogin = response["error"];
+                        self.errorLogin = error;
                     }
                 });
             }

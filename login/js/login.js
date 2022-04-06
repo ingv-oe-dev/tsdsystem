@@ -42,6 +42,10 @@ var app = new Vue({
                         email: this.email,
                         password: this.password
                     },
+                    beforeSend: function() {
+                        self.successLogin = '';
+                        self.errorLogin = '';
+                    },
                     success: function(response) {
                         if (response.status) {
                             let redirectURL = "welcome.php"
@@ -54,7 +58,7 @@ var app = new Vue({
                         }
                     },
                     error: function(error) {
-                        console.log(error);
+                        self.errorLogin = error;
                     }
                 });
             }

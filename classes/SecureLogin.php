@@ -5,17 +5,29 @@ class SecureLogin extends QueryManager{
 
 	function login($email, $password) {
 	   
-		$query = "SELECT id, password, salt FROM tsd_users.members WHERE email = :email AND deleted IS NULL AND NOT confirmed IS NULL LIMIT 1";
+		$query = "SELECT id, password, salt, confirmed FROM tsd_users.members WHERE email = :email AND deleted IS NULL LIMIT 1";
 		$rs = $this->executeReadPreparedStatement($query, array(':email' => $email));
 		if (isset($rs) and $rs["status"] and count($rs["data"]) > 0) { 
 			$password = hash('sha512', $password.$rs["data"][0]["salt"]); // codifica la password usando una chiave univoca.
 			if($rs["data"][0]["password"] == $password) { // Verifica che la password memorizzata nel database corrisponda alla password fornita dall'utente.
-				// Login eseguito con successo.
+				if (isset($rs["data"][0]["confirmed"])) {
+					// Login eseguito con successo.
+					return array(
+						"status" => true,
+						"message" => "Login successfull",
+						"user_id" => $rs["data"][0]["id"]
+					);    
+				} else {
+					return array(
+						"status" => false,
+						"error" => "Login suspended. Your registration have to be convalidated from administrators."
+					); 
+				}
+			} else {
 				return array(
-					"status" => true,
-					"message" => "Login successfull",
-					"user_id" => $rs["data"][0]["id"]
-				);    
+					"status" => false,
+					"error" => "Login failed. Uncorrect username e/o password"
+				); 
 			}
 		} 
 		return array(
