@@ -40,9 +40,7 @@
           <div class="row justify-content-center">
             <div class="col-xl-5 col-md-8" id='app'>
               <form class="bg-white rounded shadow-5-strong p-5">
-				<h2 class='text-center mb-5'>Sign in</h2>
-
-                <input id='fromPage' type='hidden' value="<?php echo isset($_GET["fromPage"]) ? $_GET["fromPage"] : ''; ?>" />
+				<h2 class='text-center mb-5'>Send reset password email</h2>
 
                 <!-- Email input -->
                 <div class="mb-4">
@@ -53,36 +51,16 @@
                     <span class='small text-primary text-right'>{{ warningEmail }}</span>
                 </div>
 
-                <!-- Password input -->
-                <div class="mb-1">
-                    <div class="form-outline">
-                        <input :type="passwordInputType" v-model="password" class="form-control active"/>
-                        <label class="form-label" for="form1Example2">Password</label>
-                    </div>
-                    <span class='small text-primary text-right'>{{ warningPassword }}</span>
-                </div>
-
-                <div class="form-outline mb-2 text-right custom-control custom-switch b-custom-control-sm">
-                    <input type="checkbox" name="checkbox-period" class="custom-control-input" v-model="showPassword" id="__BVID__3">
-                    <label class="custom-control-label" for="__BVID__3">Show Password</label>
-                </div>
-
                 <!-- Submit button -->
-                <button class="mb-1 btn btn-primary btn-block" @click="signin" :disabled="!validateForm">Sign in</button>
-
-                <p class="small text-right mt-2 mb-4">
-                    <a href="forgot-pwd.php">Forgot password?</a>
-                </p>         
+                <button class="mb-1 btn btn-primary btn-block" @click="sendMail" :disabled="!validateEmail">Send email to <span class='text-lowercase'>{{ email }}</span></button>        
                 
                 <div class="form-group">
                     <p class="text-center text-danger"> {{ errorLogin }}</p>
                     <p class="text-center text-primary"> {{ successLogin }}</p>
                 </div>
 
-                <div class="col-md-12 "><hr></div>
-
                 <div class="form-group">
-                    <p class="text-center small">Don't have account? <a href="signup.php" id="signup">Sign up here</a></p>
+                    <p class="text-center small">Return to <a href="welcome.php">Welcome page</a></p>
                 </div>
               </form>
             </div>
@@ -96,6 +74,6 @@
     <!-- MDB -->
     <script type="text/javascript" src="js/mdb.min.js"></script>
     <!-- Custom scripts -->
-    <script type="text/javascript" src="js/login.js"></script>
+    <script type="text/javascript" src="js/forgot-pwd.js"></script>
 </body>
 </html>

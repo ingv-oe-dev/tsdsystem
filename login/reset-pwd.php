@@ -1,3 +1,18 @@
+<?php
+
+require_once('..'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'SecureLogin.php');
+
+$sl = new SecureLogin();
+
+$email = $_GET['email'];
+$rand_key = $_GET['rand_key'];
+
+$check = $sl->check_valid_reset_password_url($email, $rand_key);
+
+if ($check) {
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -40,18 +55,10 @@
           <div class="row justify-content-center">
             <div class="col-xl-5 col-md-8" id='app'>
               <form class="bg-white rounded shadow-5-strong p-5">
-				<h2 class='text-center mb-5'>Sign up</h2>
+				        <h2 class='text-center mb-5'>Reset password</h2>
 
-                <input id='fromPage' type='hidden' value="<?php echo isset($_GET["fromPage"]) ? $_GET["fromPage"] : ''; ?>" />
-
-                <!-- Email input -->
-                <div class="mb-4">
-                    <div class="form-outline">
-                        <input type="email" v-model="email" class="form-control active" autofocus/>
-                        <label class="form-label" for="form1Example1">Email address</label>
-                    </div>
-                    <span class='small text-primary text-right'>{{ warningEmail }}</span>
-                </div>
+                <div class='text-muted text-center mb-3'>Account: <?php echo $_GET["email"]; ?></div>
+                <input id='email' type='hidden' value="<?php echo $_GET["email"]; ?>" />
 
                 <!-- Password input -->
                 <div class="mb-2">
@@ -77,11 +84,11 @@
                 </div>
 
                 <!-- Submit button -->
-                <button class="mb-1 btn btn-primary btn-block" @click="signup" :disabled="!validateForm">Sign up</button>       
+                <button class="mb-1 btn btn-primary btn-block" @click="resetPassword" :disabled="!validateForm">Confirm</button>       
                 
                 <div class="form-group">
                     <p class="text-center text-danger"> {{ errorLogin }}</p>
-                    <p class="text-center text-primary"> {{ successLogin }}<br><div v-if='showWelcomeLink'>Return to <a href='welcome.php'>welcome page</a></div></p>
+                    <p class="text-center text-primary"> {{ successLogin }}<br><div v-if='showWelcomeLink'>Return to <a href='welcome.php'>Welcome page</a></div></p>
                 </div>
               </form>
             </div>
@@ -95,6 +102,13 @@
     <!-- MDB -->
     <script type="text/javascript" src="js/mdb.min.js"></script>
     <!-- Custom scripts -->
-    <script type="text/javascript" src="js/registration.js"></script>
+    <script type="text/javascript" src="js/reset-pwd.js"></script>
 </body>
 </html>
+
+<?php
+}
+else {
+  echo "Invalid registration email or invalid key or expired key";
+}
+?>

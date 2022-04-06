@@ -28,7 +28,7 @@
   <header>
     <style>
       #intro {
-		  background-image: url(/tsdws/login/ingv.jpeg);
+        background-image: url(/tsdws/login/ingv.jpeg);
         height: 100vh;
       }
     </style>
@@ -40,7 +40,7 @@
           <div class="row justify-content-center">
             <div class="col-xl-5 col-md-8" id='app'>
               <form class="bg-white rounded shadow-5-strong p-5">
-				<h2 class='text-center mb-5'>Sign in</h2>
+				<h2 class='text-center mb-5'>Sign up</h2>
 
                 <input id='fromPage' type='hidden' value="<?php echo isset($_GET["fromPage"]) ? $_GET["fromPage"] : ''; ?>" />
 
@@ -54,7 +54,7 @@
                 </div>
 
                 <!-- Password input -->
-                <div class="mb-1">
+                <div class="mb-2">
                     <div class="form-outline">
                         <input :type="passwordInputType" v-model="password" class="form-control active"/>
                         <label class="form-label" for="form1Example2">Password</label>
@@ -62,27 +62,26 @@
                     <span class='small text-primary text-right'>{{ warningPassword }}</span>
                 </div>
 
+                <!-- Password re-input -->
+                <div class="mb-1">
+                    <div class="form-outline">
+                        <input :type="passwordInputType" v-model="password2" class="form-control"/>
+                        <label class="form-label" for="form1Example2">Repeat password</label>
+                    </div>
+                    <span class='small text-primary text-right'>{{ warningPassword2 }}</span>
+                </div>
+
                 <div class="form-outline mb-2 text-right custom-control custom-switch b-custom-control-sm">
                     <input type="checkbox" name="checkbox-period" class="custom-control-input" v-model="showPassword" id="__BVID__3">
-                    <label class="custom-control-label" for="__BVID__3">Show Password</label>
+                    <label class="custom-control-label" for="__BVID__3">Show Passwords</label>
                 </div>
 
                 <!-- Submit button -->
-                <button class="mb-1 btn btn-primary btn-block" @click="signin" :disabled="!validateForm">Sign in</button>
-
-                <p class="small text-right mt-2 mb-4">
-                    <a href="forgot-pwd.php">Forgot password?</a>
-                </p>         
+                <button class="mb-1 btn btn-primary btn-block" @click="signup" :disabled="!validateForm">Sign up</button>       
                 
                 <div class="form-group">
                     <p class="text-center text-danger"> {{ errorLogin }}</p>
-                    <p class="text-center text-primary"> {{ successLogin }}</p>
-                </div>
-
-                <div class="col-md-12 "><hr></div>
-
-                <div class="form-group">
-                    <p class="text-center small">Don't have account? <a href="signup.php" id="signup">Sign up here</a></p>
+                    <p class="text-center text-primary"> {{ successLogin }}<br><div v-if='showWelcomeLink'>Return to <a href='welcome.php'>Welcome page</a></div></p>
                 </div>
               </form>
             </div>
@@ -96,6 +95,6 @@
     <!-- MDB -->
     <script type="text/javascript" src="js/mdb.min.js"></script>
     <!-- Custom scripts -->
-    <script type="text/javascript" src="js/login.js"></script>
+    <script type="text/javascript" src="js/registration.js"></script>
 </body>
 </html>
