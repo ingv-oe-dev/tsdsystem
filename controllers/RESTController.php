@@ -26,23 +26,35 @@ Class RESTController extends SimpleREST {
 
 	public function route() {
 
-		if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-			$this->readInput();
-			$this->post();
+		switch ($_SERVER["REQUEST_METHOD"]) {
+			
+			case 'POST':
+				$this->readInput();
+				if (!$this->check_input_post()) break;
+				$this->post();
+				break;
+
+			case 'GET':
+				$this->getInput();
+				if (!$this->check_input_get()) break;
+				$this->get();
+				break;
+
+			case 'PATCH':
+				$this->readInput();
+				if (!$this->check_input_patch()) break;
+				$this->patch();
+				break;
+
+			case 'DELETE':
+				# code...
+				break;
+
+			default:
+				# code...
+				break;
 		}
-		if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-			$this->getInput();
-			$this->get();
-		}
-		if ($_SERVER['REQUEST_METHOD'] === 'PATCH') {
-			$this->readInput();
-			$this->patch();
-		}
-		/*
-		if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
-			$this->remove();
-		}
-		*/
+
 		$this->elaborateResponse();
 	}
 	
@@ -52,24 +64,25 @@ Class RESTController extends SimpleREST {
 	
 	public function post() {
 
-		if ($this->check_input_post()) {
-
-			$result = $this->obj->insert($this->getParams());
+		$result = $this->obj->insert($this->getParams());
 		
-			if ($result["status"]) {
-				$this->setData($result);
-				if (isset($result["id"])) {
-					if(isset($result["rows"]) and $result["rows"] > 0) {
-						$this->setStatusCode(201);
-					} else {
-						$this->setStatusCode(207);
-					}
+		if ($result["status"]) {
+			$this->setData($result);
+			if (isset($result["id"])) {
+				if(isset($result["rows"]) and $result["rows"] > 0) {
+					$this->setStatusCode(201);
+				} else {
+					$this->setStatusCode(207);
 				}
-			} else {
-				$this->setStatusCode(409);
-				$this->setError($result);
 			}
+		} else {
+			$this->setStatusCode(409);
+			$this->setError($result);
 		}
+	}
+
+	public function check_input_post() {
+		return true;
 	}
 	
 	// ====================================================================//
@@ -93,32 +106,36 @@ Class RESTController extends SimpleREST {
 		}
 	}
 
+	public function check_input_get() {
+		return true;
+	}
 	// ====================================================================//
 	// *************************      PATCH       *************************//
 	// ====================================================================//
 	
 	public function patch() {
 
-		if ($this->check_input_patch()) {
-
-			$result = $this->obj->update($this->getParams());
+		$result = $this->obj->update($this->getParams());
 		
-			if ($result["status"]) {
-				$this->setData($result);
-				if(isset($result["rows"]) and $result["rows"] > 0) {
-					$this->setStatusCode(202);
-				} else {
-					$this->setStatusCode(207);
-				}
+		if ($result["status"]) {
+			$this->setData($result);
+			if(isset($result["rows"]) and $result["rows"] > 0) {
+				$this->setStatusCode(202);
 			} else {
-				if ($result["rows"] == 0) {
-					$this->setStatusCode(404);
-				} else {
-					$this->setStatusCode(409);
-				}
-				$this->setError($result);
+				$this->setStatusCode(207);
 			}
+		} else {
+			if ($result["rows"] == 0) {
+				$this->setStatusCode(404);
+			} else {
+				$this->setStatusCode(409);
+			}
+			$this->setError($result);
 		}
+	}
+
+	public function check_input_patch() {
+		return true;
 	}
 }
 ?>
