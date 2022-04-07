@@ -135,7 +135,7 @@ class SimpleREST extends Utils{
 	/**
 	 * Check for a valid token in the header authorization and set into class variable JWT_payload
 	 */
-	private function _setJWT_payload() {
+	protected function _setJWT_payload() {
 		
 		$token = isset($_SERVER["HTTP_AUTHORIZATION"]) ? $_SERVER["HTTP_AUTHORIZATION"] : NULL;
 
@@ -153,7 +153,7 @@ class SimpleREST extends Utils{
 		}
 	}
 
-	private function _get_auth_data() {
+	protected function _get_auth_data() {
         
 		// Check if valid token
         if (isset($this->JWT_payload) and isset($this->JWT_payload["userId"])) {
@@ -171,55 +171,5 @@ class SimpleREST extends Utils{
 		return null;
     }
 
-    protected function authorizedAction($auth_params=array()) {
-
-		// Check for a valid token in the header authorization and set into class variable JWT_payload
-		$this->_setJWT_payload();
-		
-		// CHECK IF IS A MAGIC TOKEN
-        if (isset($this->JWT_payload) and array_key_exists("magic", $this->JWT_payload) and $this->JWT_payload["magic"]) 
-            return $this->JWT_payload["data"];
-
-        // Get authorization data
-        $auth_data = $this->_get_auth_data();
-        //var_dump($auth_data);
-
-		// Check if present authorization data, exit otherwise
-		if(!isset($auth_data)) {
-			$this->setStatusCode(401);
-			$this->setError("Authorization Not Found!");
-			$this->elaborateResponse();
-			exit();
-		}
-		
-		// Check if 'rights' are into $auth_data
-		if (!array_key_exists("rights", $auth_data) and array_key_exists("userId", $auth_data) and isset($auth_data["userId"])) {
-			
-			// load rights from users database by userId
-			require_once ("Users.php");
-			$UserObj = new Users($auth_data["userId"]);			
-			$auth_data["rights"] = $UserObj->getPermissions();
-		}
-		
-		// Check permissions
-        try {
-			$this->comparePermissions($auth_params, $auth_data); 
-		} catch (Exception $e) {
-			$this->setStatusCode(401);
-			$this->setError($e->getMessage());
-			$this->elaborateResponse();
-			exit();
-		}
-
-    }
-
-	/**
-	 * Check authorization contained into $auth_data 
-	 * by $auth_params["scope"] <resource>-<read|edit> 
-	 * and/or $auth_params["resource_id"]
-	 */
-	public function comparePermissions($auth_params, $auth_data) {
-		return false;
-	}
 }
 ?>
