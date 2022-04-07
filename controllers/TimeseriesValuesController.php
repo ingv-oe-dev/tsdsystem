@@ -90,9 +90,12 @@ Class TimeseriesValuesController extends RESTController {
 	 */
 	public function comparePermissions($auth_params, $auth_data) {
 		
+		$errorMessagePrefix = "Unauthorized action - ";
+		
 		// check if exists the section related to the scope
 		try {
 			$scope = explode('-', $auth_params['scope']); // view scope
+
 			$rights = $auth_data["rights"]["resources"][$scope[0]][$scope[1]];
 			// echo "rights:";
 			// var_dump($rights);

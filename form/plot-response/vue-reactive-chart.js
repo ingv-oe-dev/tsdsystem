@@ -7,6 +7,7 @@ const plotlyChartComponentDefinition = {
             settings: false,
             _chart_config: null,
             loaded: 0,
+            tsLoadingErrorResult: '',
             newData: {
                 date: null,
                 time: null,
@@ -74,15 +75,36 @@ const plotlyChartComponentDefinition = {
         loadData: function(element, index) {
             let vueself = this;
             let wsURL = 'proxy-request.php';
+            /*
             axios.post(wsURL, element.request)
                 .then(function(response) {
                     element.x = response.data.data.timestamp;
                     element.y = response.data.data[element.request.columns[0]];
-                    vueself.loaded++;
                 })
                 .catch(function(error) {
-                    console.log(error);
+                    vueself.tsLoadingErrorResult = error;
+                })
+                .then(function() {
+                    // always executed
+                    vueself.loaded++;
                 });
+            */
+            $.ajax({
+                url: wsURL,
+                data: element.request,
+                type: 'POST',
+                success: function(response) {
+                    element.x = response.data.data.timestamp;
+                    element.y = response.data.data[element.request.columns[0]];
+                },
+                error: function(data) {
+                    vueself.tsLoadingErrorResult = data.responseJSON["error"];
+                },
+                complete: function() {
+                    vueself.loaded++;
+                }
+            });
+
         },
         newRandomData: function() {
             let d = new Date();

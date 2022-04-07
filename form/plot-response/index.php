@@ -9,6 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <script src="../js-download/axios.min.js"></script>
+    <script src="../js-download/jquery-3.6.0.min.js"></script>
 
     <!-- Load required Bootstrap and BootstrapVue CSS -->
     <link type="text/css" rel="stylesheet" href="../js-download/bootstrap.min.css" />

@@ -77,6 +77,7 @@
                     </b-form>
                 </p>
     </b-collapse>
+    <div class="text-danger text-center">{{ tsLoadingErrorResult }}</div>
     <div class="row chart-container">
         <div :ref="chart.uuid" v-bind:id="chart.uuid" class='col-12 plotly-plot'></div>
     </div>

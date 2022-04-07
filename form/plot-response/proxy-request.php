@@ -1,8 +1,7 @@
 <?php
-    $body = file_get_contents('php://input');
+    // $body = file_get_contents('php://input'); // used when called by axios Javascript library
+    $body = json_encode($_POST, JSON_NUMERIC_CHECK);
     //echo $body;
-    $request = json_decode($body, TRUE);
-    //var_dump($request);
 
     session_start();
     $userId = isset($_SESSION["userId"]) ? $_SESSION["userId"] : null;
