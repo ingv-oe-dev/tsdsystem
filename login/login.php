@@ -1,8 +1,8 @@
 <?php
-/*
-error_reporting(-1);
-ini_set('display_errors', 'On');
-*/	
+if (getenv("ENV") == 'development') {
+	error_reporting(-1);
+	ini_set('display_errors', 'On');
+}
 header("Content-Type: application/json");
 $result = array();
 

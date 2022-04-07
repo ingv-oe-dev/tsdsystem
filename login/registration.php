@@ -1,8 +1,8 @@
 <?php
-
-error_reporting(-1);
-ini_set('display_errors', 'On');
-
+if (getenv("ENV") == 'development') {
+	error_reporting(-1);
+	ini_set('display_errors', 'On');
+}
 require_once('..'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'Mailer.php');
 	
 header("Content-Type: application/json");
