@@ -1,6 +1,6 @@
 <?php
 
-require_once("RESTController.php");
+require_once("..".DIRECTORY_SEPARATOR."classes".DIRECTORY_SEPARATOR."RESTController.php");
 require_once("..".DIRECTORY_SEPARATOR."classes".DIRECTORY_SEPARATOR."TimeseriesValues.php");
 
 // Timeseries class
