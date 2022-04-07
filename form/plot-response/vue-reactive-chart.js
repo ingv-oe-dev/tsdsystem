@@ -94,8 +94,8 @@ const plotlyChartComponentDefinition = {
                 data: element.request,
                 type: 'POST',
                 success: function(response) {
-                    element.x = response.data.data.timestamp;
-                    element.y = response.data.data[element.request.columns[0]];
+                    element.x = response.data.timestamp;
+                    element.y = response.data[element.request.columns[0]];
                 },
                 error: function(data) {
                     vueself.tsLoadingErrorResult = data.responseJSON["error"];
