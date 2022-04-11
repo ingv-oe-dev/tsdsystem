@@ -1,0 +1,15 @@
+RewriteEngine On
+
+RewriteRule .* - [e=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+RewriteRule ^token$ routes/generateToken.php [NC]
+
+RewriteRule ^timeseries/values(/)?$ routes/ts_routes.php [NC]
+RewriteRule ^timeseries(/)?$ routes/ts_routes.php [NC]
+
+RewriteRule ^channels(/)?$ routes/pnet_routes.php [NC]
+RewriteRule ^nets(/)?$ routes/pnet_routes.php [NC]
+RewriteRule ^sensortypes(/)?$ routes/pnet_routes.php [NC]
+RewriteRule ^sensors(/)?$ routes/pnet_routes.php [NC]
+RewriteRule ^owners(/)?$ routes/pnet_routes.php [NC]
+RewriteRule ^sites(/)?$ routes/pnet_routes.php [NC]

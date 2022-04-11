@@ -1,0 +1,173 @@
+<template>
+    <div class="row">
+        <div class="col-lg-8 col-md-8 col-sm-12 col-xs-12">
+            <b-form @submit="onSubmit" @reset="onReset" size="sm">
+                <b-form-group label-align-lg="right" label-align-md="right" label-align-sm="left" label-align-xs="left" id="input-group-0" label="Request title:" label-for="input-0" label-size="sm" label-cols-md="3" label-cols-lg="3" label-cols-sm="3" label-cols-xs="3">
+                    <b-form-input id="input-0" v-model="request.title" placeholder="Request title" size="sm"></b-form-input>
+                </b-form-group>
+                <b-form-group label-align-lg="right" label-align-md="right" label-align-sm="left" label-align-xs="left" label="Search timeseries by:" v-slot="{ ariaDescribedby }" label-size="sm" label-cols-md="3" label-cols-lg="3" label-cols-sm="3" label-cols-xs="3">
+                    <b-form-radio-group
+                        id="btn-radios-1"
+                        v-model="searchbyname.value"
+                        :options="searchbyname.options"
+                        :aria-describedby="ariaDescribedby"
+                        name="radios-btn-default"
+                        button-variant="outline-secondary"
+                        size="sm"
+                        buttons
+                    ></b-form-radio-group>
+                    <b-input-group prepend="Name" size="sm" v-show="searchbyname_active" class="mt-3">
+                        <b-form-input v-model="filterTimeseriesName"></b-form-input> 
+                    </b-input-group>
+                </b-form-group>
+                <b-form-group label-align-lg="right" label-align-md="right" label-align-sm="left" label-align-xs="left" v-show="searchbyname_active" label="Timeseries:" label-for="input-timeseries-filter" label-size="sm" label-cols-md="3" label-cols-lg="3" label-cols-sm="3" label-cols-xs="3">
+                    <b-form-select id="input-timeseries-filter" v-model="selectedTimeseries" size="sm">
+                        <option :value="resetID" disabled> {{ defaultOption.timeseries }} </option>
+                        <option v-for="item in filtered_timeseries" :value="item.id">[{{ item.schema }}].{{ item.name }}</option>
+                    </b-form-select>
+                </b-form-group>
+                <div v-show="!searchbyname_active">
+                    <b-form-group label-align-lg="right" label-align-md="right" label-align-sm="left" label-align-xs="left" id="input-group-net" label="Net:" label-for="input-net" label-size="sm" label-cols-md="3" label-cols-lg="3" label-cols-sm="3" label-cols-xs="3">
+                        <b-form-select id="input-net" v-model="selectedNet" size="sm">
+                            <option :value="resetID" disabled> {{ defaultOption.nets }} </option>
+                            <option v-for="item in nets" :value="item.id">{{ item.name }}</option>
+                        </b-form-select>
+                    </b-form-group>
+                    <b-form-group label-align-lg="right" label-align-md="right" label-align-sm="left" label-align-xs="left" id="input-group-sensor" label="Sensor:" label-for="input-sensor" label-size="sm" label-cols-md="3" label-cols-lg="3" label-cols-sm="3" label-cols-xs="3">
+                        <b-form-select id="input-sensor" v-model="selectedSensor" size="sm">
+                            <option :value="resetID" disabled> {{ defaultOption.sensors }} </option>
+                            <option v-for="item in sensors" :value="item.id">{{ item.name }}</option>
+                        </b-form-select>
+                        <b-form-checkbox class="text-right" v-model="showStationMap" name="checkbox-stationmap" :value="true" :unchecked-value="false" size="sm" switch>
+                            Show map
+                        </b-form-checkbox>
+                        <stationmap v-show="showStationMap" class='mt-1' style="height:300px" ref="stationMap" @clickedMarker="onStationMapMarkerClick"></stationmap>
+                    </b-form-group>
+                    <b-form-group label-align-lg="right" label-align-md="right" label-align-sm="left" label-align-xs="left" id="input-group-channel" label="Channel:" label-for="input-channel" label-size="sm" label-cols-md="3" label-cols-lg="3" label-cols-sm="3" label-cols-xs="3">
+                        <b-form-select id="input-channel" v-model="selectedChannel" size="sm">
+                            <option :value="resetID" disabled> {{ defaultOption.channels }} </option>
+                            <option v-for="item in channels" :value="item.id">{{ item.name }}</option>
+                        </b-form-select>
+                    </b-form-group>
+                    <b-form-group label-align-lg="right" label-align-md="right" label-align-sm="left" label-align-xs="left" id="input-group-timeseries" label="Timeseries:" label-for="input-timeseries" label-size="sm" label-cols-md="3" label-cols-lg="3" label-cols-sm="3" label-cols-xs="3">
+                        <b-form-select id="input-timeseries" v-model="selectedTimeseries" size="sm">
+                            <option :value="resetID" disabled> {{ defaultOption.timeseries }} </option>
+                            <option v-for="item in timeseries" :value="item.id">[{{ item.schema }}].{{ item.name }}</option>
+                        </b-form-select>
+                    </b-form-group>
+                </div>
+                <b-form-group label-align-lg="right" label-align-md="right" label-align-sm="left" label-align-xs="left" id="input-group-timeseries-field" label="Field:" label-for="input-timeseries-field" label-size="sm" label-cols-md="3" label-cols-lg="3" label-cols-sm="3" label-cols-xs="3">
+                    <b-form-select id="input-timeseries-field" v-model="selectedTimeseriesColumns" size="sm" multiple :select-size="5">
+                        <option v-for="item in timeseries_columns" :value="item" :selected="true">{{ item }}</option>
+                    </b-form-select>
+                </b-form-group>
+                <b-form-group label-align-lg="right" label-align-md="right" label-align-sm="left" label-align-xs="left" id="input-group-starttime" label="Start period:" label-for="input-group-starttime" label-size="sm" label-cols-md="3" label-cols-lg="3" label-cols-sm="3" label-cols-xs="3">
+                    <b-input-group size="sm">
+                        <b-form-input
+                            id="startDate-input"
+                            v-model="period.start.Date"
+                            type="text"
+                            placeholder="YYYY-MM-DD"
+                            autocomplete="on"
+                            :state="period.start.isValidDate"
+                        ></b-form-input>
+                        <b-input-group-append>
+                            <b-form-datepicker
+                            v-model="period.start.Date"
+                            button-only
+                            right
+                            locale="it"
+                            aria-controls="startDate-input"
+                            size="sm"
+                            @context="onContextStartPeriod"
+                            ></b-form-datepicker>
+                        </b-input-group-append>
+                        <b-form-input
+                          id="startTime-input"
+                          v-model="period.start.Time"
+                          type="text"
+                          placeholder="HH:mm:ss"
+                          :state="period.start.isValidTime"
+                        ></b-form-input>
+                        <b-input-group-append>
+                            <b-form-timepicker
+                                v-model="period.start.Time"
+                                button-only
+                                right
+                                show-seconds
+                                now-button
+                                reset-button
+                                locale="it"
+                                aria-controls="startTime-input"
+                                size="sm"
+                            ></b-form-timepicker>
+                        </b-input-group-append>
+                      </b-input-group>
+                </b-form-group>
+                <b-form-group label-align-lg="right" label-align-md="right" label-align-sm="left" label-align-xs="left" id="input-group-endtime" label="End period:" label-for="input-group-endtime" label-size="sm" label-cols-md="3" label-cols-lg="3" label-cols-sm="3" label-cols-xs="3">
+                    <b-input-group size="sm">
+                        <b-form-input
+                            id="endDate-input"
+                            v-model="period.end.Date"
+                            type="text"
+                            placeholder="YYYY-MM-DD"
+                            autocomplete="on"
+                            :state="period.end.isValidDate"
+                        ></b-form-input>
+                        <b-input-group-append>
+                            <b-form-datepicker
+                            v-model="period.end.Date"
+                            button-only
+                            right
+                            locale="it"
+                            aria-controls="endDate-input"
+                            size="sm"
+                            @context="onContextEndPeriod"
+                            ></b-form-datepicker>
+                        </b-input-group-append>
+                        <b-form-input
+                          id="endTime-input"
+                          v-model="period.end.Time"
+                          type="text"
+                          placeholder="HH:mm:ss"
+                          :state="period.end.isValidTime"
+                        ></b-form-input>
+                        <b-input-group-append>
+                            <b-form-timepicker
+                                v-model="period.end.Time"
+                                button-only
+                                right
+                                show-seconds
+                                now-button
+                                reset-button
+                                locale="it"
+                                aria-controls="endTime-input"
+                                size="sm"
+                            ></b-form-timepicker>
+                        </b-input-group-append>
+                      </b-input-group>
+                </b-form-group>
+                <b-form-group label-align-lg="right" label-align-md="right" label-align-sm="left" label-align-xs="left" id="input-group-aggregation" label="Group by:" label-for="input-aggregation" label-size="sm" label-cols-md="3" label-cols-lg="3" label-cols-sm="3" label-cols-xs="3">
+                    <b-input-group append="Compute" size="sm">
+                        <b-form-input type="number" min="1" v-model="aggregation.selectedTimeTypeCount"></b-form-input>
+                        <b-form-select id="time-type" v-model="aggregation.selectedTimeType" size="sm">
+                            <option v-for="item in aggregation.timeTypes" :value="item">{{ item }}</option>
+                        </b-form-select>
+                        <b-form-select id="input-group-aggregation-function" v-model="aggregation.selectedFunction" size="sm">
+                            <option v-for="item in aggregation.functions" :value="item">{{ item }}</option>
+                        </b-form-select>
+                    </b-input-group>
+                </b-form-group>
+                <b-button type="reset" variant="success" class="btn-sm">Reset</b-button>
+                <b-button variant="danger" @click="onRemove" class="btn-sm">Remove</b-button>
+            </b-form>
+        </div>
+        <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+            <p class="mt-3 font-monospace fs-6">JSON request preview:</p>
+            <b-card>
+                <pre class="m-0">{{ request }}</pre>
+            </b-card>
+            
+        </div>
+    </div>
+</template>
