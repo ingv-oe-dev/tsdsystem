@@ -28,6 +28,10 @@ services:
       service: db
     volumes:
       - "db_data:/home/postgres/pgdata/data"
+  pgadmin:
+    extends:
+      file: docker-services.yml
+      service: pgadmin
   grafana:
     extends:
       file: docker-services.yml
