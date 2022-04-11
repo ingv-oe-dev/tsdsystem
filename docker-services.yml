@@ -1,14 +1,26 @@
 version: '3'
 services:
-    db:
-      build:
-        context: ./docker/timescale/
-      image: tsdsystem-db
-      container_name: db
-      restart: always
-      environment:
-        - "POSTGRES_USER=${DB_USER}"
-        - "POSTGRES_PASSWORD=${DB_PASSWORD}"
-        - "POSTGRES_DB=${DB_NAME}"
-      ports:
-        - "5432:5432"
+  db:
+    build:
+      context: ./docker/timescale/
+    image: tsdsystem-db
+    container_name: db
+    restart: always
+    environment:
+      - "POSTGRES_USER=${DB_USER}"
+      - "POSTGRES_PASSWORD=${DB_PASSWORD}"
+      - "POSTGRES_DB=${DB_NAME}"
+    ports:
+      - "5432:5432"
+  grafana:
+    image: grafana/grafana-oss:8.4.5
+    ports:
+    - 3000:3000
+    environment:
+      GF_RENDERING_SERVER_URL: http://renderer:8081/render
+      GF_RENDERING_CALLBACK_URL: http://grafana:3000/
+      GF_LOG_FILTERS: rendering:debug
+  renderer:
+    image: grafana/grafana-image-renderer:latest
+    ports:
+    - 8081

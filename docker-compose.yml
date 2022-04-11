@@ -28,5 +28,16 @@ services:
       service: db
     volumes:
       - "db_data:/home/postgres/pgdata/data"
+  grafana:
+    extends:
+      file: docker-services.yml
+      service: grafana
+    volumes:
+      - "grafana-storage:/var/lib/grafana"
+  renderer:
+    extends:
+      file: docker-services.yml
+      service: renderer
 volumes:
   db_data:
+  grafana-storage:
