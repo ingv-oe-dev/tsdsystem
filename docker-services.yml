@@ -12,6 +12,17 @@ services:
       - "POSTGRES_DB=${DB_NAME}"
     ports:
       - "5432:5432"
+  pgadmin:
+    image: dpage/pgadmin4:6.8
+    restart: "unless-stopped"
+    ports:
+      - 5050:80
+      - 5051:443
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+    volumes:
+      - ./docker/timescale/servers.json:/pgadmin4/servers.json
   grafana:
     image: grafana/grafana-oss:8.4.5
     ports:
