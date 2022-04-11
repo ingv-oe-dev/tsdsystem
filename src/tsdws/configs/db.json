@@ -1,7 +1,7 @@
 {
-    "host": "localhost",
+    "host": "db",
     "user": "webapp_user",
-    "pwd": "#m?2U9xZ",
+    "pwd": "smoketest",
     "db": "tsdsystem",
     "port": "5432"
 }
