@@ -111,3 +111,19 @@ CREATE TABLE IF NOT EXISTS tsd_users.tokens
 
 TABLESPACE pg_default;
 
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+-- Table: tsd_users.temp_reset_keys
+
+-- DROP TABLE IF EXISTS tsd_users.temp_reset_keys;
+
+CREATE TABLE IF NOT EXISTS tsd_users.temp_reset_keys
+(
+    id SERIAL NOT NULL,
+    email character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    rand_key character varying(255) COLLATE pg_catalog."default" NOT NULL,
+	create_time timestamp without time zone DEFAULT (now() AT TIME ZONE 'utc'::text),
+    CONSTRAINT temp_reset_keys_pkey PRIMARY KEY (id)
+)
+
+TABLESPACE pg_default;
