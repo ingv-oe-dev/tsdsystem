@@ -3,7 +3,7 @@ require_once("QueryManager.php");
 
 Class Sensortypes extends QueryManager {
 	
-	private $tablename = "tsd_pnet.sensortypes";
+	protected $tablename = "tsd_pnet.sensortypes";
 	
 	public function insert($input) {
 
@@ -17,10 +17,11 @@ Class Sensortypes extends QueryManager {
 			// start transaction
 			$this->myConnection->beginTransaction();
 
-			$next_query = "INSERT INTO " . $this->tablename . " (name, json_schema) VALUES ('" . 
+			$next_query = "INSERT INTO " . $this->tablename . " (name, json_schema, create_user) VALUES ('" . 
 				$input["name"] . "', " .
-				(isset($input["json_schema"]) ? ("'" . json_encode($input["json_schema"], JSON_NUMERIC_CHECK) . "'") : "NULL") . ") 
-				ON CONFLICT (LOWER(name)) DO NOTHING";
+				(isset($input["json_schema"]) ? ("'" . json_encode($input["json_schema"], JSON_NUMERIC_CHECK) . "'") : "NULL") . ",
+				" . ((array_key_exists("create_user", $input) and isset($input["create_user"]) and is_int($input["create_user"])) ? $input["create_user"] : "NULL") . "  
+				) ON CONFLICT (LOWER(name)) DO NOTHING";
 			$stmt = $this->myConnection->prepare($next_query);
 			$stmt->execute();
 			$response["rows"] = $stmt->rowCount();
@@ -65,5 +66,31 @@ Class Sensortypes extends QueryManager {
 		
 		//echo $query;
 		return $this->getRecordSet($query);
+	}
+
+	public function update($input) {
+
+		$updateFields = array(
+			"name" => array("quoted" => true),
+			"json_schema" => array("quoted" => true),
+			"update_time" => array("quoted" => false),
+			"update_user" => array("quoted" => false)
+		);
+
+		$whereStmt = " WHERE remove_time IS NULL AND id = " . $input["id"];
+
+		return $this->genericUpdateRoutine($input, $updateFields, $whereStmt);
+	}
+
+	public function delete($input) {
+
+		$updateFields = array(
+			"remove_time" => array("quoted" => false),
+			"remove_user" => array("quoted" => false)
+		);
+
+		$whereStmt = " WHERE remove_time IS NULL AND id = " . $input["id"];
+		
+		return $this->genericUpdateRoutine($input, $updateFields, $whereStmt);
 	}
 }

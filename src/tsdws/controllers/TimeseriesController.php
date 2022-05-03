@@ -197,5 +197,26 @@ Class TimeseriesController extends RESTController {
 
 		return true;
 	}
+
+	public function patch() {
+
+		$result = $this->obj->update($this->getParams());
+		
+		if ($result["status"]) {
+			$this->setData($result);
+			if(isset($result["rows"]) and $result["rows"] > 0) {
+				$this->setStatusCode(202);
+			} else {
+				$this->setStatusCode(207);
+			}
+		} else {
+			if ($result["rows"] == 0) {
+				$this->setStatusCode(404);
+			} else {
+				$this->setStatusCode(409);
+			}
+			$this->setError($result);
+		}
+	}
 }
 ?>

@@ -36,11 +36,27 @@ Class SitesController extends RESTController {
 				break;
 
 			case 'PATCH':
-				# code...
+				$this->readInput();
+				$input = $this->getParams();
+				if (!$this->check_input_patch()) break;
+				// check if authorized action
+				$this->authorizedAction(array(
+					"scope"=>"sites-edit",
+					"resource_id"=>$input["id"]
+				));
+				$this->patch();
 				break;
 
 			case 'DELETE':
-				# code...
+				$this->getInput();
+				$input = $this->getParams();
+				if (!$this->check_input_delete()) break;
+				// check if authorized action
+				$this->authorizedAction(array(
+					"scope"=>"sites-edit",
+					"resource_id"=>$input["id"]
+				));
+				$this->delete();
 				break;
 
 			default:
@@ -52,7 +68,7 @@ Class SitesController extends RESTController {
 	}
 	
 	// ====================================================================//
-	// ****************** post - channel **********************//
+	// ****************** post - sites **********************//
 	// ====================================================================//
 	public function check_input_post() {
 		
@@ -76,6 +92,47 @@ Class SitesController extends RESTController {
 		// (3) $input["lon"] 
 		if (!array_key_exists("lon", $input) || !is_numeric($input["lon"])) {
 			$this->setInputError("This required input is missing: 'lon' [float]");
+			return false;
+		}
+		// (3) $input["quote"] 
+		if (array_key_exists("quote", $input) and !is_numeric($input["quote"])) {
+			$this->setInputError("Uncorrect input: 'quote' [float]");
+			return false;
+		}
+		// (4) $input["info"] is json
+		if (array_key_exists("info", $input) and !$this->validate_json($input["info"])){
+			$this->setInputError("Error on decoding 'info' JSON input");
+			return false;
+		}
+		
+		return true;
+	}
+
+	// ====================================================================//
+	// ****************** patch - sites **********************//
+	// ====================================================================//
+	public function check_input_patch() {
+		
+		if ($this->isEmptyInput()) {
+			$this->setInputError("Empty input or malformed JSON");
+			return false;
+		}
+		
+		$input = $this->getParams();
+		
+		// (0) $input["id"] 
+		if (!array_key_exists("id", $input) or !is_int($input["id"])){
+			$this->setInputError("This required input is missing: 'id' [integer]");
+			return false;
+		}
+		// (2) $input["lat"] 
+		if (array_key_exists("lat", $input) and !is_numeric($input["lat"])) {
+			$this->setInputError("Uncorrect input: 'lat' [float]");
+			return false;
+		}
+		// (3) $input["lon"] 
+		if (array_key_exists("lon", $input) and !is_numeric($input["lon"])) {
+			$this->setInputError("Uncorrect input: 'lon' [float]");
 			return false;
 		}
 		// (3) $input["quote"] 

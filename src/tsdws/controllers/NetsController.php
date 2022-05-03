@@ -36,11 +36,27 @@ Class NetsController extends RESTController {
 				break;
 
 			case 'PATCH':
-				# code...
+				$this->readInput();
+				$input = $this->getParams();
+				if (!$this->check_input_patch()) break;
+				// check if authorized action
+				$this->authorizedAction(array(
+					"scope"=>"nets-edit",
+					"resource_id"=>$input["id"]
+				));
+				$this->patch();
 				break;
 
 			case 'DELETE':
-				# code...
+				$this->getInput();
+				$input = $this->getParams();
+				if (!$this->check_input_delete()) break;
+				// check if authorized action
+				$this->authorizedAction(array(
+					"scope"=>"nets-edit",
+					"resource_id"=>$input["id"]
+				));
+				$this->delete();
 				break;
 
 			default:
@@ -52,7 +68,7 @@ Class NetsController extends RESTController {
 	}
 	
 	// ====================================================================//
-	// ****************** post - channel **********************//
+	// ****************** post - net **********************//
 	// ====================================================================//
 	public function check_input_post() {
 		
@@ -75,5 +91,33 @@ Class NetsController extends RESTController {
 		
 		return true;
 	}
+
+	// ====================================================================//
+	// ****************** patch - net **********************//
+	// ====================================================================//
+	public function check_input_patch() {
+		
+		if ($this->isEmptyInput()) {
+			$this->setInputError("Empty input or malformed JSON");
+			return false;
+		}
+		
+		$input = $this->getParams();	
+
+		// (0) $input["id"] 
+		if (!array_key_exists("id", $input) or !is_int($input["id"])){
+			$this->setInputError("This required input is missing: 'id' [integer]");
+			return false;
+		}
+
+		// (2) $input["owner_id"] is integer
+		if (array_key_exists("owner_id", $input) and !is_int($input["owner_id"])){
+			$this->setInputError("Uncorrect input: 'owner_id' [int]");
+			return false;
+		}
+		
+		return true;
+	}
+
 }
 ?>

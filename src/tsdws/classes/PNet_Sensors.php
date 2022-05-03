@@ -3,7 +3,7 @@ require_once("QueryManager.php");
 
 Class Sensors extends QueryManager {
 	
-	private $tablename = "tsd_pnet.sensors";
+	protected $tablename = "tsd_pnet.sensors";
 	
 	public function insert($input) {
 
@@ -17,7 +17,7 @@ Class Sensors extends QueryManager {
 			// start transaction
 			$this->myConnection->beginTransaction();
 
-			$next_query = "INSERT INTO " . $this->tablename . " (name, coords, quote, sensortype_id, net_id, site_id, metadata, custom_props) VALUES (".
+			$next_query = "INSERT INTO " . $this->tablename . " (name, coords, quote, sensortype_id, net_id, site_id, metadata, custom_props, create_user) VALUES (".
 				"'" . $input["name"] . "', " . 
 				((isset($input["lon"]) and isset($input["lat"])) ? ("'POINT(" . $input["lon"] . " " . $input["lat"] . ")'::geometry") : "NULL") . ", " .
 				(isset($input["quote"]) ? $input["quote"] : "NULL") . ", " .
@@ -25,8 +25,9 @@ Class Sensors extends QueryManager {
 				(isset($input["net_id"]) ? $input["net_id"] : "NULL") . ", " .
 				(isset($input["site_id"]) ? $input["site_id"] : "NULL") . ", " .
 				(isset($input["metadata"]) ? ("'" . json_encode($input["metadata"], JSON_NUMERIC_CHECK) . "'") : "NULL") . ", " .
-				(isset($input["custom_props"]) ? ("'" . json_encode($input["custom_props"], JSON_NUMERIC_CHECK) . "'") : "NULL") .
-			") ON CONFLICT (LOWER(name)) DO NOTHING";
+				(isset($input["custom_props"]) ? ("'" . json_encode($input["custom_props"], JSON_NUMERIC_CHECK) . "'") : "NULL") . ",
+				" . ((array_key_exists("create_user", $input) and isset($input["create_user"]) and is_int($input["create_user"])) ? $input["create_user"] : "NULL") . " 
+			) ON CONFLICT (LOWER(name)) DO NOTHING";
 
 			$stmt = $this->myConnection->prepare($next_query);
 			$stmt->execute();
@@ -75,5 +76,41 @@ Class Sensors extends QueryManager {
 		
 		//echo $query;
 		return $this->getRecordSet($query);
+	}
+
+	public function update($input) {
+
+		$updateFields = array(
+			"name" => array("quoted" => true),
+			"quote" => array("quoted" => false),
+			"metadata" => array("quoted" => true),
+			"custom_props" => array("quoted" => true),
+			"sensortype_id" => array("quoted" => false),
+			"net_id" => array("quoted" => false),
+			"site_id" => array("quoted" => false),
+			"update_time" => array("quoted" => false),
+			"update_user" => array("quoted" => false)
+		);
+
+		$input["coords"] = ((isset($input["lon"]) and isset($input["lat"])) ? ("'POINT(" . $input["lon"] . " " . $input["lat"] . ")'::geometry") : "NULL");
+		if ($input["coords"] != "NULL") {
+			$updateFields["coords"] = array("quoted" => false);
+		}
+
+		$whereStmt = " WHERE remove_time IS NULL AND id = " . $input["id"];
+
+		return $this->genericUpdateRoutine($input, $updateFields, $whereStmt);
+	}
+
+	public function delete($input) {
+
+		$updateFields = array(
+			"remove_time" => array("quoted" => false),
+			"remove_user" => array("quoted" => false)
+		);
+
+		$whereStmt = " WHERE remove_time IS NULL AND id = " . $input["id"];
+		
+		return $this->genericUpdateRoutine($input, $updateFields, $whereStmt);
 	}
 }

@@ -64,7 +64,11 @@ Class RESTController extends SimpleREST {
 	
 	public function post() {
 
-		$result = $this->obj->insert($this->getParams());
+		$input = $this->getParams();
+		$auth_data = $this->_get_auth_data();
+		$input["create_user"] = isset($auth_data) ? $auth_data["userId"] : NULL;
+
+		$result = $this->obj->insert($input);
 		
 		if ($result["status"]) {
 			$this->setData($result);
@@ -115,7 +119,12 @@ Class RESTController extends SimpleREST {
 	
 	public function patch() {
 
-		$result = $this->obj->update($this->getParams());
+		$input = $this->getParams();
+		$auth_data = $this->_get_auth_data();
+		$input["update_user"] = isset($auth_data) ? $auth_data["userId"] : NULL;
+		$input["update_time"] = "timezone('utc'::text, now())";
+
+		$result = $this->obj->update($input);
 		
 		if ($result["status"]) {
 			$this->setData($result);
@@ -125,16 +134,55 @@ Class RESTController extends SimpleREST {
 				$this->setStatusCode(207);
 			}
 		} else {
-			if ($result["rows"] == 0) {
-				$this->setStatusCode(404);
-			} else {
-				$this->setStatusCode(409);
-			}
+			$this->setStatusCode(409);
 			$this->setError($result);
 		}
 	}
 
 	public function check_input_patch() {
+		return true;
+	}
+
+	// ====================================================================//
+	// *************************      DELETE      *************************//
+	// ====================================================================//
+	public function delete() {
+
+		$input = $this->getParams();
+		$auth_data = $this->_get_auth_data();
+		$input["remove_user"] = isset($auth_data) ? $auth_data["userId"] : NULL;
+		$input["remove_time"] = "timezone('utc'::text, now())";
+
+		$result = $this->obj->delete($input);
+		
+		if ($result["status"]) {
+			$this->setData($result);
+			if(isset($result["rows"]) and $result["rows"] > 0) {
+				$this->setStatusCode(202);
+			} else {
+				$this->setStatusCode(207);
+			}
+		} else {
+			$this->setStatusCode(409);
+			$this->setError($result);
+		}
+	}
+
+	public function check_input_delete() {
+		
+		if ($this->isEmptyInput()) {
+			$this->setInputError("Empty input or malformed JSON");
+			return false;
+		}
+		
+		$input = $this->getParams();
+
+		// (0) $input["id"] 
+		if (!array_key_exists("id", $input)) {
+			$this->setInputError("This required input is missing: 'id'");
+			return false;
+		}
+		
 		return true;
 	}
 

@@ -3,7 +3,7 @@ require_once("QueryManager.php");
 
 Class Owners extends QueryManager {
 	
-	private $tablename = "tsd_pnet.owners";
+	protected $tablename = "tsd_pnet.owners";
 	
 	public function insert($input) {
 
@@ -17,8 +17,9 @@ Class Owners extends QueryManager {
 			// start transaction
 			$this->myConnection->beginTransaction();
 
-			$next_query = "INSERT INTO " . $this->tablename . " (name) VALUES (
-				'" . $input["name"] . "'
+			$next_query = "INSERT INTO " . $this->tablename . " (name, create_user) VALUES (
+				'" . $input["name"] . "',
+				" . ((array_key_exists("create_user", $input) and isset($input["create_user"]) and is_int($input["create_user"])) ? $input["create_user"] : "NULL") . "
 			) ON CONFLICT (LOWER(name)) DO NOTHING";
 			$stmt = $this->myConnection->prepare($next_query);
 			$stmt->execute();
@@ -64,5 +65,30 @@ Class Owners extends QueryManager {
 		
 		//echo $query;
 		return $this->getRecordSet($query);
+	}
+
+	public function update($input) {
+
+		$updateFields = array(
+			"name" => array("quoted" => true),
+			"update_time" => array("quoted" => false),
+			"update_user" => array("quoted" => false)
+		);
+
+		$whereStmt = " WHERE remove_time IS NULL AND id = " . $input["id"];
+
+		return $this->genericUpdateRoutine($input, $updateFields, $whereStmt);
+	}
+
+	public function delete($input) {
+
+		$updateFields = array(
+			"remove_time" => array("quoted" => false),
+			"remove_user" => array("quoted" => false)
+		);
+
+		$whereStmt = " WHERE remove_time IS NULL AND id = " . $input["id"];
+		
+		return $this->genericUpdateRoutine($input, $updateFields, $whereStmt);
 	}
 }

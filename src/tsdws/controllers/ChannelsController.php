@@ -36,11 +36,27 @@ Class ChannelsController extends RESTController {
 				break;
 
 			case 'PATCH':
-				# code...
+				$this->readInput();
+				$input = $this->getParams();
+				if (!$this->check_input_patch()) break;
+				// check if authorized action
+				$this->authorizedAction(array(
+					"scope"=>"channels-edit",
+					"resource_id"=>$input["id"]
+				));
+				$this->patch();
 				break;
 
 			case 'DELETE':
-				# code...
+				$this->getInput();
+				$input = $this->getParams();
+				if (!$this->check_input_delete()) break;
+				// check if authorized action
+				$this->authorizedAction(array(
+					"scope"=>"channels-edit",
+					"resource_id"=>$input["id"]
+				));
+				$this->delete();
 				break;
 
 			default:
@@ -71,6 +87,37 @@ Class ChannelsController extends RESTController {
 		// (2) $input["name"] 
 		if (!array_key_exists("name", $input)){
 			$this->setInputError("This required input is missing: 'name' [string]");
+			return false;
+		}
+		// (3) $input["info"] is json
+		if (array_key_exists("info", $input) and !$this->validate_json($input["info"])){
+			$this->setInputError("Error on decoding 'info' JSON input");
+			return false;
+		}
+		
+		return true;
+	}
+
+	// ====================================================================//
+	// ****************** patch - channel **********************//
+	// ====================================================================//
+	public function check_input_patch() {
+		
+		if ($this->isEmptyInput()) {
+			$this->setInputError("Empty input or malformed JSON");
+			return false;
+		}
+		
+		$input = $this->getParams();
+		
+		// (0) $input["id"] 
+		if (!array_key_exists("id", $input) or !is_int($input["id"])){
+			$this->setInputError("This required input is missing: 'id' [integer]");
+			return false;
+		}
+		// (1) $input["sensor_id"]
+		if (array_key_exists("sensor_id", $input) and !is_int($input["sensor_id"])){
+			$this->setInputError("Uncorrect input: 'sensor_id' [integer]");
 			return false;
 		}
 		// (3) $input["info"] is json

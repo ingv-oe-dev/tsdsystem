@@ -36,11 +36,27 @@ Class OwnersController extends RESTController {
 				break;
 
 			case 'PATCH':
-				# code...
+				$this->readInput();
+				$input = $this->getParams();
+				if (!$this->check_input_patch()) break;
+				// check if authorized action
+				$this->authorizedAction(array(
+					"scope"=>"owners-edit",
+					"resource_id"=>$input["id"]
+				));
+				$this->patch();
 				break;
 
 			case 'DELETE':
-				# code...
+				$this->getInput();
+				$input = $this->getParams();
+				if (!$this->check_input_delete()) break;
+				// check if authorized action
+				$this->authorizedAction(array(
+					"scope"=>"owners-edit",
+					"resource_id"=>$input["id"]
+				));
+				$this->delete();
 				break;
 
 			default:
@@ -52,7 +68,7 @@ Class OwnersController extends RESTController {
 	}
 	
 	// ====================================================================//
-	// ****************** post - channel **********************//
+	// ****************** post - owner **********************//
 	// ====================================================================//
 	public function check_input_post() {
 		
@@ -65,6 +81,27 @@ Class OwnersController extends RESTController {
 		// (1) $input["name"] 
 		if (!array_key_exists("name", $input)){
 			$this->setInputError("This required input is missing: 'name' [string]");
+			return false;
+		}
+		
+		return true;
+	}
+
+	// ====================================================================//
+	// ****************** patch - owner **********************//
+	// ====================================================================//
+	public function check_input_patch() {
+		
+		if ($this->isEmptyInput()) {
+			$this->setInputError("Empty input or malformed JSON");
+			return false;
+		}
+		
+		$input = $this->getParams();	
+
+		// (0) $input["id"] 
+		if (!array_key_exists("id", $input) or !is_int($input["id"])){
+			$this->setInputError("This required input is missing: 'id' [integer]");
 			return false;
 		}
 		

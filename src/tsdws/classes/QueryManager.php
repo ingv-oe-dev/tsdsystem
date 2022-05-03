@@ -295,5 +295,52 @@ Class QueryManager extends Utils {
 		}
 		return $str;
 	}
+
+	public function composeUpdateStatement($input, $updateFields) {
+		$updStmt = '';
+		foreach($updateFields as $key => $value) {
+			if (array_key_exists($key, $input) and isset($input[$key])){
+				$updStmt .= "$key = " . ($value["quoted"] ? "'$input[$key]'" : "$input[$key]") . ", ";
+			}
+		}
+		return rtrim($updStmt, ", ");
+	}
+
+	public function genericUpdateRoutine($input, $updateFields=array(), $whereStmt='') {
+
+		$next_query = "";
+		$response = array(
+			"status" => false,
+			"rows" => null
+		);
+
+		$updStmt = $this->composeUpdateStatement($input,  $updateFields);
+		if(empty($updStmt)) {
+			return array(
+				"status" => true,
+				"rows" => 0
+			); 
+		}
+
+		try {
+			$next_query = "UPDATE " . $this->tablename . " SET " . $updStmt . " ";
+			if(!empty($whereStmt)) {
+				$next_query .=  $whereStmt;
+			}
+			$stmt = $this->myConnection->prepare($next_query);
+			$stmt->execute();
+			$response["rows"] = $stmt->rowCount();
+			$response["status"] = true;
+			// return result
+			return $response;
+		}
+		catch (Exception $e){
+			return array(
+				"status" => false,
+				"failed_query" => $next_query,
+				"error" => $e->getMessage()
+			);
+		}
+	}
 }
 ?>

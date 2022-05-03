@@ -3,7 +3,7 @@ require_once("QueryManager.php");
 
 Class Channels extends QueryManager {
 	
-	private $tablename = "tsd_pnet.channels";
+	protected $tablename = "tsd_pnet.channels";
 	
 	public function insert($input) {
 
@@ -17,11 +17,12 @@ Class Channels extends QueryManager {
 			// start transaction
 			$this->myConnection->beginTransaction();
 
-			$next_query = "INSERT INTO " . $this->tablename . " (name, sensor_id, info) VALUES (
+			$next_query = "INSERT INTO " . $this->tablename . " (name, sensor_id, info, create_user) VALUES (
 				'" . $input["name"] . "',
 				" . $input["sensor_id"]. ", " .
-				(isset($input["info"]) ? ("'" . json_encode($input["info"], JSON_NUMERIC_CHECK) . "'") : "NULL") . ") 
-				ON CONFLICT (LOWER(name), sensor_id) DO NOTHING";
+				(isset($input["info"]) ? ("'" . json_encode($input["info"], JSON_NUMERIC_CHECK) . "'") : "NULL") . ", 
+				" . ((array_key_exists("create_user", $input) and isset($input["create_user"]) and is_int($input["create_user"])) ? $input["create_user"] : "NULL") . " 
+				) ON CONFLICT (LOWER(name), sensor_id) DO NOTHING";
 			$stmt = $this->myConnection->prepare($next_query);
 			$stmt->execute();
 			$response["rows"] = $stmt->rowCount();
@@ -67,5 +68,31 @@ Class Channels extends QueryManager {
 		
 		//echo $query;
 		return $this->getRecordSet($query);
+	}
+
+	public function update($input) {
+
+		$updateFields = array(
+			"name" => array("quoted" => true),
+			"sensor_id" => array("quoted" => false),
+			"update_time" => array("quoted" => false),
+			"update_user" => array("quoted" => false)
+		);
+
+		$whereStmt = " WHERE remove_time IS NULL AND id = " . $input["id"];
+
+		return $this->genericUpdateRoutine($input, $updateFields, $whereStmt);
+	}
+
+	public function delete($input) {
+
+		$updateFields = array(
+			"remove_time" => array("quoted" => false),
+			"remove_user" => array("quoted" => false)
+		);
+
+		$whereStmt = " WHERE remove_time IS NULL AND id = " . $input["id"];
+		
+		return $this->genericUpdateRoutine($input, $updateFields, $whereStmt);
 	}
 }
