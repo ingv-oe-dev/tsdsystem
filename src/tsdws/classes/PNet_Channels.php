@@ -22,16 +22,11 @@ Class Channels extends QueryManager {
 				" . $input["sensor_id"]. ", " .
 				(isset($input["info"]) ? ("'" . json_encode($input["info"], JSON_NUMERIC_CHECK) . "'") : "NULL") . ", 
 				" . ((array_key_exists("create_user", $input) and isset($input["create_user"]) and is_int($input["create_user"])) ? $input["create_user"] : "NULL") . " 
-				) ON CONFLICT (LOWER(name), sensor_id) DO NOTHING";
+				)";
 			$stmt = $this->myConnection->prepare($next_query);
 			$stmt->execute();
 			$response["rows"] = $stmt->rowCount();
-
-			// select inserted id
-			$next_query = "SELECT id FROM " . $this->tablename . " WHERE LOWER(name) = LOWER('" . $input["name"] . "') AND sensor_id = " . $input["sensor_id"];
-			$sqlResult = $this->myConnection->query($next_query);
-			$inserted_id = $sqlResult->fetchColumn();
-			$response["id"] = $inserted_id;
+			$response["id"] = $this->myConnection->lastInsertId();
 
 			// commit
 			$this->myConnection->commit();

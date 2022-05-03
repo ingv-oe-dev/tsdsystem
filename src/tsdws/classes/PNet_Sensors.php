@@ -27,17 +27,12 @@ Class Sensors extends QueryManager {
 				(isset($input["metadata"]) ? ("'" . json_encode($input["metadata"], JSON_NUMERIC_CHECK) . "'") : "NULL") . ", " .
 				(isset($input["custom_props"]) ? ("'" . json_encode($input["custom_props"], JSON_NUMERIC_CHECK) . "'") : "NULL") . ",
 				" . ((array_key_exists("create_user", $input) and isset($input["create_user"]) and is_int($input["create_user"])) ? $input["create_user"] : "NULL") . " 
-			) ON CONFLICT (LOWER(name)) DO NOTHING";
+			)";
 
 			$stmt = $this->myConnection->prepare($next_query);
 			$stmt->execute();
 			$response["rows"] = $stmt->rowCount();
-		
-			// select inserted id
-			$next_query = "SELECT id FROM " . $this->tablename . " WHERE LOWER(name) = LOWER('" . $input["name"] . "')";
-			$sqlResult = $this->myConnection->query($next_query);
-			$inserted_id = $sqlResult->fetchColumn();
-			$response["id"] = $inserted_id;
+			$response["id"] = $this->myConnection->lastInsertId();
 
 			// commit
 			$this->myConnection->commit();
