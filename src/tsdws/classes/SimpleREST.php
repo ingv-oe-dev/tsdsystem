@@ -162,7 +162,9 @@ class SimpleREST extends Utils{
         }
 		// Try to catch info from session data
 		// Start the session
-		session_start();
+		if(!isset($_SESSION)) { 
+			session_start(); 
+		} 
 		if (isset($_SESSION["userId"])) {
 			return array(
 				'userId' => $_SESSION['userId']

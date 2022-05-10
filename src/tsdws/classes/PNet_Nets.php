@@ -50,7 +50,7 @@ Class Nets extends QueryManager {
 	
 	public function getList($input) {
 		
-		$query = "SELECT id, name FROM " . $this->tablename . " WHERE remove_time IS NULL ";
+		$query = "SELECT id, name, owner_id FROM " . $this->tablename . " WHERE remove_time IS NULL ";
 		
 		if (isset($input) and is_array($input)) { 
 			$query .= $this->composeWhereFilter($input, array(
