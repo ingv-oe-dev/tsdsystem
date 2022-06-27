@@ -4,10 +4,10 @@ require_once("Timeseries.php");
 // Timeseries class
 Class TimeseriesValues extends Timeseries {
 	
-	// ============== Retrieve tablename by timeseries_id ======================
-	private function getTablename($timeseries_id) {
+	// ============== Retrieve tablename by timeseries id ======================
+	private function getTablename($id) {
 		$response = $this->getList(array(
-			"id" => $timeseries_id
+			"id" => $id
 		));
 		if ($response["status"] and count($response["data"]) > 0) {
 			return $response["data"][0]["schema"] . "." . $response["data"][0]["name"];
@@ -29,7 +29,7 @@ Class TimeseriesValues extends Timeseries {
 		);
 		try {
 			$insert_sql = $this->makeInsertSQL(
-				$input["timeseries_id"], 
+				$input["id"], 
 				$input["columns"], 
 				$input["data"], 
 				$input["insert"]
@@ -56,17 +56,17 @@ Class TimeseriesValues extends Timeseries {
 	}
 	
 	// ============== Make insert SQL for postgresql ======================
-	private function makeInsertSQL($timeseries_id, $columns, $data, $insert_mode="IGNORE") {
+	private function makeInsertSQL($id, $columns, $data, $insert_mode="IGNORE") {
 
 		$TIME_COLUMN_INDEX = array_search($this->getTimeColumnName(), $columns);
 		
 		$separator=", ";
 		
-		$tablename = $this->getTablename($timeseries_id);
+		$tablename = $this->getTablename($id);
 		
 		if (empty($tablename)) return array(
 			"status"=> false, 
-			"error" => "Timeseries with id=$timeseries_id not found"
+			"error" => "Timeseries with id=$id not found"
 		);
 		
 		$sql = "INSERT INTO " . $tablename . " (" . implode($separator, $columns) . ") VALUES ";
@@ -152,7 +152,7 @@ Class TimeseriesValues extends Timeseries {
 		
 		$output_column_time = "timestamp";
 
-		$timeseries_id = $input["timeseries_id"];
+		$id = $input["id"];
 
 		$time_bucket = isset($input["time_bucket"]) ? 
 			("time_bucket_gapfill('" . $input["time_bucket"] . "', " . $this->getTimeColumnName() . ")") : 
@@ -190,7 +190,7 @@ Class TimeseriesValues extends Timeseries {
 		$separator=", ";
 		$fields = "$time_bucket AS $output_column_time, " . implode($separator, $columns);
 		
-		$tablename = $this->getTablename($timeseries_id);
+		$tablename = $this->getTablename($id);
 		
 		// string containing the final query
 		$query = "SELECT " . $fields . " FROM " . $tablename . " WHERE true ";

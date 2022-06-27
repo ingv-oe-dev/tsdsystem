@@ -1,0 +1,27 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Roles",
+    "description": "Set the properties of the roles",
+    "type": "object",
+    "required": ["name"],
+    "additionalProperties": false,
+    "format": "grid",
+    "properties": {
+        "id": {
+            "title": "ID",
+            "description": "Identificator",
+            "type": "integer",
+            "readOnly": true
+        },
+        "name": {
+            "title": "Name",
+            "description": "Name",
+            "type": "string",
+            "minLength": 1
+        },
+        "description": {
+            "title": "Description",
+            "type": "string"
+        }
+    }
+}

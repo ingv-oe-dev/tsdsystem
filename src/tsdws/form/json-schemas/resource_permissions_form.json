@@ -1,0 +1,400 @@
+{
+    "$id": "http://[myWebServerAddress]/SoTableStub/schema.json",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "TSDSystem web service permissions",
+    "description": "Permission settings for a TSDSystem account user",
+    "type": "object",
+    "required": ["role_type", "role_id", "active", "settings"],
+    "additionalProperties": false,
+    "format": "categories",
+    "basicCategoryTitle": "Main",
+    "properties": {
+        "role_type": {
+            "title": "Role type",
+            "type": "string",
+            "enum": ["member", "role"],
+            "propertyOrder": 2
+        },
+        "role_id": {
+            "title": "ID Role",
+            "description": "Identificator of the role",
+            "type": "integer",
+            "enum": [],
+            "options": {
+                "enum_titles": []
+            },
+            "propertyOrder": 3
+        },
+        "active": {
+            "type": "boolean",
+            "default": true,
+            "title": "Active",
+            "description": "If 'true', the permission is enabled for the specified role",
+            "propertyOrder": 4
+        },
+        "settings": {
+            "type": "object",
+            "required": ["resources"],
+            "title": "Permission settings",
+            "properties": {
+                "resources": {
+                    "type": "object",
+                    "properties": {
+                        "nets": {
+                            "type": "object",
+                            "properties": {
+                                "edit": {
+                                    "$ref": "#/$defs/root_resource_edit_configuration",
+                                    "options": {
+                                        "collapsed": true
+                                    }
+                                },
+                                "read": {
+                                    "$ref": "#/$defs/root_resource_read_configuration",
+                                    "options": {
+                                        "collapsed": true
+                                    }
+                                }
+                            },
+                            "options": {
+                                "collapsed": true
+                            }
+                        },
+                        "sites": {
+                            "type": "object",
+                            "properties": {
+                                "edit": {
+                                    "$ref": "#/$defs/root_resource_edit_configuration",
+                                    "options": {
+                                        "collapsed": true
+                                    }
+                                },
+                                "read": {
+                                    "$ref": "#/$defs/root_resource_read_configuration",
+                                    "options": {
+                                        "collapsed": true
+                                    }
+                                }
+                            },
+                            "options": {
+                                "collapsed": true
+                            }
+                        },
+                        "owners": {
+                            "type": "object",
+                            "properties": {
+                                "edit": {
+                                    "$ref": "#/$defs/root_resource_edit_configuration",
+                                    "options": {
+                                        "collapsed": true
+                                    }
+                                },
+                                "read": {
+                                    "$ref": "#/$defs/root_resource_read_configuration",
+                                    "options": {
+                                        "collapsed": true
+                                    }
+                                }
+                            },
+                            "options": {
+                                "collapsed": true
+                            }
+                        },
+                        "sensortypes": {
+                            "type": "object",
+                            "properties": {
+                                "edit": {
+                                    "$ref": "#/$defs/root_resource_edit_configuration",
+                                    "options": {
+                                        "collapsed": true
+                                    }
+                                },
+                                "read": {
+                                    "$ref": "#/$defs/root_resource_read_configuration",
+                                    "options": {
+                                        "collapsed": true
+                                    }
+                                }
+                            },
+                            "options": {
+                                "collapsed": true
+                            }
+                        },
+                        "sensors": {
+                            "type": "object",
+                            "properties": {
+                                "edit": {
+                                    "type": "object",
+                                    "properties": {
+                                        "ip": {
+                                            "type": ["array", "null"],
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "enabled": {
+                                            "type": "boolean"
+                                        },
+                                        "permissions": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "$ref": "#/$defs/array_of_int_primary_keys"
+                                                },
+                                                "net_id": {
+                                                    "$ref": "#/$defs/array_of_int_primary_keys"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "options": {
+                                        "collapsed": true
+                                    }
+                                },
+                                "read": {
+                                    "$ref": "#/$defs/root_resource_read_configuration",
+                                    "options": {
+                                        "collapsed": true
+                                    }
+                                }
+                            },
+                            "options": {
+                                "collapsed": true
+                            }
+                        },
+                        "channels": {
+                            "type": "object",
+                            "properties": {
+                                "edit": {
+                                    "type": "object",
+                                    "properties": {
+                                        "ip": {
+                                            "type": ["array", "null"],
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "enabled": {
+                                            "type": "boolean"
+                                        },
+                                        "permissions": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "$ref": "#/$defs/array_of_int_primary_keys"
+                                                },
+                                                "net_id": {
+                                                    "$ref": "#/$defs/array_of_int_primary_keys"
+                                                },
+                                                "sensor_id": {
+                                                    "$ref": "#/$defs/array_of_int_primary_keys"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "options": {
+                                        "collapsed": true
+                                    }
+                                },
+                                "read": {
+                                    "$ref": "#/$defs/root_resource_read_configuration",
+                                    "options": {
+                                        "collapsed": true
+                                    }
+                                }
+                            },
+                            "options": {
+                                "collapsed": true
+                            }
+                        },
+                        "timeseries": {
+                            "type": "object",
+                            "properties": {
+                                "edit": {
+                                    "type": "object",
+                                    "properties": {
+                                        "ip": {
+                                            "type": ["array", "null"],
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "enabled": {
+                                            "type": "boolean"
+                                        },
+                                        "permissions": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": ["array", "null"],
+                                                    "items": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "net_id": {
+                                                    "$ref": "#/$defs/array_of_int_primary_keys"
+                                                },
+                                                "sensor_id": {
+                                                    "$ref": "#/$defs/array_of_int_primary_keys"
+                                                },
+                                                "channel_id": {
+                                                    "$ref": "#/$defs/array_of_int_primary_keys"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "options": {
+                                        "collapsed": true
+                                    }
+                                },
+                                "read": {
+                                    "type": "object",
+                                    "properties": {
+                                        "ip": {
+                                            "type": ["array", "null"],
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "enabled": {
+                                            "type": "boolean"
+                                        },
+                                        "permissions": {
+                                            "type": "object",
+                                            "properties": {
+                                                "all": {
+                                                    "$ref": "#/$defs/ts_read_permission",
+                                                    "options": {
+                                                        "collapsed": true
+                                                    }
+                                                },
+                                                "net_id": {
+                                                    "type": "object",
+                                                    "patternProperties": {
+                                                        "^[0-9]+$": {
+                                                            "$ref": "#/$defs/ts_read_permission"
+                                                        }
+                                                    },
+                                                    "additionalProperties": false,
+                                                    "options": {
+                                                        "collapsed": true
+                                                    }
+                                                },
+                                                "sensor_id": {
+                                                    "type": "object",
+                                                    "patternProperties": {
+                                                        "^[0-9]+$": {
+                                                            "$ref": "#/$defs/ts_read_permission"
+                                                        }
+                                                    },
+                                                    "additionalProperties": false,
+                                                    "options": {
+                                                        "collapsed": true
+                                                    }
+                                                },
+                                                "channel_id": {
+                                                    "type": "object",
+                                                    "patternProperties": {
+                                                        "^[0-9]+$": {
+                                                            "$ref": "#/$defs/ts_read_permission"
+                                                        }
+                                                    },
+                                                    "additionalProperties": false,
+                                                    "options": {
+                                                        "collapsed": true
+                                                    }
+                                                },
+                                                "id": {
+                                                    "type": "object",
+                                                    "patternProperties": {
+                                                        "^[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*$": {
+                                                            "$ref": "#/$defs/ts_read_permission"
+                                                        }
+                                                    },
+                                                    "additionalProperties": false,
+                                                    "options": {
+                                                        "collapsed": true
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "options": {
+                                        "collapsed": true
+                                    }
+                                }
+                            },
+                            "options": {
+                                "collapsed": true
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "$defs": {
+        "root_resource_edit_configuration": {
+            "type": "object",
+            "properties": {
+                "ip": {
+                    "type": ["array", "null"],
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "enabled": {
+                    "type": "boolean"
+                },
+                "permissions": {
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "$ref": "#/$defs/array_of_int_primary_keys"
+                        }
+                    }
+                }
+            }
+        },
+        "root_resource_read_configuration": {
+            "type": "object",
+            "properties": {
+                "ip": {
+                    "type": ["array", "null"],
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "enabled": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "array_of_int_primary_keys": {
+            "type": ["array", "null"],
+            "items": {
+                "type": "integer"
+            }
+        },
+        "ts_read_permission": {
+            "type": "object",
+            "properties": {
+                "last_days": {
+                    "type": ["boolean", "null"]
+                },
+                "start_period": {
+                    "type": ["string", "null"],
+                    "format": "date"
+                },
+                "end_period": {
+                    "type": ["string", "null"],
+                    "format": "date"
+                },
+                "number_of_days": {
+                    "type": ["integer", "null"]
+                }
+            },
+            "additionalProperties": false
+        }
+    }
+}

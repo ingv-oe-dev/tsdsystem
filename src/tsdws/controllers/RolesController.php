@@ -1,13 +1,13 @@
 <?php
 
 require_once("..".DIRECTORY_SEPARATOR."classes".DIRECTORY_SEPARATOR."RESTController.php");
-require_once("..".DIRECTORY_SEPARATOR."classes".DIRECTORY_SEPARATOR."PNet_Channels.php");
+require_once("..".DIRECTORY_SEPARATOR."classes".DIRECTORY_SEPARATOR."Roles.php");
 
-// Channels Controller class
-Class ChannelsController extends RESTController {
+// Roles Controller class
+Class RolesController extends RESTController {
 	
 	public function __construct() {
-		$this->obj = new Channels();
+		$this->obj = new Roles();
 		$this->route();
 	}
 
@@ -17,12 +17,24 @@ Class ChannelsController extends RESTController {
 			
 			case 'POST':
 				$this->readInput();
+				$input = $this->getParams();
 				if (!$this->check_input_post()) break;
 				// check if authorized action
 				$this->authorizedAction(array(
-					"scope"=>"channels-edit"
+					"scope"=>"admin"
 				));
 				$this->post();
+				break;
+			
+			case 'PATCH':
+				$this->readInput();
+				$input = $this->getParams();
+				if (!$this->check_input_patch()) break;
+				// check if authorized action
+				$this->authorizedAction(array(
+					"scope"=>"admin"
+				));
+				$this->patch();
 				break;
 
 			case 'GET':
@@ -30,33 +42,9 @@ Class ChannelsController extends RESTController {
 				if (!$this->check_input_get()) break;
 				// check if authorized action
 				$this->authorizedAction(array(
-					"scope"=>"channels-read"
+					"scope"=>"admin"
 				));
 				$this->get();
-				break;
-
-			case 'PATCH':
-				$this->readInput();
-				$input = $this->getParams();
-				if (!$this->check_input_patch()) break;
-				// check if authorized action
-				$this->authorizedAction(array(
-					"scope"=>"channels-edit",
-					"resource_id"=>$input["id"]
-				));
-				$this->patch();
-				break;
-
-			case 'DELETE':
-				$this->getInput();
-				$input = $this->getParams();
-				if (!$this->check_input_delete()) break;
-				// check if authorized action
-				$this->authorizedAction(array(
-					"scope"=>"channels-edit",
-					"resource_id"=>$input["id"]
-				));
-				$this->delete();
 				break;
 
 			default:
@@ -66,9 +54,9 @@ Class ChannelsController extends RESTController {
 
 		$this->elaborateResponse();
 	}
-	
+
 	// ====================================================================//
-	// ****************** post - channel **********************//
+	// ****************** POST - role **********************//
 	// ====================================================================//
 	public function check_input_post() {
 		
@@ -77,29 +65,23 @@ Class ChannelsController extends RESTController {
 			return false;
 		}
 		
-		$input = $this->getParams();
-		
-		// (1) $input["sensor_id"]
-		if (!array_key_exists("sensor_id", $input)){
-			$this->setInputError("This required input is missing: 'sensor_id' [integer]");
-			return false;
-		}
-		// (2) $input["name"] 
+		$input = $this->getParams();	
+		// (1) $input["name"] 
 		if (!array_key_exists("name", $input) || empty($input["name"])){
 			$this->setInputError("This required input is missing: 'name' [string]");
 			return false;
 		}
-		// (3) $input["info"] is json
-		if (array_key_exists("info", $input) and !$this->validate_json($input["info"])){
-			$this->setInputError("Error on decoding 'info' JSON input");
+		// (2) $input["description"]
+		if (array_key_exists("description", $input) and empty($input["description"])){
+			$this->setInputError("Uncorrect input: 'description' [string]");
 			return false;
 		}
 		
 		return true;
 	}
-
+	
 	// ====================================================================//
-	// ****************** patch - channel **********************//
+	// ****************** PATCH - role  **********************//
 	// ====================================================================//
 	public function check_input_patch() {
 		
@@ -115,32 +97,18 @@ Class ChannelsController extends RESTController {
 			$this->setInputError("This required input is missing: 'id' [integer]");
 			return false;
 		}
-		// (1) $input["name]
+        // (1) $input["name"] 
 		if (array_key_exists("name", $input) and empty($input["name"])){
 			$this->setInputError("Uncorrect input: 'name' [string]");
 			return false;
 		}
-		// (2) $input["sensor_id"]
-		if (array_key_exists("sensor_id", $input) and !is_int($input["sensor_id"])){
-			$this->setInputError("Uncorrect input: 'sensor_id' [integer]");
-			return false;
-		}
-		// (3) $input["info"] is json
-		if (array_key_exists("info", $input) and !$this->validate_json($input["info"])){
-			$this->setInputError("Error on decoding 'info' JSON input");
+		// (2) $input["description"]
+		if (array_key_exists("description", $input) and empty($input["description"])){
+			$this->setInputError("Uncorrect input: 'description' [string]");
 			return false;
 		}
 		
 		return true;
-	}
-
-	// ====================================================================//
-	// ****************** get  ********************//
-	// ====================================================================//
-	public function get($jsonfields=array("info")) {
-	
-		parent::get($jsonfields);
-		
 	}
 }
 ?>

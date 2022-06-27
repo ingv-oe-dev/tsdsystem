@@ -12,7 +12,7 @@ Class Timeseries extends QueryManager {
 		return $this->TIME_COLUMN_NAME;
 	}
 
-	public function getDependencies($timeseries_id) {
+	public function getDependencies($id) {
 		// mapping dependencies from timeseries to nets
 		$query = "select
 			tmc.timeseries_id, tmc.channel_id, c.sensor_id, s.net_id 
@@ -26,7 +26,7 @@ Class Timeseries extends QueryManager {
 			c.sensor_id = s.id
 		left join tsd_pnet.nets n on
 			s.net_id = n.id
-		where t.id ='$timeseries_id'";
+		where t.id ='$id'";
 
 		$result = $this->getRecordSet($query);
 		
@@ -42,12 +42,12 @@ Class Timeseries extends QueryManager {
 		return null;
 	}
 
-	public function getColumnList($timeseries_id) {
+	public function getColumnList($id, $addInfo=false) {
 
 		$query = "with info as (
-			select schema, name from " . $this->tablename . " where id = '$timeseries_id'
+			select schema, name from " . $this->tablename . " where id = '$id'
 		)
-		SELECT column_name 
+		SELECT column_name AS name, data_type AS type
 		  FROM information_schema.columns
 		 WHERE table_schema = (select schema from info)
 		   AND table_name   = (select name from info)
@@ -56,9 +56,31 @@ Class Timeseries extends QueryManager {
 
 		$result = $this->getRecordSet($query);
 		if ($result["status"]) {
+			if ($addInfo) return $result["data"];
 			$response = $this->transpose($result["data"]);
-			if (array_key_exists("column_name", $response)) return $response["column_name"];
+			if (array_key_exists("name", $response)) return $response["name"];
 			return null;
+		}
+		return null;
+	}
+
+	public function getIDChannelList($id) {
+
+		$query = "SELECT c.id, c.name, s.id AS sensor_id, s.name AS sensor_name, n.id AS net_id, n.name AS net_name " .
+			" FROM " . $this->tablename . " t " .
+			" INNER JOIN tsd_main.timeseries_mapping_channels tmc ON t.id = tmc.timeseries_id " . 
+			" INNER JOIN tsd_pnet.channels c ON c.id = tmc.channel_id " . 
+			" INNER JOIN tsd_pnet.sensors s ON s.id = c.sensor_id " . 
+			" INNER JOIN tsd_pnet.nets n ON n.id = s.net_id " . 
+			" WHERE t.id = '" . $id . "' AND t.remove_time IS NULL ";
+
+		$result = $this->getRecordSet($query);
+		if ($result["status"]) {
+			$idList = array();
+			foreach($result["data"] as $row) {
+				array_push($idList, $row["id"]);
+			}
+			return $idList;
 		}
 		return null;
 	}
@@ -123,7 +145,7 @@ Class Timeseries extends QueryManager {
 			$response["status"] = true;
 			
 			// insert mappings
-			$input["timeseries_id"] = $inserted_id;
+			$input["id"] = $inserted_id;
 			if ($response["rows"] > 0) {
 				$mapping_result = $this->insertMappings($input);
 				$response["mapping_result"] = $mapping_result;
@@ -156,7 +178,7 @@ Class Timeseries extends QueryManager {
 				if (isset($input["mapping"]["channel_id"])) {
 					// delete old mappings, if forced
 					if (isset($input["mapping"]["force"]) and $input["mapping"]["force"] === true) {
-						$next_query = "DELETE FROM " . $this->mapping_table . " WHERE timeseries_id = '" . $input["timeseries_id"] . "'"; 	
+						$next_query = "DELETE FROM " . $this->mapping_table . " WHERE timeseries_id = '" . $input["id"] . "'"; 	
 						//echo $next_query;
 						$stmt = $this->myConnection->prepare($next_query);
 						$stmt->execute();
@@ -164,7 +186,7 @@ Class Timeseries extends QueryManager {
 					}
 					$next_query = "INSERT INTO " . $this->mapping_table . " VALUES "; 
 					foreach($input["mapping"]["channel_id"] as $index => $id) {
-						$next_query .= " ('" . $input["timeseries_id"] . "', " . strval($id) . "), "; 	
+						$next_query .= " ('" . $input["id"] . "', " . strval($id) . "), "; 	
 					}
 					$next_query = rtrim($next_query, ", ");
 					$next_query .= " ON CONFLICT (timeseries_id, channel_id) DO NOTHING";
@@ -234,7 +256,7 @@ Class Timeseries extends QueryManager {
 
 			// check if timeseries with input id exists
 			$requested = $this->getList(array(
-				"id" => $input["timeseries_id"]
+				"id" => $input["id"]
 			));
 			if (!$requested["status"] or count($requested["data"]) == 0) {
 				$response["status"] = false;
@@ -249,7 +271,7 @@ Class Timeseries extends QueryManager {
 			if (isset($input["metadata"])) {
 				$next_query = "UPDATE " . $this->tablename . " SET metadata =
 					'" . json_encode($input["metadata"], JSON_NUMERIC_CHECK) . "'  
-					WHERE id = '" . $input["timeseries_id"] . "'";
+					WHERE id = '" . $input["id"] . "'";
 				$stmt = $this->myConnection->prepare($next_query);
 				$stmt->execute();	
 				$response["rows"] = $stmt->rowCount();
@@ -259,13 +281,13 @@ Class Timeseries extends QueryManager {
 				//update into timeseries table
 				$next_query = "UPDATE " . $this->tablename . " SET sampling = 
 					" . $input["sampling"] . " 
-					WHERE id = '" . $input["timeseries_id"] . "'";
+					WHERE id = '" . $input["id"] . "'";
 				$stmt = $this->myConnection->prepare($next_query);
 				$stmt->execute();	
 				$response["rows"] = isset($response["rows"]) ? ($response["rows"] + $stmt->rowCount()) : $stmt->rowCount();
 
-				// select schema and name from timeseries_id
-				$next_query = "SELECT schema, name FROM " . $this->tablename . " WHERE id = '" . $input["timeseries_id"] . "'";
+				// select schema and name from timeseries id
+				$next_query = "SELECT schema, name FROM " . $this->tablename . " WHERE id = '" . $input["id"] . "'";
 				$sqlResult = $this->myConnection->query($next_query);
 				$record = $sqlResult->fetch(PDO::FETCH_ASSOC);	
 

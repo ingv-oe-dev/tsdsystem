@@ -3,8 +3,30 @@ require_once("QueryManager.php");
 
 class SecureLogin extends QueryManager{
 
+	function adminLogin($email, $password) {
+		if ($email == getenv("ADMIN_EMAIL") and $password == getenv("ADMIN_PASSWORD")) {
+			// Login amministratore eseguito con successo.
+			return array(
+				"status" => true,
+				"message" => "Login successfull",
+				"user_id" => getenv("ADMIN_ID") // user_id = getenv("ADMIN_ID") per utente amministratore
+			); 
+		}
+		return array(
+			"status" => false,
+			"error" => "Login failed"
+		); 
+	}
+
 	function login($email, $password) {
 	   
+		// controlla prima se è un login amministratore
+		$adminLogin = $this->adminLogin($email, $password);
+		if ($adminLogin["status"]) {
+			return $adminLogin;
+		}
+
+		// se non è l'amministratore, login classico tramite database
 		$query = "SELECT id, password, salt, confirmed FROM tsd_users.members WHERE email = :email AND deleted IS NULL LIMIT 1";
 		$rs = $this->executeReadPreparedStatement($query, array(':email' => $email));
 		if (isset($rs) and $rs["status"] and count($rs["data"]) > 0) { 

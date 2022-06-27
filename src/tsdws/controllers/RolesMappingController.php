@@ -1,13 +1,13 @@
 <?php
 
 require_once("..".DIRECTORY_SEPARATOR."classes".DIRECTORY_SEPARATOR."RESTController.php");
-require_once("..".DIRECTORY_SEPARATOR."classes".DIRECTORY_SEPARATOR."PNet_Owners.php");
+require_once("..".DIRECTORY_SEPARATOR."classes".DIRECTORY_SEPARATOR."RolesMapping.php");
 
-// Owners Controller class
-Class OwnersController extends RESTController {
+// RolesMapping Controller class
+Class RolesMappingController extends RESTController {
 	
 	public function __construct() {
-		$this->obj = new Owners();
+		$this->obj = new RolesMapping();
 		$this->route();
 	}
 
@@ -17,10 +17,11 @@ Class OwnersController extends RESTController {
 			
 			case 'POST':
 				$this->readInput();
+				$input = $this->getParams();
 				if (!$this->check_input_post()) break;
 				// check if authorized action
 				$this->authorizedAction(array(
-					"scope"=>"owners-edit"
+					"scope"=>"admin"
 				));
 				$this->post();
 				break;
@@ -30,31 +31,18 @@ Class OwnersController extends RESTController {
 				if (!$this->check_input_get()) break;
 				// check if authorized action
 				$this->authorizedAction(array(
-					"scope"=>"owners-read"
+					"scope"=>"admin"
 				));
 				$this->get();
 				break;
 
-			case 'PATCH':
-				$this->readInput();
-				$input = $this->getParams();
-				if (!$this->check_input_patch()) break;
-				// check if authorized action
-				$this->authorizedAction(array(
-					"scope"=>"owners-edit",
-					"resource_id"=>$input["id"]
-				));
-				$this->patch();
-				break;
-
 			case 'DELETE':
-				$this->getInput();
+				$this->readInput();
 				$input = $this->getParams();
 				if (!$this->check_input_delete()) break;
 				// check if authorized action
 				$this->authorizedAction(array(
-					"scope"=>"owners-edit",
-					"resource_id"=>$input["id"]
+					"scope"=>"admin"
 				));
 				$this->delete();
 				break;
@@ -66,9 +54,9 @@ Class OwnersController extends RESTController {
 
 		$this->elaborateResponse();
 	}
-	
+
 	// ====================================================================//
-	// ****************** post - owner **********************//
+	// ****************** POST - roles mapping  **********************//
 	// ====================================================================//
 	public function check_input_post() {
 		
@@ -77,37 +65,54 @@ Class OwnersController extends RESTController {
 			return false;
 		}
 		
-		$input = $this->getParams();	
-		// (1) $input["name"] 
-		if (!array_key_exists("name", $input) || empty($input["name"])){
-			$this->setInputError("This required input is missing: 'name' [string]");
+		$input = $this->getParams();
+		
+		// (0) $input["member_id"] 
+		if (!array_key_exists("member_id", $input) or !is_int($input["member_id"])){
+			$this->setInputError("This required input is missing: 'member_id' [integer]");
 			return false;
 		}
+        // (1) $input["role_id"] 
+		if (!array_key_exists("role_id", $input) or !is_int($input["role_id"])){
+			$this->setInputError("This required input is missing: 'role_id' [integer]");
+			return false;
+		}
+		// (2) $input["priority"] 
+		if (array_key_exists("priority", $input)){
+			if (!is_int($input["priority"])) {
+				$this->setInputError("Uncorrect input: 'priority' [integer]");
+				return false;
+			}
+		} else {
+			$input["priority"] = 0;
+		}
+
+		$this->setParams($input);
 		
 		return true;
 	}
 
 	// ====================================================================//
-	// ****************** patch - owner **********************//
+	// ****************** DELETE - roles mapping  **********************//
 	// ====================================================================//
-	public function check_input_patch() {
+	public function check_input_delete() {
 		
 		if ($this->isEmptyInput()) {
 			$this->setInputError("Empty input or malformed JSON");
 			return false;
 		}
 		
-		$input = $this->getParams();	
-
-		// (0) $input["id"] 
-		if (!array_key_exists("id", $input) or !is_int($input["id"])){
-			$this->setInputError("This required input is missing: 'id' [integer]");
+		$input = $this->getParams();
+		
+		// (0) $input["member_id"] 
+		if (!array_key_exists("member_id", $input)) {
+			$this->setInputError("This required input is missing: 'member_id'");
 			return false;
 		}
 
-		// (1) $input["name]
-		if (array_key_exists("name", $input) and empty($input["name"])){
-			$this->setInputError("Uncorrect input: 'name' [string]");
+		// (0) $input["role_id"] 
+		if (!array_key_exists("role_id", $input)) {
+			$this->setInputError("This required input is missing: 'role_id'");
 			return false;
 		}
 		

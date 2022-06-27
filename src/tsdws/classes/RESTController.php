@@ -10,13 +10,13 @@ Class RESTController extends SimpleREST {
 	// define scopes
     public $resources = array("owners","nets","sensortypes","sensors","sites","channels","timeseries");
     public $actions = array("read", "edit");
-    public $scopes;
+    public $scopes = array("admin","all");
 	
 	//CONSTRUCTOR
 	public function __construct() {
 
         // initialize scopes
-        $this->scopes = array_merge(array("all"), $this->resources);
+        $this->scopes = array_merge($this->scopes, $this->resources);
         foreach($this->resources as $resource) {
             foreach($this->actions as $action) {
                 array_push($this->scopes, "$resource-$action");
@@ -190,13 +190,20 @@ Class RESTController extends SimpleREST {
 	// *************************  AUTHORIZATION  **************************//
 	// ====================================================================//
 	protected function authorizedAction($auth_params=array()) {
+		//var_dump($auth_params)
 
 		// Check for a valid token in the header authorization and set into class variable JWT_payload
 		$this->_setJWT_payload();
 		
-		// CHECK IF IS A MAGIC TOKEN
-        if (isset($this->JWT_payload) and array_key_exists("magic", $this->JWT_payload) and $this->JWT_payload["magic"]) 
-            return $this->JWT_payload["data"];
+		// CHECK IF IS AN ADMIM TOKEN
+        if (
+			isset($this->JWT_payload) and 
+			array_key_exists("rights", $this->JWT_payload) and 
+			array_key_exists("admin", $this->JWT_payload["rights"]) and 
+			$this->JWT_payload["rights"]["admin"]
+		) {
+            return true;
+		}
 
         // Get authorization data
         $auth_data = $this->_get_auth_data();
@@ -209,7 +216,7 @@ Class RESTController extends SimpleREST {
 			$this->elaborateResponse();
 			exit();
 		}
-		
+
 		// Check if 'rights' are into $auth_data
 		if (!array_key_exists("rights", $auth_data) and array_key_exists("userId", $auth_data) and isset($auth_data["userId"])) {
 			
@@ -231,6 +238,17 @@ Class RESTController extends SimpleREST {
 
     }
 
+	public function compareAdminPermissions($auth_params, $auth_data) {
+
+		if ($auth_params["scope"] == "admin") {
+			if ($auth_data["userId"] == getenv("ADMIN_ID")) {
+				return true;
+			} else {
+				throw new Exception("Unauthorized action - Administrator privileges required");
+			}
+		}
+	}
+
 	/**
 	 * Check authorization contained into $auth_data 
 	 * by $auth_params["scope"] <resource>-<read|edit> 
@@ -239,12 +257,18 @@ Class RESTController extends SimpleREST {
 	public function comparePermissions($auth_params, $auth_data) {
 		
 		$errorMessagePrefix = "Unauthorized action - ";
+		$rights = null;
+
+		// CHECK IF SUPER USER ACTION
+		$this->compareAdminPermissions($auth_params, $auth_data);
 		
 		// check if exists the section related to the scope
 		try {
 			$scope = explode('-', $auth_params['scope']); // view scope
-
-			$rights = $auth_data["rights"]["resources"][$scope[0]][$scope[1]];
+			
+			if (count($scope)>1) {
+				$rights = $auth_data["rights"]["resources"][$scope[0]][$scope[1]];
+			}
 			// echo "rights:";
 			// var_dump($rights);
 		} catch (Exception $e) {

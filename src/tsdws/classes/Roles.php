@@ -1,9 +1,9 @@
 <?php
 require_once("QueryManager.php");
 
-Class Channels extends QueryManager {
+Class Roles extends QueryManager {
 	
-	protected $tablename = "tsd_pnet.channels";
+	protected $tablename = "tsd_users.roles";
 	
 	public function insert($input) {
 
@@ -17,12 +17,10 @@ Class Channels extends QueryManager {
 			// start transaction
 			$this->myConnection->beginTransaction();
 
-			$next_query = "INSERT INTO " . $this->tablename . " (name, sensor_id, info, create_user) VALUES (
-				'" . $input["name"] . "',
-				" . $input["sensor_id"]. ", " .
-				(isset($input["info"]) ? ("'" . json_encode($input["info"], JSON_NUMERIC_CHECK) . "'") : "NULL") . ", 
-				" . ((array_key_exists("create_user", $input) and isset($input["create_user"]) and is_int($input["create_user"])) ? $input["create_user"] : "NULL") . " 
-				)";
+			$next_query = "INSERT INTO " . $this->tablename . " (name, description) VALUES (
+				'" . $input["name"] . "', " . 
+				(isset($input["description"]) ? ("'" . $input["description"] . "'") : "NULL") . "
+			)";
 			$stmt = $this->myConnection->prepare($next_query);
 			$stmt->execute();
 			$response["rows"] = $stmt->rowCount();
@@ -51,21 +49,16 @@ Class Channels extends QueryManager {
 	
 	public function getList($input) {
 		
-		$query = "SELECT c.id, c.name, c.sensor_id, c.info, s.name AS sensor_name, n.id AS net_id, n.name AS net_name " . 
-		" FROM " . $this->tablename . " c " . 
-		" LEFT JOIN tsd_pnet.sensors s ON s.id = c.sensor_id " .
-		" LEFT JOIN tsd_pnet.nets n ON n.id = s.net_id " .
-		" WHERE c.remove_time IS NULL ";
+		$query = "SELECT id, name, description FROM " . $this->tablename . " WHERE remove_time IS NULL ";
 		
 		if (isset($input) and is_array($input)) { 
 			$query .= $this->composeWhereFilter($input, array(
-				"id" => array("id" => true, "quoted" => false, "alias" => "c.id"),
+				"id" => array("id" => true, "quoted" => false),
 				"name" => array("quoted" => true),
-				"sensor_id" => array("quoted" => false)
+				"description" => array("quoted" => true)
 			));
 		}
 		
-		$query .= " ORDER BY n.name, s.name, c.name";
 		//echo $query;
 		return $this->getRecordSet($query);
 	}
@@ -74,9 +67,8 @@ Class Channels extends QueryManager {
 
 		$updateFields = array(
 			"name" => array("quoted" => true),
-			"sensor_id" => array("quoted" => false),
-			"update_time" => array("quoted" => false),
-			"update_user" => array("quoted" => false)
+			"description" => array("quoted" => true),
+			"update_time" => array("quoted" => false)
 		);
 
 		$whereStmt = " WHERE remove_time IS NULL AND id = " . $input["id"];
@@ -87,8 +79,7 @@ Class Channels extends QueryManager {
 	public function delete($input) {
 
 		$updateFields = array(
-			"remove_time" => array("quoted" => false),
-			"remove_user" => array("quoted" => false)
+			"remove_time" => array("quoted" => false)
 		);
 
 		$whereStmt = " WHERE remove_time IS NULL AND id = " . $input["id"];

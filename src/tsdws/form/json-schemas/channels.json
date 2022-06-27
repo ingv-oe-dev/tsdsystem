@@ -1,0 +1,39 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Channel",
+    "description": "Set the properties of the channel",
+    "type": "object",
+    "required": ["name"],
+    "additionalProperties": false,
+    "format": "categories",
+    "basicCategoryTitle": "Main",
+    "properties": {
+        "id": {
+            "title": "ID",
+            "description": "Identificator",
+            "type": "integer",
+            "readOnly": true
+        },
+        "name": {
+            "title": "Name",
+            "description": "Name",
+            "type": "string",
+            "minLength": 1
+        },
+        "sensor_id": {
+            "title": "Sensor",
+            "description": "Sensor to which the channel belongs",
+            "type": "integer",
+            "enum": [],
+            "options": {
+                "enum_titles": []
+            }
+        },
+        "info": {
+            "title": "Info",
+            "description": "Additional info of the channel",
+            "type": "object",
+            "additionalProperties": true
+        }
+    }
+}

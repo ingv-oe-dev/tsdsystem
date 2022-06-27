@@ -1,0 +1,45 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Role mapping",
+    "description": "Mapping roles to members",
+    "type": "object",
+    "required": ["member_id", "role_id"],
+    "additionalProperties": false,
+    "format": "categories",
+    "basicCategoryTitle": "Main",
+    "properties": {
+        "member_id": {
+            "title": "User",
+            "description": "User Identificator",
+            "type": "integer",
+            "enum": [],
+            "options": {
+                "enum_titles": []
+            },
+            "propertyOrder": 1
+        },
+        "role_id": {
+            "title": "Role",
+            "description": "Role Identificator",
+            "type": "integer",
+            "enum": [],
+            "options": {
+                "enum_titles": []
+            },
+            "propertyOrder": 2
+        },
+        "priority": {
+            "title": "Priority",
+            "description": "Priority of the role for the user",
+            "type": "integer",
+            "propertyOrder": 3
+        },
+        "delete": {
+            "type": "boolean",
+            "default": true,
+            "title": "Delete",
+            "description": "If 'true', the selected member and role mapping will be deleted",
+            "propertyOrder": 4
+        }
+    }
+}

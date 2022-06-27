@@ -15,7 +15,7 @@ axios
                     counter: 0,
                     currentUUID: null,
                     emptyRequest: {
-                        timeseries_id: 0
+                        id: 0
                     },
                     requests: [],
                     period: {

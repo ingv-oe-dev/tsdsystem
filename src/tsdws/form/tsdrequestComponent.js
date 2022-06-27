@@ -105,7 +105,7 @@ const tsdformRequestComponentDefinition = {
 
             let self = this;
             axios
-                .get("/tsdws/nets")
+                .get("../nets")
                 .then(response => {
                     self.nets = response.data.data;
                     self.selectedNet = self.resetID;
@@ -124,7 +124,7 @@ const tsdformRequestComponentDefinition = {
 
             let self = this;
             axios
-                .get("/tsdws/sensors/?net_id=" + self.selectedNet)
+                .get("../sensors/?net_id=" + self.selectedNet)
                 .then(response => {
                     self.sensors = response.data.data;
                     self.selectedSensor = self.resetID;
@@ -144,7 +144,7 @@ const tsdformRequestComponentDefinition = {
 
             let self = this;
             axios
-                .get("/tsdws/channels/?sensor_id=" + self.selectedSensor)
+                .get("../channels/?sensor_id=" + self.selectedSensor)
                 .then(response => {
                     self.channels = response.data.data;
                     self.selectedChannel = self.resetID;
@@ -161,7 +161,7 @@ const tsdformRequestComponentDefinition = {
             this.defaultOption.timeseries = "Loading...";
             this.timeseries = [];
             this.filtered_timeseries = [];
-            let url = "/tsdws/timeseries/?showColDefs=true" + ((name === undefined) ? ("&channel_id=" + this.selectedChannel) : ("&name=" + name));
+            let url = "../timeseries/?listCol=true" + ((name === undefined) ? ("&channel_id=" + this.selectedChannel) : ("&name=" + name));
 
             let self = this;
             axios
@@ -238,7 +238,7 @@ const tsdformRequestComponentDefinition = {
         },
         selectedTimeseries: {
             handler: function(r) {
-                this.request.timeseries_id = r;
+                this.request.id = r;
                 this.set_timeseries_columns(this.searchbyname_active ? this.filtered_timeseries : this.timeseries);
             }
         },

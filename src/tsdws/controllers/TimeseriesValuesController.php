@@ -39,7 +39,7 @@ Class TimeseriesValuesController extends RESTController {
 				// check if authorized action
 				$this->authorizedAction(array(
 					"scope"=>"timeseries-edit",
-					"resource_id" => $this->getParams()["timeseries_id"]
+					"resource_id" => $this->getParams()["id"]
 				));
 
 				// post action
@@ -59,7 +59,7 @@ Class TimeseriesValuesController extends RESTController {
 				// check if authorized action
 				$this->authorizedAction(array(
 					"scope"=>"timeseries-read",
-					"resource_id" => $this->getParams()["timeseries_id"]
+					"resource_id" => $this->getParams()["id"]
 				));
 
 				// get action
@@ -365,9 +365,9 @@ Class TimeseriesValuesController extends RESTController {
 		
 		$input = $this->getParams();
 		
-		// (1) $input["timeseries_id"]
-		if (!array_key_exists("timeseries_id", $input)){
-			$this->setInputError("This required input is missing: 'timeseries_id' [string]");
+		// (1) $input["id"]
+		if (!array_key_exists("id", $input)){
+			$this->setInputError("This required input is missing: 'id' [string]");
 			return false;
 		}
 		// (2) $input["columns"] 
@@ -422,9 +422,9 @@ Class TimeseriesValuesController extends RESTController {
 			$input["transpose"] = ($input["transpose"] === true);
 		}
 		
-		// timeseries_id
-		if(!array_key_exists("timeseries_id", $input)) {
-			$this->setInputError("This required input is missing: 'timeseries_id' [string]");
+		// id
+		if(!array_key_exists("id", $input)) {
+			$this->setInputError("This required input is missing: 'id' [string]");
 			return false;
 		}
 		
@@ -483,15 +483,15 @@ Class TimeseriesValuesController extends RESTController {
 					$this->setInputError("This input is incorrect: 'columns'[array]. Your value = " . strval($input["columns"]));
 					return false;
 				} else {
-					$input["columns"] = $this->obj->getColumnList($input["timeseries_id"]); // select all columns
+					$input["columns"] = $this->obj->getColumnList($input["id"]); // select all columns
 				}
 			} else {
 				if (empty($input["columns"])) {
-					$input["columns"] = $this->obj->getColumnList($input["timeseries_id"]); // select all columns
+					$input["columns"] = $this->obj->getColumnList($input["id"]); // select all columns
 				}
 			}
 		} else {
-			$input["columns"] = $this->obj->getColumnList($input["timeseries_id"]); // select all columns
+			$input["columns"] = $this->obj->getColumnList($input["id"]); // select all columns
 		}
 		// check settings into each column 
 		if (!$this->checkColumnSettings($input)) return false;
@@ -509,7 +509,7 @@ Class TimeseriesValuesController extends RESTController {
 
 
 	public function checkColumnSettings(&$input) {
-		$column_list = $this->obj->getColumnList($input["timeseries_id"]);
+		$column_list = $this->obj->getColumnList($input["id"]);
 		$paramsToCheck = array(
 			"aggregate",
 			"minthreshold",
@@ -550,7 +550,7 @@ Class TimeseriesValuesController extends RESTController {
 					return false;
 				}
 			} else {
-				$this->setInputError("Unable to retrieve columns name for timeseries with id = '" . $input["timeseries_id"] . "'.");
+				$this->setInputError("Unable to retrieve columns name for timeseries with id = '" . $input["id"] . "'.");
 				return false;
 			}
 		}

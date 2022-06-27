@@ -49,6 +49,10 @@ CREATE TABLE IF NOT EXISTS tsd_users.members_mapping_roles
 (
     member_id integer NOT NULL,
     role_id integer NOT NULL,
+    priority integer NULL,
+    create_time timestamp NULL DEFAULT timezone('utc'::text, now()),
+	update_time timestamp NULL,
+	remove_time timestamp NULL,
 	CONSTRAINT members_mapping_roles_pkey PRIMARY KEY (member_id, role_id)
 )
 

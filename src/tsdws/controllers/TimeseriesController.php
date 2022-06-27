@@ -45,7 +45,7 @@ Class TimeseriesController extends RESTController {
 				// check if authorized action
 				$this->authorizedAction(array(
 					"scope"=>"timeseries-edit",
-					"resource_id" => $this->getParams()["timeseries_id"]
+					"resource_id" => $this->getParams()["id"]
 				));
 				$this->patch();
 				break;
@@ -80,7 +80,7 @@ Class TimeseriesController extends RESTController {
 			return false;
 		}
 		// (2) $input["name"] 
-		if (!array_key_exists("name", $input)){
+		if (!array_key_exists("name", $input) || empty($input["name"])){
 			$this->setInputError("This required input is missing: 'name' [string]");
 			return false;
 		}
@@ -104,7 +104,7 @@ Class TimeseriesController extends RESTController {
 			$this->setInputError("Error on decoding 'metadata' JSON input");
 			return false;
 		} else {
-			$input["metadata"] = $input["columns"];
+			$input["metadata"] = array("columns" => $input["columns"]);
 		}
 		
 		// check mapping values
@@ -152,8 +152,18 @@ Class TimeseriesController extends RESTController {
 				foreach($jsonfields as $fieldname) {
 					$result["data"][$i][$fieldname] = isset($result["data"][$i][$fieldname]) ? json_decode($result["data"][$i][$fieldname]) : NULL;
 					// add columns list on response if by id
+					if (array_key_exists("listCol", $params) and $params["listCol"]) {
+						$result["data"][$i]["columns"] = $this->obj->getColumnList($result["data"][$i]["id"], $addInfo=false);
+					}
+					// add columns list + types on response if by id
 					if (array_key_exists("showColDefs", $params) and $params["showColDefs"]) {
-						$result["data"][$i]["columns"] = $this->obj->getColumnList($result["data"][$i]["id"]);
+						$result["data"][$i]["columns"] = $this->obj->getColumnList($result["data"][$i]["id"], $addInfo=true);
+					}
+					// add channel list on response if by id
+					if (array_key_exists("showMapping", $params) and $params["showMapping"]) {
+						$result["data"][$i]["mapping"] = array(
+							"channel_id" => $this->obj->getIDChannelList($result["data"][$i]["id"])
+						);
 					}
 				}
 			}
@@ -175,9 +185,9 @@ Class TimeseriesController extends RESTController {
 		}
 		
 		$input = $this->getParams();
-		// (0) $input["timeseries_id"]
-		if (!array_key_exists("timeseries_id", $input) or !$this->isValidUUID($input["timeseries_id"])) {
-			$this->setInputError("This required input is missing: 'timeseries_id' [uuid string]");
+		// (0) $input["id"]
+		if (!array_key_exists("id", $input) or !$this->isValidUUID($input["id"])) {
+			$this->setInputError("This required input is missing: 'id' [uuid string]");
 			return false;
 		}
 		// $input["metadata"] is json

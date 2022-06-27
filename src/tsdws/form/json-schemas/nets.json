@@ -1,0 +1,32 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Net",
+    "description": "Set the properties of the net",
+    "type": "object",
+    "required": ["name"],
+    "additionalProperties": false,
+    "format": "grid",
+    "properties": {
+        "id": {
+            "title": "ID",
+            "description": "Identificator",
+            "type": "integer",
+            "readOnly": true
+        },
+        "name": {
+            "title": "Name",
+            "description": "Name",
+            "type": "string",
+            "minLength": 1
+        },
+        "owner_id": {
+            "title": "Owner",
+            "description": "Set the onwer of the net",
+            "type": "integer",
+            "enum": [],
+            "options": {
+                "enum_titles": []
+            }
+        }
+    }
+}

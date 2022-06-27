@@ -80,7 +80,7 @@ Class SensortypesController extends RESTController {
 		$input = $this->getParams();
 		
 		// (1) $input["name"] 
-		if (!array_key_exists("name", $input)){
+		if (!array_key_exists("name", $input) || empty($input["name"])){
 			$this->setInputError("This required input is missing: 'name' [string]");
 			return false;
 		}
@@ -108,6 +108,11 @@ Class SensortypesController extends RESTController {
 		// (0) $input["id"] 
 		if (!array_key_exists("id", $input) or !is_int($input["id"])){
 			$this->setInputError("This required input is missing: 'id' [integer]");
+			return false;
+		}
+		// (1) $input["name]
+		if (array_key_exists("name", $input) and empty($input["name"])){
+			$this->setInputError("Uncorrect input: 'name' [string]");
 			return false;
 		}
 		// (2) $input["json_schema"] is json

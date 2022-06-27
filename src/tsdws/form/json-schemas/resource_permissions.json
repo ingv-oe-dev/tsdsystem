@@ -1,0 +1,288 @@
+{
+    "$id": "http://[myWebServerAddress]/SoTableStub/schema.json",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "TSDSystem web service permissions",
+    "description": "Permission settings for a TSDSystem account user",
+    "type": "object",
+    "required": ["resources"],
+    "properties": {
+        "resources": {
+            "type": "object",
+            "properties": {
+                "nets": {
+                    "type": "object",
+                    "properties": {
+                        "edit": {
+                            "$ref": "#/$defs/root_resource_edit_configuration"
+                        },
+                        "read": {
+                            "$ref": "#/$defs/root_resource_read_configuration"
+                        }
+                    }
+                },
+                "sites": {
+                    "type": "object",
+                    "properties": {
+                        "edit": {
+                            "$ref": "#/$defs/root_resource_edit_configuration"
+                        },
+                        "read": {
+                            "$ref": "#/$defs/root_resource_read_configuration"
+                        }
+                    }
+                },
+                "owners": {
+                    "type": "object",
+                    "properties": {
+                        "edit": {
+                            "$ref": "#/$defs/root_resource_edit_configuration"
+                        },
+                        "read": {
+                            "$ref": "#/$defs/root_resource_read_configuration"
+                        }
+                    }
+                },
+                "sensortypes": {
+                    "type": "object",
+                    "properties": {
+                        "edit": {
+                            "$ref": "#/$defs/root_resource_edit_configuration"
+                        },
+                        "read": {
+                            "$ref": "#/$defs/root_resource_read_configuration"
+                        }
+                    }
+                },
+                "sensors": {
+                    "type": "object",
+                    "properties": {
+                        "edit": {
+                            "type": "object",
+                            "properties": {
+                                "ip": {
+                                    "type": ["array", "null"],
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                },
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "permissions": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "$ref": "#/$defs/array_of_int_primary_keys"
+                                        },
+                                        "net_id": {
+                                            "$ref": "#/$defs/array_of_int_primary_keys"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "read": {
+                            "$ref": "#/$defs/root_resource_read_configuration"
+                        }
+                    }
+                },
+                "channels": {
+                    "type": "object",
+                    "properties": {
+                        "edit": {
+                            "type": "object",
+                            "properties": {
+                                "ip": {
+                                    "type": ["array", "null"],
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                },
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "permissions": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "$ref": "#/$defs/array_of_int_primary_keys"
+                                        },
+                                        "net_id": {
+                                            "$ref": "#/$defs/array_of_int_primary_keys"
+                                        },
+                                        "sensor_id": {
+                                            "$ref": "#/$defs/array_of_int_primary_keys"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "read": {
+                            "$ref": "#/$defs/root_resource_read_configuration"
+                        }
+                    }
+                },
+                "timeseries": {
+                    "type": "object",
+                    "properties": {
+                        "edit": {
+                            "type": "object",
+                            "properties": {
+                                "ip": {
+                                    "type": ["array", "null"],
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                },
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "permissions": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": ["array", "null"],
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "net_id": {
+                                            "$ref": "#/$defs/array_of_int_primary_keys"
+                                        },
+                                        "sensor_id": {
+                                            "$ref": "#/$defs/array_of_int_primary_keys"
+                                        },
+                                        "channel_id": {
+                                            "$ref": "#/$defs/array_of_int_primary_keys"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "read": {
+                            "type": "object",
+                            "properties": {
+                                "ip": {
+                                    "type": ["array", "null"],
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                },
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "permissions": {
+                                    "type": "object",
+                                    "properties": {
+                                        "all": {
+                                            "$ref": "#/$defs/ts_read_permission"
+                                        },
+                                        "net_id": {
+                                            "type": "object",
+                                            "patternProperties": {
+                                                "^[0-9]+$": {
+                                                    "$ref": "#/$defs/ts_read_permission"
+                                                }
+                                            },
+                                            "additionalProperties": false
+                                        },
+                                        "sensor_id": {
+                                            "type": "object",
+                                            "patternProperties": {
+                                                "^[0-9]+$": {
+                                                    "$ref": "#/$defs/ts_read_permission"
+                                                }
+                                            },
+                                            "additionalProperties": false
+                                        },
+                                        "channel_id": {
+                                            "type": "object",
+                                            "patternProperties": {
+                                                "^[0-9]+$": {
+                                                    "$ref": "#/$defs/ts_read_permission"
+                                                }
+                                            },
+                                            "additionalProperties": false
+                                        },
+                                        "id": {
+                                            "type": "object",
+                                            "patternProperties": {
+                                                "^[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*$": {
+                                                    "$ref": "#/$defs/ts_read_permission"
+                                                }
+                                            },
+                                            "additionalProperties": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "$defs": {
+        "root_resource_edit_configuration": {
+            "type": "object",
+            "properties": {
+                "ip": {
+                    "type": ["array", "null"],
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "enabled": {
+                    "type": "boolean"
+                },
+                "permissions": {
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "$ref": "#/$defs/array_of_int_primary_keys"
+                        }
+                    }
+                }
+            }
+        },
+        "root_resource_read_configuration": {
+            "type": "object",
+            "properties": {
+                "ip": {
+                    "type": ["array", "null"],
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "enabled": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "array_of_int_primary_keys": {
+            "type": ["array", "null"],
+            "items": {
+                "type": "integer"
+            }
+        },
+        "ts_read_permission": {
+            "type": "object",
+            "properties": {
+                "last_days": {
+                    "type": ["boolean", "null"]
+                },
+                "start_period": {
+                    "type": ["string", "null"],
+                    "format": "date"
+                },
+                "end_period": {
+                    "type": ["string", "null"],
+                    "format": "date"
+                },
+                "number_of_days": {
+                    "type": ["integer", "null"]
+                }
+            }
+        }
+    }
+}

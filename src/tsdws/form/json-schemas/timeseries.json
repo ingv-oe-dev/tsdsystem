@@ -1,0 +1,119 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Timeseries",
+    "description": "Set the properties of the timeseries",
+    "type": "object",
+    "required": ["schema", "name"],
+    "additionalProperties": false,
+    "format": "categories",
+    "basicCategoryTitle": "Main",
+    "properties": {
+        "id": {
+            "title": "ID",
+            "description": "Identificator",
+            "type": "string",
+            "readOnly": true
+        },
+        "schema": {
+            "title": "Schema",
+            "description": "The name of the schema where timeseries tables will be archived",
+            "type": "string",
+            "minLength": 1
+        },
+        "name": {
+            "title": "Name",
+            "description": "Name",
+            "type": "string",
+            "minLength": 1
+        },
+        "sampling": {
+            "title": "Sampling",
+            "description": "Timeseries values sampling in seconds",
+            "type": "number",
+            "minimum": 1
+        },
+        "columns": {
+            "title": "Columns",
+            "description": "List of all the measurements of the timeseries",
+            "type": "array",
+            "format": "table",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "title": "Name",
+                        "minLength": 1,
+                        "description": "Table column name"
+                    },
+                    "type": {
+                        "title": "Field type",
+                        "description": "Table column type",
+                        "type": "string",
+                        "default": "double precision",
+                        "enum": ["smallint", "integer", "double precision"],
+                        "options": {
+                            "enum_titles": ["smallint (2 bytes)", "integer (4 bytes)", "double precision (8 bytes)"]
+                        }
+                    }
+                }
+            }
+        },
+        "mapping": {
+            "title": "Mapping",
+            "description": "List of all channels related to the timeseries",
+            "type": "object",
+            "required": ["channel_id", "add_channel_mode", "channel_list"],
+            "format": "grid-strict",
+            "properties": {
+                "channel_id": {
+                    "title": "Channel IDs",
+                    "description": "ID list of channels to which the timeseries is related.",
+                    "type": "array",
+                    "format": "table",
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "integer"
+                    },
+                    "options": {
+                        "grid_columns": 5
+                    }
+                },
+                "add_channel_mode": {
+                    "type": "boolean",
+                    "default": true,
+                    "title": "Select from list",
+                    "description": "If 'true', selected rows from 'Channel list' will be copied into the 'Channel IDs' array.",
+                    "options": {
+                        "grid_columns": 2
+                    }
+                },
+                "channel_list": {
+                    "title": "Channel list",
+                    "description": "Use CTRL + click on row(s) for multiple selection.",
+                    "type": "array",
+                    "format": "table",
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "integer",
+                        "enum": [],
+                        "options": {
+                            "enum_titles": []
+                        }
+                    },
+                    "options": {
+                        "grid_columns": 5
+                    }
+                }
+            }
+        },
+        "metadata": {
+            "title": "Metadata",
+            "description": "Metadata for the timeseries",
+            "type": "object",
+            "additionalProperties": true
+        }
+    }
+}

@@ -6,12 +6,17 @@ Class Users extends QueryManager {
     private $user_id;
 
     //CONSTRUCTOR
-	function __construct($user_id) {
+	function __construct($user_id=null) {
 		$this->user_id = $user_id;
         parent::__construct();
 	}
 
 	public function getPermissions($scope=array()) {
+
+        // check if administrator (user_id = getenv("ADMIN_ID"))
+        if ($this->user_id == getenv("ADMIN_ID")) { 
+            return array("admin" => true);
+        }
 
         /**
          * Define json path where extract permissions
@@ -42,9 +47,10 @@ Class Users extends QueryManager {
             from
                 tsd_users.members m
             left join tsd_users.members_permissions mp on m.id = mp.member_id and mp.active = true and mp.remove_time is null
-            left join tsd_users.members_mapping_roles mmr on m.id = mmr.member_id 
+            left join tsd_users.members_mapping_roles mmr on m.id = mmr.member_id and mmr.remove_time is null
             left join tsd_users.roles_permissions rp on rp.role_id = mmr.role_id and rp.active = true and mp.remove_time is null 
             where m.id = " . $this->user_id . "
+            order by mmr.priority, mmr.update_time DESC
         ) p";
 
         $result = $this->getSingleField($query);
@@ -62,5 +68,18 @@ Class Users extends QueryManager {
         }
         return null;
 	}
-	
+
+    public function getList($input) {
+        $query = "SELECT id, email as name, registered FROM tsd_users.members m WHERE deleted IS NULL AND NOT registered IS NULL AND NOT confirmed IS NULL";
+		
+		if (isset($input) and is_array($input)) { 
+			$query .= $this->composeWhereFilter($input, array(
+				"id" => array("id" => true, "quoted" => false),
+				"email" => array("quoted" => true)
+			));
+		}
+		
+		//echo $query;
+		return $this->getRecordSet($query);
+    }	
 }

@@ -3,6 +3,11 @@ RewriteEngine On
 RewriteRule .* - [e=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
 RewriteRule ^token$ routes/generateToken.php [NC]
+RewriteRule ^permissions/member$ routes/getPermissions.php [NC]
+RewriteRule ^permissions/role$ routes/getPermissions.php [NC]
+RewriteRule ^users(/)?$ routes/getUsers.php [NC]
+RewriteRule ^roles(/)?$ routes/getRoles.php [NC]
+RewriteRule ^roles/mapping(/)?$ routes/getRoles.php [NC]
 
 RewriteRule ^timeseries/values(/)?$ routes/ts_routes.php [NC]
 RewriteRule ^timeseries(/)?$ routes/ts_routes.php [NC]
