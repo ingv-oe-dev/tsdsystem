@@ -260,7 +260,7 @@ Class RESTController extends SimpleREST {
 		$rights = null;
 
 		// CHECK IF SUPER USER ACTION
-		$this->compareAdminPermissions($auth_params, $auth_data);
+		if ($this->compareAdminPermissions($auth_params, $auth_data)) return true;
 		
 		// check if exists the section related to the scope
 		try {
