@@ -84,8 +84,55 @@
             "title": "Custom Info",
             "description": "Sensor's specific properties (e.g.: digitizer, history)",
             "type": "object",
+            "properties": {
+                "digitizer": {
+                    "$ref": "#/$defs/digitizer"
+                },
+                "history": {
+                    "$ref": "#/$defs/history"
+                },
+                "other": {
+                    "title": "Other properties",
+                    "description": "Other properties",
+                    "type": "object"
+                }
+            },
             "additionalProperties": true,
             "propertyOrder": 9
+        }
+    },
+    "$defs": {
+        "digitizer": {
+            "title": "Digitizer",
+            "description": "Digitizer properties",
+            "type": "object"
+        },
+        "history": {
+            "title": "History",
+            "description": "History of the node",
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+                "$ref": "#/$defs/history_record"
+            }
+        },
+        "history_record": {
+            "title": "History record",
+            "description": "History record",
+            "type": "object",
+            "properties": {
+                "starttime": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "endtime": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "record": {
+                    "$ref": "#"
+                }
+            }
         }
     }
 }

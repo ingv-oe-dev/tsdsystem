@@ -25,6 +25,9 @@
                 <button id='restore' class='btn btn-secondary'>Restore to Default</button>
                 <div id='valid_indicator' class='mt-1 alert alert-danger'></div>
                 <button id='submit' class='btn btn-primary' disabled>Submit</button>  
+                <?php if ($id) { ?>
+                <button id='historicize' class="btn btn-danger">Historicize sensor</button>
+                <?php } ?>
             </div>
         </p>
         <div class='columns'>
@@ -100,6 +103,45 @@
                 });
             }
         });
+
+        // set historicize button action
+        $("#historicize").click(function(){
+            if (confirm("This action will copy the sensor data into 'Custom info > History' section and then reset the form") == true) {
+                historicizeSensor();
+            }
+        });
+
+        function historicizeSensor() {
+            let currTime = new Date();
+            // get current json data (without history)
+            j = Object.assign({}, editor.getValue());
+            delete j.custom_props.history;
+            console.log(j);
+
+            // select the target where current data will be copied
+            selector = 'root.custom_props.history'
+            target = editor.getEditor(selector)
+            editor.getEditor(selector).activate();
+
+            // get target content
+            current_content = target.getValue();
+
+            // add new record to current_content array
+            curr_length = current_content.push(null);
+            target.setValue(current_content);
+
+            // copy json data into new target
+            selector = 'root.custom_props.history.' + (curr_length - 1) + '.record'
+            new_target = editor.getEditor(selector);
+            editor.getEditor(selector).activate();
+            new_target.setValue(j);
+
+            // set endtime to current time by default
+            selector = 'root.custom_props.history.' + (curr_length - 1) + '.endtime';
+            endtime = editor.getEditor(selector);
+            editor.getEditor(selector).activate();
+            endtime.setValue(currTime.toISOString().substr(0,10));
+        }
 
         function handleInputID() {
             if (!id) {
