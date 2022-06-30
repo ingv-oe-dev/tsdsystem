@@ -120,10 +120,11 @@
                 console.log(editor.getValue());
 
                 var toPost = editor.getValue();
+                /*
                 if (toPost["info"]) {
                     toPost.info = JSON.stringify(toPost.info);
                 }
-                
+                */
                 // PATCH if id is indicated, else POST
                 $.ajax({
                     "url": route,

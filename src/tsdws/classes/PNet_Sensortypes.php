@@ -67,7 +67,7 @@ Class Sensortypes extends QueryManager {
 
 		$updateFields = array(
 			"name" => array("quoted" => true),
-			"json_schema" => array("quoted" => true),
+			"json_schema" => array("json" => true),
 			"update_time" => array("quoted" => false),
 			"update_user" => array("quoted" => false)
 		);

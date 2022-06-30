@@ -75,6 +75,7 @@ Class Channels extends QueryManager {
 		$updateFields = array(
 			"name" => array("quoted" => true),
 			"sensor_id" => array("quoted" => false),
+			"info" => array("json" => true),
 			"update_time" => array("quoted" => false),
 			"update_user" => array("quoted" => false)
 		);

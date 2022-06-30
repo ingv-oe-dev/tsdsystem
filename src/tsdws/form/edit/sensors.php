@@ -192,9 +192,11 @@
                     delete toPost.metadata.id;
                     //toPost.metadata = JSON.stringify(toPost.metadata);
                 }
+                /*
                 if (toPost["custom_props"]) {
                     toPost.custom_props = JSON.stringify(toPost.custom_props);
                 }
+                */
                 //console.log(toPost);
                 
                 // PATCH if id is indicated, else POST

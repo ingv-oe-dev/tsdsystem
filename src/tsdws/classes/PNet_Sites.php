@@ -71,7 +71,7 @@ Class Sites extends QueryManager {
 		$updateFields = array(
 			"name" => array("quoted" => true),
 			"quote" => array("quoted" => false),
-			"info" => array("quoted" => true),
+			"info" => array("json" => true),
 			"update_time" => array("quoted" => false),
 			"update_user" => array("quoted" => false)
 		);

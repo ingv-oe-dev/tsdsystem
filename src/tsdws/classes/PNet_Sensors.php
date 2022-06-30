@@ -78,8 +78,8 @@ Class Sensors extends QueryManager {
 		$updateFields = array(
 			"name" => array("quoted" => true),
 			"quote" => array("quoted" => false),
-			"metadata" => array("quoted" => true),
-			"custom_props" => array("quoted" => true),
+			"metadata" => array("json" => true),
+			"custom_props" => array("json" => true),
 			"sensortype_id" => array("quoted" => false),
 			"net_id" => array("quoted" => false),
 			"site_id" => array("quoted" => false),

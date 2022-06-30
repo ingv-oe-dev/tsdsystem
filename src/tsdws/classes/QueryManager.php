@@ -300,7 +300,11 @@ Class QueryManager extends Utils {
 		$updStmt = '';
 		foreach($updateFields as $key => $value) {
 			if (array_key_exists($key, $input) and isset($input[$key])){
-				$updStmt .= "$key = " . ($value["quoted"] ? "'$input[$key]'" : "$input[$key]") . ", ";
+				if (array_key_exists("json", $value) and $value["json"]) {
+					$updStmt .= $key . " = '" . json_encode($input[$key]) . "', ";
+				} else {
+					$updStmt .= "$key = " . ((array_key_exists("quoted", $value) and $value["quoted"]) ? "'$input[$key]'" : "$input[$key]") . ", ";
+				}
 			}
 		}
 		return rtrim($updStmt, ", ");
