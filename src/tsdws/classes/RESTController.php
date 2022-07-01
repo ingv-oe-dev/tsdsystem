@@ -259,6 +259,11 @@ Class RESTController extends SimpleREST {
 		$errorMessagePrefix = "Unauthorized action - ";
 		$rights = null;
 
+		// CHECK IF SUPER USER
+		if ($auth_data["userId"] == getenv("ADMIN_ID")) {
+			return true;
+		}
+
 		// CHECK IF SUPER USER ACTION
 		if ($this->compareAdminPermissions($auth_params, $auth_data)) return true;
 		
