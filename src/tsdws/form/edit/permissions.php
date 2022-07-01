@@ -39,7 +39,7 @@
             "role_id": null
         };
         
-        var ref = "../json-schemas/resource_permissions_form.json";
+        var ref = "../../json-schemas/resource_permissions_form.json";
         var route = "../../permissions/";
         var method =  "POST";
         var mySchema = {};

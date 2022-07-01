@@ -42,7 +42,7 @@
         // and to provide a "Restore to Default" button.
         var default_starting_value = null;
         var id = "<?php echo $id; ?>";
-        var ref = "../json-schemas/sensors.json";
+        var ref = "../../json-schemas/sensors.json";
         var route = "../../sensors";
         var method =  id ? "PATCH" : "POST";
         var mySchema = {};

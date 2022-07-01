@@ -40,7 +40,7 @@
         var default_starting_value = null;
         
         var id = "<?php echo $id; ?>";
-        var ref = "../json-schemas/roles.json";
+        var ref = "../../json-schemas/roles.json";
         var route = "../../roles";
         var method =  id ? "PATCH" : "POST";
         var mySchema = {};

@@ -51,7 +51,7 @@
         };
         
         var id = "<?php echo $id; ?>";
-        var ref = "../json-schemas/sensortypes.json";
+        var ref = "../../json-schemas/sensortypes.json";
         var route = "../../sensortypes";
         var method =  id ? "PATCH" : "POST";
         var mySchema = {};

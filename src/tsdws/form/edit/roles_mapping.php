@@ -59,7 +59,7 @@
         // and to provide a "Restore to Default" button.
         var default_starting_value = {};
         
-        var ref = "../json-schemas/members_mapping_roles.json";
+        var ref = "../../json-schemas/members_mapping_roles.json";
         var route = "../../roles/mapping/";
         var mySchema = {};
 

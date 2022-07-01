@@ -40,7 +40,7 @@
         var default_starting_value = null;
         
         var id = "<?php echo $id; ?>";
-        var ref = "../json-schemas/nets.json";
+        var ref = "../../json-schemas/nets.json";
         var route = "../../nets";
         var method =  id ? "PATCH" : "POST";
         var mySchema = {};

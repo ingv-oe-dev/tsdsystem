@@ -40,7 +40,7 @@
         var default_starting_value = null;
         
         var id = "<?php echo $id; ?>";
-        var ref = "../json-schemas/timeseries.json";
+        var ref = "../../json-schemas/timeseries.json";
         var route = "../../timeseries?showColDefs=true&showMapping=true";
         var method =  id ? "PATCH" : "POST";
         var mySchema = {};
