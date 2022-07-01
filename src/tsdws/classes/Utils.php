@@ -36,6 +36,31 @@ Class Utils {
 		return false;
 	}
 
+	public function validate_json_by_schema($json_string, $schema) {
+
+		require_once("..".DIRECTORY_SEPARATOR."json-schemas".DIRECTORY_SEPARATOR."vendor".DIRECTORY_SEPARATOR."autoload.php");
+
+		$result = array();
+
+		$json_to_validate = json_decode($json_string);
+		$json_schema = json_decode($schema);
+
+		// Validate
+		$validator = new JsonSchema\Validator;
+		$validator->validate($json_to_validate, $json_schema);
+
+		if ($validator->isValid()) {
+			$result["status"] = true;
+			$result["message"] = "The supplied JSON validates against the schema.";
+		} else {
+			$result["status"] = false;
+			$result["message"] = "The supplied JSON does not validate. Violations:";
+			$result["errors"] = $validator->getErrors();
+		}
+
+		return $result;
+	}
+
 	public function isValidUUID($uuid) {
 		return (is_string($uuid) and (preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/', $uuid) == 1));
 	}
