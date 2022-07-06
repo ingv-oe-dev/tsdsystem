@@ -124,7 +124,7 @@ class SecureLogin extends QueryManager{
 	function create_temp_reset_key($email) {
 		
 		$rand_key = hash('sha512', uniqid(mt_rand(1, mt_getrandmax()), true));
-		$reset_url = getenv("PUBLIC_URL") . "tsdws/login/reset-pwd.php?email=" . $email . "&rand_key=" . $rand_key;
+		$reset_url = $this::getHostAddress() . "/tsdws/login/reset-pwd.php?email=" . $email . "&rand_key=" . $rand_key;
 
 		$sql = "INSERT INTO tsd_users.temp_reset_keys (email, rand_key) VALUES (:email, :rand_key)";
 		$rs = $this->executeWritePreparedStatement($sql, array(':email' => $email, ':rand_key' => $rand_key));

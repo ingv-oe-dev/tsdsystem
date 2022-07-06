@@ -5,6 +5,11 @@
 Class Utils {
 	
 	public $DATE_ISO_FORMAT = 'Y-m-d H:i:s';
+
+	public static function getHostAddress() {
+		$protocol = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
+		return $protocol . $_SERVER['HTTP_HOST'];
+	}
 	
 	public function verifyDate($date) {
 		return (DateTime::createFromFormat($this->DATE_ISO_FORMAT, $date) !== false);
