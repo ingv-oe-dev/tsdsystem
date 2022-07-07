@@ -21,3 +21,6 @@ SMTP settings (for emails sending):
 - `SMTP_PASSWORD`
 - `SMTP_AUTH`
 - `SMTP_SECURE`
+
+Regexp pattern for users' email registration:
+- `REG_PATTERN` (PCRE2 [PHP >=7.3] - if not set, it allows any string)
