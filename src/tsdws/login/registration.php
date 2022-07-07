@@ -9,8 +9,9 @@ header("Content-Type: application/json");
 $result = array();
 
 $email = $_POST['email'];
-$pattern = '/[.]*@[ct\.]*ingv\.it/i'; // solo ingv
-// $pattern = "/.*/i"; //tutti
+// vedo se esiste una regular expression per l'email di registrazione (o nome utente)
+$pattern = getenv("REG_PATTERN") ? getenv("REG_PATTERN") : "/.*/i"; // tutti altrimenti
+// $pattern = '/[.]*@[ct\.]*ingv\.it/i'; // solo ingv
 $send_mail = (isset($_POST["send_mail"]) and ($_POST["send_mail"] == "0" or strtolower($_POST["send_mail"]) == "false")) ? false : true;
 
 if(preg_match($pattern, $email)) {
@@ -61,7 +62,7 @@ if(preg_match($pattern, $email)) {
 	}
 
 } else {
-	$result["error"] = "Registration allowed only to INGV members.";
+	$result["error"] = "Registration email does not match the pattern: " . $pattern;
 
 	$subject = "Failed TSDSystem registration [" . $_POST['email'] . "]";
 	$adminbody = "A new registration was tried:<br><br>
