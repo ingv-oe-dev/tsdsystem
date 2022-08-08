@@ -10,7 +10,7 @@
     <link type="text/css" rel="stylesheet" href="../js-download/bootstrap-vue.min.css" />
     <script src="../js-download/bootstrap.bundle.min.js"></script>
     <script src="../js-download/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@json-editor/json-editor@latest/dist/jsoneditor.min.js"></script>
+    <script src="../js-download/jsoneditor-2.8.0.min.js"></script>
 </head>
 <body>
     <div class='container-fluid p-4'>
