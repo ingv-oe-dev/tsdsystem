@@ -69,6 +69,8 @@
                 }
             } else {
                 mySchema.required.push("id");
+                // disable columns editing on PATCH (coupled with line 151)
+                mySchema.required.push("columns");
             }
         }
 
@@ -144,6 +146,9 @@
                     let disabled = !editor.getEditor('root.mapping.add_channel_mode').getValue();
                     $(document.getElementById("root[mapping][channel_list]")).prop('disabled', disabled);
                 });
+
+                // disable columns editing on PATCH
+                if (method == "PATCH") editor.getEditor('root.columns').disable();
             });
             
             // Hook up the submit button to log to the console
@@ -152,10 +157,15 @@
                 console.log(editor.getValue());
 
                 var toPost = editor.getValue();
+                /*
                 if (toPost["metadata"]) {
                     toPost.metadata = JSON.stringify(toPost.metadata);
                 }
-                
+                */
+
+                // force deleting of old mappings
+                toPost["mapping"]["force"] = true;
+
                 // PATCH if id is indicated, else POST
                 $.ajax({
                     "url": route,

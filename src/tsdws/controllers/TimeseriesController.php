@@ -100,9 +100,12 @@ Class TimeseriesController extends RESTController {
 			$input["columns"] = array(array("name"=>"value", "type"=>"double precision"));
 		}
 		// (4) $input["metadata"] is json
-		if (array_key_exists("metadata", $input) and !$this->validate_json($input["metadata"])){
-			$this->setInputError("Error on decoding 'metadata' JSON input");
-			return false;
+		if (array_key_exists("metadata", $input)) {
+			if (!$this->validate_json($input["metadata"])){
+				$this->setInputError("Error on decoding 'metadata' JSON input");
+				return false;
+			} 
+			$input["metadata"]["columns"] = $input["columns"];
 		} else {
 			$input["metadata"] = array("columns" => $input["columns"]);
 		}
@@ -191,9 +194,12 @@ Class TimeseriesController extends RESTController {
 			return false;
 		}
 		// $input["metadata"] is json
-		if (array_key_exists("metadata", $input) and !$this->validate_json($input["metadata"])){
-			$this->setInputError("Error on decoding 'metadata' JSON input");
-			return false;
+		if (array_key_exists("metadata", $input)) {
+			if (!$this->validate_json($input["metadata"])) {
+				$this->setInputError("Error on decoding 'metadata' JSON input");
+				return false;
+			}
+			$input["metadata"]["columns"] = $input["columns"];
 		}
 		// $input["sampling"]
 		if (array_key_exists("sampling", $input) and (!is_int($input["sampling"]) || $input["sampling"] < 0)) {
@@ -204,7 +210,9 @@ Class TimeseriesController extends RESTController {
 		if (array_key_exists("mapping", $input) and !$this->check_mapping_values($input["mapping"])) {
 			return false;
 		}
-
+		
+		$this->setParams($input);
+		
 		return true;
 	}
 

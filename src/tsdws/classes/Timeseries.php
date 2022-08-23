@@ -184,16 +184,18 @@ Class Timeseries extends QueryManager {
 						$stmt->execute();
 						$response["channel_id"]["deleted_rows"] = $stmt->rowCount();
 					}
-					$next_query = "INSERT INTO " . $this->mapping_table . " VALUES "; 
-					foreach($input["mapping"]["channel_id"] as $index => $id) {
-						$next_query .= " ('" . $input["id"] . "', " . strval($id) . "), "; 	
+					if(is_array($input["mapping"]["channel_id"]) and count($input["mapping"]["channel_id"]) > 0) {
+						$next_query = "INSERT INTO " . $this->mapping_table . " VALUES "; 
+						foreach($input["mapping"]["channel_id"] as $index => $id) {
+							$next_query .= " ('" . $input["id"] . "', " . strval($id) . "), "; 	
+						}
+						$next_query = rtrim($next_query, ", ");
+						$next_query .= " ON CONFLICT (timeseries_id, channel_id) DO NOTHING";
+						//echo $next_query;
+						$stmt = $this->myConnection->prepare($next_query);
+						$stmt->execute();
+						$response["channel_id"]["rows"] = $stmt->rowCount();
 					}
-					$next_query = rtrim($next_query, ", ");
-					$next_query .= " ON CONFLICT (timeseries_id, channel_id) DO NOTHING";
-					//echo $next_query;
-					$stmt = $this->myConnection->prepare($next_query);
-					$stmt->execute();
-					$response["channel_id"]["rows"] = $stmt->rowCount();
 				}
 			}
 			$response["status"] = true;
