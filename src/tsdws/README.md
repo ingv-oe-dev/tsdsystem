@@ -24,3 +24,6 @@ SMTP settings (for emails sending):
 
 Regexp pattern for users' email registration:
 - `REG_PATTERN` (PCRE2 [PHP >=7.3] - if not set, it allows any string)
+
+To enable requests originated from other websites:
+- `Access-Control-Allow-Origin` (string - ex. all: '*' or a list of addresses: '127.0.0.1, 192.168.1.1, etc.')
