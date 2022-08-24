@@ -85,9 +85,14 @@ Class TimeseriesController extends RESTController {
 			return false;
 		}
 		// (3) $input["sampling"]
-		if (!array_key_exists("sampling", $input) || !is_int($input["sampling"]) || $input["sampling"] < 0) {
-			$this->setInputError("This required input is missing: 'sampling'[integer > 0] <in seconds>");
-			return false;
+		if (array_key_exists("sampling", $input)) {
+			if (!is_int($input["sampling"]) || $input["sampling"] < 0) {
+				$this->setInputError("Uncorrect input: 'sampling'[integer > 0] <in seconds>");
+				return false;
+			}
+		} else {
+			// set default sampling value to 60 seconds
+			$input["sampling"] = 60;
 		}
 		// (3) $input["columns"] 
 		if (array_key_exists("columns", $input)){
@@ -203,7 +208,7 @@ Class TimeseriesController extends RESTController {
 		}
 		// $input["sampling"]
 		if (array_key_exists("sampling", $input) and (!is_int($input["sampling"]) || $input["sampling"] < 0)) {
-			$this->setInputError("This required input is missing: 'sampling'[integer > 0] <in seconds>");
+			$this->setInputError("Uncorrect input: 'sampling'[integer > 0] <in seconds>");
 			return false;
 		}
 		// check mapping values

@@ -30,7 +30,8 @@
             "title": "Sampling",
             "description": "Timeseries values sampling in seconds",
             "type": "number",
-            "minimum": 1
+            "minimum": 1,
+            "default": 60
         },
         "columns": {
             "title": "Columns",
