@@ -91,35 +91,42 @@ Class TimeseriesValuesController extends RESTController {
 	public function comparePermissions($auth_params, $auth_data) {
 		
 		$errorMessagePrefix = "Unauthorized action - ";
+
+		// CHECK IF SUPER USER
+		if ($auth_data["userId"] == getenv("ADMIN_ID")) {
+			return true;
+		}
+
+		// CHECK IF SUPER USER ACTION
+		if ($this->compareAdminPermissions($auth_params, $auth_data)) return true;
 		
 		// check if exists the section related to the scope
+		$scope = array();
 		try {
 			$scope = explode('-', $auth_params['scope']); // view scope
-
-			$rights = $auth_data["rights"]["resources"][$scope[0]][$scope[1]];
-			// echo "rights:";
-			// var_dump($rights);
 		} catch (Exception $e) {
 			throw new Exception($errorMessagePrefix . $e->getMessage());
 		}
 
-		// Differentiate check between read and edit for timeseries values
-		switch ($scope[1]) {
+		if (count($scope)>1) {
+			// Differentiate check between read and edit for timeseries values
+			switch ($scope[1]) {
 
-			// EDIT criterion
-			case "edit":
-				$this->_comparePermissionsEdit($auth_params, $auth_data);
-				break;
+				// EDIT criterion
+				case "edit":
+					$this->_comparePermissionsEdit($auth_params, $auth_data);
+					break;
 
-			// READ criterion
-			case "read":
-				$this->_comparePermissionsRead($auth_params, $auth_data);
-				break;
+				// READ criterion
+				case "read":
+					$this->_comparePermissionsRead($auth_params, $auth_data);
+					break;
 
-			// not enabled other criteria
-			default:
-				throw new Exception($errorMessagePrefix . " Not enabled scope: " . $auth_params['scope']);
-				break;
+				// not enabled other criteria
+				default:
+					throw new Exception($errorMessagePrefix . " Not enabled scope: " . $auth_params['scope']);
+					break;
+			}
 		}
 	}
 
@@ -128,9 +135,20 @@ Class TimeseriesValuesController extends RESTController {
 	 */
 	private function _comparePermissionsEdit($auth_params, $auth_data) {
 		
-		$scope = explode('-', $auth_params['scope']); // view scope
-		$rights = $auth_data["rights"]["resources"][$scope[0]][$scope[1]];
+		$rights = null;
 		$errorMessagePrefix = "Unauthorized action - ";
+
+		// check if exists the section related to the scope
+		try {
+			$scope = explode('-', $auth_params['scope']); // view scope
+			if (count($scope)>1) {
+				$rights = $auth_data["rights"]["resources"][$scope[0]][$scope[1]];
+			}
+			// echo "rights:";
+			// var_dump($rights);
+		} catch (Exception $e) {
+			throw new Exception($errorMessagePrefix . $e->getMessage());
+		}
 
 		// Check if exists 'rights' section
 		if (!isset($rights)) 
@@ -196,14 +214,15 @@ Class TimeseriesValuesController extends RESTController {
 	 */ 
 	private function _comparePermissionsRead($auth_params, $auth_data) {
 		
-		$scope = explode('-', $auth_params['scope']); // view scope
-		$rights = $auth_data["rights"]["resources"][$scope[0]][$scope[1]];
+		$rights = null;
 		$errorMessagePrefix = "Unauthorized action - ";
 
 		// check if exists the section related to the scope
 		try {
 			$scope = explode('-', $auth_params['scope']); // view scope
-			$rights = $auth_data["rights"]["resources"][$scope[0]][$scope[1]];
+			if (count($scope)>1) {
+				$rights = $auth_data["rights"]["resources"][$scope[0]][$scope[1]];
+			}
 			// echo "rights:";
 			// var_dump($rights);
 		} catch (Exception $e) {
