@@ -126,6 +126,17 @@ class SimpleREST extends Utils{
 			header($this->httpVersion. " ". $statusCode ." ". $statusMessage);		
 		} catch (Exception $e) {}
 		header("Content-Type:". $this->contentType);
+
+		// set Access-Control-Allow-Origin if set by APP_ALLOWED_HOSTS environment variable
+		$ACAO = getenv("APP_ALLOWED_HOSTS");
+		if ($ACAO) header("Access-Control-Allow-Origin: " . getenv("APP_ALLOWED_HOSTS"));
+
+		/* set Access-Control-Allow-Headers to allow use of 'authorization' header (used for JWT authorized requests)
+		* https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS/Errors/CORSMissingAllowHeaderFromPreflight
+		* https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Headers
+		* https://developer.mozilla.org/en-US/docs/Glossary/CORS-safelisted_request_header
+		*/ 
+		header("Access-Control-Allow-Headers: authorization");
 	}
 	
 	public function getHttpStatusMessage($statusCode){
