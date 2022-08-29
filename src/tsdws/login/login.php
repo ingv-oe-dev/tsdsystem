@@ -18,6 +18,7 @@ if ($result["status"]) {
 	session_start();
 	$_SESSION["userId"] = $result["user_id"];
 	$_SESSION["email"] = $_POST['email'];
+	$_SESSION["isAdmin"] = $_SESSION["userId"] == getenv("ADMIN_ID");
 }
 
 echo json_encode($result);

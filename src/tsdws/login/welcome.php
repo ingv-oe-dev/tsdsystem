@@ -30,7 +30,10 @@
           <div class="row justify-content-center mb-4">
             <div class="col-xl-5 col-md-8">
                 <div class='display-4 text-white mb-4'>Welcome into TSDSystem</div>
-                <div class='text-white text-italic'><?php echo $email ?></div>
+                <div class='text-white text-italic'>
+                  <?php echo $email ?>&nbsp;
+                  <span class='badge text-warning text-italic'><?php echo (isset($_SESSION["isAdmin"]) and $_SESSION["isAdmin"]) ? "[admin]" : "" ?></span>
+                </div>
                 <div><?php echo $link ?></div>
             </div>
           </div>

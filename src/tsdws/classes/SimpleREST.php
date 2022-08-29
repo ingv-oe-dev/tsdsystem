@@ -79,6 +79,9 @@ class SimpleREST extends Utils{
 	
 	public function setData($data) {
 		$this->response["data"] = $data;
+		if (is_array($data)) {
+			$this->response["records"] = count($data);
+		}
 	}
 	
 	public function readInput() {
@@ -126,6 +129,34 @@ class SimpleREST extends Utils{
 			header($this->httpVersion. " ". $statusCode ." ". $statusMessage);		
 		} catch (Exception $e) {}
 		header("Content-Type:". $this->contentType);
+
+		// CORS policy handling
+		$this->handleCORS();
+	}
+
+	public function handleCORS() {
+		/* 
+		* Fix some errors raised from CORS policy
+		* https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
+		*/
+		// set Access-Control-Allow-Origin if set by APP_ALLOWED_HOSTS environment variable
+		$ACAO = getenv("APP_ALLOWED_HOSTS");
+		if ($ACAO) header("Access-Control-Allow-Origin: " . getenv("APP_ALLOWED_HOSTS"));
+
+		/* Handling preflight request with the OPTIONS method.
+		* https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS/Errors/CORSMissingAllowHeaderFromPreflight
+		* https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Headers
+		* https://developer.mozilla.org/en-US/docs/Glossary/CORS-safelisted_request_header
+		*/
+		// Set Access-Control-Allow-Headers 
+		// Ex.: to allow use of 'authorization' header (used for JWT authorized requests)
+		header("Access-Control-Allow-Headers: authorization, Content-Type");
+
+		// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Credentials
+		header("Access-Control-Allow-Credentials: true");
+
+		// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Methods
+		header("Access-Control-Allow-Methods: POST, GET, PATCH, DELETE, OPTIONS");
 	}
 	
 	public function getHttpStatusMessage($statusCode){
@@ -140,6 +171,12 @@ class SimpleREST extends Utils{
 		$token = isset($_SERVER["HTTP_AUTHORIZATION"]) ? $_SERVER["HTTP_AUTHORIZATION"] : NULL;
 
 		if (!is_null($token)) {
+
+			// Handling use of `Bearer` token (even JWT)
+			preg_match('/(Bearer[\s]+)*(.+\..+\..+)/', $token, $matches);
+			//var_dump($matches);
+			$token = $matches[2];
+			//var_dump($token);
 
 			require_once('JWT.php');
 
