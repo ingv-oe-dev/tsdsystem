@@ -51,7 +51,13 @@ Class TimeseriesController extends RESTController {
 				break;
 
 			case 'DELETE':
-				# code...
+				/* DO NOT IMPLEMENT IF UNNECESSARY!
+				* Update of 'remove_time' field for a timeseries records have to be followed by
+				* a schema+table(s - partitions) deleting, which can be dangerous operations.
+				* If we allow only the update of the remove_time for a record of timeseries table,
+				* the database will refuse all the following POST requests for timeseries having
+				* the same name of deleted ones, whose names can be not visible to normal users.
+				*/
 				break;
 
 			default:

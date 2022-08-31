@@ -79,7 +79,7 @@ class SimpleREST extends Utils{
 	
 	public function setData($data) {
 		$this->response["data"] = $data;
-		if (is_array($data)) {
+		if (is_array($data) and ($_SERVER["REQUEST_METHOD"] == "GET")) {
 			$this->response["records"] = count($data);
 		}
 	}
