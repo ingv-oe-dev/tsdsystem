@@ -177,8 +177,14 @@
         }
 
         function preprocessData(initData) {
-            initData["lon"] = initData.coords.coordinates[0];
-            initData["lat"] = initData.coords.coordinates[1];
+			try {
+				initData["lon"] = initData.coords.coordinates[0];
+				initData["lat"] = initData.coords.coordinates[1];
+			} catch (e) {
+                // handling undefined coords
+				initData["lon"] = null;
+				initData["lat"] = null;
+			}
             delete initData.coords;
             return initData;
         }
@@ -222,7 +228,7 @@
             });
             
             // Hook up the submit button to log to the console
-            $('#submit').on('click',function() {
+            $('#submit').off().on('click',function() { // off previous submit click event when editor restarts (e.g. when sensortype_id changes)
                 // Get the value from the editor
                 console.log(editor.getValue());
 
@@ -262,7 +268,7 @@
             });
             
             // Hook up the Restore to Default button
-            $('#restore').on('click',function() {
+            $('#restore').off().on('click',function() { // off previous submit click event when editor restarts (e.g. when sensortype_id changes)
                 editor.setValue(starting_value);
             });
             
