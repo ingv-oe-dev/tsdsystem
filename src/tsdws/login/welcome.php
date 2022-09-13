@@ -39,9 +39,14 @@
           </div>
           <div class="row justify-content-center">
             <div class="col-xl-5 col-md-8">
-            <?php if ($email != '') { ?>
-                <p class='mt-4'><a href='../form' target='_blank'>Demo request</a></p>
-            <?php } ?>
+              <p class='mt-4'><a href='../swagger-ui/dist' target='_blank'>Swagger UI</a></p>
+              <?php if ($email != '') { ?>
+                <p class='mt-4'><a href='../pnet' target='_blank'>PNet web app</a></p>
+                <p class='mt-4'><a href='../form' target='_blank'>Demo Timeseries request</a></p>
+              <?php } ?>
+              <?php if (isset($_SESSION["isAdmin"]) and $_SESSION["isAdmin"]) { ?>
+                <p class='mt-4'><a href='../form/edit' target='_blank'>Resources edit forms</a></p>
+              <?php } ?>
             </div>
           </div>
         </div>

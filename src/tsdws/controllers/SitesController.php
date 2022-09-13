@@ -95,7 +95,7 @@ Class SitesController extends RESTController {
 			return false;
 		}
 		// (3) $input["quote"] 
-		if (array_key_exists("quote", $input) and !is_numeric($input["quote"])) {
+		if (array_key_exists("quote", $input) and !(is_numeric($input["quote"]) or is_null($input["quote"]))) {
 			$this->setInputError("Uncorrect input: 'quote' [float]");
 			return false;
 		}
@@ -141,7 +141,7 @@ Class SitesController extends RESTController {
 			return false;
 		}
 		// (3) $input["quote"] 
-		if (array_key_exists("quote", $input) and !is_numeric($input["quote"])) {
+		if (array_key_exists("quote", $input) and !(is_numeric($input["quote"]) or is_null($input["quote"]))) {
 			$this->setInputError("Uncorrect input: 'quote' [float]");
 			return false;
 		}

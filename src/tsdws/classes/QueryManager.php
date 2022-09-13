@@ -310,6 +310,24 @@ Class QueryManager extends Utils {
 		return rtrim($updStmt, ", ");
 	}
 
+	public function composeUpdateStatementForceNull($input, $updateFields) {
+		$updStmt = '';
+		foreach($updateFields as $key => $value) {
+			if (array_key_exists($key, $input)){
+				if (isset($input[$key])) {
+					if (array_key_exists("json", $value) and $value["json"]) {
+						$updStmt .= $key . " = '" . json_encode($input[$key]) . "', ";
+					} else {
+						$updStmt .= "$key = " . ((array_key_exists("quoted", $value) and $value["quoted"]) ? "'$input[$key]'" : "$input[$key]") . ", ";
+					}
+				} else {
+					$updStmt .= $key . " = NULL, ";
+				}
+			}
+		}
+		return rtrim($updStmt, ", ");
+	}
+
 	public function genericUpdateRoutine($input, $updateFields=array(), $whereStmt='') {
 
 		$next_query = "";
@@ -318,7 +336,8 @@ Class QueryManager extends Utils {
 			"rows" => null
 		);
 
-		$updStmt = $this->composeUpdateStatement($input,  $updateFields);
+		//$updStmt = $this->composeUpdateStatement($input,  $updateFields);
+		$updStmt = $this->composeUpdateStatementForceNull($input,  $updateFields);
 		if(empty($updStmt)) {
 			return array(
 				"status" => true,

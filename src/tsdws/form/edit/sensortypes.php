@@ -25,6 +25,11 @@
                 <button id='restore' class='btn btn-secondary'>Restore to Default</button>  
                 <div id='valid_indicator' class='mt-1 alert alert-danger'></div>
                 <button id='submit' class='btn btn-primary' disabled>Submit</button>
+                <?php 
+                    if ($id) {
+                        echo "<button id='delete' class='btn btn-danger'>Delete item [id=" . $id . "]</button>";
+                    } 
+                ?>
             </div>
         </p>
         <div class='columns'>
@@ -55,6 +60,27 @@
         var route = "../../sensortypes";
         var method =  id ? "PATCH" : "POST";
         var mySchema = {};
+
+        // Set action on delete button
+        $(function(){
+            $("button#delete").on("click", function(){
+                if (confirm("This action will remove record with id=" + id + ". Continue?") == true) {
+                    $.ajax({
+                        "url": route + "?id=" + id,
+                        "method": "DELETE",
+                        "success": function(response) {
+                            emitSignal();
+                            alert("Record with id=" + id + " removed successfully!");
+                            let new_location = window.location.href.split('?')[0];
+                            window.location.href = new_location;
+                        },
+                        "error": function(xhr) {
+                            $('#server_response').html(xhr.responseJSON.error)
+                        }
+                    });
+                }
+            });  
+        });
 
         // Load schema
         $.ajax({
@@ -135,6 +161,7 @@
                     "data": JSON.stringify(toPost),
                     "method": method,
                     "success": function(response) {
+                        emitSignal();
                         if (method == 'POST') {
                             window.location.href += "?id=" + response.data.id; 
                         }
@@ -179,6 +206,16 @@
                     $("#submit").attr("disabled", false);
                 }
             });
+        }
+
+        // dispatch event if loaded from a parent frame
+        function emitSignal() {
+            try {
+                var event = new CustomEvent('toParentEvent');
+                window.parent.document.dispatchEvent(event)
+            } catch (e) {
+                console.log(e);
+            }
         }
     </script>
 </body>

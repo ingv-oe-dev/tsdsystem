@@ -3,7 +3,7 @@
     "title": "Channel",
     "description": "Set the properties of the channel",
     "type": "object",
-    "required": ["name"],
+    "required": ["name", "sensor_id"],
     "additionalProperties": false,
     "format": "categories",
     "basicCategoryTitle": "Main",

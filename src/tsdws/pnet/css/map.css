@@ -1,0 +1,14 @@
+.circle-marker-label {
+    color: white;
+    font-weight: bold;
+    min-width: 64px;
+    text-shadow: -1px 1px 1px #000, 1px -1px 1px #000, 1px 1px 1px #000, -1px -1px 1px #000;
+}
+
+.dot {
+    height: 12px;
+    width: 12px;
+    background-color: #bbb;
+    border-radius: 50%;
+    display: inline-block;
+}

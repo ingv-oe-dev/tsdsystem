@@ -57,15 +57,20 @@ Class Sensors extends QueryManager {
 	
 	public function getList($input) {
 		
-		$query = "SELECT id, name, ST_AsGeoJSON(coords) AS coords, quote, sensortype_id, net_id, site_id, metadata, custom_props FROM " . $this->tablename . " WHERE remove_time IS NULL ";
+		$query = "SELECT s.id, s.name, ST_AsGeoJSON(s.coords) AS coords, s.quote, s.sensortype_id, s.net_id, s.site_id, s.metadata, s.custom_props FROM " . $this->tablename . " s WHERE s.remove_time IS NULL ";
 		
 		if (isset($input) and is_array($input)) { 
+
+			if (array_key_exists("deep",$input) and $input["deep"]) {
+				$query = "SELECT s.id, s.name, ST_AsGeoJSON(s.coords) AS coords, s.quote, s.sensortype_id, s.net_id, s.site_id, s.metadata, s.custom_props, st.name AS sensortype_name, n.name AS net_name, ss.name AS site_name FROM " . $this->tablename . " s LEFT JOIN tsd_pnet.sensortypes st ON s.sensortype_id = st.id LEFT JOIN tsd_pnet.nets n ON s.net_id = n.id LEFT JOIN tsd_pnet.sites ss ON s.site_id = ss.id WHERE s.remove_time IS NULL ";
+			}
+
 			$query .= $this->composeWhereFilter($input, array(
-				"id" => array("id" => true, "quoted" => false),
-				"name" => array("quoted" => true),
-				"sensortype_id" => array("quoted" => false),
-				"net_id" => array("quoted" => false),
-				"site_id" => array("quoted" => false)
+				"id" => array("id" => true, "alias" => "s.id", "quoted" => false),
+				"name" => array("alias" => "s.name", "quoted" => true),
+				"sensortype_id" => array("alias" => "s.sensortype_id", "quoted" => false),
+				"net_id" => array("alias" => "s.net_id", "quoted" => false),
+				"site_id" => array("alias" => "s.site_id", "quoted" => false)
 			));
 		}
 		

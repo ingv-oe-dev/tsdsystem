@@ -1,5 +1,6 @@
 <?php
     $id = isset($_GET["id"]) ? $_GET["id"] : null;
+	$sensor_id = isset($_GET["sensor_id"]) ? $_GET["sensor_id"] : null;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -25,6 +26,11 @@
                 <button id='restore' class='btn btn-secondary'>Restore to Default</button>
                 <div id='valid_indicator' class='mt-1 alert alert-danger'></div>
                 <button id='submit' class='btn btn-primary' disabled>Submit</button>  
+                <?php 
+                    if ($id) {
+                        echo "<button id='delete' class='btn btn-danger'>Delete item [id=" . $id . "]</button>";
+                    } 
+                ?>
             </div>
         </p>
         <div class='columns'>
@@ -37,13 +43,35 @@
         // This is the starting value for the editor
         // We will use this to seed the initial editor 
         // and to provide a "Restore to Default" button.
-        var default_starting_value = null;
+        var default_starting_value = {};
         
         var id = "<?php echo $id; ?>";
+		var sensor_id = "<?php echo $sensor_id; ?>";
         var ref = "../../json-schemas/channels.json";
         var route = "../../channels";
         var method =  id ? "PATCH" : "POST";
         var mySchema = {};
+
+        // Set action on delete button
+        $(function(){
+            $("button#delete").on("click", function(){
+                if (confirm("This action will remove record with id=" + id + ". Continue?") == true) {
+                    $.ajax({
+                        "url": route + "?id=" + id,
+                        "method": "DELETE",
+                        "success": function(response) {
+                            emitSignal();
+                            alert("Record with id=" + id + " removed successfully!");
+                            let new_location = window.location.href.split('?')[0];
+                            window.location.href = new_location;
+                        },
+                        "error": function(xhr) {
+                            $('#server_response').html(xhr.responseJSON.error)
+                        }
+                    });
+                }
+            });  
+        });
 
         // Load schema
         $.ajax({
@@ -84,6 +112,7 @@
                     }
                 });
             } else {
+				if (sensor_id) default_starting_value["sensor_id"] = sensor_id;
                 initializeEditor(default_starting_value);
             }
         }
@@ -131,6 +160,7 @@
                     "data": JSON.stringify(toPost),
                     "method": method,
                     "success": function(response) {
+                        emitSignal();
                         if (method == 'POST') {
                             window.location.href += "?id=" + response.data.id; 
                         }
@@ -187,6 +217,16 @@
             }
             mySchema.properties[propertyKey].enum = custom_enum;
             mySchema.properties[propertyKey].options.enum_titles = custom_enum_titles;
+        }
+
+        // dispatch event if loaded from a parent frame
+        function emitSignal() {
+            try {
+                var event = new CustomEvent('toParentEvent');
+                window.parent.document.dispatchEvent(event)
+            } catch (e) {
+                console.log(e);
+            }
         }
     </script>
 </body>

@@ -44,7 +44,7 @@
         "net_id": {
             "title": "Net",
             "description": "Network to which the sensor belongs",
-            "type": "integer",
+            "type": ["integer", "null"],
             "enum": [],
             "options": {
                 "enum_titles": []
@@ -54,7 +54,7 @@
         "site_id": {
             "title": "Site",
             "description": "Site in which the sensor is located",
-            "type": "integer",
+            "type": ["integer", "null"],
             "enum": [],
             "options": {
                 "enum_titles": []
@@ -64,7 +64,7 @@
         "sensortype_id": {
             "title": "Sensortype",
             "description": "The sensor type",
-            "type": "integer",
+            "type": ["integer", "null"],
             "enum": [],
             "options": {
                 "enum_titles": []

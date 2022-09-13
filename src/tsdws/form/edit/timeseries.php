@@ -1,5 +1,6 @@
 <?php
     $id = isset($_GET["id"]) ? $_GET["id"] : null;
+	$channel_id = isset($_GET["channel_id"]) ? $_GET["channel_id"] : null;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -37,9 +38,10 @@
         // This is the starting value for the editor
         // We will use this to seed the initial editor 
         // and to provide a "Restore to Default" button.
-        var default_starting_value = null;
+        var default_starting_value = {};
         
         var id = "<?php echo $id; ?>";
+		var channel_id = "<?php echo $channel_id; ?>";
         var ref = "../../json-schemas/timeseries.json";
         var route = "../../timeseries?showColDefs=true&showMapping=true";
         var method =  id ? "PATCH" : "POST";
@@ -86,6 +88,10 @@
                     }
                 });
             } else {
+				if (channel_id) {
+					default_starting_value["mapping"] = {};
+					default_starting_value["mapping"]["channel_id"] = [channel_id];
+				}
                 initializeEditor(default_starting_value);
             }
         }
@@ -148,7 +154,11 @@
                 });
 
                 // disable columns editing on PATCH
-                if (method == "PATCH") editor.getEditor('root.columns').disable();
+                if (method == "PATCH") {
+					editor.getEditor('root.columns').disable();
+					editor.getEditor('root.schema').disable();
+					editor.getEditor('root.name').disable();
+				}
             });
             
             // Hook up the submit button to log to the console
@@ -172,6 +182,7 @@
                     "data": JSON.stringify(toPost),
                     "method": method,
                     "success": function(response) {
+                        emitSignal();
                         if (method == 'POST') {
                             window.location.href += "?id=" + response.data.id; 
                         }
@@ -238,6 +249,16 @@
             //console.log(mySchema);
             mySchema.properties.mapping.properties.channel_list.items.enum = custom_enum;
             mySchema.properties.mapping.properties.channel_list.items.options.enum_titles = custom_enum_titles;
+        }
+		
+		// dispatch event if loaded from a parent frame
+        function emitSignal() {
+            try {
+                var event = new CustomEvent('toParentEvent');
+                window.parent.document.dispatchEvent(event)
+            } catch (e) {
+                console.log(e);
+            }
         }
     </script>
 </body>

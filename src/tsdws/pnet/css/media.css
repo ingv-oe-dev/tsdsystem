@@ -1,0 +1,64 @@
+@media (min-width: 1920px) {
+    #sideL {
+        width: 400px;
+        border-right: 1px solid #333;
+    }
+    #sideR {
+        width: 1024px;
+        border-left: 1px solid #333;
+    }
+    #sideN {
+        width: 100%;
+        border: 1px solid #999;
+        resize: vertical;
+    }
+}
+
+@media (min-width: 1280px) and (max-width: 1919px) {
+    #sideL {
+        width: 300px;
+        border-right: 1px solid #333;
+    }
+    #sideR {
+        width: 800px;
+        border-left: 1px solid #333;
+    }
+    #sideN {
+        width: 100%;
+        border: 1px solid #999;
+        resize: vertical;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1279px) {
+    #sideL {
+        width: 300px;
+        border-right: 1px solid #333;
+    }
+    #sideR {
+        width: 469px;
+        border-left: 1px solid #333;
+    }
+    #sideN {
+        width: 100%;
+        border: 1px solid #999;
+        resize: vertical;
+    }
+}
+
+@media (max-width: 769px) {
+    /* CSS that should be displayed if width is equal to or less than 800px goes here */
+    #sideL {
+        background-color: white;
+        width: 100%;
+    }
+    #sideR {
+        background-color: white;
+        width: 100%;
+    }
+    #sideN {
+        width: 100%;
+        max-height: calc(100vh - 48px);
+        resize: vertical;
+    }
+}

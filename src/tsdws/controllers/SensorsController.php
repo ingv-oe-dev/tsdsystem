@@ -145,7 +145,7 @@ Class SensorsController extends RESTController {
 			return false;
 		}
 		// (3) $input["quote"] 
-		if (array_key_exists("quote", $input) and !is_numeric($input["quote"])) {
+		if (array_key_exists("quote", $input) and !(is_numeric($input["quote"]) or is_null($input["quote"]))) {
 			$this->setInputError("Uncorrect input: 'quote' [float]");
 			return false;
 		}
@@ -175,7 +175,7 @@ Class SensorsController extends RESTController {
 		}
 		// (6) $input["sensortype_id"] is integer
 		if (array_key_exists("sensortype_id", $input)) {
-			if (!is_int($input["sensortype_id"])) {
+			if (!(is_int($input["sensortype_id"]) or is_null($input["sensortype_id"]))) {
 				$this->setInputError("Uncorrect input: 'sensortype_id' [int]");
 				return false;
 			}
@@ -193,12 +193,12 @@ Class SensorsController extends RESTController {
 			}
 		}
 		// (7) $input["net_id"] is integer
-		if (array_key_exists("net_id", $input) and !is_int($input["net_id"])){
+		if (array_key_exists("net_id", $input) and !(is_int($input["net_id"]) or is_null($input["net_id"]))) {
 			$this->setInputError("Uncorrect input: 'net_id' [int]");
 			return false;
 		}
 		// (7) $input["site_id"] is integer
-		if (array_key_exists("site_id", $input) and !is_int($input["site_id"])){
+		if (array_key_exists("site_id", $input) and !(is_int($input["site_id"]) or is_null($input["site_id"]))){
 			$this->setInputError("Uncorrect input: 'site_id' [int]");
 			return false;
 		}
@@ -238,7 +238,7 @@ Class SensorsController extends RESTController {
 			return false;
 		}
 		// (3) $input["quote"] 
-		if (array_key_exists("quote", $input) and !is_numeric($input["quote"])) {
+		if (array_key_exists("quote", $input) and !(is_numeric($input["quote"]) or is_null($input["quote"]))) {
 			$this->setInputError("Uncorrect input: 'quote' [float]");
 			return false;
 		}
@@ -266,7 +266,7 @@ Class SensorsController extends RESTController {
 		}
 		// (6) $input["sensortype_id"] is integer
 		if (array_key_exists("sensortype_id", $input)) {
-			if (!is_int($input["sensortype_id"])) {
+			if (!(is_int($input["sensortype_id"]) or is_null($input["sensortype_id"]))) {
 				$this->setInputError("Uncorrect input: 'sensortype_id' [int]");
 				return false;
 			}
@@ -284,12 +284,12 @@ Class SensorsController extends RESTController {
 			}
 		}
 		// (7) $input["net_id"] is integer
-		if (array_key_exists("net_id", $input) and !is_int($input["net_id"])){
+		if (array_key_exists("net_id", $input) and !(is_int($input["net_id"]) or is_null($input["net_id"]))) {
 			$this->setInputError("Uncorrect input: 'net_id' [int]");
 			return false;
 		}
 		// (7) $input["site_id"] is integer
-		if (array_key_exists("site_id", $input) and !is_int($input["site_id"])){
+		if (array_key_exists("site_id", $input) and !(is_int($input["site_id"]) or is_null($input["site_id"]))){
 			$this->setInputError("Uncorrect input: 'site_id' [int]");
 			return false;
 		}

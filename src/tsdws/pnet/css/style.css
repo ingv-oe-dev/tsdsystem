@@ -1,0 +1,61 @@
+html,
+body {
+    background-color: #333;
+}
+
+.nav {
+    background-color: #333;
+    height: 48px;
+    float: right;
+}
+
+.nav .btn-group button.active {
+    color: #333
+}
+
+#map {
+    width: 100%;
+    height: calc(100vh - 48px);
+    background-color: lavender;
+    left: 0;
+    top: 48px;
+    position: absolute;
+}
+
+#sideL {
+    left: 0;
+    top: 48px;
+    position: absolute;
+    height: calc(100vh - 48px);
+    z-index: 10000;
+    display: none;
+    background-color: white;
+}
+
+#sideR {
+    right: 0;
+    top: 48px;
+    position: absolute;
+    height: calc(100vh - 48px);
+    z-index: 10000;
+    display: none;
+    background-color: #666;
+}
+
+#sideN {
+    right: 0;
+    top: 48px;
+    position: absolute;
+    height: calc(50vh);
+    z-index: 10001;
+    display: none;
+    color: gray
+}
+
+.showme {
+    display: none;
+}
+
+.showhim:hover>.showme {
+    display: inline;
+}
