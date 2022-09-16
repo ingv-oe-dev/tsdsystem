@@ -19,7 +19,7 @@
         <div class='columns'>
             <div class='column col-md-12' id='editor_holder'></div>
         </div>
-        <p class='columns'>
+        <div class='columns'>
             <div class='column col-md-12'>
                 <button id='check' class='btn btn-success'>Validate</button>  
                 <button id='restore' class='btn btn-secondary'>Restore to Default</button>
@@ -31,9 +31,14 @@
                     } 
                 ?>
             </div>
-        </p>
-        <div class='columns'>
-            <div class='column col-md-12 text-danger' id='server_response'></div>
+        </div>
+        <div class='columns p-3 mt-0'>
+            <div id='server_response' class="alert alert-dismissible fade" role="alert">
+            <span class='mymessage'></span>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close" onclick="$(this).parent().removeClass('show')">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            </div>
         </div>
     </div>
     <script>
@@ -57,14 +62,20 @@
                     $.ajax({
                         "url": route + "?id=" + id,
                         "method": "DELETE",
-                        "success": function(response) {
-                            emitSignal();
+                        "beforeSend": function(jqXHR, settings) {
+                            jqXHR = Object.assign(jqXHR, {"messageText":"Remove site [id=" + id + "]"}, settings);
+                        },
+                        "success": function(response, textStatus, jqXHR) {
+                            emitSignal(Object.assign(jqXHR, {"messageType":"success"}));
+
                             alert("Record with id=" + id + " removed successfully!");
                             let new_location = window.location.href.split('?')[0];
                             window.location.href = new_location;
                         },
-                        "error": function(xhr) {
-                            $('#server_response').html(xhr.responseJSON.error)
+                        "error": function(jqXHR) {
+                            emitSignal(Object.assign(jqXHR, {"messageType":"danger"}));
+                            $('#server_response span.mymessage').html(jqXHR.responseJSON.error);
+                            $('#server_response').addClass("alert-danger show");
                         }
                     });
                 }
@@ -78,7 +89,11 @@
                 mySchema = data;
                 handleInputID();
                 startEditor();
-            }
+            },
+            "error": function(jqXHR) {
+                            $('#server_response span.mymessage').html(jqXHR.responseJSON.error);
+                            $('#server_response').addClass("alert-danger show");
+                        }
         });
 
         function handleInputID() {
@@ -101,7 +116,11 @@
                     "success": function(starting_value) {
                         var data = preprocessData(starting_value.data[0]);
                         initializeEditor(data);
-                    }
+                    },
+            "error": function(jqXHR) {
+                            $('#server_response span.mymessage').html(jqXHR.responseJSON.error);
+                            $('#server_response').addClass("alert-danger show");
+                        }
                 });
             } else {
                 initializeEditor(default_starting_value);
@@ -157,17 +176,47 @@
                     "url": route,
                     "data": JSON.stringify(toPost),
                     "method": method,
-                    "success": function(response) {
-                        emitSignal();
+                    "beforeSend": function(jqXHR, settings) {
+                        jqXHR = Object.assign(jqXHR, settings);
                         if (method == 'POST') {
-                            window.location.href += "?id=" + response.data.id; 
+                            jqXHR = Object.assign(jqXHR, {"messageText":"Add site"});
                         }
                         if (method == 'PATCH') {
-                            window.location.reload()
+                            jqXHR = Object.assign(jqXHR, {"messageText":"Edit site [id=" + id + "]"});
                         }
                     },
-                    "error": function(xhr) {
-                        $('#server_response').html(xhr.responseJSON.error)
+                    "success": function(response, textStatus, jqXHR) {
+                        //console.log(jqXHR);
+                        jqXHR = Object.assign(jqXHR, {"messageType":"success"});
+                        if (method == 'POST') {
+                            if (jqXHR.status == 207) {
+                                jqXHR = Object.assign(jqXHR, {"messageType":"warning"});
+                                emitSignal(jqXHR);
+                                $('#server_response span.mymessage').html(jqXHR.statusText);
+                                $('#server_response').addClass("alert-warning show");
+                            } else {
+                                emitSignal(jqXHR);
+                                let separator = window.location.href.includes('?') ? "&" : "?";
+                                window.location.href += separator + "id=" + response.data.id; 
+                            }
+                        }
+                        if (method == 'PATCH') {
+                            if (jqXHR.status == 207) {
+                                jqXHR = Object.assign(jqXHR, {"messageType":"warning"});
+                                emitSignal(jqXHR);
+                                $('#server_response span.mymessage').html(jqXHR.statusText);
+                                $('#server_response').addClass("alert-warning show");
+                            } else {
+                                emitSignal(jqXHR);
+                                window.location.reload()
+                            }
+                        }
+                    },
+                    "error": function(jqXHR) {
+                        jqXHR = Object.assign(jqXHR, {"messageType":"danger"});
+                        emitSignal(jqXHR);
+                        $('#server_response span.mymessage').html(jqXHR.responseJSON.error);
+                        $('#server_response').addClass("alert-danger show");
                     }
                 });
             });
@@ -206,9 +255,9 @@
         }
 
         // dispatch event if loaded from a parent frame
-        function emitSignal() {
+        function emitSignal(xhr=null) {
             try {
-                var event = new CustomEvent('toParentEvent');
+                var event = new CustomEvent('siteEdit', {"detail": xhr} );
                 window.parent.document.dispatchEvent(event)
             } catch (e) {
                 console.log(e);

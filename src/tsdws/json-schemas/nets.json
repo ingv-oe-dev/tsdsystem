@@ -22,7 +22,7 @@
         "owner_id": {
             "title": "Owner",
             "description": "Set the onwer of the net",
-            "type": "integer",
+            "type": ["null", "integer"],
             "enum": [],
             "options": {
                 "enum_titles": []

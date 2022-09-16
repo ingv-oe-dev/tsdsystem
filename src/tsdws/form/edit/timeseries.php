@@ -1,6 +1,7 @@
 <?php
     $id = isset($_GET["id"]) ? $_GET["id"] : null;
 	$channel_id = isset($_GET["channel_id"]) ? $_GET["channel_id"] : null;
+    $sensor_id = isset($_GET["sensor_id"]) ? $_GET["sensor_id"] : null;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -20,16 +21,21 @@
         <div class='columns'>
             <div class='column col-md-12' id='editor_holder'></div>
         </div>
-        <p class='columns'>
+        <div class='columns'>
             <div class='column col-md-12'>
                 <button id='check' class='btn btn-success'>Validate</button>  
                 <button id='restore' class='btn btn-secondary'>Restore to Default</button>
                 <div id='valid_indicator' class='mt-1 alert alert-danger'></div>
                 <button id='submit' class='btn btn-primary' disabled>Submit</button>  
             </div>
-        </p>
-        <div class='columns'>
-            <div class='column col-md-12 text-danger' id='server_response'></div>
+        </div>
+        <div class='columns p-3 mt-0'>
+            <div id='server_response' class="alert alert-dismissible fade" role="alert">
+            <span class='mymessage'></span>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close" onclick="$(this).parent().removeClass('show')">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            </div>
         </div>
     </div>
     <script>
@@ -42,6 +48,7 @@
         
         var id = "<?php echo $id; ?>";
 		var channel_id = "<?php echo $channel_id; ?>";
+        var sensor_id = "<?php echo $sensor_id; ?>";
         var ref = "../../json-schemas/timeseries.json";
         var route = "../../timeseries?showColDefs=true&showMapping=true";
         var method =  id ? "PATCH" : "POST";
@@ -59,8 +66,16 @@
                     "success": function(response) {
                         fillChannelList(response.data);
                         startEditor();
+                    },
+                    "error": function(jqXHR) {
+                        $('#server_response span.mymessage').html(jqXHR.responseJSON.error);
+                        $('#server_response').addClass("alert-danger show");
                     }
                 });
+            },
+            "error": function(jqXHR) {
+                $('#server_response span.mymessage').html(jqXHR.responseJSON.error);
+                $('#server_response').addClass("alert-danger show");
             }
         });
 
@@ -85,6 +100,10 @@
                     },
                     "success": function(starting_value) {
                         initializeEditor(starting_value.data[0]);
+                    },
+                    "error": function(jqXHR) {
+                        $('#server_response span.mymessage').html(jqXHR.responseJSON.error);
+                        $('#server_response').addClass("alert-danger show");
                     }
                 });
             } else {
@@ -174,24 +193,56 @@
                 */
 
                 // force deleting of old mappings
-                toPost["mapping"]["force"] = true;
+                if (toPost["mapping"]) {
+                    toPost["mapping"]["force"] = true;
+                }
 
                 // PATCH if id is indicated, else POST
                 $.ajax({
                     "url": route,
                     "data": JSON.stringify(toPost),
                     "method": method,
-                    "success": function(response) {
-                        emitSignal();
+                    "beforeSend": function(jqXHR, settings) {
+                        jqXHR = Object.assign(jqXHR, settings, {"channel_id": channel_id, "sensor_id": sensor_id});
                         if (method == 'POST') {
-                            window.location.href += "?id=" + response.data.id; 
+                            jqXHR = Object.assign(jqXHR, {"messageText":"Add timeseries"});
                         }
                         if (method == 'PATCH') {
-                            window.location.reload()
+                            jqXHR = Object.assign(jqXHR, {"messageText":"Edit timeseries [id=" + id + "]"});
                         }
                     },
-                    "error": function(xhr) {
-                        $('#server_response').html(xhr.responseJSON.error)
+                    "success": function(response, textStatus, jqXHR) {
+                        //console.log(jqXHR);
+                        jqXHR = Object.assign(jqXHR, {"messageType":"success"});
+                        if (method == 'POST') {
+                            if (jqXHR.status == 207) {
+                                jqXHR = Object.assign(jqXHR, {"messageType":"warning"});
+                                emitSignal(jqXHR);
+                                $('#server_response span.mymessage').html(jqXHR.statusText);
+                                $('#server_response').addClass("alert-warning show");
+                            } else {
+                                emitSignal(jqXHR);
+                                let separator = window.location.href.includes('?') ? "&" : "?";
+                                window.location.href += separator + "id=" + response.data.id; 
+                            }
+                        }
+                        if (method == 'PATCH') {
+                            if (jqXHR.status == 207) {
+                                jqXHR = Object.assign(jqXHR, {"messageType":"warning"});
+                                emitSignal(jqXHR);
+                                $('#server_response span.mymessage').html(jqXHR.statusText);
+                                $('#server_response').addClass("alert-warning show");
+                            } else {
+                                emitSignal(jqXHR);
+                                window.location.reload()
+                            }
+                        }
+                    },
+                    "error": function(jqXHR) {
+                        jqXHR = Object.assign(jqXHR, {"messageType":"danger"});
+                        emitSignal(jqXHR);
+                        $('#server_response span.mymessage').html(jqXHR.responseJSON.error);
+                        $('#server_response').addClass("alert-danger show");
                     }
                 });
             });
@@ -252,9 +303,9 @@
         }
 		
 		// dispatch event if loaded from a parent frame
-        function emitSignal() {
+        function emitSignal(xhr=null) {
             try {
-                var event = new CustomEvent('toParentEvent');
+                var event = new CustomEvent('timeseriesEdit', {"detail": xhr} );
                 window.parent.document.dispatchEvent(event)
             } catch (e) {
                 console.log(e);

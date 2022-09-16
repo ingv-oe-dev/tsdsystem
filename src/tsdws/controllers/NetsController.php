@@ -84,7 +84,7 @@ Class NetsController extends RESTController {
 			return false;
 		}
 		// (2) $input["owner_id"] is integer
-		if (array_key_exists("owner_id", $input) and !is_int($input["owner_id"])){
+		if (array_key_exists("owner_id", $input) and !(is_int($input["owner_id"]) or is_null($input["owner_id"]))){
 			$this->setInputError("Uncorrect input: 'owner_id' [int]");
 			return false;
 		}
@@ -117,7 +117,7 @@ Class NetsController extends RESTController {
 		}
 
 		// (2) $input["owner_id"] is integer
-		if (array_key_exists("owner_id", $input) and !is_int($input["owner_id"])){
+		if (array_key_exists("owner_id", $input) and !(is_int($input["owner_id"]) or is_null($input["owner_id"]))){
 			$this->setInputError("Uncorrect input: 'owner_id' [int]");
 			return false;
 		}

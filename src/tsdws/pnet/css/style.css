@@ -39,7 +39,7 @@ body {
     height: calc(100vh - 48px);
     z-index: 10000;
     display: none;
-    background-color: #666;
+    background-color: white;
 }
 
 #sideN {
@@ -49,7 +49,8 @@ body {
     height: calc(50vh);
     z-index: 10001;
     display: none;
-    color: gray
+    color: gray;
+    max-height: calc(100vh - 48px);
 }
 
 .showme {

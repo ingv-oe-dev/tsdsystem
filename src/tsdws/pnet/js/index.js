@@ -5,11 +5,14 @@ const {
 var app = {
     mounted() {
         this.notifications = this.$refs.notifications.list;
+        this.lastNotify = this.$refs.notifications.defaultNotify;
+        this.initToast();
         this.$nextTick(() => {
             window.addEventListener('resize', this.onResize);
         });
         this.navBtnClick();
         this.initLoad();
+        this.handleCustomEvents();
     },
     beforeDestroy() {
         window.removeEventListener('resize', this.onResize);
@@ -47,7 +50,12 @@ var app = {
             loadingMessages: {
                 "sensors": "No items"
             },
-            notifications: []
+            notifications: {},
+            notifyAllMessages: false,
+            lastNotify: {},
+            showSettings: true,
+            toast: [],
+            toastDelay: 1000
         }
     },
     methods: {
@@ -66,6 +74,10 @@ var app = {
             // toggle button isActive
             this.isActive[a] = !this.isActive[a];
         },
+        openSettings(show = true) {
+            if (!this.isActive["R"]) this.navBtnClick("R");
+            this.showSettings = show;
+        },
         initLoad() {
             //console.log("init load");
             this.fetchNets();
@@ -74,6 +86,44 @@ var app = {
             this.fetchSensors();
             //this.$forceUpdate();
         },
+        initToast() {
+            var el = $(".toast")[0];
+            this.toast = new bootstrap.Toast(el);
+        },
+        handleCustomEvents() {
+            var self = this;
+            window.document.addEventListener('netEdit', function(e) {
+                //console.log(e);
+                self.fetchNets();
+                self.$refs.notifications.notify(e.detail);
+            }, false);
+            window.document.addEventListener('sensortypeEdit', function(e) {
+                //console.log(e);
+                self.fetchSensortypes();
+                self.$refs.notifications.notify(e.detail);
+            }, false);
+            window.document.addEventListener('siteEdit', function(e) {
+                //console.log(e);
+                self.fetchSites();
+                self.$refs.notifications.notify(e.detail);
+            }, false);
+            window.document.addEventListener('sensorEdit', function(e) {
+                //console.log(e);
+                self.fetchSensors();
+                self.$refs.notifications.notify(e.detail);
+            }, false);
+            window.document.addEventListener('channelEdit', function(e) {
+                //console.log(e);
+                self.fetchChannels({ sensor_id: e.detail.sensor_id });
+                self.$refs.notifications.notify(e.detail);
+            }, false);
+            window.document.addEventListener('timeseriesEdit', function(e) {
+                //console.log(e);
+                //self.fetchChannels({ sensor_id: e.detail.sensor_id });
+                self.fetchTimeseries({ channel_id: e.detail.channel_id });
+                self.$refs.notifications.notify(e.detail);
+            })
+        },
         fetchNets() {
             this.defaultOption.nets = "Loading...";
             this.nets = [];
@@ -81,12 +131,19 @@ var app = {
             let self = this;
             $.ajax({
                 url: self.baseURLws + "nets",
-                success: function(response) {
+                beforeSend: function(jqXHR, settings) {
+                    jqXHR = Object.assign(jqXHR, settings, { "messageText": "Loading nets" });
+                },
+                success: function(response, textStatus, jqXHR) {
                     self.nets = response.data;
                     self.defaultOption.nets = "--- Select ---";
+                    let n = Object.assign(jqXHR, { "messageType": "info" });
+                    self.$refs.notifications.notify(n);
                 },
-                error: function(jqXHR, textStatus, errorThrown) {
-                    self.defaultOption.nets = errorThrown + " - Loading failed";
+                error: function(jqXHR) {
+                    self.defaultOption.nets = "Loading failed";
+                    let n = Object.assign(jqXHR, { "messageType": "danger" });
+                    self.$refs.notifications.notify(n);
                 }
             });
         },
@@ -97,12 +154,19 @@ var app = {
             let self = this;
             $.ajax({
                 url: self.baseURLws + "sensortypes",
-                success: function(response) {
+                beforeSend: function(jqXHR, settings) {
+                    jqXHR = Object.assign(jqXHR, settings, { "messageText": "Loading sensortypes" });
+                },
+                success: function(response, textStatus, jqXHR) {
                     self.sensortypes = response.data;
                     self.defaultOption.sensortypes = "--- Select ---";
+                    let n = Object.assign(jqXHR, { "messageType": "info" });
+                    self.$refs.notifications.notify(n);
                 },
-                error: function(jqXHR, textStatus, errorThrown) {
-                    self.defaultOption.sensortypes = errorThrown + " - Loading failed";
+                error: function(jqXHR) {
+                    self.defaultOption.sensortypes = "Loading failed";
+                    let n = Object.assign(jqXHR, { "messageType": "danger" });
+                    self.$refs.notifications.notify(n);
                 }
             });
         },
@@ -113,13 +177,20 @@ var app = {
             let self = this;
             $.ajax({
                 url: self.baseURLws + "sites",
-                success: function(response) {
+                beforeSend: function(jqXHR, settings) {
+                    jqXHR = Object.assign(jqXHR, settings, { "messageText": "Loading sites" });
+                },
+                success: function(response, textStatus, jqXHR) {
                     self.sites = response.data;
                     self.defaultOption.sites = "--- Select ---";
                     self.$refs.leafmap.plotSites(self.sites, { "group_id": "sites", "append": false });
+                    let n = Object.assign(jqXHR, { "messageType": "info" });
+                    self.$refs.notifications.notify(n);
                 },
-                error: function(jqXHR, textStatus, errorThrown) {
-                    self.defaultOption.sites = errorThrown + " - Loading failed";
+                error: function(jqXHR) {
+                    self.defaultOption.sites = "Loading failed";
+                    let n = Object.assign(jqXHR, { "messageType": "danger" });
+                    self.$refs.notifications.notify(n);
                 }
             });
         },
@@ -132,14 +203,21 @@ var app = {
             $.ajax({
                 url: self.baseURLws + "sensors",
                 data: parameters,
-                success: function(response) {
+                beforeSend: function(jqXHR, settings) {
+                    jqXHR = Object.assign(jqXHR, settings, { "messageText": "Loading sensors" });
+                },
+                success: function(response, textStatus, jqXHR) {
                     //console.log(response);
                     self.sensors = response.data;
                     self.applyFilters();
                     self.handlePlot();
+                    let n = Object.assign(jqXHR, { "messageType": "info" });
+                    self.$refs.notifications.notify(n);
                 },
-                error: function(jqXHR, textStatus, errorThrown) {
-                    self.loadingMessages.sensors = errorThrown + " - Loading failed";
+                error: function(jqXHR) {
+                    self.loadingMessages.sensors = "Loading failed";
+                    let n = Object.assign(jqXHR, { "messageType": "danger" });
+                    self.$refs.notifications.notify(n);
                 }
             });
         },
@@ -149,12 +227,18 @@ var app = {
                 $.ajax({
                     url: self.baseURLws + "sensors?id=" + id,
                     type: "DELETE",
-                    success: function(response) {
+                    beforeSend: function(jqXHR, settings) {
+                        jqXHR = Object.assign(jqXHR, settings, { "messageText": "Remove sensor [id=" + id + "]" });
+                    },
+                    success: function(response, textStatus, jqXHR) {
                         console.log(response);
                         self.fetchSensors();
+                        let n = Object.assign(jqXHR, { "messageType": "success" });
+                        self.$refs.notifications.notify(n);
                     },
-                    error: function(jqXHR, textStatus, errorThrown) {
-                        alert(errorThrown);
+                    error: function(jqXHR) {
+                        let n = Object.assign(jqXHR, { "messageType": "danger" });
+                        self.$refs.notifications.notify(n);
                     }
                 });
             }
@@ -165,18 +249,20 @@ var app = {
                 url: self.baseURLws + "channels",
                 data: parameters,
                 beforeSend: function(jqXHR, settings) {
-                    jqXHR = Object.assign(jqXHR, settings);
+                    jqXHR = Object.assign(jqXHR, settings, { "messageText": "Loading channels" });
                 },
-                success: function(response) {
+                success: function(response, textStatus, jqXHR) {
                     self.channelsList[parameters.sensor_id] = response.data;
                     for (let i = 0; i < response.data.length; i++) {
                         self.fetchTimeseries({ "channel_id": response.data[i].id, "hidden": true });
                     }
-                    //console.log(self.channelsList);
+                    let n = Object.assign(jqXHR, { "messageType": "info" });
+                    self.$refs.notifications.notify(n);
                 },
-                error: function(jqXHR, textStatus, errorThrown) {
+                error: function(jqXHR) {
                     self.channelsList[parameters.sensor_id] = [];
-                    self.$refs.notifications.notify(jqXHR, 'danger');
+                    let n = Object.assign(jqXHR, { "messageType": "danger" });
+                    self.$refs.notifications.notify(n);
                 }
             });
         },
@@ -186,12 +272,18 @@ var app = {
                 $.ajax({
                     url: self.baseURLws + "channels?id=" + id,
                     type: "DELETE",
-                    success: function(response) {
+                    beforeSend: function(jqXHR, settings) {
+                        jqXHR = Object.assign(jqXHR, settings, { "messageText": "Remove channel [id=" + id + "]" });
+                    },
+                    success: function(response, textStatus, jqXHR) {
                         console.log(response);
                         self.fetchChannels({ sensor_id: sensor_id });
+                        let n = Object.assign(jqXHR, { "messageType": "success" });
+                        self.$refs.notifications.notify(n);
                     },
-                    error: function(jqXHR, textStatus, errorThrown) {
-                        alert(errorThrown);
+                    error: function(jqXHR) {
+                        let n = Object.assign(jqXHR, { "messageType": "danger" });
+                        self.$refs.notifications.notify(n);
                     }
                 });
             }
@@ -201,18 +293,24 @@ var app = {
             $.ajax({
                 url: self.baseURLws + "timeseries",
                 data: parameters,
-                success: function(response) {
+                beforeSend: function(jqXHR, settings) {
+                    jqXHR = Object.assign(jqXHR, settings, { "messageText": "Loading timeseries" });
+                },
+                success: function(response, textStatus, jqXHR) {
                     self.timeseriesList[parameters.channel_id] = response.data;
                     self.timeseriesList[parameters.channel_id].hidden = parameters.hidden;
-                    console.log(self.timeseriesList);
+                    let n = Object.assign(jqXHR, { "messageType": "info" });
+                    self.$refs.notifications.notify(n);
                 },
-                error: function(jqXHR, textStatus, errorThrown) {
+                error: function(jqXHR) {
                     self.timeseriesList[parameters.sensor_id] = [];
+                    let n = Object.assign(jqXHR, { "messageType": "danger" });
+                    self.$refs.notifications.notify(n);
                 }
             });
         },
         onMapMarkerClick(el) {
-            console.log(el);
+            //console.log(el);
             switch (el.marker_type) {
                 case 'node':
                     this.filters.name = el.name;
@@ -328,113 +426,72 @@ var app = {
             this.$refs.leafmap.zoomToMarkerById(marker, zoomLevel = 15);
         },
         openEdit(resource_type, id, additionalInfo = {}) {
+
+            $("#sideR #editing").html("<iframe style='width:100%; height:calc(100vh - 54px); border-bottom: 1px solid gray;'></iframe>");
+            let iframe = document.querySelector('#sideR #editing iframe');
+            let link = this.baseURLws;
+
             switch (resource_type) {
+
+                // net
                 case 'net':
-                    link = this.baseURLws + "form/edit/nets.php";
+                    link += "form/edit/nets.php";
                     if (id) link += "?id=" + id;
-                    this.loadFrame({
-                        src: link,
-                        resource_type: resource_type,
-                        id: id
-                    });
+                    iframe.setAttribute("src", link);
                     break;
+
+                    // sensortype
                 case 'sensortype':
-                    link = this.baseURLws + "form/edit/sensortypes.php";
+                    link += "form/edit/sensortypes.php";
                     if (id) link += "?id=" + id;
-                    this.loadFrame({
-                        src: link,
-                        resource_type: resource_type,
-                        id: id
-                    });
+                    iframe.setAttribute("src", link);
                     break;
+
+                    // site
                 case 'site':
-                    link = this.baseURLws + "form/edit/sites.php";
+                    link += "form/edit/sites.php";
                     if (id) link += "?id=" + id;
-                    this.loadFrame({
-                        src: link,
-                        resource_type: resource_type,
-                        id: id
-                    });
+                    iframe.setAttribute("src", link);
                     break;
+
+                    // sensor
                 case 'sensor':
-                    link = this.baseURLws + "form/edit/sensors.php";
+                    link += "form/edit/sensors.php";
                     if (id) link += "?id=" + id;
-                    this.loadFrame({
-                        src: link,
-                        resource_type: resource_type,
-                        id: id
-                    });
+                    iframe.setAttribute("src", link);
                     break;
+
+                    // channel
                 case 'channel':
-                    link = this.baseURLws + "form/edit/channels.php";
+                    link += "form/edit/channels.php";
                     if (id) {
                         link += "?id=" + id;
                     } else {
                         link += "?dummy=1";
                     };
                     if (additionalInfo.sensor_id !== undefined) link += "&sensor_id=" + additionalInfo.sensor_id;
-
-                    this.loadFrame({
-                        src: link,
-                        resource_type: resource_type,
-                        id: id,
-                        sensor_id: additionalInfo.sensor_id ? additionalInfo.sensor_id : null
-                    });
+                    iframe.setAttribute("src", link);
                     break;
+
+                    // timeseries
                 case 'timeseries':
-                    link = this.baseURLws + "form/edit/timeseries.php";
+                    link += "form/edit/timeseries.php";
                     if (id) {
                         link += "?id=" + id;
                     } else {
                         link += "?dummy=1";
                     };
                     if (additionalInfo.channel_id !== undefined) link += "&channel_id=" + additionalInfo.channel_id;
-                    this.loadFrame({
-                        src: link,
-                        resource_type: resource_type,
-                        id: id ? id : null,
-                        channel_id: additionalInfo.channel_id ? additionalInfo.channel_id : null,
-                        sensor_id: additionalInfo.sensor_id ? additionalInfo.sensor_id : null
-                    });
+                    if (additionalInfo.sensor_id !== undefined) link += "&sensor_id=" + additionalInfo.sensor_id;
+                    iframe.setAttribute("src", link);
                     break;
+
+                    // default
                 default:
                     break;
             }
             // open editor on rightside
-            if (!this.isActive["R"]) this.navBtnClick("R");
-        },
-        // handling events captured from frame containing resource edit form
-        loadFrame(opt) {
-            var self = this;
-            window.document.addEventListener('toParentEvent', function(e) {
-                switch (opt.resource_type) {
-                    case 'net':
-                        self.fetchNets();
-                        break;
-                    case 'sensortype':
-                        self.fetchSensortypes();
-                        break;
-                    case 'site':
-                        self.fetchSites();
-                        break;
-                    case 'sensor':
-                        self.fetchSensors();
-                        self.$refs.notifications.notify(e.detail, 'danger');
-                        break;
-                    case 'channel':
-                        self.fetchChannels({ sensor_id: opt.sensor_id });
-                        break;
-                    case 'timeseries':
-                        //self.fetchChannels({ sensor_id: opt.sensor_id });
-                        self.fetchTimeseries({ channel_id: opt.channel_id });
-                        break;
-                    default:
-                        break;
-                }
-
-            }, false);
-            let iframe = document.querySelector('#sideR iframe');
-            iframe.setAttribute("src", opt.src);
+            this.openSettings(false);
         }
     },
     watch: {
@@ -496,8 +553,28 @@ var app = {
         sorting(val) {
             this.applyFilters();
         },
-        notifications(val) {
-            console.log(val);
+        notifications: {
+            handler(val) {
+                if (Object.keys(val).length > 0) {
+                    let item = val[Object.keys(val)[Object.keys(val).length - 1]];
+                    //console.log(item);
+                    if (item.id !== this.lastNotify.id && (this.notifyAllMessages || (item.messageType == 'danger' || item.messageType == 'warning'))) {
+                        this.lastNotify = Object.assign({}, item);
+                    }
+                }
+            },
+            deep: true
+        },
+        notifyAllMessages(val) {
+            //console.log(val);
+        },
+        lastNotify: {
+            handler(val) {
+                if (val.id != null && !val.messageRead) {
+                    this.toast.show();
+                }
+            },
+            deep: true
         }
     },
     computed: {
@@ -506,10 +583,15 @@ var app = {
         },
         notificationSize() {
             let counter = 0;
-            for (var i = 0; i < Object.keys(this.notifications).length; i++) {
-                if (!this.notifications[Object.keys(this.notifications)[i]].messageRead) {
-                    counter++;
-                }
+            for (n in this.notifications) {
+                this.notifications[n].messageRead ? null : counter++;
+            }
+            return counter - this.alertSize;
+        },
+        alertSize() {
+            let counter = 0;
+            for (n in this.notifications) {
+                !this.notifications[n].messageRead && (this.notifications[n].messageType == 'danger' || this.notifications[n].messageType == 'warning') ? counter++ : null;
             }
             return counter;
         }
