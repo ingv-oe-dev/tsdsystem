@@ -32,15 +32,32 @@
 
 <body class="m-0">
     <div id="app">
-        <img class='m-1' src="img/logo.png" style="height:40px" />&nbsp;<span style="color:white">PNet <span v-if="!isSmallWidth" class="text-info fst-italic">manager</span></span>
+        <img class='m-1' src="img/logo.png" style="height:40px" />
+        <div class="btn-group ms-0" role="group" aria-label="Basic checkbox toggle button group">
+            <button class="btn btn-rounded text-light ps-0 pe-3">PNet <span v-if="!isSmallWidth" class="text-info fst-italic">manager</span></button>
+            <button class="btn btn-rounded" @click="openSettings(true)" title="App settings"><i class="text-light fa-solid fa-gear"></i></button>
+            <?php
+                session_start();
+                $user_link_icon = isset($_SESSION ['email']) ? '<button class="btn btn-rounded" title="'.$_SESSION ['email'].'"><i class="text-info fa-solid fa-user"></i> <small v-if="!isSmallWidth" class="text-info" style="font-size:0.7em">'.$_SESSION ['email'].'</small></button>' : '<a class="btn btn-rounded" href="../login" role="button" title="No user identified. Please login"><i class="text-danger fa-solid fa-user-slash"></i></a>';
+                echo $user_link_icon;
+            ?>
+        </div>
         <div class='nav'>
             <div class="btn-group p-1" role="group" aria-label="Basic checkbox toggle button group">
-                <button class="btn rounded" @click="openSettings(true)" title="App settings"><i class="text-light fa-solid fa-gear"></i></button>&nbsp;
-                <button :class="{active: isActive['N']}" class="btn btn-outline-light rounded" @click="navBtnClick('N')">
-                    <i class="fa fa-bell"></i> <span v-if="!isSmallWidth">Messages</span><span v-if="notificationSize && notifyAllMessages" title="Unread info messages">&nbsp;<span class="badge bg-secondary"><i class="fa fa-comment"></i> {{notificationSize}}</span></span>&nbsp;<span v-if="alertSize" title="Unread alert messages">&nbsp;<span class="badge bg-danger"><i class="fa fa-triangle-exclamation"></i> {{alertSize}}</span></span>
-                </button>&nbsp;
-                <button :class="{active: isActive['L']}" class="btn btn-outline-light rounded" @click="navBtnClick('L')"><i class="fa fa-list"></i> <span v-if="!isSmallWidth">List</span></button>&nbsp;
-                <button :class="{active: isActive['R']}" class="btn btn-outline-light rounded" @click="navBtnClick('R')"><i class="fa-solid fa-table-columns"></i> <span v-if="!isSmallWidth">Panel</span></button>
+                <button :class="{active: isActive['N']}" class="btn btn-outline-light " @click="navBtnClick('N')">
+                    <i class="fa fa-bell"></i> <span v-if="!isSmallWidth">Messages</span>
+                    <span class="ms-1 me-1" v-if="notificationSize && notifyAllMessages" title="Unread info messages">
+                        <span class="badge bg-secondary"><i class="fa fa-comment"></i> {{notificationSize}}</span>
+                    </span>
+                    <span class="ms-1 me-1" v-if="alertSize" title="Unread alert messages">
+                        <span class="badge bg-danger"><i class="fa fa-triangle-exclamation"></i> {{alertSize}}</span>
+                    </span>
+                </button>
+                <button :class="{active: isActive['L']}" class="btn btn-outline-light " @click="navBtnClick('L')"><i class="fa fa-list"></i> <span v-if="!isSmallWidth">List</span></button>
+                <button :class="{active: isActive['R']}" class="btn btn-outline-light " @click="navBtnClick('R')"><i class="fa-solid fa-table-columns"></i> <span v-if="!isSmallWidth">Panel</span></button>        
+            </div>
+            <div class="btn-group btn-group-sm p-2" role="group" aria-label="Basic checkbox toggle button group">
+                <a class="btn btn-rounded btn-outline-danger" href=".." title="Return to TSDSystem main page"><i class="fa-solid fa-right-from-bracket"></i></a>    
             </div>
         </div>
         <div id='sideL' class="p-0 overflow-auto"></div>
