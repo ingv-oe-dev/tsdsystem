@@ -45,7 +45,7 @@ var app = {
                 sensortype_id: 0,
                 site_id: 0
             },
-            checkedAllSensors: false,
+            //checkedAllSensors: false,
             sorting: 'byNetAndName',
             loadingMessages: {
                 "sensors": "No items"
@@ -545,11 +545,12 @@ var app = {
                 }
             }
         },
+        /*
         checkedAllSensors(a, b) {
             this.sensorsList.forEach(element => {
                 element.checked = a;
             });
-        },
+        },*/
         sorting(val) {
             this.applyFilters();
         },
