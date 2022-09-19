@@ -66,12 +66,12 @@
         <div id='sideN' class="p-0 overflow-auto bg-dark">
             <notifications ref="notifications"></notifications>
         </div>
-        <div aria-live="polite" aria-atomic="true" class="position-relative" style="z-index:100000000">
+        <div aria-live="polite" aria-atomic="true" class="position-relative" style="z-index:1002">
             <!-- Position it: -->
             <!-- - `.toast-container` for spacing between toasts -->
             <!-- - `.position-absolute`, `top-0` & `end-0` to position the toasts in the upper right corner -->
             <!-- - `.p-3` to prevent the toasts from sticking to the edge of the container  -->
-            <div class="toast-container position-absolute top-0 end-0 p-3">
+            <div class="toast-container position-fixed bottom-0 end-0 p-3">
 
                 <!-- Then put toasts within -->
                 <div class="toast" role="alert" aria-live="assertive" aria-atomic="true" :data-bs-delay="toastDelay">

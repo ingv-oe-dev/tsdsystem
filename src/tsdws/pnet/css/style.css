@@ -27,7 +27,7 @@ body {
     top: 48px;
     position: absolute;
     height: calc(100vh - 48px);
-    z-index: 10000;
+    z-index: 1000;
     display: none;
     background-color: white;
 }
@@ -37,7 +37,7 @@ body {
     top: 48px;
     position: absolute;
     height: calc(100vh - 48px);
-    z-index: 10000;
+    z-index: 1000;
     display: none;
     background-color: white;
 }
@@ -47,7 +47,7 @@ body {
     top: 48px;
     position: absolute;
     height: calc(50vh);
-    z-index: 10001;
+    z-index: 1001;
     display: none;
     color: gray;
     max-height: calc(100vh - 48px);
