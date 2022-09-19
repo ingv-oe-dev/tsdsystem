@@ -24,7 +24,7 @@ var app = {
                 "R": false, // Right side panel
                 "N": false // Notifications panel
             },
-            baseURLws: "http://localhost/github/tsdsystem/src/tsdws/",
+            baseURLws: "/github/tsdsystem/src/tsdws/",
             windowWidth: window.innerWidth,
             resetID: 0,
             nets: [],
