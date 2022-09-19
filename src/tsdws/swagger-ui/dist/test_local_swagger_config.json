@@ -29,7 +29,8 @@
         }
     ],
     "schemes": [
-        "http"
+        "http",
+        "https"
     ],
     "paths": {
         "/timeseries": {
@@ -48,8 +49,7 @@
                         "in": "query",
                         "description": "Timeseries unique identifier (uuid)",
                         "type": "string",
-                        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
-                        "default": "1ac6ba22-6731-6b9f-c688-5d6e46a72fd4"
+                        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
                     },
                     {
                         "name": "name",
