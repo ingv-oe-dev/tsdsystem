@@ -55,7 +55,7 @@ var app = {
             lastNotify: {},
             showSettings: true,
             toast: [],
-            toastDelay: 1000
+            toastDelay: 2000
         }
     },
     methods: {

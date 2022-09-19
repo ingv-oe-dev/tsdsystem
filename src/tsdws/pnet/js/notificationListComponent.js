@@ -13,7 +13,7 @@ const notificationListComponentDefinition = {
       </h2>
       <div :id="'panelsStayOpen-collapse' + notify.id" class="accordion-collapse collapse" :aria-labelledby="'panelsStayOpen-heading' + notify.id">
         <div class="accordion-body" style="font-size:0.9em">
-          <div class='fw-bold text-warning'>{{notify.responseJSON.error}}</div>
+          <div class='fw-bold text-warning'>{{notify.responseJSON && notify.responseJSON.error ? notify.responseJSON.error : 'Error'}}</div>
           <pre class='text-info' style='white-space: pre-wrap; word-break: break-word;'>{{JSON.stringify(notify, null, 4)}}</pre>
         </div>
       </div>
