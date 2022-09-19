@@ -237,6 +237,16 @@ Class Timeseries extends QueryManager {
 		}
 
 		$query .= " GROUP BY t.id";
+
+		if (isset($input["sort_by"])) {
+			$cols = explode(",", $input["sort_by"]);
+			$query .= $this->composeOrderBy($cols, array(
+				"id" => array("alias" => "t.id"),
+				"schema" => array("alias" => "t.schema"),
+				"name" => array("alias" => "t.name"),
+				"sampling" => array("alias" => "t.sampling")
+			));
+		}
 		
 		//echo $query;
 		return $this->getRecordSet($query);

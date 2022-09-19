@@ -131,6 +131,9 @@ var app = {
             let self = this;
             $.ajax({
                 url: self.baseURLws + "nets",
+                data: {
+                    sort_by: "name"
+                },
                 beforeSend: function(jqXHR, settings) {
                     jqXHR = Object.assign(jqXHR, settings, { "messageText": "Loading nets" });
                 },
@@ -154,6 +157,9 @@ var app = {
             let self = this;
             $.ajax({
                 url: self.baseURLws + "sensortypes",
+                data: {
+                    sort_by: "name"
+                },
                 beforeSend: function(jqXHR, settings) {
                     jqXHR = Object.assign(jqXHR, settings, { "messageText": "Loading sensortypes" });
                 },
@@ -177,6 +183,9 @@ var app = {
             let self = this;
             $.ajax({
                 url: self.baseURLws + "sites",
+                data: {
+                    sort_by: "name"
+                },
                 beforeSend: function(jqXHR, settings) {
                     jqXHR = Object.assign(jqXHR, settings, { "messageText": "Loading sites" });
                 },
@@ -202,7 +211,7 @@ var app = {
             let self = this;
             $.ajax({
                 url: self.baseURLws + "sensors",
-                data: parameters,
+                data: Object.assign(parameters, { "sort_by": "name" }),
                 beforeSend: function(jqXHR, settings) {
                     jqXHR = Object.assign(jqXHR, settings, { "messageText": "Loading sensors" });
                 },
@@ -292,7 +301,7 @@ var app = {
             let self = this;
             $.ajax({
                 url: self.baseURLws + "timeseries",
-                data: Object.assign(parameters, { "listCol": true }),
+                data: Object.assign(parameters, { "listCol": true, "sort_by": "name" }),
                 beforeSend: function(jqXHR, settings) {
                     jqXHR = Object.assign(jqXHR, settings, { "messageText": "Loading timeseries" });
                 },

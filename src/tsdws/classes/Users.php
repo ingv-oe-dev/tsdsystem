@@ -77,6 +77,14 @@ Class Users extends QueryManager {
 				"id" => array("id" => true, "quoted" => false),
 				"email" => array("quoted" => true)
 			));
+
+            if (isset($input["sort_by"])) {
+				$cols = explode(",", $input["sort_by"]);
+				$query .= $this->composeOrderBy($cols, array(
+					"id" => array("alias" => "id"),
+					"name" => array("alias" => "name")
+				));
+			}
 		}
 		
 		//echo $query;

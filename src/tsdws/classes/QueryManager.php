@@ -263,6 +263,29 @@ Class QueryManager extends Utils {
 		}
 	}
 
+	public function composeOrderBy($cols, $allowed_cols) {
+		$orderby_str = '';
+		$counter = 0;
+		foreach($cols as $c) {
+			$sort_type = "";
+			$exp = explode(".", $c); // ex. name.asc (or name), id.desc 
+			$colname = $exp[0];
+			if (count($exp) > 1) {
+				$sort_type = strtoupper($exp[1]);
+			}
+			if (in_array($sort_type, array("", "ASC", "DESC"))) {  // see if 'asc' or 'desc' sorting
+				foreach($allowed_cols as $key => $value) {
+					if ($colname == $key or $colname == $value["alias"]) {
+						$orderby_str .= $colname . " " . $sort_type . ", ";
+						$counter++;
+					}
+				}
+			}
+		}
+		if ($counter > 0) $orderby_str = " ORDER BY " . $orderby_str;
+		return rtrim($orderby_str, ", ");
+	}
+
 	public function composeWhereFilter($input, $search_params) {
 		$where_filter = '';
 		foreach($search_params as $key => $value) {
