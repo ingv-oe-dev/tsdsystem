@@ -82,6 +82,7 @@ class SecureLogin extends QueryManager{
 				if (isset($rs) and $rs["status"]) {
 					$rows["status"] = true;
 					$rows["message"] = 'Success: You have been registered!';
+					$rows["id"] = $this->myConnection->lastInsertId();
 					$rows["salt"] = $random_salt;
 				} else {
 					$rows["status"] = false;
