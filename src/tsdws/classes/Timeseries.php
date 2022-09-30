@@ -126,11 +126,12 @@ Class Timeseries extends QueryManager {
 			$stmt->execute();
 			
 			// insert into timeseries table
-			$next_query = "INSERT INTO " . $this->tablename . " (schema, name, sampling, metadata) VALUES (
+			$next_query = "INSERT INTO " . $this->tablename . " (schema, name, sampling, metadata, public) VALUES (
 				'" . $input["schema"] . "',
 				'" . $input["name"]. "',
 				" . $input["sampling"] . ",
-				" . (isset($input["metadata"]) ? ("'" . json_encode($input["metadata"], JSON_NUMERIC_CHECK) . "'") : "NULL") . "
+				" . (isset($input["metadata"]) ? ("'" . json_encode($input["metadata"], JSON_NUMERIC_CHECK) . "'") : "NULL") . ",
+				" . ((array_key_exists("public", $input) and isset($input["public"]) and $input["public"]) ? "true" : "false") . "
 			) ON CONFLICT (LOWER(schema), LOWER(name)) DO NOTHING";
 			$stmt = $this->myConnection->prepare($next_query);
 			$stmt->execute();	
@@ -222,7 +223,7 @@ Class Timeseries extends QueryManager {
 	
 	public function getList($input) {
 		
-		$query = "SELECT t.id, t.schema, t.name, t.sampling, t.metadata " .
+		$query = "SELECT t.id, t.schema, t.name, t.sampling, t.public, t.last_time, t.metadata " .
 			" FROM " . $this->tablename . " t " .
 			" LEFT JOIN tsd_main.timeseries_mapping_channels tmc ON t.id = tmc.timeseries_id " . 
 			" WHERE t.remove_time IS NULL ";
@@ -280,14 +281,20 @@ Class Timeseries extends QueryManager {
 			$this->myConnection->beginTransaction();
 
 			// update into timeseries table
+			$next_query = "UPDATE " . $this->tablename . " SET ";
 			if (isset($input["metadata"])) {
-				$next_query = "UPDATE " . $this->tablename . " SET metadata =
-					'" . json_encode($input["metadata"], JSON_NUMERIC_CHECK) . "'  
-					WHERE id = '" . $input["id"] . "'";
-				$stmt = $this->myConnection->prepare($next_query);
-				$stmt->execute();	
-				$response["rows"] = $stmt->rowCount();
+				$next_query .= " metadata = '" . json_encode($input["metadata"], JSON_NUMERIC_CHECK) . "', ";
 			}
+			if (isset($input["public"])) {
+				$next_query .= " public = " . ($input["public"] ? "true" : "false");
+			}  
+			$next_query = rtrim($next_query, ", ");
+			$next_query .= " WHERE id = '" . $input["id"] . "'";
+			$stmt = $this->myConnection->prepare($next_query);
+			$stmt->execute();	
+				$stmt->execute();	
+			$stmt->execute();	
+			$response["rows"] = $stmt->rowCount();
 
 			if (isset($input["sampling"])) {
 				//update into timeseries table

@@ -14,6 +14,19 @@ Class TimeseriesValues extends Timeseries {
 		}
 		return null;
 	}
+
+	// ============== Retrieve tablename by timeseries id ======================
+	public function getInfo($id) {
+		$response = $this->getList(array(
+			"id" => $id
+		));
+		if ($response["status"] and count($response["data"]) > 0) {
+			unset($response["data"][0]["schema"]);
+			unset($response["data"][0]["name"]);
+			return $response["data"][0];
+		}
+		return null;
+	}
 	
 	// ====================================================================//
 	// ******************* insert - timeseries values ***********************//

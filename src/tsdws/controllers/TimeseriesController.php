@@ -126,6 +126,16 @@ Class TimeseriesController extends RESTController {
 			return false;
 		}
 
+		// $input["public"] 
+		if (array_key_exists("public", $input) and !is_bool($input["public"])){
+			if (!is_bool($input["public"])) {
+				$this->setInputError("Uncorrect input: 'public' [boolean]");
+				return false;
+			} else {
+				$input["public"] = true;
+			}
+		}
+		
 		$this->setParams($input);
 
 		return true;
@@ -221,7 +231,12 @@ Class TimeseriesController extends RESTController {
 		if (array_key_exists("mapping", $input) and !$this->check_mapping_values($input["mapping"])) {
 			return false;
 		}
-		
+		// $input["public"] 
+		if (array_key_exists("public", $input) and !is_bool($input["public"])){
+			$this->setInputError("Uncorrect input: 'public' [boolean]");
+			return false;
+		}
+
 		$this->setParams($input);
 		
 		return true;

@@ -33,6 +33,11 @@
             "minimum": 1,
             "default": 60
         },
+        "public": {
+            "type": "boolean",
+            "default": true,
+            "title": "Public"
+        },
         "columns": {
             "title": "Columns",
             "description": "List of all the measurements of the timeseries",

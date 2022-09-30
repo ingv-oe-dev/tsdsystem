@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS tsd_main.timeseries
     create_user integer,
     update_user integer,
     remove_user integer,
+    public boolean DEFAULT true,
     CONSTRAINT timeseries_pkey PRIMARY KEY (id)
 );
 
