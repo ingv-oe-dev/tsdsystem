@@ -9,7 +9,12 @@ $controller = null;
 
 if (strripos($_SERVER["REQUEST_URI"], "channels")) {	
 	require_once("..".DIRECTORY_SEPARATOR."controllers".DIRECTORY_SEPARATOR."ChannelsController.php");
-	$controller = new ChannelsController();
+
+	if (strripos($_SERVER["REQUEST_URI"], "clone")) {
+		$controller = new ChannelsController($cloning=true);
+	} else {	
+		$controller = new ChannelsController();
+	}
 }
 if (strripos($_SERVER["REQUEST_URI"], "nets")) {
 	require_once("..".DIRECTORY_SEPARATOR."controllers".DIRECTORY_SEPARATOR."NetsController.php");

@@ -25,9 +25,6 @@
                 <button id='restore' class='btn btn-secondary'>Restore to Default</button>
                 <div id='valid_indicator' class='mt-1 alert alert-danger'></div>
                 <button id='submit' class='btn btn-primary' disabled>Submit</button>  
-                <?php if ($id) { ?>
-                <button id='historicize' class="btn btn-warning">Historicize sensor</button>
-                <?php } ?>
                 <?php 
                     if ($id) {
                         echo "<button id='delete' class='btn btn-danger'>Delete item [id=" . $id . "]</button>";
@@ -56,7 +53,6 @@
         var route = "../../sensors";
         var method =  id ? "PATCH" : "POST";
         var mySchema = {};
-        var mySensortypeSchemas = {};
 
         // Set action on delete button
         $(function(){
@@ -100,47 +96,35 @@
                             "url": "../../sites",
                             "success": function(response) {
                                 fillEnum(response.data, "site_id");
-                                // get list of sensortypes
-                                $.ajax({
-                                    "url": "../../sensortypes",
-                                    "success": function(response) {
-                                        fillEnum(response.data, "sensortype_id");
-                                        // save schemas for each sensortype
-                                        for (let i=0; i < response.data.length; i++) {
-                                            mySensortypeSchemas[response.data[i].id] = response.data[i].json_schema;
+                                // load sensor data if sensor_id is defined
+                                if (id) {
+                                    $.ajax({
+                                        "url": route,
+                                        "data": {
+                                            "id": id
+                                        },
+                                        "success": function(starting_value) {
+                                            if (starting_value.data.length > 1) {
+                                                $('#server_response span.mymessage').html("<b>" + starting_value.records + "</b> records retrieved with id = <b>" + id + "</b> and name = <b>" + starting_value.data[0].name + "</b>. You have to check if its <u>current</u> associated <i>Channels</i> have different '<i>sensortypes</i>' and/or '<i>start/end_datetime</i>'");
+                                                $('#server_response').addClass("alert-danger show");
+                                            } else {
+                                                // set the default starting value (JSON) with data of sensor with selected id 
+                                                default_starting_value = preprocessData(starting_value.data[0]);
+                                                // update schema and start editor
+                                                mySchema.properties.net_id.default = starting_value.data[0].net_id;
+                                                mySchema.properties.site_id.default = starting_value.data[0].site_id;
+                                                startEditor();
+                                            }
+                                        },
+                                        "error": function(jqXHR) {
+                                            $('#server_response span.mymessage').html(jqXHR.responseJSON.error);
+                                            $('#server_response').addClass("alert-danger show");
                                         }
-                                        // load sensor data if sensor_id is defined
-                                        if (id) {
-                                            $.ajax({
-                                                "url": route,
-                                                "data": {
-                                                    "id": id
-                                                },
-                                                "success": function(starting_value) {
-                                                    // set the default starting value (JSON) with data of sensor with selected id 
-                                                    default_starting_value = preprocessData(starting_value.data[0]);
-                                                    // update schema and start editor
-                                                    mySchema.properties.net_id.default = starting_value.data[0].net_id;
-                                                    mySchema.properties.site_id.default = starting_value.data[0].site_id;
-                                                    mySchema.properties.sensortype_id.default = starting_value.data[0].sensortype_id;
-                                                    startEditor();
-                                                },
-                                                "error": function(jqXHR) {
-                                                    $('#server_response span.mymessage').html(jqXHR.responseJSON.error);
-                                                    $('#server_response').addClass("alert-danger show");
-                                                }
-                                            });
-                                        } else {
-                                            // start editor
-                                            startEditor();
-                                        }
-                                        
-                                    },
-                                    "error": function(jqXHR) {
-                                        $('#server_response span.mymessage').html(jqXHR.responseJSON.error);
-                                        $('#server_response').addClass("alert-danger show");
-                                    }
-                                });
+                                    });
+                                } else {
+                                    // start editor
+                                    startEditor();
+                                }
                             },
                             "error": function(jqXHR) {
                                 $('#server_response span.mymessage').html(jqXHR.responseJSON.error);
@@ -159,45 +143,6 @@
                 $('#server_response').addClass("alert-danger show");
             }
         });
-
-        // set historicize button action
-        $("#historicize").click(function(){
-            if (confirm("This action will copy the sensor data into 'Custom info > History' section and then reset the form") == true) {
-                historicizeSensor();
-            }
-        });
-
-        function historicizeSensor() {
-            let currTime = new Date();
-            // get current json data (without history)
-            j = Object.assign({}, editor.getValue());
-            delete j.custom_props.history;
-            console.log(j);
-
-            // select the target where current data will be copied
-            selector = 'root.custom_props.history'
-            target = editor.getEditor(selector)
-            editor.getEditor(selector).activate();
-
-            // get target content
-            current_content = target.getValue();
-
-            // add new record to current_content array
-            curr_length = current_content.push(null);
-            target.setValue(current_content);
-
-            // copy json data into new target
-            selector = 'root.custom_props.history.' + (curr_length - 1) + '.record'
-            new_target = editor.getEditor(selector);
-            editor.getEditor(selector).activate();
-            new_target.setValue(j);
-
-            // set endtime to current time by default
-            selector = 'root.custom_props.history.' + (curr_length - 1) + '.endtime';
-            endtime = editor.getEditor(selector);
-            editor.getEditor(selector).activate();
-            endtime.setValue(currTime.toISOString().substr(0,10));
-        }
 
         function handleInputID() {
             if (!id) {
@@ -221,12 +166,6 @@
 
             // reset editor
             resetEditor();
-
-            // update schema by setting metadata schema with selected sensortype schema
-            //console.log(default_starting_value);
-            if (default_starting_value !== null && default_starting_value["sensortype_id"] !== undefined) {
-                mySchema.properties.metadata = mySensortypeSchemas[default_starting_value["sensortype_id"]];
-            }
 
             // initialize editor with the default starting JSON value
             initializeEditor(default_starting_value);
@@ -270,32 +209,16 @@
 
                 // Validate the editor on start
                 editor.validate();
-
-                // add functionalities: 
-                // change metadata (sensortype properties) editor section when change sensortype_id selection
-                $(document.getElementById("root[sensortype_id]")).on("change", function(event) {
-                    // set the new default starting value to current editor value 
-                    // (current JSON = current user edited data)
-                    default_starting_value = editor.getValue();
-                    // restart editor with new specific sensortype properties form 
-                    // and fill the new editor with current data
-                    startEditor();
-                });
             });
             
             // Hook up the submit button to log to the console
-            $('#submit').off().on('click',function() { // off previous submit click event when editor restarts (e.g. when sensortype_id changes)
+            $('#submit').on('click',function() {
                 // Get the value from the editor
                 console.log(editor.getValue());
 
                 // get JSON to post
                 var toPost = editor.getValue();
 
-                // preprocessing JSON data before post
-                if (toPost["metadata"]) {
-                    delete toPost.metadata.id;
-                    //toPost.metadata = JSON.stringify(toPost.metadata);
-                }
                 /*
                 if (toPost["custom_props"]) {
                     toPost.custom_props = JSON.stringify(toPost.custom_props);
@@ -355,7 +278,7 @@
             });
             
             // Hook up the Restore to Default button
-            $('#restore').off().on('click',function() { // off previous submit click event when editor restarts (e.g. when sensortype_id changes)
+            $('#restore').on('click',function() {
                 editor.setValue(starting_value);
             });
             

@@ -17,14 +17,12 @@ Class Sensors extends QueryManager {
 			// start transaction
 			$this->myConnection->beginTransaction();
 
-			$next_query = "INSERT INTO " . $this->tablename . " (name, coords, quote, sensortype_id, net_id, site_id, metadata, custom_props, create_user) VALUES (".
+			$next_query = "INSERT INTO " . $this->tablename . " (name, coords, quote, net_id, site_id, custom_props, create_user) VALUES (".
 				"'" . $input["name"] . "', " . 
 				((isset($input["lon"]) and isset($input["lat"])) ? ("'POINT(" . $input["lon"] . " " . $input["lat"] . ")'::geometry") : "NULL") . ", " .
 				(isset($input["quote"]) ? $input["quote"] : "NULL") . ", " .
-				(isset($input["sensortype_id"]) ? $input["sensortype_id"] : "NULL") . ", " .
 				(isset($input["net_id"]) ? $input["net_id"] : "NULL") . ", " .
 				(isset($input["site_id"]) ? $input["site_id"] : "NULL") . ", " .
-				(isset($input["metadata"]) ? ("'" . json_encode($input["metadata"], JSON_NUMERIC_CHECK) . "'") : "NULL") . ", " .
 				(isset($input["custom_props"]) ? ("'" . json_encode($input["custom_props"], JSON_NUMERIC_CHECK) . "'") : "NULL") . ",
 				" . ((array_key_exists("create_user", $input) and isset($input["create_user"]) and is_int($input["create_user"])) ? $input["create_user"] : "NULL") . " 
 			)";
@@ -56,34 +54,100 @@ Class Sensors extends QueryManager {
 	}
 	
 	public function getList($input) {
-		
-		$query = "SELECT s.id, s.name, ST_AsGeoJSON(s.coords) AS coords, s.quote, s.sensortype_id, s.net_id, s.site_id, s.metadata, s.custom_props FROM " . $this->tablename . " s WHERE s.remove_time IS NULL ";
+
+		$query = "SELECT s.id, s.name, ST_AsGeoJSON(s.coords) AS coords, s.quote, s.net_id, s.site_id, s.custom_props, case when (c.end_datetime is null or c.end_datetime > now() at time zone 'utc') then c.sensortype_id else null end as sensortype_id, count(c.id) as n_channels, c.start_datetime, c.end_datetime, st.name AS sensortype_name, n.name AS net_name, ss.name AS site_name, NULLIF(n.remove_time, NULL) AS deprecated FROM " . $this->tablename . " s left join tsd_pnet.channels c on
+		s.id = c.sensor_id and c.remove_time is null and (c.end_datetime is null or c.end_datetime > now() at time zone 'utc') left join tsd_pnet.sensortypes st on c.sensortype_id = st.id LEFT JOIN tsd_pnet.nets n ON s.net_id = n.id LEFT JOIN tsd_pnet.sites ss ON s.site_id = ss.id WHERE s.remove_time IS NULL";
 		
 		if (isset($input) and is_array($input)) { 
-
-			if (array_key_exists("deep",$input) and $input["deep"]) {
-				$query = "SELECT s.id, s.name, ST_AsGeoJSON(s.coords) AS coords, s.quote, s.sensortype_id, s.net_id, s.site_id, s.metadata, s.custom_props, st.name AS sensortype_name, n.name AS net_name, ss.name AS site_name FROM " . $this->tablename . " s LEFT JOIN tsd_pnet.sensortypes st ON s.sensortype_id = st.id LEFT JOIN tsd_pnet.nets n ON s.net_id = n.id LEFT JOIN tsd_pnet.sites ss ON s.site_id = ss.id WHERE s.remove_time IS NULL ";
-			}
-
 			$query .= $this->composeWhereFilter($input, array(
 				"id" => array("id" => true, "alias" => "s.id", "quoted" => false),
 				"name" => array("alias" => "s.name", "quoted" => true),
-				"sensortype_id" => array("alias" => "s.sensortype_id", "quoted" => false),
+				"sensortype_id" => array("alias" => "c.sensortype_id", "quoted" => false),
 				"net_id" => array("alias" => "s.net_id", "quoted" => false),
 				"site_id" => array("alias" => "s.site_id", "quoted" => false)
 			));
+		}
 
+		$query .= " group by s.id, st.name, n.name, ss.name, n.remove_time, c.start_datetime, c.end_datetime, c.sensortype_id  ";
+
+		if (isset($input) and is_array($input)) { 
 			if (isset($input["sort_by"])) {
 				$cols = explode(",", $input["sort_by"]);
 				$query .= $this->composeOrderBy($cols, array(
-					"id" => array("alias" => "id"),
-					"name" => array("alias" => "name")
+					"id" => array("alias" => "s.id"),
+					"name" => array("alias" => "s.name"),
+					"end_datetime" => array("alias" => "c.end_datetime")
 				));
 			}
 		}
 		
 		//echo $query;
-		return $this->getRecordSet($query);
+		$result = $this->getRecordSet($query);
+		
+		// check for invalid resultset (duplicated sensors id from channels with different sensortypes and/or start/end_datetime)
+		$response = $this->sanitizeResult($result);
+
+		return $response;
+	}
+
+	public function sanitizeResult($result) {
+
+		if (!$result["status"]) return $result;
+
+		$duplicated_indexes = array();
+
+		try {
+			// prepare duplicated_indexes data structure
+			foreach($result["data"] as $i => $current_item) {
+				if (isset($duplicated_indexes[$current_item["id"]])) {
+					array_push($duplicated_indexes[$current_item["id"]]["idx"], $i);
+					if ($current_item["sensortype_id"] != $duplicated_indexes[$current_item["id"]]["sensortype_id"]) {
+						$duplicated_indexes[$current_item["id"]]["sensortype_id"] = null;
+						$duplicated_indexes[$current_item["id"]]["sensortype_name"] = "Uncorrect mix of sensortypes - check its current Channels settings";
+					}
+					$duplicated_indexes[$current_item["id"]]["n_channels"] += $current_item["n_channels"];
+				} else {
+					$duplicated_indexes[$current_item["id"]] = array(
+						"idx" => array($i),
+						"sensortype_id" => $current_item["sensortype_id"],
+						"sensortype_name" => $current_item["sensortype_name"],
+						"n_channels" => $current_item["n_channels"]
+					);
+				}
+			}
+
+			// update $result using duplicated_indexes data structure
+			foreach($duplicated_indexes as $i => $item) {
+				if (count($item["idx"]) > 1) {
+					$result["data"][$item["idx"][0]]["sensortype_id"] = $item["sensortype_id"];
+					$result["data"][$item["idx"][0]]["sensortype_name"] = $item["sensortype_name"];
+					$result["data"][$item["idx"][0]]["n_channels"] = $item["n_channels"];
+					$result["data"][$item["idx"][0]]["start_datetime"] = null;
+					$result["data"][$item["idx"][0]]["end_datetime"] = null;
+					for($j=1; $j<count($item["idx"]); $j++) {
+						$result["data"][$item["idx"][$j]] = null;
+					}
+				}
+			}
+
+			// prepare response with not null items of result
+			$data = array();
+			foreach($result["data"] as $item) {
+				if (isset($item)) {
+					array_push($data, $item);
+				}
+			}
+			return array(
+				"status" => true,
+				"data" => $data
+			);
+			
+		} catch(Exception $e) {
+			return array(
+				"status" => false,
+				"error" => "Something gone wrong on sanitizing result: " . $e->getMessage()
+			);
+		}
 	}
 
 	public function update($input) {
@@ -91,9 +155,7 @@ Class Sensors extends QueryManager {
 		$updateFields = array(
 			"name" => array("quoted" => true),
 			"quote" => array("quoted" => false),
-			"metadata" => array("json" => true),
 			"custom_props" => array("json" => true),
-			"sensortype_id" => array("quoted" => false),
 			"net_id" => array("quoted" => false),
 			"site_id" => array("quoted" => false),
 			"update_time" => array("quoted" => false),

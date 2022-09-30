@@ -27,6 +27,12 @@
             "options": {
                 "enum_titles": []
             }
+        },
+        "n_nodes": {
+            "title": "# nodes",
+            "description": "Nodes (sensors) belonging to this net",
+            "type": "integer",
+            "readOnly": true
         }
     }
 }

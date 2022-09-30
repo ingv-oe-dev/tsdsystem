@@ -3,6 +3,9 @@ const notificationListComponentDefinition = {
     <button class="bg-secondary text-light float-end" style="border:none" type="button" @click="readAll()">
       <div style="font-size:0.9em" class='overflow:auto'><i class="fa fa-check"></i> Read all</div>
     </button>
+    <button class="bg-secondary text-light float-end" style="border:none" type="button" @click="cleanAll()">
+      <div style="font-size:0.9em" class='overflow:auto'><i class="fa fa-check"></i> Clean all</div>
+    </button>
   </div>
   <div class="accordion" id="notificationList">
     <div class="accordion-item text-light border-bottom border-secondary bg-dark" v-for="notify in list">
@@ -13,7 +16,8 @@ const notificationListComponentDefinition = {
       </h2>
       <div :id="'panelsStayOpen-collapse' + notify.id" class="accordion-collapse collapse" :aria-labelledby="'panelsStayOpen-heading' + notify.id">
         <div class="accordion-body" style="font-size:0.9em">
-          <div class='fw-bold text-warning'>{{notify.responseJSON.error}}</div>
+          <div v-if="notify.responseJSON && notify.responseJSON.error" class='fw-bold text-warning'>{{notify.responseJSON.error}}</div>
+          <div v-if="(notify.responseJSON && !notify.responseJSON.error) || !notify.responseJSON" class='fw-bold text-warning'>{{notify.responseText}}</div>
           <pre class='text-info' style='white-space: pre-wrap; word-break: break-word;'>{{JSON.stringify(notify, null, 4)}}</pre>
         </div>
       </div>
@@ -44,6 +48,9 @@ const notificationListComponentDefinition = {
             for (n in this.list) {
                 this.list[n].messageRead = true;
             }
+        },
+        cleanAll() {
+            this.list = {};
         }
     },
     watch: {

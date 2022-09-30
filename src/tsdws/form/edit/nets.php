@@ -107,6 +107,9 @@
                 mySchema.properties.id.options = {
                     "hidden": true
                 }
+                mySchema.properties.n_nodes.options = {
+                    "hidden": true
+                }
             } else {
                 mySchema.required.push("id");
             }

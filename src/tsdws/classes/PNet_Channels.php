@@ -17,9 +17,13 @@ Class Channels extends QueryManager {
 			// start transaction
 			$this->myConnection->beginTransaction();
 
-			$next_query = "INSERT INTO " . $this->tablename . " (name, sensor_id, info, create_user) VALUES (
+			$next_query = "INSERT INTO " . $this->tablename . " (name, sensor_id, sensortype_id, metadata, start_datetime, end_datetime, info, create_user) VALUES (
 				'" . $input["name"] . "',
 				" . $input["sensor_id"]. ", " .
+				(isset($input["sensortype_id"]) ? $input["sensortype_id"] : "NULL") . ", " .
+				(isset($input["metadata"]) ? ("'" . json_encode($input["metadata"], JSON_NUMERIC_CHECK) . "'") : "NULL") . ", " .
+				(isset($input["start_datetime"]) ? ("'" . $input["start_datetime"] . "'") : "NULL") . ", " .
+				(isset($input["end_datetime"]) ? ("'" . $input["end_datetime"] . "'") : "NULL") . ", " .
 				(isset($input["info"]) ? ("'" . json_encode($input["info"], JSON_NUMERIC_CHECK) . "'") : "NULL") . ", 
 				" . ((array_key_exists("create_user", $input) and isset($input["create_user"]) and is_int($input["create_user"])) ? $input["create_user"] : "NULL") . " 
 				)";
@@ -50,22 +54,30 @@ Class Channels extends QueryManager {
 	}
 	
 	public function getList($input) {
-		
-		$query = "SELECT c.id, c.name, c.sensor_id, c.info, s.name AS sensor_name, n.id AS net_id, n.name AS net_name " . 
+
+		$query = "SELECT c.id, c.name, c.sensor_id, c.sensortype_id, c.metadata, c.start_datetime, c.end_datetime, c.info, s.name AS sensor_name, st.name AS sensortype_name, n.id AS net_id, n.name AS net_name, (NOT c.end_datetime IS NULL AND c.end_datetime < now() at time zone 'utc') AS old_channel, NULLIF(s.remove_time, NULL) AS deprecated" . 
 		" FROM " . $this->tablename . " c " . 
 		" LEFT JOIN tsd_pnet.sensors s ON s.id = c.sensor_id " .
+		" LEFT JOIN tsd_pnet.sensortypes st ON st.id = c.sensortype_id " .
 		" LEFT JOIN tsd_pnet.nets n ON n.id = s.net_id " .
 		" WHERE c.remove_time IS NULL ";
 		
 		if (isset($input) and is_array($input)) { 
 			$query .= $this->composeWhereFilter($input, array(
 				"id" => array("id" => true, "quoted" => false, "alias" => "c.id"),
-				"name" => array("quoted" => true),
-				"sensor_id" => array("quoted" => false)
+				"name" => array("quoted" => true, "alias" => "c.name"),
+				"sensor_id" => array("quoted" => false, "alias" => "c.sensor_id"),
+				"sensortype_id" => array("quoted" => false, "alias" => "c.sensortype_id")
 			));
+			if (array_key_exists("start_datetime", $input) and isset($input["start_datetime"])){
+				$query .= " AND c.start_datetime >= '" . $input["start_datetime"];
+			}
+			if (array_key_exists("end_datetime", $input) and isset($input["end_datetime"])){
+				$query .= " AND c.end_datetime <= '" . $input["end_datetime"] . "'";
+			}
 		}
 		
-		$query .= " ORDER BY n.name, s.name, c.name";
+		$query .= " ORDER BY n.name, s.name, c.end_datetime DESC, c.name";
 		//echo $query;
 		return $this->getRecordSet($query);
 	}
@@ -75,6 +87,10 @@ Class Channels extends QueryManager {
 		$updateFields = array(
 			"name" => array("quoted" => true),
 			"sensor_id" => array("quoted" => false),
+			"metadata" => array("json" => true),
+			"sensortype_id" => array("quoted" => false),
+			"start_datetime" => array("quoted" => true),
+			"end_datetime" => array("quoted" => true),
 			"info" => array("json" => true),
 			"update_time" => array("quoted" => false),
 			"update_user" => array("quoted" => false)

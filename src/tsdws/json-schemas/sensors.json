@@ -61,78 +61,35 @@
             },
             "propertyOrder": 7
         },
-        "sensortype_id": {
-            "title": "Sensortype",
-            "description": "The sensor type",
-            "type": ["integer", "null"],
-            "enum": [],
-            "options": {
-                "enum_titles": []
-            },
+        "custom_props": {
+            "title": "Additional Info",
+            "description": "Additional info",
+            "type": "object",
             "propertyOrder": 8
         },
-        "metadata": {
-            "title": "Sensortype properties",
-            "description": "Sensortype properties",
-            "type": "object",
-            "propertyOrder": 10,
-            "options": {
-                "hidden": true
-            }
+        "sensortype_name": {
+            "title": "Sensortype",
+            "description": "The current sensortype name",
+            "type": "string",
+            "readOnly": true
         },
-        "custom_props": {
-            "title": "Custom Info",
-            "description": "Sensor's specific properties (e.g.: digitizer, history)",
-            "type": "object",
-            "properties": {
-                "digitizer": {
-                    "$ref": "#/$defs/digitizer"
-                },
-                "history": {
-                    "$ref": "#/$defs/history"
-                },
-                "other": {
-                    "title": "Other properties",
-                    "description": "Other properties",
-                    "type": "object"
-                }
-            },
-            "additionalProperties": true,
-            "propertyOrder": 9
-        }
-    },
-    "$defs": {
-        "digitizer": {
-            "title": "Digitizer",
-            "description": "Digitizer properties",
-            "type": "object"
+        "n_channels": {
+            "title": "N. channels",
+            "description": "Total umber of channels belonging to this node",
+            "type": "integer",
+            "readOnly": true
         },
-        "history": {
-            "title": "History",
-            "description": "History of the node",
-            "type": "array",
-            "uniqueItems": true,
-            "items": {
-                "$ref": "#/$defs/history_record"
-            }
+        "start_datetime": {
+            "title": "Start time",
+            "description": "Node start time",
+            "type": "string",
+            "readOnly": true
         },
-        "history_record": {
-            "title": "History record",
-            "description": "History record",
-            "type": "object",
-            "properties": {
-                "starttime": {
-                    "type": "string",
-                    "format": "date"
-                },
-                "endtime": {
-                    "type": "string",
-                    "format": "date"
-                },
-                "record": {
-                    "$ref": "#"
-                }
-            }
+        "end_datetime": {
+            "title": "End time",
+            "description": "Node end time",
+            "type": "string",
+            "readOnly": true
         }
     }
 }

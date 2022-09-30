@@ -29,11 +29,69 @@
                 "enum_titles": []
             }
         },
+        "sensortype_id": {
+            "title": "Sensortype",
+            "description": "The sensor type",
+            "type": ["integer", "null"],
+            "enum": [],
+            "options": {
+                "enum_titles": []
+            }
+        },
+        "metadata": {
+            "title": "Metadata",
+            "description": "Sensortype properties (metadata)",
+            "type": "object",
+            "options": {
+                "hidden": true
+            }
+        },
+        "start_datetime": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "title": "Start Datetime",
+            "description": "Standard datetime UTC",
+            "options": {
+                "grid_columns": 4,
+                "inputAttributes": {
+                    "placeholder": "YYYY-MM-DD HH:MM:SS"
+                }
+            }
+        },
+        "end_datetime": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "title": "End Datetime",
+            "description": "Standard datetime UTC",
+            "options": {
+                "grid_columns": 4,
+                "inputAttributes": {
+                    "placeholder": "YYYY-MM-DD HH:MM:SS"
+                }
+            }
+        },
         "info": {
             "title": "Info",
-            "description": "Additional info of the channel",
+            "description": "Additional info of the channel (e.g.: digitizer)",
             "type": "object",
+            "properties": {
+                "digitizer": {
+                    "$ref": "#/$defs/digitizer"
+                },
+                "other": {
+                    "title": "Other properties",
+                    "description": "Other properties",
+                    "type": "object"
+                }
+            },
             "additionalProperties": true
+        }
+    },
+    "$defs": {
+        "digitizer": {
+            "title": "Digitizer",
+            "description": "Digitizer properties",
+            "type": "object"
         }
     }
 }

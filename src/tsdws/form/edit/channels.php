@@ -56,6 +56,7 @@
         var route = "../../channels";
         var method =  id ? "PATCH" : "POST";
         var mySchema = {};
+        var mySensortypeSchemas = {};
 
         // Set action on delete button
         $(function(){
@@ -94,7 +95,46 @@
                     "url": "../../sensors",
                     "success": function(response) {
                         fillEnum(response.data, "sensor_id");
-                        startEditor();
+                        // get list of sensortypes
+                        $.ajax({
+                            "url": "../../sensortypes",
+                            "success": function(response) {
+                                fillEnum(response.data, "sensortype_id");
+                                // save schemas for each sensortype
+                                for (let i=0; i < response.data.length; i++) {
+                                    mySensortypeSchemas[response.data[i].id] = response.data[i].json_schema;
+                                }
+                                // load sensor data if sensor_id is defined
+                                if (id) {
+                                    $.ajax({
+                                        "url": route,
+                                        "data": {
+                                            "id": id
+                                        },
+                                        "success": function(starting_value) {
+                                            // set the default starting value (JSON) with data of sensor with selected id 
+                                            default_starting_value = starting_value.data[0];
+                                            // update schema and start editor
+                                            mySchema.properties.sensor_id.default = starting_value.data[0].sensor_id;
+                                            mySchema.properties.sensortype_id.default = starting_value.data[0].sensortype_id;
+                                            startEditor();
+                                        },
+                                        "error": function(jqXHR) {
+                                            $('#server_response span.mymessage').html(jqXHR.responseJSON.error);
+                                            $('#server_response').addClass("alert-danger show");
+                                        }
+                                    });
+                                } else {
+                                    // start editor
+                                    startEditor();
+                                }
+                                
+                            },
+                            "error": function(jqXHR) {
+                                $('#server_response span.mymessage').html(jqXHR.responseJSON.error);
+                                $('#server_response').addClass("alert-danger show");
+                            }
+                        });
                     }
                 });
             },
@@ -114,27 +154,47 @@
             }
         }
 
-        function startEditor() {
-            if (id) {
-                $.ajax({
-                    "url": route,
-                    "data": {
-                        "id": id
-                    },
-                    "success": function(starting_value) {
-                        initializeEditor(starting_value.data[0]);
-                        mySchema.properties.sensor_id.default = starting_value.data[0].sensor_id;
-                    },
-            "error": function(jqXHR) {
-                            $('#server_response span.mymessage').html(jqXHR.responseJSON.error);
-                            $('#server_response').addClass("alert-danger show");
-                        }
-                });
-            } else {
-				if (sensor_id) default_starting_value["sensor_id"] = sensor_id;
-                initializeEditor(default_starting_value);
-            }
+        function resetEditor() {
+            // make empty the JSON editor container
+            $('#editor_holder').html('');
+
+            // reset to null the variable representing the JSON editor11
+            editor = null;
         }
+
+        function startEditor() {
+
+            // reset editor
+            resetEditor();
+
+            // update schema by setting metadata schema with selected sensortype schema
+            console.log(default_starting_value);
+            if (default_starting_value !== null && default_starting_value["sensortype_id"] !== undefined) {
+                //console.log(mySensortypeSchemas[default_starting_value["sensortype_id"]]);
+                mySchema.properties.metadata = mySensortypeSchemas[default_starting_value["sensortype_id"]];
+            }
+
+            // initialize editor with the default starting JSON value
+            if (sensor_id) default_starting_value["sensor_id"] = sensor_id;
+            initializeEditor(default_starting_value);
+        }
+
+        // Custom validators must return an array of errors or an empty array if valid
+		JSONEditor.defaults.custom_validators.push((schema, value, path) => {
+		  const errors = [];
+          if (!value) return errors;
+		  if (schema.format==="date-time") {
+			if (!/^(\d{4})-(\d{2})-(\d{2})([T|\s{1}])(\d{2}):(\d{2}):(\d{2}(?:\.\d*)?)((-(\d{2}):(\d{2})|Z)?)$/.test(value)) {
+			  // Errors must be an object with `path`, `property`, and `message`
+			  errors.push({
+				path: path,
+				property: 'format',
+				message: 'Dates must be in the ISO 8601 format (es. YYYY-MM-DD hh:mm:ss)'
+			  });
+			}
+		  }
+		  return errors;
+		});
 
         function initializeEditor(starting_value) {
         
@@ -160,14 +220,51 @@
             editor.on('ready',() => {
                 // Now the api methods will be available
                 editor.validate();
+
+                // add functionalities: 
+                // change metadata (sensortype properties) editor section when change sensortype_id selection
+                $(document.getElementById("root[sensortype_id]")).off().on("change", function(event) {
+                    //console.log(event.target.value);
+                    refreshSensortypeEditor(event.target.value);
+                });
+                $(document.getElementsByName("root[sensortype_id]")[0]).off().on("change", function(event) {
+                    //console.log(event.target.value);
+                    refreshSensortypeEditor(event.target.value);
+                });
+                $("[data-schemapath='root.sensortype_id'] .form-control.je-switcher").off().on("change", function(event) {
+                    //console.log(event.target.value);
+                    if (event.target.value == null || event.target.value == "null") {
+                        refreshSensortypeEditor(null);
+                    } else {
+                        refreshSensortypeEditor(Object.keys(mySensortypeSchemas)[0]); // first sensortype_id in mySensortypeSchemas keys
+                    }
+                });
+
+                function refreshSensortypeEditor(sensortype_id) {
+                    //console.log(sensortype_id);
+                    // set the new default starting value to current editor value 
+                    // (current JSON = current user edited data)
+                    default_starting_value = editor.getValue();
+                    default_starting_value["sensortype_id"] = sensortype_id ? parseInt(sensortype_id) : null;
+                    //console.log(default_starting_value);
+                    // restart editor with new specific sensortype properties form 
+                    // and fill the new editor with current data
+                    startEditor();
+                }
             });
             
             // Hook up the submit button to log to the console
-            $('#submit').on('click',function() {
+            $('#submit').off().on('click',function() { // off previous submit click event when editor restarts (e.g. when sensortype_id changes)
                 // Get the value from the editor
                 console.log(editor.getValue());
 
                 var toPost = editor.getValue();
+
+                // preprocessing JSON data before post
+                if (toPost["metadata"]) {
+                    delete toPost.metadata.id;
+                    //toPost.metadata = JSON.stringify(toPost.metadata);
+                }
                 /*
                 if (toPost["info"]) {
                     toPost.info = JSON.stringify(toPost.info);
@@ -224,42 +321,47 @@
             });
             
             // Hook up the Restore to Default button
-            $('#restore').on('click',function() {
+            $('#restore').off().on('click',function() { // off previous submit click event when editor restarts (e.g. when sensortype_id changes)
                 editor.setValue(starting_value);
             });
             
             // Hook up the validation indicator to update its 
             // status whenever the editor changes
             editor.on('change',function() {
-                // Get an array of errors from the validator
-                var errors = editor.validate();
-                
-                // Not valid
-                if(errors.length) {
-                    $("#valid_indicator").removeClass();
-                    $("#valid_indicator").addClass('mt-1 alert alert-danger');
-                    let html = '<b>Not valid</b>:<br><ul>';
-                    for(var i=0; i<errors.length; i++) {
-                        html += '<li>' + errors[i].path + ': ' + errors[i].message + '</li>';
+
+                if (editor) {
+                    // Get an array of errors from the validator
+                    var errors = editor.validate();
+                    
+                    // Not valid
+                    if(errors.length) {
+                        $("#valid_indicator").removeClass();
+                        $("#valid_indicator").addClass('mt-1 alert alert-danger');
+                        let html = '<b>Not valid</b>:<br><ul>';
+                        for(var i=0; i<errors.length; i++) {
+                            html += '<li>' + errors[i].path + ': ' + errors[i].message + '</li>';
+                        }
+                        html += '</ul>';
+                        $("#valid_indicator").html(html);
+                        $("#submit").attr("disabled", true);
                     }
-                    html += '</ul>';
-                    $("#valid_indicator").html(html);
-                    $("#submit").attr("disabled", true);
-                }
-                // Valid
-                else {
-                    $("#valid_indicator").removeClass();
-                    $("#valid_indicator").addClass('mt-1 alert alert-success');
-                    $("#valid_indicator").html('Valid');
-                    $("#submit").attr("disabled", false);
+                    // Valid
+                    else {
+                        $("#valid_indicator").removeClass();
+                        $("#valid_indicator").addClass('mt-1 alert alert-success');
+                        $("#valid_indicator").html('Valid');
+                        $("#submit").attr("disabled", false);
+                    }
                 }
             });
         }
 
         function fillEnum(data, propertyKey) {
-            console.log(data);
+            //console.log(data);
             var custom_enum = new Array();
             var custom_enum_titles = new Array();
+            custom_enum.push(null);
+            custom_enum_titles.push("--- Select one ---");
             for (var i=0; i<data.length; i++) {
                 custom_enum.push(data[i].id);
                 custom_enum_titles.push(data[i].name);

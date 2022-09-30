@@ -13,6 +13,7 @@ RewriteRule ^timeseries/values(/)?$ routes/ts_routes.php [NC]
 RewriteRule ^timeseries(/)?$ routes/ts_routes.php [NC]
 
 RewriteRule ^channels(/)?$ routes/pnet_routes.php [NC]
+RewriteRule ^channels/clone(/)?$ routes/pnet_routes.php [NC]
 RewriteRule ^nets(/)?$ routes/pnet_routes.php [NC]
 RewriteRule ^sensortypes(/)?$ routes/pnet_routes.php [NC]
 RewriteRule ^sensors(/)?$ routes/pnet_routes.php [NC]

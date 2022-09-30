@@ -54,6 +54,7 @@ var app = {
             notifyAllMessages: false,
             lastNotify: {},
             showSettings: true,
+            seeOldChannels: false,
             toast: [],
             toastDelay: 2000
         }
@@ -114,6 +115,7 @@ var app = {
             }, false);
             window.document.addEventListener('channelEdit', function(e) {
                 //console.log(e);
+                self.fetchSensors();
                 self.fetchChannels({ sensor_id: e.detail.sensor_id });
                 self.$refs.notifications.notify(e.detail);
             }, false);
@@ -203,9 +205,7 @@ var app = {
                 }
             });
         },
-        fetchSensors(parameters = {
-            "deep": true
-        }) {
+        fetchSensors(parameters = {}) {
             this.sensors = [];
 
             let self = this;
@@ -286,6 +286,33 @@ var app = {
                     },
                     success: function(response, textStatus, jqXHR) {
                         console.log(response);
+                        self.fetchSensors();
+                        self.fetchChannels({ sensor_id: sensor_id });
+                        let n = Object.assign(jqXHR, { "messageType": "success" });
+                        self.$refs.notifications.notify(n);
+                    },
+                    error: function(jqXHR) {
+                        let n = Object.assign(jqXHR, { "messageType": "danger" });
+                        self.$refs.notifications.notify(n);
+                    }
+                });
+            }
+        },
+        cloneChannel(id, sensor_id) {
+            let self = this;
+            if (confirm("Are you sure to clone this channel?")) {
+                $.ajax({
+                    url: self.baseURLws + "channels/clone",
+                    data: JSON.stringify({
+                        "id": id
+                    }),
+                    type: "POST",
+                    beforeSend: function(jqXHR, settings) {
+                        jqXHR = Object.assign(jqXHR, settings, { "messageText": "Clone channel [id=" + id + "]" });
+                    },
+                    success: function(response, textStatus, jqXHR) {
+                        console.log(response);
+                        self.fetchSensors();
                         self.fetchChannels({ sensor_id: sensor_id });
                         let n = Object.assign(jqXHR, { "messageType": "success" });
                         self.$refs.notifications.notify(n);
@@ -633,6 +660,7 @@ var app = {
             handler(val) {
                 if (val.id != null && !val.messageRead) {
                     this.toast.show();
+                    //console.log(val);
                 }
             },
             deep: true
