@@ -103,7 +103,7 @@ Class Sensors extends QueryManager {
 					array_push($duplicated_indexes[$current_item["id"]]["idx"], $i);
 					if ($current_item["sensortype_id"] != $duplicated_indexes[$current_item["id"]]["sensortype_id"]) {
 						$duplicated_indexes[$current_item["id"]]["sensortype_id"] = null;
-						$duplicated_indexes[$current_item["id"]]["sensortype_name"] = "Uncorrect mix of sensortypes - check its current Channels settings";
+						$duplicated_indexes[$current_item["id"]]["sensortype_name"] = "! Uncorrect mix of sensortypes - check its current Channels settings";
 					}
 					$duplicated_indexes[$current_item["id"]]["n_channels"] += $current_item["n_channels"];
 				} else {

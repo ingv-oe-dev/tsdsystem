@@ -60,7 +60,7 @@ const mapComponentDefinition = {
                             color: "#000",
                             weight: 1,
                             opacity: 1,
-                            fillColor: net_colors[item.net_id ? item.net_id : 0], // prendo il colore dal valore ritornato dal db
+                            fillColor: colors.nets[item.net_id ? item.net_id % paletteLength : 0].backgroundColor, // prendo il colore dal valore ritornato dal db
                             fillOpacity: 1,
                             customProp: item, // aggiungi le info dell'item come proprietÃ  custom ('customProp' Ã¨ una key scelta arbitrariamente)
                         }) // le prossime tre funzioni in basso sono concatenate
@@ -181,7 +181,7 @@ const mapComponentDefinition = {
             } else {
                 this.overlayMaps[options.group_id] = new L.FeatureGroup();
                 // aggiorno anche il layer switch control
-                this.layerSwitch.addOverlay(this.overlayMaps[options.group_id], "<span class='dot' style='background-color:" + net_colors[options.net_id] + "'></span> " + options.group_id);
+                this.layerSwitch.addOverlay(this.overlayMaps[options.group_id], "<span class='dot' style='background-color:" + colors.nets[options.net_id % paletteLength].backgroundColor + "'></span> " + options.group_id);
             }
         },
         // funzione di creazione del testo html da inserire nel popup, tramite le info dell'item

@@ -415,14 +415,19 @@ var app = {
             this.$refs.leafmap.plotNodesOnMap(toPlot, { "group_id": init_net_name, "net_id": init_net_id, "append": false })
         },
         getNetColor(net_id) {
-            if (net_id) return net_colors[net_id];
-            return net_colors[this.resetID];
+            return colors.nets[net_id % paletteLength];
         },
         getSensortypeColor(sensortype_id) {
-            if (sensortype_id) return sensortype_colors[sensortype_id];
-            return sensortype_colors[this.resetID];
+            return colors.sensortypes[sensortype_id % paletteLength];
         },
-        getAbbreviation(str) {
+        getNetAbbreviation(str) {
+            try {
+                return str.substr(0, 5);
+            } catch (e) {
+                return '/';
+            }
+        },
+        getSensortypeAbbreviation(str) {
             try {
                 return str.substr(0, 1);
             } catch (e) {
