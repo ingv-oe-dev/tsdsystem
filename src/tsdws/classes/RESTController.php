@@ -243,9 +243,16 @@ Class RESTController extends SimpleREST {
 		if ($auth_params["scope"] == "admin") {
 			if ($auth_data["userId"] == getenv("ADMIN_ID")) {
 				return true;
-			} else {
-				throw new Exception("Unauthorized action - Administrator privileges required");
 			}
+			if (
+				array_key_exists("rights", $auth_data) and 
+				is_array($auth_data["rights"]) and
+				array_key_exists("admin", $auth_data["rights"]) and 
+				$auth_data["rights"]["admin"]
+			) {
+				return true; 
+			} 
+			throw new Exception("Unauthorized action - Administrator privileges required");
 		}
 	}
 

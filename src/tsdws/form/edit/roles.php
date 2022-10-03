@@ -27,8 +27,13 @@
                 <button id='submit' class='btn btn-primary' disabled>Submit</button>
             </div>
         </p>
-        <div class='columns'>
-            <div class='column col-md-12 text-danger' id='server_response'></div>
+        <div class='columns p-3 mt-0'>
+            <div id='server_response' class="alert alert-dismissible fade" role="alert">
+            <span class='mymessage'></span>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close" onclick="$(this).parent().removeClass('show')">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            </div>
         </div>
     </div>
     <script>
@@ -74,6 +79,10 @@
                     },
                     "success": function(starting_value) {
                         initializeEditor(starting_value.data[0]);
+                    },
+                    "error": function(jqXHR) {
+                        $('#server_response span.mymessage').html(jqXHR.responseJSON.error);
+                        $('#server_response').addClass("alert-danger show");
                     }
                 });
             } else {
@@ -125,8 +134,9 @@
                             window.location.reload()
                         }
                     },
-                    "error": function(xhr) {
-                        $('#server_response').html(xhr.responseJSON.error)
+                    "error": function(jqXHR) {
+                        $('#server_response span.mymessage').html(jqXHR.responseJSON.error);
+                        $('#server_response').addClass("alert-danger show");
                     }
                 });
             });

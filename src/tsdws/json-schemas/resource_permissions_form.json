@@ -37,6 +37,10 @@
             "required": ["resources"],
             "title": "Permission settings",
             "properties": {
+                "admin": {
+                    "type": "boolean",
+                    "default": false
+                },
                 "resources": {
                     "type": "object",
                     "properties": {
