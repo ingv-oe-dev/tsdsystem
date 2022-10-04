@@ -342,23 +342,23 @@ Class TimeseriesValuesController extends RESTController {
 
 		// force allowed starttime if start_period is set
 		if (array_key_exists("start_period", $permission) and isset($permission["start_period"]) and $this->verifyDate($permission["start_period"])) {
-			$allowed_starttime = DateTime::createFromFormat($this->DATE_ISO_FORMAT, $permission["start_period"], new DateTimeZone('UTC'));
+			$allowed_starttime = new Datetime('@'.strtotime($permission["start_period"]), new DateTimeZone('UTC'));
 		}
 
 		// force allowed endtime if start_period is set
 		if (array_key_exists("end_period", $permission) and isset($permission["end_period"]) and $this->verifyDate($permission["end_period"])) {
-			$allowed_endtime = DateTime::createFromFormat($this->DATE_ISO_FORMAT, $permission["end_period"], new DateTimeZone('UTC'));
+			$allowed_endtime = new Datetime('@'.strtotime($permission["end_period"]), new DateTimeZone('UTC'));
 		}
 		
 		//check user rights on period
-		$starttime = DateTime::createFromFormat($this->DATE_ISO_FORMAT, $input["starttime"], new DateTimeZone('UTC'));
-		$endtime = DateTime::createFromFormat($this->DATE_ISO_FORMAT, $input["endtime"], new DateTimeZone('UTC'));
+		$starttime = new Datetime('@'.strtotime($input["starttime"]), new DateTimeZone('UTC'));
+		$endtime = new Datetime('@'.strtotime($input["endtime"]), new DateTimeZone('UTC'));
 		
 		if ($allowed_starttime > $starttime) 
-			throw new Exception("Requested period unauthorized - Not before " . $allowed_starttime->format($this->DATE_ISO_FORMAT));
+			throw new Exception("Requested period unauthorized - Not before " . $allowed_starttime->format(DateTime::ATOM));
 
 		if ($allowed_endtime < $endtime)
-			throw new Exception("Requested period unauthorized - Not after " . $allowed_endtime->format($this->DATE_ISO_FORMAT));
+			throw new Exception("Requested period unauthorized - Not after " . $allowed_endtime->format(DateTime::ATOM));
 		
 	}
 
@@ -487,31 +487,31 @@ Class TimeseriesValuesController extends RESTController {
 		// starttime
 		if(array_key_exists("starttime", $input)) {
 			if (!$this->verifyDate($input["starttime"])) {
-				$this->setInputError("This input is incorrect: 'starttime' [string] <format: " . $this->DATE_ISO_FORMAT . ">. Your value = " . strval($input["starttime"]));
+				$this->setInputError("This input is incorrect: 'starttime' [string] <format ISO 8601>. Your value = " . strval($input["starttime"]));
 				return false;
 			}
 		} else {
 			$starttime = new DateTime('now', new DateTimeZone('UTC'));
 			if(array_key_exists("endtime", $input) and $this->verifyDate($input["endtime"])) {
-				$starttime = DateTime::createFromFormat($this->DATE_ISO_FORMAT, $input["endtime"], new DateTimeZone('UTC'));
+				$starttime = new Datetime('@'.strtotime($input["endtime"]), new DateTimeZone('UTC'));
+				$starttime->sub(new DateInterval('P1D'));
 			}
-			$starttime->sub(new DateInterval('P1D'));
-			$input["starttime"] = $starttime->format('Y-m-d H:i:s');
+			$input["starttime"] = $starttime->format(Datetime::ATOM);
 		}
 		
 		// endtime
 		if(array_key_exists("endtime", $input)) {
 			if (!$this->verifyDate($input["endtime"])) {
-				$this->setInputError("This input is incorrect: 'endtime' [string] <format: " . $this->DATE_ISO_FORMAT . ">. Your value = " . strval($input["endtime"]));
+				$this->setInputError("This input is incorrect: 'endtime' [string] <format ISO 8601>. Your value = " . strval($input["endtime"]));
 				return false;
 			}
 		} else {
 			$endtime = new DateTime('now', new DateTimeZone('UTC'));
 			if(array_key_exists("starttime", $input) and $this->verifyDate($input["starttime"])) {
-				$endtime = DateTime::createFromFormat($this->DATE_ISO_FORMAT, $input["starttime"], new DateTimeZone('UTC'));
+				$endtime = new Datetime('@'.strtotime($input["starttime"]), new DateTimeZone('UTC'));
 				$endtime->add(new DateInterval('P1D'));
 			}
-			$input["endtime"] = $endtime->format('Y-m-d H:i:s');
+			$input["endtime"] = $endtime->format(Datetime::ATOM);
 		}
 
 		// columns

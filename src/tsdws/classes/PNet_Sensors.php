@@ -55,7 +55,7 @@ Class Sensors extends QueryManager {
 	
 	public function getList($input) {
 
-		$query = "SELECT s.id, s.name, ST_AsGeoJSON(s.coords) AS coords, s.quote, s.net_id, s.site_id, s.custom_props, case when (c.end_datetime is null or c.end_datetime > now() at time zone 'utc') then c.sensortype_id else null end as sensortype_id, count(c.id) as n_channels, c.start_datetime, c.end_datetime, st.name AS sensortype_name, n.name AS net_name, ss.name AS site_name, NULLIF(n.remove_time, NULL) AS deprecated FROM " . $this->tablename . " s left join tsd_pnet.channels c on
+		$query = "SELECT s.id, s.name, ST_AsGeoJSON(s.coords) AS coords, s.quote, s.net_id, s.site_id, s.custom_props, case when (c.end_datetime is null or c.end_datetime > now() at time zone 'utc') then c.sensortype_id else null end as sensortype_id, count(c.id) as n_channels, TO_CHAR(c.start_datetime,'$this->OUTPUT_PSQL_ISO8601_FORMAT') as start_datetime, TO_CHAR(c.end_datetime,'$this->OUTPUT_PSQL_ISO8601_FORMAT') as end_datetime, st.name AS sensortype_name, n.name AS net_name, ss.name AS site_name, NULLIF(n.remove_time, NULL) AS deprecated FROM " . $this->tablename . " s left join tsd_pnet.channels c on
 		s.id = c.sensor_id and c.remove_time is null and (c.end_datetime is null or c.end_datetime > now() at time zone 'utc') left join tsd_pnet.sensortypes st on c.sensortype_id = st.id LEFT JOIN tsd_pnet.nets n ON s.net_id = n.id LEFT JOIN tsd_pnet.sites ss ON s.site_id = ss.id WHERE s.remove_time IS NULL";
 		
 		if (isset($input) and is_array($input)) { 

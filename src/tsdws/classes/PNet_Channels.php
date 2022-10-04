@@ -55,7 +55,7 @@ Class Channels extends QueryManager {
 	
 	public function getList($input) {
 
-		$query = "SELECT c.id, c.name, c.sensor_id, c.sensortype_id, c.metadata, c.start_datetime, c.end_datetime, c.info, s.name AS sensor_name, st.name AS sensortype_name, n.id AS net_id, n.name AS net_name, (NOT c.end_datetime IS NULL AND c.end_datetime < now() at time zone 'utc') AS old_channel, NULLIF(s.remove_time, NULL) AS deprecated" . 
+		$query = "SELECT c.id, c.name, c.sensor_id, c.sensortype_id, c.metadata, TO_CHAR(c.start_datetime,'$this->OUTPUT_PSQL_ISO8601_FORMAT') as start_datetime, TO_CHAR(c.end_datetime,'$this->OUTPUT_PSQL_ISO8601_FORMAT') as end_datetime, c.info, s.name AS sensor_name, st.name AS sensortype_name, n.id AS net_id, n.name AS net_name, (NOT c.end_datetime IS NULL AND c.end_datetime < now() at time zone 'utc') AS old_channel, NULLIF(s.remove_time, NULL) AS deprecated" . 
 		" FROM " . $this->tablename . " c " . 
 		" LEFT JOIN tsd_pnet.sensors s ON s.id = c.sensor_id " .
 		" LEFT JOIN tsd_pnet.sensortypes st ON st.id = c.sensortype_id " .

@@ -50,7 +50,7 @@
             "type": ["string", "null"],
             "format": "date-time",
             "title": "Start Datetime",
-            "description": "Standard datetime UTC",
+            "description": "Standard ISO8601 datetime UTC",
             "options": {
                 "grid_columns": 4,
                 "inputAttributes": {
@@ -62,7 +62,7 @@
             "type": ["string", "null"],
             "format": "date-time",
             "title": "End Datetime",
-            "description": "Standard datetime UTC",
+            "description": "Standard ISO8601 datetime UTC",
             "options": {
                 "grid_columns": 4,
                 "inputAttributes": {

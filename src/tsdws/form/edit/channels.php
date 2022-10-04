@@ -184,12 +184,12 @@
 		  const errors = [];
           if (!value) return errors;
 		  if (schema.format==="date-time") {
-			if (!/^(\d{4})-(\d{2})-(\d{2})([T|\s{1}])(\d{2}):(\d{2}):(\d{2}(?:\.\d*)?)((-(\d{2}):(\d{2})|Z)?)$/.test(value)) {
+			if (!/^\d{4}-(0\d|1[0-2])-([0-2]\d|3[0-2])([T|\s{1}](([01]\d|2[0-4]):([0-5]\d)(:[0-5]\d([\.,]\d+)?)?|([01]\d|2[0-4])(:[0-5]\d([\.,]\d+)?)?|([01]\d|2[0-4])([\.,]\d+)?))?([+-]\d\d(:[0-5]\d)?|Z)?$/.test(value)) {
 			  // Errors must be an object with `path`, `property`, and `message`
 			  errors.push({
 				path: path,
 				property: 'format',
-				message: 'Dates must be in the ISO 8601 format (es. YYYY-MM-DD hh:mm:ss)'
+				message: 'Dates must be in the ISO 8601 format (ex. 2022-01-01 00:00:00)'
 			  });
 			}
 		  }

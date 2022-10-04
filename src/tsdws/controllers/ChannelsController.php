@@ -195,12 +195,12 @@ Class ChannelsController extends RESTController {
 		}
 		// (6) $input["start_datetime"]
 		if(array_key_exists("start_datetime", $input) and !$this->verifyDate($input["start_datetime"])) {
-			$this->setInputError("This input is incorrect: 'start_datetime' [string] <format: " . $this->DATE_ISO_FORMAT . ">. Your value = " . strval($input["start_datetime"]));
+			$this->setInputError("This input is incorrect: 'start_datetime' [string] <format ISO 8601>. Your value = " . strval($input["start_datetime"]));
 			return false;
 		}
 		// (7) $input["end_datetime"]
 		if(array_key_exists("end_datetime", $input) and !$this->verifyDate($input["end_datetime"])) {
-			$this->setInputError("This input is incorrect: 'end_datetime' [string] <format: " . $this->DATE_ISO_FORMAT . ">. Your value = " . strval($input["end_datetime"]));
+			$this->setInputError("This input is incorrect: 'end_datetime' [string] <format ISO 8601>. Your value = " . strval($input["end_datetime"]));
 			return false;
 		}
 		return true;
@@ -276,12 +276,12 @@ Class ChannelsController extends RESTController {
 		}
 		// (6) $input["start_datetime"]
 		if(array_key_exists("start_datetime", $input) and !is_null($input["start_datetime"]) and !$this->verifyDate($input["start_datetime"])) {
-			$this->setInputError("This input is incorrect: 'start_datetime' [string] <format: " . $this->DATE_ISO_FORMAT . ">. Your value = " . strval($input["start_datetime"]));
+			$this->setInputError("This input is incorrect: 'start_datetime' [string] <format ISO 8601>. Your value = " . strval($input["start_datetime"]));
 			return false;
 		}
 		// (7) $input["end_datetime"]
 		if(array_key_exists("end_datetime", $input) and !is_null($input["end_datetime"]) and !$this->verifyDate($input["end_datetime"])) {
-			$this->setInputError("This input is incorrect: 'end_datetime' [string] <format: " . $this->DATE_ISO_FORMAT . ">. Your value = " . strval($input["end_datetime"]));
+			$this->setInputError("This input is incorrect: 'end_datetime' [string] <format ISO 8601>. Your value = " . strval($input["end_datetime"]));
 			return false;
 		}
 		

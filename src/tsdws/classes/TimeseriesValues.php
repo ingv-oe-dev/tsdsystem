@@ -239,9 +239,19 @@ Class TimeseriesValues extends Timeseries {
 
 		$query .= " ORDER BY $output_column_time";
 
-		// timeformat format
+		// UNIX format
 		if (isset($input["timeformat"]) and strtoupper($input["timeformat"]) == "UNIX") {
 			$sup_query = "SELECT EXTRACT(EPOCH from t.$output_column_time) as $output_column_time";
+			foreach($input["columns"] as $column) {
+				$sup_query .= $separator . $column["name"];
+			}
+			$sup_query .= " FROM ( " . $query . ") t ";
+			// assign to final query
+			$query = $sup_query;
+		} 
+		// ISO8601 format
+		else {
+			$sup_query = "SELECT TO_CHAR(t.$output_column_time, '$this->OUTPUT_PSQL_ISO8601_FORMAT') as $output_column_time";
 			foreach($input["columns"] as $column) {
 				$sup_query .= $separator . $column["name"];
 			}
