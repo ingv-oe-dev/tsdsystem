@@ -12,6 +12,12 @@ services:
       - "POSTGRES_DB=${DB_NAME}"
     ports:
       - "5432:5432"
+  frontend:
+    build: ./docker/nginx/
+    restart: "unless-stopped"
+    ports:
+      - "80"
+      - "443"
   pgadmin:
     image: dpage/pgadmin4:6.8
     restart: "unless-stopped"
