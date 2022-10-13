@@ -6,7 +6,7 @@
 
 CREATE DATABASE tsdsystem
     WITH 
-    OWNER = postgres
+    OWNER = superuser
     ENCODING = 'UTF8'
     LC_COLLATE = 'Italian_Italy.1252'
     LC_CTYPE = 'Italian_Italy.1252'
@@ -36,18 +36,18 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp" CASCADE;
 -- SCHEMA: tsd_pnet
 
 CREATE SCHEMA IF NOT EXISTS tsd_pnet
-    AUTHORIZATION postgres;
+    AUTHORIZATION superuser;
 
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------
 -- SCHEMA: tsd_main
 
 CREATE SCHEMA IF NOT EXISTS tsd_main
-    AUTHORIZATION postgres;
+    AUTHORIZATION superuser;
 
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------
 -- SCHEMA: tsd_users
 
 CREATE SCHEMA IF NOT EXISTS tsd_users
-    AUTHORIZATION postgres;
+    AUTHORIZATION superuser;

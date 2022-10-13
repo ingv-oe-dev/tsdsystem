@@ -19,12 +19,16 @@ CREATE TABLE IF NOT EXISTS tsd_main.timeseries
     create_user integer,
     update_user integer,
     remove_user integer,
+    public boolean DEFAULT true,
     CONSTRAINT timeseries_pkey PRIMARY KEY (id)
 );
 
 CREATE UNIQUE INDEX tsd_main_timeseries_lower_schema_lower_name_idx ON tsd_main.timeseries (LOWER(schema), LOWER(name))
 
 TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS tsd_main.timeseries
+    OWNER to postgres;
 
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------
@@ -40,6 +44,9 @@ CREATE TABLE IF NOT EXISTS tsd_main.timeseries_mapping_channels
 )
 
 TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS tsd_main.timeseries_mapping_channels
+    OWNER to postgres;
 
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------

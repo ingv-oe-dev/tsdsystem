@@ -3,35 +3,9 @@ version: '3'
 
 services:
   app:
-    build:
-      context: ./docker/php/
-    image: tsdsystem-app
-    container_name: app
-    tty: true
-    depends_on:
-      - db
-    environment:
-      DB_HOST: "${DB_HOST}"
-      DB_USER: "${DB_USER}"
-      DB_PASSWORD: "${DB_PASSWORD}"
-      DB_NAME: "${DB_NAME}"
-      DB_PORT: "${DB_PORT}"
-      SERVER_KEY: "${SERVER_KEY}"
-      APP_ALLOWED_HOSTS: "${APP_ALLOWED_HOSTS}"
-    ports:
-      - "8000:80"
-    working_dir: /var/www/html/tsdws
-    volumes:
-      - ./src:/var/www/html
-  frontend:
     extends:
       file: docker-services.yml
-      service: frontend
-    depends_on:
-      - app
-    ports:
-      - "80:80"
-      - "443:443"
+      service: tsd
   db:
     extends:
       file: docker-services.yml
