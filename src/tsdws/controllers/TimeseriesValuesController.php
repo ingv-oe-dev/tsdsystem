@@ -161,7 +161,12 @@ Class TimeseriesValuesController extends RESTController {
 		// check if exists the section related to the scope
 		try {
 			$scope = explode('-', $auth_params['scope']); // view scope
-			if (count($scope)>1) {
+			if (
+				count($scope)>1 and 
+				array_key_exists($scope[0],$auth_data["rights"]["resources"]) and 
+				is_array($auth_data["rights"]["resources"][$scope[0]]) and
+				array_key_exists($scope[1],$auth_data["rights"]["resources"][$scope[0]])
+			) {
 				$rights = $auth_data["rights"]["resources"][$scope[0]][$scope[1]];
 			}
 			// echo "rights:";
@@ -240,7 +245,12 @@ Class TimeseriesValuesController extends RESTController {
 		// check if exists the section related to the scope
 		try {
 			$scope = explode('-', $auth_params['scope']); // view scope
-			if (count($scope)>1) {
+			if (
+				count($scope)>1 and 
+				array_key_exists($scope[0],$auth_data["rights"]["resources"]) and 
+				is_array($auth_data["rights"]["resources"][$scope[0]]) and
+				array_key_exists($scope[1],$auth_data["rights"]["resources"][$scope[0]])
+			) {
 				$rights = $auth_data["rights"]["resources"][$scope[0]][$scope[1]];
 			}
 			// echo "rights:";
@@ -372,7 +382,7 @@ Class TimeseriesValuesController extends RESTController {
 		$result = $this->obj->insert_values($this->getParams());
 		
 		// evito di aggiungere l'input inviato nella risposta (in questi casi potrebbe essere molto grande)
-		$this->setParams(null); 
+		$this->setParamValue("data", "not included to avoid heavy response for big insert"); 
 		
 		if ($result["status"]) {
 			$this->setData($result);

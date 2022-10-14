@@ -76,6 +76,12 @@ class SimpleREST extends Utils{
 	public function setParams($params) {
 		$this->response["params"] = $params;
 	}
+
+	public function setParamValue($key, $value) {
+		if (isset($key) and is_array($this->response["params"]) and array_key_exists($key, $this->response["params"])) {
+			$this->response["params"][$key] = $value;
+		}
+	}
 	
 	public function setData($data) {
 		$this->response["data"] = $data;
@@ -88,6 +94,14 @@ class SimpleREST extends Utils{
 		// ======= Get input - Handle also Postman TEST!!!!! ========
 		try {
 			$input = json_decode(file_get_contents('php://input'), true);
+			
+			// merge 'body' input with 'query' input
+			if (isset($input) and is_array($input)) {
+				$input = array_merge($input, $_GET);
+			} else {
+				$input = $_GET;
+			}
+
 			$this->setParams($input);
 		}
 		catch (Exception $e) {
