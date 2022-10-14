@@ -97,10 +97,12 @@ Class TimeseriesValuesController extends RESTController {
 	
 	/**
 	 * !! OVERRIDE SimpleREST function getInput !!
-	 */
+	*/
+	/*
 	public function getInput() {
 		$this->setParams(array_key_exists("request", $_GET) ? json_decode($_GET["request"], true) : NULL);
 	}
+	*/
 
 	/**
 	 * !! OVERRIDE SimpleREST function comparePermissions !!
@@ -479,7 +481,7 @@ Class TimeseriesValuesController extends RESTController {
 		if(!array_key_exists("transpose", $input)) {
 			$input["transpose"] = false;
 		} else {
-			$input["transpose"] = ($input["transpose"] === true);
+			$input["transpose"] = (boolval($input["transpose"]) === true);
 		}
 		
 		// id
@@ -538,27 +540,28 @@ Class TimeseriesValuesController extends RESTController {
 
 		// columns
 		if (array_key_exists("columns", $input)){
-			if (!is_array($input["columns"])) {
-				if($input["columns"] !== "*") {
-					$this->setInputError("This input is incorrect: 'columns'[array]. Your value = " . strval($input["columns"]));
-					return false;
-				} else {
-					$input["columns"] = $this->obj->getColumnList($input["id"]); // select all columns
-				}
+			
+			// explode string list into array -> return an array (ALWAYS)
+			$column_names_list = explode(",", $input["columns"]);
+
+			if (empty($column_names_list)) {
+				$input["columns"] = $this->obj->getColumnList($input["id"]); // select all columns
 			} else {
-				if (empty($input["columns"])) {
+				if(count($column_names_list) == 1 and (strcmp($column_names_list[0],"*") == 0 or strcmp($column_names_list[0],"") == 0)) {
 					$input["columns"] = $this->obj->getColumnList($input["id"]); // select all columns
+				} else {
+					$input["columns"] = $column_names_list;
 				}
 			}
 		} else {
 			$input["columns"] = $this->obj->getColumnList($input["id"]); // select all columns
 		}
-		// check settings into each column 
+		// check singular settings for each column 
 		if (!$this->checkColumnSettings($input)) return false;
 
 		// timestamp
 		if(array_key_exists("timeformat", $input) and strtoupper($input["timeformat"]) != "UNIX") {
-			$this->setInputError("This input is incorrect: 'timeformat' [string]. Default 'ISO 8601' format <YYYY-MM-DD hh:mm:ss>. Only alternative value: 'unix'. Your value = " . strval($input["columns"]));
+			$this->setInputError("This input is incorrect: 'timeformat' [string]. Default 'ISO 8601' format <YYYY-MM-DD hh:mm:ss>. Only alternative value: 'unix'. Your value = " . strval($input["timeformat"]));
 			return false;
 		}
 
@@ -569,7 +572,11 @@ Class TimeseriesValuesController extends RESTController {
 
 
 	public function checkColumnSettings(&$input) {
-		$column_list = $this->obj->getColumnList($input["id"]);
+		
+		// prefix for columns relative parameters in querystring
+		$prefix_parameter_name = "columns_";
+		
+		// suffixes used for columns relative parameters in querystring
 		$paramsToCheck = array(
 			"aggregate",
 			"minthreshold",
@@ -577,43 +584,80 @@ Class TimeseriesValuesController extends RESTController {
 			"gain",
 			"offset"
 		);
-		for($i=0; $i<count($input["columns"]); $i++) {
-			if (is_array($input["columns"][$i])) {
-				if (!array_key_exists("name", $input["columns"][$i])) {
-					$this->setInputError("The name of column $i is undefined");
+
+		// Make the columns structure used into TimeseriesValues class (TimeseriesValues.php)
+		$column_struct = array();
+
+		// get all timeseries columns names from database
+		$column_list = $this->obj->getColumnList($input["id"]);
+
+		// final check if columns name are in table
+		if (isset($column_list)) {
+
+			for($i=0; $i<count($input["columns"]); $i++) {
+				
+				// get column name replacing all blank characters with empty string
+				$column_name = preg_replace('/\s+/', '', strval($input["columns"][$i]));
+
+				// check if exists the current column name
+				if (!in_array($column_name, $column_list)) {
+					$this->setInputError("The column #$i (column indexes start from zero) with name '" . $column_name . "' does not exist. Available columns: [" . implode(", ", $column_list) . "]");
 					return false;
 				}
-				foreach($paramsToCheck as $paramName) {
-					if(array_key_exists($paramName, $input["columns"][$i]) and isset($input["columns"][$i][$paramName])) {
+
+				// add the current column name to the columns structure
+				array_push($column_struct, array(
+					"name" => $column_name
+				));
+			}
+		} else {
+			$this->setInputError("Unable to retrieve columns name for timeseries with id = '" . $input["id"] . "'.");
+			return false;
+		}
+		
+		// check for the other columns definitions (aggregate, gain, offset, etc.)
+		foreach($paramsToCheck as $paramName) {
+			
+			$column_def = $prefix_parameter_name . $paramName;
+			
+			if(array_key_exists($column_def, $input)) {
+
+				// explode string list into array -> return an array (ALWAYS)
+				$column_def_list = explode(",", $input[$column_def]);
+
+				// exit when $i value exceeds column names list or column def list (AVOID ARRAY INDEX ERRORS) 
+				for($i=0; $i<count($column_def_list) and $i<count($input["columns"]); $i++) {
+				
+					// get value replacing all blank characters with empty string
+					$column_def_value = preg_replace('/\s+/', '', strval($column_def_list[$i]));
+	
+					// if not empty
+					if (!empty($column_def_value)) {
+						// check current column def value
 						if ($paramName == "aggregate") {
-							if(!in_array(strtoupper($input["columns"][$i][$paramName]), $this->aggregate_array)) {
-								$this->setInputError("This input is incorrect for column with name '" . $input["columns"][$i]["name"] . "': 'aggregate' [string], must be a value in the following list: " . implode(", ", $this->aggregate_array) . ". Your value = " . strval($input["columns"][$i][$paramName]));
+							// enum check
+							if(!in_array(strtoupper($column_def_value), $this->aggregate_array)) {
+								$this->setInputError("This input is incorrect for column with name '" . $input["columns"][$i] . "': 'aggregate' [string], must be a value in the following list: " . implode(", ", $this->aggregate_array) . ". Your value = " . strval($column_def_value));
 								return false;
 							}
 						} 
-						else if (!is_numeric($input["columns"][$i][$paramName])) {
-							$this->setInputError("This input is incorrect for column with name '" . $input["columns"][$i]["name"] . "': '$paramName' [numeric]. Your value = " . strval($input["columns"][$i][$paramName]));
+						// numeric check
+						else if (!is_numeric($column_def_value)) {
+							$this->setInputError("This input is incorrect for column with name '" . $input["columns"][$i] . "': '$paramName' [numeric]. Your value = " . strval($column_def_value));
 							return false;
 						}
+		
+						// add the current column def to the ith columns structure
+						$column_struct[$i][$paramName] = $column_def_value;
 					}
 				}
-			} else {
-				// if not array the ith column, make it an array with 'name' key = value of ith column
-				$input["columns"][$i] = array(
-					"name" => strval($input["columns"][$i])
-				);
-			}
-			// final check if columns name are in table
-			if (isset($column_list)) {
-				if (!in_array($input["columns"][$i]["name"], $column_list)) {
-					$this->setInputError("The column with name '" . $input["columns"][$i]["name"] . "' does not exist. Available columns: [" . implode(", ", $column_list) . "]");
-					return false;
-				}
-			} else {
-				$this->setInputError("Unable to retrieve columns name for timeseries with id = '" . $input["id"] . "'.");
-				return false;
 			}
 		}
+
+		// assign final struct to $input["columns"]
+		$input["columns"] = $column_struct;
+
+		//var_dump($input["columns"]);
 		return true;
 	}
 }
