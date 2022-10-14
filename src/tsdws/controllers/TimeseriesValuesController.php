@@ -96,6 +96,26 @@ Class TimeseriesValuesController extends RESTController {
 	}
 	
 	/**
+	 * !! OVERRIDE SimpleREST function setData !!
+	*/
+	public function setData($data) {
+		$this->response["data"] = $data;
+		if (is_array($data) and ($_SERVER["REQUEST_METHOD"] == "GET")) {
+			$this->response["records"] = count($data);
+			
+			// handle transpose
+			$input = $this->getParams();
+			if(array_key_exists("transpose", $input) and !$input["transpose"]) {
+				if (array_key_exists("timestamp", $data)) {
+					$this->response["records"] = count($data["timestamp"]);
+				} else {
+					$this->response["records"] = 0;
+				}
+			}
+		}
+	}
+
+	/**
 	 * !! OVERRIDE SimpleREST function getInput !!
 	*/
 	/*
@@ -481,7 +501,7 @@ Class TimeseriesValuesController extends RESTController {
 		if(!array_key_exists("transpose", $input)) {
 			$input["transpose"] = false;
 		} else {
-			$input["transpose"] = (boolval($input["transpose"]) === true);
+			$input["transpose"] = ($input["transpose"] === true or $input["transpose"] === "true");
 		}
 		
 		// id
