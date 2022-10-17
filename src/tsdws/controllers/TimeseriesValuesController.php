@@ -501,7 +501,7 @@ Class TimeseriesValuesController extends RESTController {
 		if(!array_key_exists("transpose", $input)) {
 			$input["transpose"] = false;
 		} else {
-			$input["transpose"] = ($input["transpose"] === true or $input["transpose"] === "true");
+			$input["transpose"] = ($input["transpose"] === 1 or $input["transpose"] === true or $input["transpose"] === "true");
 		}
 		
 		// id
@@ -580,9 +580,13 @@ Class TimeseriesValuesController extends RESTController {
 		if (!$this->checkColumnSettings($input)) return false;
 
 		// timestamp
-		if(array_key_exists("timeformat", $input) and strtoupper($input["timeformat"]) != "UNIX") {
-			$this->setInputError("This input is incorrect: 'timeformat' [string]. Default 'ISO 8601' format <YYYY-MM-DD hh:mm:ss>. Only alternative value: 'unix'. Your value = " . strval($input["timeformat"]));
-			return false;
+		if(array_key_exists("timeformat", $input)) {
+			if(!in_array(strtoupper($input["timeformat"]), $this->time_format_array)) {
+				$this->setInputError("This input is incorrect: 'timeformat' [string], must be a value in the following list: " . implode(", ", $this->time_format_array) . ". Your value = " . strval($input["timeformat"]));
+				return false;
+			}
+		} else {
+			$input["timeformat"] = "ISO8601";
 		}
 
 		$this->setParams($input);
