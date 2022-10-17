@@ -9,6 +9,7 @@ Class TimeseriesValuesController extends RESTController {
 	private $time_interval_regex = '/([0-9]+)\s((\bsecond[s]{0,1}\b)|(\bminute[s]{0,1}\b)|(\bhour[s]{0,1}\b)|(\bday[s]{0,1}\b)|(\bweek[s]{0,1}\b)|(\bmonth[s]{0,1}\b)|(\byear[s]{0,1}\b))/';
 	private $aggregate_array = array("AVG","MEDIAN","COUNT","MAX","MIN","SUM");
 	private $insert_mode_array = array("IGNORE", "UPDATE");
+	private $time_format_array = array("ISO8601", "UNIX");
 	public $default_permission = array(
 		"last_days" => true,
 		"number_of_days" => 1
