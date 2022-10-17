@@ -134,7 +134,10 @@ class SimpleREST extends Utils{
 	
 	public function elaborateResponse() {
 		$this->setHttpHeaders($this->response["statusCode"]);
+		// compress the response before send
+		ob_start("ob_gzhandler"); // start compression
 		echo json_encode($this->response, JSON_NUMERIC_CHECK);
+		ob_end_flush(); // end compression
 	}
 	
 	public function setHttpHeaders($statusCode){
