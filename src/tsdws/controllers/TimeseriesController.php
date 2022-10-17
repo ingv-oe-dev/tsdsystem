@@ -6,6 +6,8 @@ require_once("..".DIRECTORY_SEPARATOR."classes".DIRECTORY_SEPARATOR."Timeseries.
 // Timeseries class
 Class TimeseriesController extends RESTController {
 	
+	private $column_types_array = array("smallint", "integer", "double precision");
+
 	public function __construct() {
 		
 		// instantiate the object model
@@ -85,11 +87,25 @@ Class TimeseriesController extends RESTController {
 			$this->setInputError("This required input is missing: 'schema' [string]");
 			return false;
 		}
+		if (!$this->verifySecureDBString($input["schema"])) {
+			$this->setInputError("Uncorrect input: 'schema' [string]. Accept only lowercase letters followed by numbers and underscore. Regular expression: $this->SECURE_DB_STRING_REGEX");
+			return false;
+		}
+		// force schema to lowercase
+		$input["schema"] = strtolower($input["schema"]);
+
 		// (2) $input["name"] 
 		if (!array_key_exists("name", $input) || empty($input["name"])){
 			$this->setInputError("This required input is missing: 'name' [string]");
 			return false;
 		}
+		if (!$this->verifySecureDBString($input["name"])) {
+			$this->setInputError("Uncorrect input: 'name' [string]. Accept only lowercase letters followed by numbers and underscore. Regular expression: $this->SECURE_DB_STRING_REGEX");
+			return false;
+		}
+		// force name to lowercase
+		$input["name"] = strtolower($input["name"]);
+		
 		// (3) $input["sampling"]
 		if (array_key_exists("sampling", $input)) {
 			if (!is_int($input["sampling"]) || $input["sampling"] < 0) {
@@ -105,11 +121,43 @@ Class TimeseriesController extends RESTController {
 			if(!is_array($input["columns"])) {
 				$this->setInputError("Uncorrect input: 'columns'[array]");
 				return false;
+			} else {
+				// check for columns format
+				for($i=0; $i<count($input["columns"]); $i++) {
+					// check if columns is an array
+					if(!is_array($input["columns"][$i])) {
+						$this->setInputError("Uncorrect input: element #$i of 'columns' is not an array");
+						return false;
+					}
+					// check if 'name' is defined in the column item
+					if(!array_key_exists("name", $input["columns"][$i])) {
+						$this->setInputError("Uncorrect input: property 'name' for the element #$i of 'columns' is not defined");
+						return false;
+					}
+					// check if 'name' is a secure string for db
+					if (!$this->verifySecureDBString($input["columns"][$i]["name"])) {
+						$this->setInputError("Uncorrect input: property 'name' for the element #$i of 'columns'. Accept only lowercase letters followed by numbers and underscore. Regular expression: $this->SECURE_DB_STRING_REGEX");
+						return false;
+					}
+					// force columns name to lowercase
+					$input["columns"][$i]["name"] = strtolower($input["columns"][$i]["name"]); 
+
+					// check if 'type' is defined in the column item
+					if(array_key_exists("type", $input["columns"][$i])) {
+						if (!in_array(strtolower($input["columns"][$i]["type"]), $this->column_types_array)) {
+							$this->setInputError("Uncorrect input: property 'type' for the element #$i of 'columns'. Must be a value in the following list: " . implode(", ", $this->column_types_array) . ". Your value = " . strval($input["columns"][$i]["type"]));
+							return false;
+						}
+					} else {
+						$input["columns"][$i]["type"] = "double precision";
+					}
+				}
 			}
 		} else {
 			// default columns
 			$input["columns"] = array(array("name"=>"value", "type"=>"double precision"));
 		}
+
 		// (4) $input["metadata"] is json
 		if (array_key_exists("metadata", $input)) {
 			if (!$this->validate_json($input["metadata"])){

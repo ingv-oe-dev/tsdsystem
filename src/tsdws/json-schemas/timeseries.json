@@ -16,14 +16,16 @@
         },
         "schema": {
             "title": "Schema",
-            "description": "The name of the schema where timeseries tables will be archived",
+            "description": "The name of the schema where timeseries tables will be archived (only lowercase letters, numbers and underscore characters admitted)",
             "type": "string",
+            "pattern": "^[a-z_]+[a-z0-9_]*$",
             "minLength": 1
         },
         "name": {
             "title": "Name",
-            "description": "Name",
+            "description": "Name (only lowercase letters, numbers and underscore characters admitted)",
             "type": "string",
+            "pattern": "^[a-z_]+[a-z0-9_]*$",
             "minLength": 1
         },
         "sampling": {
@@ -50,14 +52,16 @@
                 "properties": {
                     "name": {
                         "type": "string",
+                        "pattern": "^[a-z_]+[a-z0-9_]*$",
                         "title": "Name",
                         "minLength": 1,
-                        "description": "Table column name"
+                        "description": "Table column name (only lowercase letters, numbers and underscore characters admitted)"
                     },
                     "type": {
                         "title": "Field type",
                         "description": "Table column type",
                         "type": "string",
+                        "minLength": 1,
                         "default": "double precision",
                         "enum": ["smallint", "integer", "double precision"],
                         "options": {
