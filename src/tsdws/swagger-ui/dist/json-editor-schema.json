@@ -1,0 +1,107 @@
+{
+    "title": "Request",
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "minLength": 1
+        },
+        "starttime": {
+            "description": "Start time",
+            "type": "string",
+            "format": "date-time"
+        },
+        "endtime": {
+            "description": "End time",
+            "type": "string",
+            "format": "date-time"
+        },
+        "time_bucket": {
+            "description": "Defines interval for values sampling <format: [0-9]+ second[s]|minute[s]|hour[s]|day[s]|week[s]|month[s]|year[s]>",
+            "type": "string"
+        },
+        "aggregate": {
+
+            "description": "Aggregation function on the selected time bucket. Must be a value in the following list: ['AVG','MEDIAN','COUNT','MAX','MIN','SUM']",
+            "type": "string",
+            "default": "AVG",
+            "enum": ["AVG", "MEDIAN", "COUNT", "MAX", "MIN", "SUM"],
+            "options": {
+                "enum_titles": ["AVG", "MEDIAN", "COUNT", "MAX", "MIN", "SUM"]
+            }
+        },
+        "gain": {
+            "description": "Multiply all timeseries samples with this value (applied to each column value for multiple columns timeseries)",
+            "type": "number"
+        },
+        "offset": {
+            "description": "Add this value to all timeseries samples (applied to each column value for multiple columns timeseries)",
+            "type": "number"
+        },
+        "minthreshold": {
+            "description": "Filter all samples having values greater than the selected threshold (applied to each column value for multiple columns timeseries)",
+            "type": "number"
+        },
+        "maxthreshold": {
+            "description": "Filter all samples having values less than the selected threshold (applied to each column value for multiple columns timeseries)",
+            "type": "number"
+        },
+        "columns": {
+            "description": "List of columns names",
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "columns_aggregate": {
+            "description": "SPECIFIC FOR COLUMNS (this list follows the ordering chosen for 'columns'). Aggregation function on the selected time bucket. Must be a value in the following list: ['AVG','MEDIAN','COUNT','MAX','MIN','SUM']",
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "columns_gain": {
+            "description": "SPECIFIC FOR COLUMNS (this list follows the ordering chosen for 'columns'). Multiply all timeseries samples with this value (rewrite the general 'gain' value if specified for the column)",
+            "type": "array",
+            "items": {
+                "type": "number"
+            }
+        },
+        "columns_offset": {
+            "description": "SPECIFIC FOR COLUMNS (this list follows the ordering chosen for 'columns'). Add this value to all timeseries samples (rewrite the general 'offset' value if specified for the column)",
+            "type": "array",
+            "items": {
+                "type": "number"
+            }
+        },
+        "columns_minthreshold": {
+            "description": "SPECIFIC FOR COLUMNS (this list follows the ordering chosen for 'columns'). Filter all samples having values greater than the selected threshold (rewrite the general 'minthreshold' value if specified for the column)",
+            "type": "array",
+            "items": {
+                "type": "number"
+            }
+        },
+        "columns_maxthreshold": {
+            "description": "SPECIFIC FOR COLUMNS (this list follows the ordering chosen for 'columns'). Filter all samples having values less than the selected threshold (rewrite the general 'maxthreshold' value if specified for the column)",
+            "type": "array",
+            "items": {
+                "type": "number"
+            }
+        },
+        "timeformat": {
+            "description": "Sample time format. Default 'ISO 8601' format <YYYY-MM-DD hh:mm:ss>. Only alternative value: 'unix'",
+            "type": "string",
+            "enum": ["unix"],
+            "options": {
+                "enum_titles": ["Unix timestamp"]
+            }
+        },
+        "transpose": {
+            "description": "Default false. Each data column is represented by an array under the 'column name' section. If true, data consists of an array where each sample is an object with all column values.",
+            "type": "boolean",
+            "default": false
+        }
+    }
+}
