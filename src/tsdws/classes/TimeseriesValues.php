@@ -223,12 +223,12 @@ Class TimeseriesValues extends Timeseries {
 			// minthreshold
 			$minthreshold = isset($column["minthreshold"]) ? $column["minthreshold"] : (isset($input["minthreshold"]) ? $input["minthreshold"] : NULL);
 			if (isset($minthreshold)) {
-				$query .= " AND " . $column["name"] . " >= $minthreshold";
+				$query .= " AND (" . $column["name"] . " >= $minthreshold OR " . $column["name"] . " IS NULL)";
 			}
 			// maxthreshold
 			$maxthreshold = isset($column["maxthreshold"]) ? $column["maxthreshold"] : (isset($input["maxthreshold"]) ? $input["maxthreshold"] : NULL);
 			if (isset($maxthreshold)) {
-				$query .= " AND " . $column["name"] . " <= $maxthreshold";
+				$query .= " AND (" . $column["name"] . " <= $maxthreshold OR " . $column["name"] . " IS NULL)";
 			}
 		}
 

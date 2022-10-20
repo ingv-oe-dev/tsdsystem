@@ -278,7 +278,12 @@ Class RESTController extends SimpleREST {
 		try {
 			$scope = explode('-', $auth_params['scope']); // view scope
 			
-			if (count($scope)>1) {
+			if (
+				count($scope)>1 and 
+				array_key_exists($scope[0],$auth_data["rights"]["resources"]) and 
+				is_array($auth_data["rights"]["resources"][$scope[0]]) and
+				array_key_exists($scope[1],$auth_data["rights"]["resources"][$scope[0]])
+			) {
 				$rights = $auth_data["rights"]["resources"][$scope[0]][$scope[1]];
 			}
 			// echo "rights:";

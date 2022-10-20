@@ -6,6 +6,8 @@ require_once("..".DIRECTORY_SEPARATOR."classes".DIRECTORY_SEPARATOR."Timeseries.
 // Timeseries class
 Class TimeseriesController extends RESTController {
 	
+	private $column_types_array = array("smallint", "integer", "double precision");
+
 	public function __construct() {
 		
 		// instantiate the object model
@@ -81,15 +83,29 @@ Class TimeseriesController extends RESTController {
 		$input = $this->getParams();
 		
 		// (1) $input["schema"]
-		if (!array_key_exists("schema", $input)){
+		if (!array_key_exists("schema", $input) || empty($input["schema"])){
 			$this->setInputError("This required input is missing: 'schema' [string]");
 			return false;
 		}
+		if (!$this->verifySecureDBString($input["schema"])) {
+			$this->setInputError("Uncorrect input: 'schema' [string]. Accept only lowercase letters followed by numbers and underscore. Regular expression: $this->SECURE_DB_STRING_REGEX");
+			return false;
+		}
+		// force schema to lowercase
+		$input["schema"] = strtolower($input["schema"]);
+
 		// (2) $input["name"] 
 		if (!array_key_exists("name", $input) || empty($input["name"])){
 			$this->setInputError("This required input is missing: 'name' [string]");
 			return false;
 		}
+		if (!$this->verifySecureDBString($input["name"])) {
+			$this->setInputError("Uncorrect input: 'name' [string]. Accept only lowercase letters followed by numbers and underscore. Regular expression: $this->SECURE_DB_STRING_REGEX");
+			return false;
+		}
+		// force name to lowercase
+		$input["name"] = strtolower($input["name"]);
+		
 		// (3) $input["sampling"]
 		if (array_key_exists("sampling", $input)) {
 			if (!is_int($input["sampling"]) || $input["sampling"] < 0) {
@@ -105,11 +121,43 @@ Class TimeseriesController extends RESTController {
 			if(!is_array($input["columns"])) {
 				$this->setInputError("Uncorrect input: 'columns'[array]");
 				return false;
+			} else {
+				// check for columns format
+				for($i=0; $i<count($input["columns"]); $i++) {
+					// check if columns is an array
+					if(!is_array($input["columns"][$i])) {
+						$this->setInputError("Uncorrect input: element #$i of 'columns' is not an array");
+						return false;
+					}
+					// check if 'name' is defined in the column item
+					if(!array_key_exists("name", $input["columns"][$i])) {
+						$this->setInputError("Uncorrect input: property 'name' for the element #$i of 'columns' is not defined");
+						return false;
+					}
+					// check if 'name' is a secure string for db
+					if (!$this->verifySecureDBString($input["columns"][$i]["name"])) {
+						$this->setInputError("Uncorrect input: property 'name' for the element #$i of 'columns'. Accept only lowercase letters followed by numbers and underscore. Regular expression: $this->SECURE_DB_STRING_REGEX");
+						return false;
+					}
+					// force columns name to lowercase
+					$input["columns"][$i]["name"] = strtolower($input["columns"][$i]["name"]); 
+
+					// check if 'type' is defined in the column item
+					if(array_key_exists("type", $input["columns"][$i])) {
+						if (!in_array(strtolower($input["columns"][$i]["type"]), $this->column_types_array)) {
+							$this->setInputError("Uncorrect input: property 'type' for the element #$i of 'columns'. Must be a value in the following list: " . implode(", ", $this->column_types_array) . ". Your value = " . strval($input["columns"][$i]["type"]));
+							return false;
+						}
+					} else {
+						$input["columns"][$i]["type"] = "double precision";
+					}
+				}
 			}
 		} else {
 			// default columns
 			$input["columns"] = array(array("name"=>"value", "type"=>"double precision"));
 		}
+
 		// (4) $input["metadata"] is json
 		if (array_key_exists("metadata", $input)) {
 			if (!$this->validate_json($input["metadata"])){
@@ -127,13 +175,15 @@ Class TimeseriesController extends RESTController {
 		}
 
 		// $input["public"] 
-		if (array_key_exists("public", $input) and !is_bool($input["public"])){
+		if (array_key_exists("public", $input)) {
 			if (!is_bool($input["public"])) {
 				$this->setInputError("Uncorrect input: 'public' [boolean]");
 				return false;
 			} else {
-				$input["public"] = true;
+				$input["public"] = ($input["public"] === 1 or $input["public"] === true or $input["public"] === "true");
 			}
+		} else {
+			$input["public"] = true;
 		}
 		
 		$this->setParams($input);
@@ -165,6 +215,41 @@ Class TimeseriesController extends RESTController {
 	// ====================================================================//
 	// ****************** get - timeseries instance(s) ********************//
 	// ====================================================================//
+	public function check_input_get() {
+
+		if ($this->isEmptyInput()) {
+			$this->setInputError("Empty input or malformed JSON");
+			return false;
+		}
+		
+		$input = $this->getParams();
+
+		// listCol
+		if(!array_key_exists("listCol", $input)) {
+			$input["listCol"] = false;
+		} else {
+			$input["listCol"] = ($input["listCol"] === 1 or $input["listCol"] === true or $input["listCol"] === "true");
+		}
+
+		// showColDefs
+		if(!array_key_exists("showColDefs", $input)) {
+			$input["showColDefs"] = false;
+		} else {
+			$input["showColDefs"] = ($input["showColDefs"] === 1 or $input["showColDefs"] === true or $input["showColDefs"] === "true");
+		}
+
+		// showMapping
+		if(!array_key_exists("showMapping", $input)) {
+			$input["showMapping"] = false;
+		} else {
+			$input["showMapping"] = ($input["showMapping"] === 1 or $input["showMapping"] === true or $input["showMapping"] === "true");
+		}
+
+		$this->setParams($input);
+		
+		return true;
+	}
+	
 	public function get($jsonfields=array("metadata")) {
 	
 		$params = $this->getParams();
@@ -220,7 +305,6 @@ Class TimeseriesController extends RESTController {
 				$this->setInputError("Error on decoding 'metadata' JSON input");
 				return false;
 			}
-			$input["metadata"]["columns"] = $input["columns"];
 		}
 		// $input["sampling"]
 		if (array_key_exists("sampling", $input) and (!is_int($input["sampling"]) || $input["sampling"] < 0)) {
