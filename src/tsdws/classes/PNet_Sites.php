@@ -58,7 +58,8 @@ Class Sites extends QueryManager {
 		if (isset($input) and is_array($input)) { 
 			$query .= $this->composeWhereFilter($input, array(
 				"id" => array("id" => true, "quoted" => false),
-				"name" => array("quoted" => true)
+				"name" => array("quoted" => true),
+				"info" => array("quoted" => true)
 			));
 
 			if (isset($input["sort_by"])) {

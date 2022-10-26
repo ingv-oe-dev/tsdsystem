@@ -67,7 +67,13 @@ Class Channels extends QueryManager {
 				"id" => array("id" => true, "quoted" => false, "alias" => "c.id"),
 				"name" => array("quoted" => true, "alias" => "c.name"),
 				"sensor_id" => array("quoted" => false, "alias" => "c.sensor_id"),
-				"sensortype_id" => array("quoted" => false, "alias" => "c.sensortype_id")
+				"sensortype_id" => array("quoted" => false, "alias" => "c.sensortype_id"),
+				"metadata" => array("quoted" => true, "alias" => "c.metadata"),
+				"info" => array("quoted" => true, "alias" => "c.info"),
+				"net_id" => array("quoted" => false, "alias" => "n.id"),
+				"net_name" => array("quoted" => true, "alias" => "n.name"),
+				"sensor_name" => array("quoted" => true, "alias" => "s.name"),
+				"sensortype_name" => array("quoted" => true, "alias" => "st.name")
 			));
 			if (array_key_exists("start_datetime", $input) and isset($input["start_datetime"])){
 				$query .= " AND c.start_datetime >= '" . $input["start_datetime"];

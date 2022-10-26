@@ -232,6 +232,7 @@ Class Timeseries extends QueryManager {
 			$query .= $this->composeWhereFilter($input, array(
 				"id" => array("id" => true, "quoted" => true, "alias" => "t.id"),
 				"name" => array("quoted" => true, "alias" => "t.name"),
+				"metadata" => array("quoted" => true, "alias" => "t.metadata"),
 				"schema" => array("quoted" => true, "alias" => "t.schema"),
 				"channel_id" => array("id" => true, "quoted" => false, "alias" => "tmc.channel_id")
 			));

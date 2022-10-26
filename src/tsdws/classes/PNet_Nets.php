@@ -55,7 +55,8 @@ Class Nets extends QueryManager {
 		if (isset($input) and is_array($input)) { 
 			$query .= $this->composeWhereFilter($input, array(
 				"id" => array("id" => true, "alias" => "n.id", "quoted" => false),
-				"name" => array("quoted" => true, "alias" => "n.name")
+				"name" => array("quoted" => true, "alias" => "n.name"),
+				"owner_id" => array("quoted" => false, "alias" => "n.owner_id")
 			));
 		}
 

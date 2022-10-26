@@ -312,7 +312,7 @@ Class QueryManager extends Utils {
 			}
 		} else {
 			if ($params["quoted"]) {
-				$str .=  "UPPER(" . $params["fieldname"] . ") LIKE UPPER('%" . $params["value"] . "%')";
+				$str .=  "(" . $params["fieldname"] . ")::text ILIKE ('%" . $params["value"] . "%')";
 			} else {
 				$str .= $params["fieldname"] . " = " . $params["value"];
 			}

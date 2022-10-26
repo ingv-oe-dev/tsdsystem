@@ -64,7 +64,8 @@ Class Sensors extends QueryManager {
 				"name" => array("alias" => "s.name", "quoted" => true),
 				"sensortype_id" => array("alias" => "c.sensortype_id", "quoted" => false),
 				"net_id" => array("alias" => "s.net_id", "quoted" => false),
-				"site_id" => array("alias" => "s.site_id", "quoted" => false)
+				"site_id" => array("alias" => "s.site_id", "quoted" => false),
+				"custom_props" => array("quoted" => true, "alias" => "s.custom_props")
 			));
 		}
 
