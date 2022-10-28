@@ -301,99 +301,190 @@ Class TimeseriesValuesController extends RESTController {
 		// If here, return true if not exists a specific 'permissions' 
 		if (!array_key_exists("permissions", $rights)) return true;
 		
-		// go to select the permission
-		$selected_permission = $this->default_permission;
+		// go to select the permission 
+		// ($selected_permission will be set in any case by $this->default_permission)
+		$selected_permission = $this->getSelectedPermission($auth_params, $rights["permissions"]);
 
-		// view if there is an 'all' section
-		if (array_key_exists("all", $rights["permissions"])) 
-			$selected_permission = $rights["permissions"]["all"]; 
+		// check time interval rights 
+		$this->checkTimeIntervalRights($selected_permission);
+	}
 
-		// If here, return true if the timeseries with id = $auth_params["resource_id"] is into $rights["permissions"]["id"] section
-		if (
-			array_key_exists("resource_id", $auth_params) and 
-			array_key_exists("id", $rights["permissions"]) and 
-			is_array($rights["permissions"]["id"]) and 
-			in_array($auth_params["resource_id"], array_keys($rights["permissions"]["id"]))
-		) {
-			$selected_permission = $rights["permissions"]["id"][$auth_params["resource_id"]];
-		} 
-		else {
-			// Launch db query to retrieve all timeseries (with id = $auth_params["resource_id"]) dependencies
-			$dependencies = $this->obj->getDependencies($auth_params["resource_id"]);
-			// echo "dependencies:";
-			// var_dump($dependencies);
+	/**
+	 * Finds target permission (from this granularity level order: timeseries, channels, sensors, nets. Until to all)
+	 * If there are more than one definitions for a couple [target, id], it will return the first occurrence with highest priority [DESCENDING ORDER]
+	 */
+	public function getSelectedPermission($auth_params, $permission_section) {
 
-			// Check if empty or null dependencies
-			if (!isset($dependencies)) 
-				throw new Exception($errorMessagePrefix . " Error on retrieving resource dependencies");
+		// split $permission_section by "target"
+		$permission_groups = [];
+		foreach($permission_section as $key=>$value){
+			$group = $value["target"];
+			if(!isset($permission_groups[$group])) $permission_groups[$group] = array();
+			array_push($permission_groups[$group], $value);
+		}
+		
+		// order by priority (in case of repeated couple [target, id], will be selected the one with the highest priority [DESCENDING ORDER])
+		function comparePriority($a, $b) {
+			if ($a["priority"] == $b["priority"]) {
+        		return 0;
+			}
+			return ($a["priority"] < $b["priority"]) ? -1 : 1;
+		}
+		$arr_keys = array_keys($permission_groups);
+		for($i=0; $i<count($arr_keys); $i++) {
+			usort($permission_groups[$arr_keys[$i]],"comparePriority");
+		}
+		
+		// timeseries level
+		if (array_key_exists("timeseries", $permission_groups)) {
+			foreach ($permission_groups["timeseries"] as $p) {
+				if (
+					array_key_exists("resource_id", $auth_params) and 
+					strcasecmp($p["target"],"timeseries") == 0 and 
+					isset($p["id"]) and 
+					strcasecmp($p["id"], $auth_params["resource_id"]) == 0
+				) {
+					//echo "timeseries";
+					//var_dump($p["settings"]);
+					return $p["settings"];
+				} 
+			}
+		}
 
-			// Check if empty or null $rights["permissions"]["net_id"] array/section
+		// If here go to check timeseries dependencies
+
+		// Launch db query to retrieve all timeseries (with id = $auth_params["resource_id"]) dependencies
+		$dependencies = $this->obj->getDependencies($auth_params["resource_id"]);
+		// echo "dependencies:";
+		//var_dump($dependencies);
+
+		// Check if empty or null dependencies
+		if (!isset($dependencies)) 
+		throw new Exception($errorMessagePrefix . " Error on retrieving resource dependencies");
+
+		// channels level
+		if (array_key_exists("channels", $permission_groups)) {
+			foreach ($permission_groups["channels"] as $p) {
+				if (
+					array_key_exists("resource_id", $auth_params) and 
+					strcasecmp($p["target"],"channels") == 0 and 
+					isset($p["id"]) and
+					in_array(intval($p["id"]), $dependencies["channel_id"]) // net_id are integer, so use intval() casting for permission id (string) with target 'channels'
+				) {
+					//echo "channels";
+					//var_dump($p["settings"]);
+					return $p["settings"];
+				}	
+			}
+		}
+
+		// sensors level
+		if (array_key_exists("sensors", $permission_groups)) {
+			foreach ($permission_groups["sensors"] as $p) {
+				if (
+					array_key_exists("resource_id", $auth_params) and 
+					strcasecmp($p["target"],"sensors") == 0 and 
+					isset($p["id"]) and
+					in_array(intval($p["id"]), $dependencies["sensor_id"]) // net_id are integer, so use intval() casting for permission id (string) with target 'sensors'
+				) {
+					//echo "sensors";
+					//var_dump($p["settings"]);
+					return $p["settings"];
+				}	
+			}
+		}
+
+		// nets level
+		if (array_key_exists("nets", $permission_groups)) {
+			foreach ($permission_groups["nets"] as $p) {
+				if (
+					array_key_exists("resource_id", $auth_params) and 
+					strcasecmp($p["target"],"nets") == 0 and 
+					isset($p["id"]) and
+					in_array(intval($p["id"]), $dependencies["net_id"]) // net_id are integer, so use intval() casting for permission id (string) with target 'nets'
+				) {
+					//echo "nets";
+					//var_dump($p["settings"]);
+					return $p["settings"];
+				}	
+			}
+		}
+
+		// If here, view if there is an 'all' section
+		foreach ($permission_groups["all"] as $p) {
 			if (
-				array_key_exists("net_id", $rights["permissions"]) and
-				is_array($rights["permissions"]["net_id"]) and 
-				count($rights["permissions"]["net_id"]) > 0
+				strcasecmp($p["target"],"all") == 0
 			) {
-				$intersect = array_intersect($dependencies["net_id"], array_keys($rights["permissions"]["net_id"]));
-				if (count($intersect)>0)
-					$selected_permission = $rights["permissions"]["net_id"][$intersect[0]];
+				//echo "all";
+				//var_dump($p["settings"]);
+				return $p["settings"];
 			}	
 		}
 
-		// check time interval rights
-		$this->checkTimeIntervalRights($selected_permission);
+		// If here, return default permissions
+		return $this->default_permission;
 	}
 
 	/**
 	 * Match $permission time with input time request
 	 * Default permissions structure: {
 	 * 		"last_days": true, 
-	 * 		"end_period": null, 
-	 * 		"start_period": null, 
 	 * 		"number_of_days": 1
 	 * }
 	 */
 	public function checkTimeIntervalRights($permission) {
-
-		$input = $this->getParams();
-
-		// defalt allowed starttime and endtime (1 day)
-		$allowed_endtime = new DateTime("now", new DateTimeZone('UTC'));
-		$allowed_starttime = new DateTime("now", new DateTimeZone('UTC'));
-		$allowed_starttime->sub(new DateInterval('P'.$this->default_permission["number_of_days"].'D'));
-
-		// calculate allowed starttime and endtime
-		if (
-			array_key_exists("last_days", $permission) and 
-			$permission["last_days"] === true and 
-			array_key_exists("number_of_days", $permission) and 
-			is_int($permission["number_of_days"]) and 
-			$permission["number_of_days"] >= 0
-		) {
-			$allowed_endtime = new DateTime("now", new DateTimeZone('UTC'));
-			$allowed_starttime = new DateTime("now", new DateTimeZone('UTC'));
-			$allowed_starttime->sub(new DateInterval('P'.intval($permission["number_of_days"]).'D'));
-		}
-
-		// force allowed starttime if start_period is set
-		if (array_key_exists("start_period", $permission) and isset($permission["start_period"]) and $this->verifyDate($permission["start_period"])) {
-			$allowed_starttime = new Datetime('@'.strtotime($permission["start_period"]), new DateTimeZone('UTC'));
-		}
-
-		// force allowed endtime if start_period is set
-		if (array_key_exists("end_period", $permission) and isset($permission["end_period"]) and $this->verifyDate($permission["end_period"])) {
-			$allowed_endtime = new Datetime('@'.strtotime($permission["end_period"]), new DateTimeZone('UTC'));
-		}
 		
-		//check user rights on period
+		//var_dump($permission);
+
+		// get requested period
+		$input = $this->getParams();
 		$starttime = new Datetime('@'.strtotime($input["starttime"]), new DateTimeZone('UTC'));
 		$endtime = new Datetime('@'.strtotime($input["endtime"]), new DateTimeZone('UTC'));
-		
-		if ($allowed_starttime > $starttime) 
-			throw new Exception("Requested period unauthorized - Not before " . $allowed_starttime->format(DateTime::ATOM));
+		$period_in_days = ($endtime->getTimestamp() - $starttime->getTimestamp()) / 86400; // period length (in days)
 
-		if ($allowed_endtime < $endtime)
-			throw new Exception("Requested period unauthorized - Not after " . $allowed_endtime->format(DateTime::ATOM));
+		/////////////////////////////////////////////
+		// check on requested number of days
+		/////////////////////////////////////////////
+		if (
+			array_key_exists("number_of_days", $permission) and 
+			is_numeric($permission["number_of_days"]) and 
+			$permission["number_of_days"] >= 0
+		) {
+			// calculate allowed number of days
+			$allowed_number_of_days = intval($permission["number_of_days"]);
+		}	
+		// checking
+		if (isset($allowed_number_of_days) and $period_in_days > $allowed_number_of_days) {
+			throw new Exception("Requested period exceeds the number of days authorized: " . strval($allowed_number_of_days) . " day(s). Your period in days = " . $period_in_days);
+		}
 		
+		/////////////////////////////////////////////
+		// check on requested period
+		/////////////////////////////////////////////
+		if (
+			array_key_exists("last_days", $permission) and 
+			$permission["last_days"] and 
+			isset($allowed_number_of_days)
+		) {
+			// calculate allowed starttime and endtime
+			$allowed_endtime = new DateTime("now", new DateTimeZone('UTC'));
+			$allowed_endtime->setTime(24, 0, 0); // set to the end of the current date
+			$allowed_starttime = new DateTime("now", new DateTimeZone('UTC'));
+			$allowed_starttime->setTime(0, 0, 0)->sub(new DateInterval('P'.strval($allowed_number_of_days).'D')); // set to the start of the current date and subtract the permitted number_of_days
+		}
+		// force allowed starttime if start_period is set
+		if (array_key_exists("start_period", $permission) and isset($permission["start_period"]) and !empty($permission["start_period"]) and $this->verifyDate($permission["start_period"])) {
+			$allowed_starttime = new Datetime('@'.strtotime($permission["start_period"]), new DateTimeZone('UTC'));
+		}
+		// force allowed endtime if end_period is set
+		if (array_key_exists("end_period", $permission) and isset($permission["end_period"]) and !empty($permission["end_period"]) and $this->verifyDate($permission["end_period"])) {
+			$allowed_endtime = new Datetime('@'.strtotime($permission["end_period"]), new DateTimeZone('UTC'));
+		}
+		// checking
+		if (isset($allowed_starttime) and $allowed_starttime > $starttime) 
+			throw new Exception("Requested period unauthorized - Not before " . $allowed_starttime->format(DateTime::ATOM) . ". Your starttime = " . $starttime->format(DateTime::ATOM));
+		if (isset($allowed_endtime) and $allowed_endtime < $endtime)
+			throw new Exception("Requested period unauthorized - Not after " . $allowed_endtime->format(DateTime::ATOM) . ". Your endtime = " . $endtime->format(DateTime::ATOM));
 	}
 
 	// ====================================================================//
@@ -539,7 +630,6 @@ Class TimeseriesValuesController extends RESTController {
 			$starttime = new DateTime('now', new DateTimeZone('UTC'));
 			if(array_key_exists("endtime", $input) and $this->verifyDate($input["endtime"])) {
 				$starttime = new Datetime('@'.strtotime($input["endtime"]), new DateTimeZone('UTC'));
-				$starttime->sub(new DateInterval('P1D'));
 			}
 			$starttime->sub(new DateInterval('P1D')); // THIS LINE MUST BE LOCATED HERE NOT INSIDE THE PREVIOUS IF STATEMENT (as for endtime)!!!
 			$input["starttime"] = $starttime->format(Datetime::ATOM);

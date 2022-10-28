@@ -264,60 +264,23 @@
                                             "type": "boolean"
                                         },
                                         "permissions": {
-                                            "type": "object",
-                                            "properties": {
-                                                "all": {
-                                                    "$ref": "#/$defs/ts_read_permission",
-                                                    "options": {
-                                                        "collapsed": true
-                                                    }
-                                                },
-                                                "net_id": {
-                                                    "type": "object",
-                                                    "patternProperties": {
-                                                        "^[0-9]+$": {
-                                                            "$ref": "#/$defs/ts_read_permission"
-                                                        }
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "target": {
+                                                        "type": "string",
+                                                        "enum": ["all", "nets", "sensors", "channels", "timeseries"]
                                                     },
-                                                    "additionalProperties": false,
-                                                    "options": {
-                                                        "collapsed": true
-                                                    }
-                                                },
-                                                "sensor_id": {
-                                                    "type": "object",
-                                                    "patternProperties": {
-                                                        "^[0-9]+$": {
-                                                            "$ref": "#/$defs/ts_read_permission"
-                                                        }
+                                                    "id": {
+                                                        "type": "string"
                                                     },
-                                                    "additionalProperties": false,
-                                                    "options": {
-                                                        "collapsed": true
-                                                    }
-                                                },
-                                                "channel_id": {
-                                                    "type": "object",
-                                                    "patternProperties": {
-                                                        "^[0-9]+$": {
-                                                            "$ref": "#/$defs/ts_read_permission"
-                                                        }
+                                                    "priority": {
+                                                        "type": "integer"
                                                     },
-                                                    "additionalProperties": false,
-                                                    "options": {
-                                                        "collapsed": true
-                                                    }
-                                                },
-                                                "id": {
-                                                    "type": "object",
-                                                    "patternProperties": {
-                                                        "^[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*$": {
-                                                            "$ref": "#/$defs/ts_read_permission"
-                                                        }
-                                                    },
-                                                    "additionalProperties": false,
-                                                    "options": {
-                                                        "collapsed": true
+                                                    "settings": {
+                                                        "$ref": "#/$defs/ts_read_permission",
+                                                        "additionalProperties": false
                                                     }
                                                 }
                                             }

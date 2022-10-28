@@ -3,31 +3,7 @@ require_once("Timeseries.php");
 
 // Timeseries class
 Class TimeseriesValues extends Timeseries {
-	
-	// ============== Retrieve tablename by timeseries id ======================
-	private function getTablename($id) {
-		$response = $this->getList(array(
-			"id" => $id
-		));
-		if ($response["status"] and count($response["data"]) > 0) {
-			return $response["data"][0]["schema"] . "." . $response["data"][0]["name"];
-		}
-		return null;
-	}
-
-	// ============== Retrieve tablename by timeseries id ======================
-	public function getInfo($id) {
-		$response = $this->getList(array(
-			"id" => $id
-		));
-		if ($response["status"] and count($response["data"]) > 0) {
-			unset($response["data"][0]["schema"]);
-			unset($response["data"][0]["name"]);
-			return $response["data"][0];
-		}
-		return null;
-	}
-	
+		
 	// ====================================================================//
 	// ******************* insert - timeseries values ***********************//
 	// ====================================================================//

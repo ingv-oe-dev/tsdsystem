@@ -34,12 +34,48 @@ Class TimeseriesController extends RESTController {
 			case 'GET':
 				$this->getInput();
 				if (!$this->check_input_get()) break;
-				// check if authorized action
-				$this->authorizedAction(array(
-					"scope"=>"timeseries-read"
-				));
-				$this->get();
-				break;
+				
+				$input = $this->getParams();
+				$ts_info = null;
+
+				// if $input["id"] is defined
+				if(array_key_exists("id", $input) and isset($input["id"])) {
+					// get info about timeseries
+					$ts_info = $this->obj->getInfo($input["id"]);
+
+					// if not public
+					if (
+						isset($ts_info) and 
+						is_array($ts_info)
+					) { 
+						if(
+							!array_key_exists("public", $ts_info) or
+							!isset($ts_info["public"]) or 
+							!$ts_info["public"]
+						) {
+							// then check if authorized action
+							$this->authorizedAction(array(
+								"scope"=>"timeseries-read",
+								"resource_id" => $input["id"]
+							));
+						}
+					}
+
+					$this->get();
+					break;
+				} 
+				else {
+					if (!array_key_exists("public", $input) or (array_key_exists("public", $input) and isset($input["public"]) and !$input["public"])) {
+						// then check if authorized action
+						$this->authorizedAction(array(
+							"scope"=>"timeseries-read"
+						));
+					}
+					$this->get();
+					break;
+				}
+				
+				
 
 			case 'PATCH':
 				$this->readInput();

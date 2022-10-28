@@ -85,6 +85,30 @@ Class Timeseries extends QueryManager {
 		return null;
 	}
 
+	// ============== Retrieve tablename by timeseries id ======================
+	protected function getTablename($id) {
+		$response = $this->getList(array(
+			"id" => $id
+		));
+		if ($response["status"] and count($response["data"]) > 0) {
+			return $response["data"][0]["schema"] . "." . $response["data"][0]["name"];
+		}
+		return null;
+	}
+
+	// ============== Get info by timeseries id ======================
+	public function getInfo($id) {
+		$response = $this->getList(array(
+			"id" => $id
+		));
+		if ($response["status"] and count($response["data"]) > 0) {
+			unset($response["data"][0]["schema"]);
+			unset($response["data"][0]["name"]);
+			return $response["data"][0];
+		}
+		return null;
+	}
+
 	// ====================================================================//
 	// ******************* TIMESERIES REGISTRATION ************************//
 	// ====================================================================//
@@ -126,12 +150,13 @@ Class Timeseries extends QueryManager {
 			$stmt->execute();
 			
 			// insert into timeseries table
-			$next_query = "INSERT INTO " . $this->tablename . " (schema, name, sampling, metadata, public) VALUES (
+			$next_query = "INSERT INTO " . $this->tablename . " (schema, name, sampling, metadata, public, create_user) VALUES (
 				'" . $input["schema"] . "',
 				'" . $input["name"]. "',
 				" . $input["sampling"] . ",
 				" . (isset($input["metadata"]) ? ("'" . json_encode($input["metadata"], JSON_NUMERIC_CHECK) . "'") : "NULL") . ",
-				" . ((array_key_exists("public", $input) and isset($input["public"]) and $input["public"]) ? "true" : "false") . "
+				" . ((array_key_exists("public", $input) and isset($input["public"]) and $input["public"]) ? "true" : "false") . ",
+				" . ((array_key_exists("create_user", $input) and isset($input["create_user"]) and is_numeric($input["create_user"])) ? strval($input["create_user"]) : "NULL") . "
 			) ON CONFLICT (LOWER(schema), LOWER(name)) DO NOTHING";
 			$stmt = $this->myConnection->prepare($next_query);
 			$stmt->execute();	
@@ -229,6 +254,11 @@ Class Timeseries extends QueryManager {
 			" WHERE t.remove_time IS NULL ";
 
 		if (isset($input) and is_array($input)) { 
+
+			if (array_key_exists("public", $input) and isset($input["public"])) {
+				$query .= " AND t.public = " . ($input["public"] ? 'true' : 'false');
+			}
+
 			$query .= $this->composeWhereFilter($input, array(
 				"id" => array("id" => true, "quoted" => true, "alias" => "t.id"),
 				"name" => array("quoted" => true, "alias" => "t.name"),
@@ -287,8 +317,14 @@ Class Timeseries extends QueryManager {
 				$next_query .= " metadata = '" . json_encode($input["metadata"], JSON_NUMERIC_CHECK) . "', ";
 			}
 			if (isset($input["public"])) {
-				$next_query .= " public = " . ($input["public"] ? "true" : "false");
+				$next_query .= " public = " . ($input["public"] ? "true" : "false") . ", ";
 			}  
+			if (array_key_exists("update_user", $input) and isset($input["update_user"]) and is_numeric($input["update_user"])) {
+				$next_query .= " update_user = " . strval($input["update_user"]) . ", ";
+			}
+			if (array_key_exists("update_time", $input) and isset($input["update_time"])) {
+				$next_query .= " update_time = " . strval($input["update_time"]) . ", ";
+			}
 			$next_query = rtrim($next_query, ", ");
 			$next_query .= " WHERE id = '" . $input["id"] . "'";
 			$stmt = $this->myConnection->prepare($next_query);
