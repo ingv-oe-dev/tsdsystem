@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS tsd_pnet.owners
     CONSTRAINT owners_pkey PRIMARY KEY (id)
 );
 
-TABLESPACE pg_default;
+-- TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS tsd_pnet.owners
     OWNER to postgres;
@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS tsd_pnet.nets
     CONSTRAINT nets_pkey PRIMARY KEY (id)
 );
 
-TABLESPACE pg_default;
+-- TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS tsd_pnet.nets
     OWNER to postgres;
@@ -66,7 +66,7 @@ CREATE TABLE IF NOT EXISTS tsd_pnet.sensortypes
     CONSTRAINT sensortypes_pkey PRIMARY KEY (id)
 );
 
-TABLESPACE pg_default;
+-- TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS tsd_pnet.sensortypes
     OWNER to postgres;
@@ -93,7 +93,7 @@ CREATE TABLE IF NOT EXISTS tsd_pnet.sites
     CONSTRAINT sites_pkey PRIMARY KEY (id)
 );
 
-TABLESPACE pg_default;
+-- TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS tsd_pnet.sites
     OWNER to postgres;
@@ -122,7 +122,7 @@ CREATE TABLE IF NOT EXISTS tsd_pnet.sensors
     CONSTRAINT sensors_pkey PRIMARY KEY (id)
 );
 
-TABLESPACE pg_default;
+-- TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS tsd_pnet.sensors
     OWNER to postgres;
@@ -152,7 +152,7 @@ CREATE TABLE IF NOT EXISTS tsd_pnet.channels
     CONSTRAINT channels_pkey PRIMARY KEY (id)
 );
 
-TABLESPACE pg_default;
+-- TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS tsd_pnet.channels
     OWNER to postgres;
