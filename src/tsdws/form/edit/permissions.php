@@ -1,3 +1,7 @@
+<?php
+    $role_type = isset($_GET["role_type"]) ? $_GET["role_type"] : "role";
+	$role_id = isset($_GET["role_id"]) ? $_GET["role_id"] : "null";
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -40,8 +44,8 @@
         // We will use this to seed the initial editor 
         // and to provide a "Restore to Default" button.
         var default_starting_value = {
-            "role_type": "role",
-            "role_id": null
+            "role_type": "<?php echo $role_type ?>",
+            "role_id": <?php echo $role_id ?>
         };
         
         var ref = "../../json-schemas/resource_permissions_form.json";
@@ -138,7 +142,7 @@
 
                 // add functionalities: 
                 // change role_type -> load roles or members list
-                $(document.getElementById("root[role_type]")).on("change", function(event) {
+                $(document.getElementById("root[role_type]")).off().on("change", function(event) {
                     // set the new default starting value to current editor value 
                     // (current JSON = current user edited data)
                     default_starting_value = editor.getValue();
@@ -149,7 +153,7 @@
                 });
 
                 // change role_id -> load settings if exists
-                $(document.getElementById("root[role_id]")).on("change", function(event) {
+                $(document.getElementById("root[role_id]")).off().on("change", function(event) {
                     // set the new default starting value to current editor value 
                     // (current JSON = current user edited data)
                     default_starting_value = editor.getValue();
@@ -160,7 +164,7 @@
             });
             
             // Hook up the submit button to log to the console
-            $('#submit').on('click',function() {
+            $('#submit').off().on('click',function() {
                 // Get the value from the editor
                 console.log(editor.getValue());
 
@@ -171,7 +175,8 @@
                     "data": JSON.stringify(toPost),
                     "method": method,
                     "success": function(response) {
-                        window.location.href += "?role_type=" + role_type + "&role_id=" + editor.getEditor('root.role_id').getValue();
+                        let path = window.location.href.split('?')[0];
+                        window.location.href = path + "?role_type=" + toPost.role_type + "&role_id=" + editor.getEditor('root.role_id').getValue();
                     },
                     "error": function(xhr) {
                         $('#server_response').html(xhr.responseJSON.error)
@@ -180,7 +185,7 @@
             });
             
             // Hook up the Restore to Default button
-            $('#restore').on('click',function() {
+            $('#restore').off().on('click',function() {
                 editor.setValue(starting_value);
             });
             

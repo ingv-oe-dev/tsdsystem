@@ -19,7 +19,7 @@ Class RolesMapping extends QueryManager {
            
             // update mapping if exists
             $next_query = "UPDATE tsd_users.members_mapping_roles
-                SET priority = " . $input["priority"] . ", update_time = timezone('utc'::text, now())
+                SET priority = " . $input["priority"] . ", update_time = timezone('utc'::text, now()), remove_time = NULL 
                 WHERE member_id = " . $input["member_id"] . " and role_id = " . $input["role_id"]; 
             $stmt = $this->myConnection->prepare($next_query);
             $stmt->execute();
@@ -61,7 +61,7 @@ Class RolesMapping extends QueryManager {
 	public function getList($input) {
 		
 		$query = "select 
-			m.email as member, r.name as role, mmr.priority as priority, mmr.update_time as update_time
+			m.id as member_id, m.email as member, r.id as role_id, r.name as role, mmr.priority as priority, mmr.update_time as update_time
 		from
 			tsd_users.members m
 		inner join tsd_users.members_mapping_roles mmr on m.id = mmr.member_id and mmr.remove_time is null and m.deleted is null

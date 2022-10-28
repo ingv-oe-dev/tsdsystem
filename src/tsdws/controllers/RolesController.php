@@ -17,7 +17,6 @@ Class RolesController extends RESTController {
 			
 			case 'POST':
 				$this->readInput();
-				$input = $this->getParams();
 				if (!$this->check_input_post()) break;
 				// check if authorized action
 				$this->authorizedAction(array(
@@ -28,7 +27,6 @@ Class RolesController extends RESTController {
 			
 			case 'PATCH':
 				$this->readInput();
-				$input = $this->getParams();
 				if (!$this->check_input_patch()) break;
 				// check if authorized action
 				$this->authorizedAction(array(
@@ -45,6 +43,16 @@ Class RolesController extends RESTController {
 					"scope"=>"admin"
 				));
 				$this->get();
+				break;
+
+			case 'DELETE':
+				$this->getInput();
+				if (!$this->check_input_delete()) break;
+				// check if authorized action
+				$this->authorizedAction(array(
+					"scope"=>"admin"
+				));
+				$this->delete();
 				break;
 
 			default:
@@ -93,7 +101,7 @@ Class RolesController extends RESTController {
 		$input = $this->getParams();
 		
 		// (0) $input["id"] 
-		if (!array_key_exists("id", $input) or !is_int($input["id"])){
+		if (!array_key_exists("id", $input) or !is_numeric($input["id"])){
 			$this->setInputError("This required input is missing: 'id' [integer]");
 			return false;
 		}

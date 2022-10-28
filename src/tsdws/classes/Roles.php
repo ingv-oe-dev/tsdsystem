@@ -57,6 +57,14 @@ Class Roles extends QueryManager {
 				"name" => array("quoted" => true),
 				"description" => array("quoted" => true)
 			));
+
+			if (isset($input["sort_by"])) {
+				$cols = explode(",", $input["sort_by"]);
+				$query .= $this->composeOrderBy($cols, array(
+					"id" => array("alias" => "id"),
+					"name" => array("alias" => "name")
+				));
+			}
 		}
 		
 		//echo $query;

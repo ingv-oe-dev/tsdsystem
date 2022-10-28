@@ -48,7 +48,7 @@ Class Users extends QueryManager {
                 tsd_users.members m
             left join tsd_users.members_permissions mp on m.id = mp.member_id and mp.active = true and mp.remove_time is null
             left join tsd_users.members_mapping_roles mmr on m.id = mmr.member_id and mmr.remove_time is null
-            left join tsd_users.roles_permissions rp on rp.role_id = mmr.role_id and rp.active = true and mp.remove_time is null 
+            left join tsd_users.roles_permissions rp on rp.role_id = mmr.role_id and rp.active = true and rp.remove_time is null 
             where m.id = " . $this->user_id . "
             order by mmr.priority, mmr.update_time DESC
         ) p";

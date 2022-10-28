@@ -11,8 +11,8 @@ Class Permissions extends QueryManager {
     public $tablename;
     public $id_fieldname;
 
-    const MEMBER_TYPE = 'member';
-    const ROLE_TYPE = 'role';
+    public const MEMBER_TYPE = 'member';
+    public const ROLE_TYPE = 'role';
 
     //CONSTRUCTOR
 	function __construct($role_type) {
@@ -77,7 +77,7 @@ Class Permissions extends QueryManager {
 		$query = "SELECT id, " . $this->id_fieldname . " AS role_id, settings, active 
             FROM " . $this->tablename . " WHERE remove_time IS NULL ";
 		
-		if (isset($input) and is_array($input) and array_key_exists("role_id", $input)) { 
+		if (isset($input) and is_array($input) and array_key_exists("role_id", $input) and is_numeric($input["role_id"])) { 
 			$query .= (" AND " . $this->id_fieldname . " = " . $input["role_id"]);
 		}
 		
@@ -85,4 +85,34 @@ Class Permissions extends QueryManager {
 		return $this->getRecordSet($query);
 	}
 	
+	public function delete($input) {
+
+		$next_query = "";
+		$response = array(
+			"status" => false,
+			"rows" => null
+		);
+
+		try {
+			$next_query = "UPDATE " . $this->tablename . " SET remove_time = timezone('utc'::text, now()) ";
+
+			if (array_key_exists("role_id", $input)) {
+                $next_query .= " WHERE " . $this->id_fieldname . " = " . $input["role_id"]; 
+			}
+
+			$stmt = $this->myConnection->prepare($next_query);
+			$stmt->execute();
+			$response["rows"] = $stmt->rowCount();
+			$response["status"] = true;
+
+			// return result
+			return $response;
+		}
+		catch (Exception $e){
+			return array(
+				"status" => false,
+				"error" => $e->getMessage()
+			);
+		}
+	}
 }

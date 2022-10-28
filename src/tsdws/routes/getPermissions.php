@@ -4,11 +4,7 @@ if (getenv("ENV") == 'development') {
     ini_set('display_errors', 'On');
 }
 
-require_once("..".DIRECTORY_SEPARATOR."controllers".DIRECTORY_SEPARATOR."PermissionsController.php");
+$role_type = isset($_GET["role_type"]) ? $_GET["role_type"] : null;
 
-if (strripos($_SERVER["REQUEST_URI"], "member")) {
-	$controller = new PermissionsController($role_type="member");
-}
-else {
-	$controller = new PermissionsController($role_type="role");
-}
+require_once("..".DIRECTORY_SEPARATOR."controllers".DIRECTORY_SEPARATOR."PermissionsController.php");
+$controller = new PermissionsController($role_type);

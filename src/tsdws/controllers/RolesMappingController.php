@@ -68,18 +68,18 @@ Class RolesMappingController extends RESTController {
 		$input = $this->getParams();
 		
 		// (0) $input["member_id"] 
-		if (!array_key_exists("member_id", $input) or !is_int($input["member_id"])){
+		if (!array_key_exists("member_id", $input) or !is_numeric($input["member_id"])){
 			$this->setInputError("This required input is missing: 'member_id' [integer]");
 			return false;
 		}
         // (1) $input["role_id"] 
-		if (!array_key_exists("role_id", $input) or !is_int($input["role_id"])){
+		if (!array_key_exists("role_id", $input) or !is_numeric($input["role_id"])){
 			$this->setInputError("This required input is missing: 'role_id' [integer]");
 			return false;
 		}
 		// (2) $input["priority"] 
 		if (array_key_exists("priority", $input)){
-			if (!is_int($input["priority"])) {
+			if (!is_numeric($input["priority"])) {
 				$this->setInputError("Uncorrect input: 'priority' [integer]");
 				return false;
 			}
@@ -105,13 +105,13 @@ Class RolesMappingController extends RESTController {
 		$input = $this->getParams();
 		
 		// (0) $input["member_id"] 
-		if (!array_key_exists("member_id", $input)) {
+		if (!array_key_exists("member_id", $input) or !is_numeric($input["member_id"])) {
 			$this->setInputError("This required input is missing: 'member_id'");
 			return false;
 		}
 
 		// (0) $input["role_id"] 
-		if (!array_key_exists("role_id", $input)) {
+		if (!array_key_exists("role_id", $input) or !is_numeric($input["role_id"])) {
 			$this->setInputError("This required input is missing: 'role_id'");
 			return false;
 		}
