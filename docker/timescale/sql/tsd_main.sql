@@ -28,7 +28,7 @@ CREATE UNIQUE INDEX tsd_main_timeseries_lower_schema_lower_name_idx ON tsd_main.
 TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS tsd_main.timeseries
-    OWNER to postgres;
+    OWNER to tsdsystem;
 
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------
@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS tsd_main.timeseries_mapping_channels
 TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS tsd_main.timeseries_mapping_channels
-    OWNER to postgres;
+    OWNER to tsdsystem;
 
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------

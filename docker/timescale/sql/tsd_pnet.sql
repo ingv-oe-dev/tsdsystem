@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS tsd_pnet.owners
 -- TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS tsd_pnet.owners
-    OWNER to postgres;
+    OWNER to tsdsystem;
 
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------
@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS tsd_pnet.nets
 -- TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS tsd_pnet.nets
-    OWNER to postgres;
+    OWNER to tsdsystem;
 
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------
@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS tsd_pnet.sensortypes
 -- TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS tsd_pnet.sensortypes
-    OWNER to postgres;
+    OWNER to tsdsystem;
 
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------
@@ -96,7 +96,7 @@ CREATE TABLE IF NOT EXISTS tsd_pnet.sites
 -- TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS tsd_pnet.sites
-    OWNER to postgres;
+    OWNER to tsdsystem;
 
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------
@@ -125,7 +125,7 @@ CREATE TABLE IF NOT EXISTS tsd_pnet.sensors
 -- TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS tsd_pnet.sensors
-    OWNER to postgres;
+    OWNER to tsdsystem;
 
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------
@@ -155,7 +155,7 @@ CREATE TABLE IF NOT EXISTS tsd_pnet.channels
 -- TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS tsd_pnet.channels
-    OWNER to postgres;
+    OWNER to tsdsystem;
 
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------

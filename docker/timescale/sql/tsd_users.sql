@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS tsd_users.members
 TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS tsd_users.members
-    OWNER to postgres;
+    OWNER to tsdsystem;
 
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------
@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS tsd_users.roles
 TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS tsd_users.roles
-    OWNER to postgres;
+    OWNER to tsdsystem;
 
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------
@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS tsd_users.members_mapping_roles
 TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS tsd_users.members_mapping_roles
-    OWNER to postgres;
+    OWNER to tsdsystem;
 
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------
@@ -87,7 +87,7 @@ CREATE TABLE IF NOT EXISTS tsd_users.members_permissions
 TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS tsd_users.members_permissions
-    OWNER to postgres;
+    OWNER to tsdsystem;
 
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------
@@ -110,7 +110,7 @@ CREATE TABLE IF NOT EXISTS tsd_users.roles_permissions
 TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS tsd_users.roles_permissions
-    OWNER to postgres;
+    OWNER to tsdsystem;
 
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------
@@ -130,7 +130,7 @@ CREATE TABLE IF NOT EXISTS tsd_users.tokens
 TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS tsd_users.tokens
-    OWNER to postgres;
+    OWNER to tsdsystem;
 
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------
@@ -150,4 +150,4 @@ CREATE TABLE IF NOT EXISTS tsd_users.temp_reset_keys
 TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS tsd_users.temp_reset_keys
-    OWNER to postgres;
+    OWNER to tsdsystem;
