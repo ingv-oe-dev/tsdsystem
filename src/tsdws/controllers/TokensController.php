@@ -32,7 +32,6 @@ Class TokensController extends RESTController {
         }
 
         $input = $this->getParams();
-        $input["validity_days"] = $this->validity_days;
 
         $this->obj = new Tokens($input);
         
@@ -66,11 +65,32 @@ Class TokensController extends RESTController {
 
         // check scope
         if (array_key_exists('scope',$input)) {
-            if (!isset($input['scope']) or empty($input['scope']) or !in_array($input['scope'], $this->scopes)) {
-                $this->setInputError("Choose 'scope' among the following: '" . implode("','", $this->scopes) . "'");
-                return false;
+            if (isset($input['scope']) and !empty($input['scope'])) {
+                if (!in_array($input['scope'], $this->scopes)) {
+                    $this->setInputError("Choose 'scope' among the following: '" . implode("','", $this->scopes) . "'");
+                    return false;
+                }
+            } else {
+                unset($input["scope"]);
             }
         }
+
+        // validity days
+        if (array_key_exists('validity_days',$input)) {
+            if (isset($input['validity_days']) and !empty($input['validity_days'])) {
+                if (!is_numeric($input['validity_days'])) {
+                    $this->setInputError("Uncorrect input 'validity_days' [integer]. Your value: " . $input['validity_days']);
+                    return false;
+                }
+                $input["validity_days"] = intval($input["validity_days"]);
+            } else {
+                $input["validity_days"] = $this->validity_days;
+            }
+        } else {
+            $input["validity_days"] = $this->validity_days;
+        }
+
+        $this->setParams($input);
 
         return true;
     }

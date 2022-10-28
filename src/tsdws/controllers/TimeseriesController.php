@@ -6,7 +6,7 @@ require_once("..".DIRECTORY_SEPARATOR."classes".DIRECTORY_SEPARATOR."Timeseries.
 // Timeseries class
 Class TimeseriesController extends RESTController {
 	
-	private $column_types_array = array("smallint", "integer", "double precision");
+	private $column_types_array = array("smallint", "integer", "double precision"); // valid for all columns (except for the default "time" column, handled by the system)
 
 	public function __construct() {
 		
@@ -180,7 +180,7 @@ Class TimeseriesController extends RESTController {
 				$this->setInputError("Uncorrect input: 'public' [boolean]");
 				return false;
 			} else {
-				$input["public"] = ($input["public"] === 1 or $input["public"] === true or $input["public"] === "true");
+				$input["public"] = (intval($input["public"]) === 1 or $input["public"] === true or $input["public"] === "true");
 			}
 		} else {
 			$input["public"] = true;
@@ -228,21 +228,26 @@ Class TimeseriesController extends RESTController {
 		if(!array_key_exists("listCol", $input)) {
 			$input["listCol"] = false;
 		} else {
-			$input["listCol"] = ($input["listCol"] === 1 or $input["listCol"] === true or $input["listCol"] === "true");
+			$input["listCol"] = (intval($input["listCol"]) === 1 or $input["listCol"] === true or $input["listCol"] === "true");
 		}
 
 		// showColDefs
 		if(!array_key_exists("showColDefs", $input)) {
 			$input["showColDefs"] = false;
 		} else {
-			$input["showColDefs"] = ($input["showColDefs"] === 1 or $input["showColDefs"] === true or $input["showColDefs"] === "true");
+			$input["showColDefs"] = (intval($input["showColDefs"]) === 1 or $input["showColDefs"] === true or $input["showColDefs"] === "true");
 		}
 
 		// showMapping
 		if(!array_key_exists("showMapping", $input)) {
 			$input["showMapping"] = false;
 		} else {
-			$input["showMapping"] = ($input["showMapping"] === 1 or $input["showMapping"] === true or $input["showMapping"] === "true");
+			$input["showMapping"] = (intval($input["showMapping"]) === 1 or $input["showMapping"] === true or $input["showMapping"] === "true");
+		}
+
+		// public
+		if(array_key_exists("public", $input)) {
+			$input["public"] = (intval($input["public"]) === 1 or $input["public"] === true or $input["public"] === "true");
 		}
 
 		$this->setParams($input);
@@ -328,7 +333,13 @@ Class TimeseriesController extends RESTController {
 
 	public function patch() {
 
-		$result = $this->obj->update($this->getParams());
+		// insert default update info
+		$input = $this->getParams();
+		$auth_data = $this->_get_auth_data();
+		$input["update_user"] = isset($auth_data) ? $auth_data["userId"] : NULL;
+		$input["update_time"] = "timezone('utc'::text, now())";
+
+		$result = $this->obj->update($input);
 		
 		if ($result["status"]) {
 			$this->setData($result);

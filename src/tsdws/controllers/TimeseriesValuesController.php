@@ -405,7 +405,7 @@ Class TimeseriesValuesController extends RESTController {
 		$result = $this->obj->insert_values($this->getParams());
 		
 		// evito di aggiungere l'input inviato nella risposta (in questi casi potrebbe essere molto grande)
-		$this->setParamValue("data", "not included to avoid heavy response for big insert"); 
+		$this->setParamValue("data", "not included to avoid heavy response for big insertions"); 
 		
 		if ($result["status"]) {
 			$this->setData($result);
@@ -502,7 +502,7 @@ Class TimeseriesValuesController extends RESTController {
 		if(!array_key_exists("transpose", $input)) {
 			$input["transpose"] = false;
 		} else {
-			$input["transpose"] = ($input["transpose"] === 1 or $input["transpose"] === true or $input["transpose"] === "true");
+			$input["transpose"] = (intval($input["transpose"]) === 1 or $input["transpose"] === true or $input["transpose"] === "true");
 		}
 		
 		// id
@@ -541,6 +541,7 @@ Class TimeseriesValuesController extends RESTController {
 				$starttime = new Datetime('@'.strtotime($input["endtime"]), new DateTimeZone('UTC'));
 				$starttime->sub(new DateInterval('P1D'));
 			}
+			$starttime->sub(new DateInterval('P1D')); // THIS LINE MUST BE LOCATED HERE NOT INSIDE THE PREVIOUS IF STATEMENT (as for endtime)!!!
 			$input["starttime"] = $starttime->format(Datetime::ATOM);
 		}
 		

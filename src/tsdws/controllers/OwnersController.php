@@ -100,7 +100,7 @@ Class OwnersController extends RESTController {
 		$input = $this->getParams();	
 
 		// (0) $input["id"] 
-		if (!array_key_exists("id", $input) or !is_int($input["id"])){
+		if (!array_key_exists("id", $input) or !is_numeric($input["id"])){
 			$this->setInputError("This required input is missing: 'id' [integer]");
 			return false;
 		}
