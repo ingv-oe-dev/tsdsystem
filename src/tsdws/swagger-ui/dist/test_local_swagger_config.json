@@ -92,6 +92,195 @@
                         "in": "query",
                         "description": "Add timeseries mapped channels list in the response",
                         "type": "boolean"
+                    },
+                    {
+                        "name": "sort_by",
+                        "in": "query",
+                        "description": "How to sort result",
+                        "type": "string",
+                        "default": "name",
+                        "enum": ["id", "name", "sampling"]
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponseGet"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            },
+            "post": {
+                "tags": [
+                    "timeseries"
+                ],
+                "summary": "Register a timeseries",
+                "description": "",
+                "operationId": "timeseries-post",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "in": "body",
+                    "name": "body",
+                    "description": "JSON object that needs to be passed as input to register a timeseries into the database",
+                    "required": true,
+                    "schema": {
+                        "$ref": "#/definitions/Timeseries"
+                    }
+                }],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "207": {
+                        "description": "Already exists. No Rows inserted",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    },
+                    "409": {
+                        "description": "Operation failed"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            },
+            "patch": {
+                "tags": [
+                    "timeseries"
+                ],
+                "summary": "Update timeseries",
+                "description": "",
+                "operationId": "timeseries-patch",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "in": "body",
+                    "name": "body",
+                    "description": "JSON object that needs to be passed as input to update a timeseries registration",
+                    "required": true,
+                    "schema": {
+                        "$ref": "#/definitions/Timeseries_patch"
+                    }
+                }],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "207": {
+                        "description": "No significant update",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    },
+                    "404": {
+                        "description": "Record not found"
+                    },
+                    "409": {
+                        "description": "Operation failed"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            }
+        },
+        "/timeseries/values": {
+            "get": {
+                "tags": [
+                    "timeseries"
+                ],
+                "summary": "Get timeseries values",
+                "description": "",
+                "operationId": "timeseries-get",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                        "name": "id",
+                        "in": "query",
+                        "description": "Timeseries unique identifier (uuid)",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+                    },
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "description": "Timeseries name",
+                        "type": "string"
+                    },
+                    {
+                        "name": "schema",
+                        "in": "query",
+                        "description": "Timeseries schema (catalogue name)",
+                        "type": "string"
+                    },
+                    {
+                        "name": "channel_id",
+                        "in": "query",
+                        "description": "Timeseries mapped to this Channel ID",
+                        "type": "integer"
+                    },
+                    {
+                        "name": "exact_match",
+                        "in": "query",
+                        "description": "Use exact match when filtering by query parameters",
+                        "type": "boolean"
+                    },
+                    {
+                        "name": "listCol",
+                        "in": "query",
+                        "description": "Show timeseries column names list in the response",
+                        "type": "boolean"
+                    },
+                    {
+                        "name": "showColDefs",
+                        "in": "query",
+                        "description": "Show timeseries columns definitions in the response",
+                        "type": "boolean"
+                    },
+                    {
+                        "name": "showMapping",
+                        "in": "query",
+                        "description": "Add timeseries mapped channels list in the response",
+                        "type": "boolean"
                     }
                 ],
                 "responses": {
@@ -385,6 +574,49 @@
             "in": "header"
         }
     },
+    "components": {
+        "schemas": {
+            "Columns": {
+                "oneOf": [{
+                        "type": "array",
+                        "items": {
+                            "anyOf": [{
+                                    "$ref": "#/components/schemas/Columns_array_item_request"
+                                },
+                                {
+                                    "type": "string"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "enum\"": [
+                            "",
+                            "*"
+                        ]
+                    }
+                ]
+            },
+            "Columns_array_item_request": {
+                "type": "object",
+                "required": [
+                    "name"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "aggregate": {
+                        "type": "string"
+                    },
+                    "gain": {
+                        "type": "number"
+                    }
+                }
+            }
+        }
+    },
     "definitions": {
         "ApiResponse": {
             "type": "object",
@@ -601,6 +833,243 @@
                     "additionalProperties": true
                 }
             }
+        },
+        "Column_request_item_array": {
+            "type": "object",
+            "required": ["name"],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "title": "Column name",
+                    "minLength": 1,
+                    "description": "Table column name",
+                    "default": "value"
+                },
+                "aggregate": {
+                    "title": "Aggregate",
+                    "description": "SPECIFIC FOR THE COLUMN. Aggregation function on the selected time bucket. Must be a value in the following list: ['AVG','MEDIAN','COUNT','MAX','MIN','SUM']",
+                    "type": "string",
+                    "default": "AVG",
+                    "enum": ["AVG", "MEDIAN", "COUNT", "MAX", "MIN", "SUM"],
+                    "options": {
+                        "enum_titles": ["AVG", "MEDIAN", "COUNT", "MAX", "MIN", "SUM"]
+                    }
+                },
+                "gain": {
+                    "title": "Gain",
+                    "description": "SPECIFIC FOR THE COLUMN. Multiply all timeseries samples with this value (rewrite the general 'gain' value if specified for the column)",
+                    "type": "number"
+                },
+                "offset": {
+                    "title": "Offset",
+                    "description": "SPECIFIC FOR THE COLUMN. Add this value to all timeseries samples (rewrite the general 'offset' value if specified for the column)",
+                    "type": "number"
+                },
+                "minthreshold": {
+                    "title": "Minimum threshold",
+                    "description": "SPECIFIC FOR THE COLUMN. Filter all samples having values greater than the selected threshold (rewrite the general 'minthreshold' value if specified for the column)",
+                    "type": "number"
+                },
+                "maxthreshold": {
+                    "title": "Maximum threshold",
+                    "description": "SPECIFIC FOR THE COLUMN. Filter all samples having values less than the selected threshold (rewrite the general 'maxthreshold' value if specified for the column)",
+                    "type": "number"
+                }
+            }
+        },
+        "Timeseries_values_request": {
+            "type": "object",
+            "required": ["id"],
+            "properties": {
+                "id": {
+                    "title": "ID",
+                    "description": "Timeseries unique identifier",
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                    "minLength": 1
+                },
+                "starttime": {
+                    "title": "Start time",
+                    "description": "Start time",
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "endtime": {
+                    "title": "End time",
+                    "description": "End time",
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "time_bucket": {
+                    "title": "Time bucket",
+                    "description": "Defines interval for values sampling <format: [0-9]+ second[s]|minute[s]|hour[s]|day[s]|week[s]|month[s]|year[s]>",
+                    "type": "string"
+                },
+                "aggregate": {
+                    "title": "Aggregate",
+                    "description": "Aggregation function on the selected time bucket. Must be a value in the following list: ['AVG','MEDIAN','COUNT','MAX','MIN','SUM']",
+                    "type": "string",
+                    "default": "AVG",
+                    "enum": ["AVG", "MEDIAN", "COUNT", "MAX", "MIN", "SUM"],
+                    "options": {
+                        "enum_titles": ["AVG", "MEDIAN", "COUNT", "MAX", "MIN", "SUM"]
+                    }
+                },
+                "gain": {
+                    "title": "Gain",
+                    "description": "Multiply all timeseries samples with this value (applied to each column value for multiple columns timeseries)",
+                    "type": "number"
+                },
+                "offset": {
+                    "title": "Offset",
+                    "description": "Add this value to all timeseries samples (applied to each column value for multiple columns timeseries)",
+                    "type": "number"
+                },
+                "minthreshold": {
+                    "title": "Minimum threshold",
+                    "description": "Filter all samples having values greater than the selected threshold (applied to each column value for multiple columns timeseries)",
+                    "type": "number"
+                },
+                "maxthreshold": {
+                    "title": "Maximum threshold",
+                    "description": "Filter all samples having values less than the selected threshold (applied to each column value for multiple columns timeseries)",
+                    "type": "number"
+                },
+                "columns": {
+                    "title": "Columns_request_item_array",
+                    "description": "List of all the measurements of the timeseries",
+                    "schema": {
+                        "oneOf": [{
+                                "type": "array",
+                                "items": {
+                                    "schema": {
+                                        "anyOf": [{
+                                            "type": "object",
+                                            "required": ["name"],
+                                            "properties": {
+                                                "name": {
+                                                    "type": "string",
+                                                    "title": "Column name",
+                                                    "minLength": 1,
+                                                    "description": "Table column name",
+                                                    "default": "value"
+                                                },
+                                                "aggregate": {
+                                                    "title": "Aggregate",
+                                                    "description": "SPECIFIC FOR THE COLUMN. Aggregation function on the selected time bucket. Must be a value in the following list: ['AVG','MEDIAN','COUNT','MAX','MIN','SUM']",
+                                                    "type": "string",
+                                                    "default": "AVG",
+                                                    "enum": ["AVG", "MEDIAN", "COUNT", "MAX", "MIN", "SUM"],
+                                                    "options": {
+                                                        "enum_titles": ["AVG", "MEDIAN", "COUNT", "MAX", "MIN", "SUM"]
+                                                    }
+                                                },
+                                                "gain": {
+                                                    "title": "Gain",
+                                                    "description": "SPECIFIC FOR THE COLUMN. Multiply all timeseries samples with this value (rewrite the general 'gain' value if specified for the column)",
+                                                    "type": "number"
+                                                },
+                                                "offset": {
+                                                    "title": "Offset",
+                                                    "description": "SPECIFIC FOR THE COLUMN. Add this value to all timeseries samples (rewrite the general 'offset' value if specified for the column)",
+                                                    "type": "number"
+                                                },
+                                                "minthreshold": {
+                                                    "title": "Minimum threshold",
+                                                    "description": "SPECIFIC FOR THE COLUMN. Filter all samples having values greater than the selected threshold (rewrite the general 'minthreshold' value if specified for the column)",
+                                                    "type": "number"
+                                                },
+                                                "maxthreshold": {
+                                                    "title": "Maximum threshold",
+                                                    "description": "SPECIFIC FOR THE COLUMN. Filter all samples having values less than the selected threshold (rewrite the general 'maxthreshold' value if specified for the column)",
+                                                    "type": "number"
+                                                }
+                                            }
+                                        }, {
+                                            "type": "string"
+                                        }]
+                                    }
+                                }
+                            },
+                            {
+                                "type": "string",
+                                "enum": ["", "*"]
+                            }
+                        ]
+                    }
+                },
+                "timeformat": {
+                    "title": "Time format",
+                    "description": "Sample time format. Default 'ISO 8601' format <YYYY-MM-DD hh:mm:ss>. Only alternative value: 'unix'",
+                    "type": "string",
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}\\s[0-9]{2}:[0-9]{2}:[0-9]{2}$"
+                },
+                "transpose": {
+                    "title": "Transpose the returned data array",
+                    "description": "Default false. Each data column is represented by an array under the 'column name' section. If true, data consists of an array where each sample is an object with all column values.",
+                    "type": "boolean",
+                    "default": false
+                }
+            }
+        },
+        "Columns": {
+            "oneOf": [{
+                    "type": "array",
+                    "items": {
+                        "schema": {
+                            "anyOf": [{
+                                "type": "object",
+                                "required": ["name"],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "title": "Column name",
+                                        "minLength": 1,
+                                        "description": "Table column name",
+                                        "default": "value"
+                                    },
+                                    "aggregate": {
+                                        "title": "Aggregate",
+                                        "description": "SPECIFIC FOR THE COLUMN. Aggregation function on the selected time bucket. Must be a value in the following list: ['AVG','MEDIAN','COUNT','MAX','MIN','SUM']",
+                                        "type": "string",
+                                        "default": "AVG",
+                                        "enum": ["AVG", "MEDIAN", "COUNT", "MAX", "MIN", "SUM"],
+                                        "options": {
+                                            "enum_titles": ["AVG", "MEDIAN", "COUNT", "MAX", "MIN", "SUM"]
+                                        }
+                                    },
+                                    "gain": {
+                                        "title": "Gain",
+                                        "description": "SPECIFIC FOR THE COLUMN. Multiply all timeseries samples with this value (rewrite the general 'gain' value if specified for the column)",
+                                        "type": "number"
+                                    },
+                                    "offset": {
+                                        "title": "Offset",
+                                        "description": "SPECIFIC FOR THE COLUMN. Add this value to all timeseries samples (rewrite the general 'offset' value if specified for the column)",
+                                        "type": "number"
+                                    },
+                                    "minthreshold": {
+                                        "title": "Minimum threshold",
+                                        "description": "SPECIFIC FOR THE COLUMN. Filter all samples having values greater than the selected threshold (rewrite the general 'minthreshold' value if specified for the column)",
+                                        "type": "number"
+                                    },
+                                    "maxthreshold": {
+                                        "title": "Maximum threshold",
+                                        "description": "SPECIFIC FOR THE COLUMN. Filter all samples having values less than the selected threshold (rewrite the general 'maxthreshold' value if specified for the column)",
+                                        "type": "number"
+                                    }
+                                }
+                            }, {
+                                "type": "string"
+                            }]
+                        }
+                    }
+                },
+                {
+                    "type": "string",
+                    "enum": ["", "*"]
+                }
+            ]
         },
         "User": {
             "type": "object",

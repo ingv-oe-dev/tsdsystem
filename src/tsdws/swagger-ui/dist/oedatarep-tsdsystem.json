@@ -1,0 +1,245 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "This is a Swagger UI web interface to retrieve public timeseries values from TSDSystem web service (REST). You can find out more about Swagger at [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/).",
+        "version": "2.0.0",
+        "title": "TSDSystem REST API for OEDataRep",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "email": "carmelo.cassisi@ingv.it"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        }
+    },
+    "host": "localhost",
+    "basePath": "/tsdws",
+    "tags": [{
+        "name": "timeseries",
+        "description": "End-point for timeseries stored into the TSDSystem instance of OEDataRep"
+    }],
+    "schemes": [
+        "http",
+        "https"
+    ],
+    "paths": {
+        "/timeseries/{id}/values": {
+            "get": {
+                "tags": ["timeseries"],
+                "summary": "Get timeseries values by ID",
+                "description": "Return values from timeseries identified by {id}, using filters and transformation indicated by parameters into querystring. **All referenced times are UTC (Coordinated Universal Time)**",
+                "operationId": "getTSValuesById",
+                "produces": ["application/json"],
+                "parameters": [{
+                        "name": "id",
+                        "in": "path",
+                        "description": "Timeseries id",
+                        "required": true,
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                        "minLength": 1,
+                        "example": "b0c77d19-5b6e-4162-9aa0-1073c48b9de0"
+                    },
+                    {
+                        "name": "starttime",
+                        "in": "query",
+                        "description": "Start time",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    {
+                        "name": "endtime",
+                        "in": "query",
+                        "description": "End time",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    {
+                        "name": "time_bucket",
+                        "in": "query",
+                        "description": "Defines interval for values sampling <format: [0-9]+ second[s]|minute[s]|hour[s]|day[s]|week[s]|month[s]|year[s]>",
+                        "type": "string"
+                    },
+                    {
+                        "name": "aggregate",
+                        "in": "query",
+                        "description": "Aggregation function on the selected time bucket. Must be a value in the following list: ['AVG','MEDIAN','COUNT','MAX','MIN','SUM']",
+                        "type": "string",
+                        "default": "AVG",
+                        "enum": ["AVG", "MEDIAN", "COUNT", "MAX", "MIN", "SUM"],
+                        "options": {
+                            "enum_titles": ["AVG", "MEDIAN", "COUNT", "MAX", "MIN", "SUM"]
+                        }
+                    },
+                    {
+                        "name": "gain",
+                        "in": "query",
+                        "description": "Multiply all timeseries samples with this value (applied to each column value for multiple columns timeseries)",
+                        "type": "number"
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "description": "Add this value to all timeseries samples (applied to each column value for multiple columns timeseries)",
+                        "type": "number"
+                    },
+                    {
+                        "name": "minthreshold",
+                        "in": "query",
+                        "description": "Filter all samples having values greater than the selected threshold (applied to each column value for multiple columns timeseries)",
+                        "type": "number"
+                    },
+                    {
+                        "name": "maxthreshold",
+                        "in": "query",
+                        "description": "Filter all samples having values less than the selected threshold (applied to each column value for multiple columns timeseries)",
+                        "type": "number"
+                    },
+                    {
+                        "name": "columns",
+                        "in": "query",
+                        "description": "List of columns names",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "columns_aggregate",
+                        "in": "query",
+                        "description": "**SPECIFIC FOR COLUMNS (this list follows the ordering chosen for 'columns')**. Aggregation function on the selected time bucket. Must be a value in the following list: ['AVG','MEDIAN','COUNT','MAX','MIN','SUM']",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "columns_gain",
+                        "in": "query",
+                        "description": "**SPECIFIC FOR COLUMNS (this list follows the ordering chosen for 'columns')**. Multiply all timeseries samples with this value (rewrite the general 'gain' value if specified for the column)",
+                        "type": "array",
+                        "items": {
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "columns_offset",
+                        "in": "query",
+                        "description": "**SPECIFIC FOR COLUMNS (this list follows the ordering chosen for 'columns')**. Add this value to all timeseries samples (rewrite the general 'offset' value if specified for the column)",
+                        "type": "array",
+                        "items": {
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "columns_minthreshold",
+                        "in": "query",
+                        "description": "**SPECIFIC FOR COLUMNS (this list follows the ordering chosen for 'columns')**. Filter all samples having values greater than the selected threshold (rewrite the general 'minthreshold' value if specified for the column)",
+                        "type": "array",
+                        "items": {
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "columns_maxthreshold",
+                        "in": "query",
+                        "description": "**SPECIFIC FOR COLUMNS (this list follows the ordering chosen for 'columns')**. Filter all samples having values less than the selected threshold (rewrite the general 'maxthreshold' value if specified for the column)",
+                        "type": "array",
+                        "items": {
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "timeformat",
+                        "in": "query",
+                        "description": "Sample time format. Default 'ISO 8601' [https://www.w3.org/TR/NOTE-datetime].",
+                        "type": "string",
+                        "default": "ISO8601",
+                        "enum": ["ISO8601", "UNIX"],
+                        "options": {
+                            "enum_titles": ["ISO 8601", "Unix timestamp"]
+                        }
+                    },
+                    {
+                        "name": "transpose",
+                        "in": "query",
+                        "description": "Default false. Each data column is represented by an array under the 'column name' section. If true, data consists of an array where each sample is an object with all column values.",
+                        "type": "boolean",
+                        "default": false
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponseTSValues"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "ApiResponse": {
+            "type": "object",
+            "properties": {
+                "params": {
+                    "type": "object"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "type": "object"
+                    }
+                },
+                "error": {
+                    "type": "object"
+                },
+                "statusCode": {
+                    "type": "integer"
+                },
+                "records": {
+                    "type": "integer"
+                }
+            }
+        },
+        "ApiResponseTSValues": {
+            "type": "object",
+            "properties": {
+                "params": {
+                    "type": "object"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "type": "object"
+                    }
+                },
+                "error": {
+                    "type": "object"
+                },
+                "statusCode": {
+                    "type": "integer"
+                },
+                "records": {
+                    "type": "integer"
+                },
+                "additionalInfo": {
+                    "type": "object"
+                }
+            }
+        }
+    },
+    "externalDocs": {
+        "description": "Find out more about Swagger",
+        "url": "http://swagger.io"
+    }
+}

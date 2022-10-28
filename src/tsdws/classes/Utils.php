@@ -4,8 +4,8 @@
 */
 Class Utils {
 	
+	publiC $SECURE_DB_STRING_REGEX = '/^[a-z_]+[a-z0-9_]*$/';
 	public $OUTPUT_PSQL_ISO8601_FORMAT = 'YYYY-MM-DD"T"HH24:MI:SS.MSOF'; // compliant to ISO 8601
-
 	public $CORRECT_DATETIME_REGEX = '/^(\d{4})(-(0[1-9]|1[0-2])(-([12]\d|0[1-9]|3[01]))([T\s]((([01]\d|2[0-3])((:)[0-5]\d))([\:]\d+)?)?(:[0-5]\d([\.]\d+)?)?([zZ]|([\+-])([01]\d|2[0-3]):?([0-5]\d)?)?)?)$/'; // compliant to ISO 8601
 
 	public static function getHostAddress() {
@@ -15,6 +15,10 @@ Class Utils {
 
 	public function verifyDate($date) {
 		return preg_match($this->CORRECT_DATETIME_REGEX, $date);
+	}
+
+	public function verifySecureDBString($str) {
+		return preg_match($this->SECURE_DB_STRING_REGEX, $str);
 	}
 	
 	public static function get_error($err_msg) {

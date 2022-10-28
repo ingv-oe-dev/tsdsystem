@@ -24,7 +24,12 @@ Class ChannelsController extends RESTController {
 				if ($this->cloning) {	
 					if (!$this->check_input_post_clone()) break;
 					// set input from item to clone
-					$this->setParams($this->retrive_item_to_clone($jsonfields=array("metadata","info")));
+					$clone_data = $this->retrieve_item_to_clone($jsonfields=array("metadata","info"));
+					if (!isset($clone_data)) {
+						$this->setInputError("No item to clone found!");
+						break;
+					}
+					$this->setParams($clone_data);
 				} else {
 					if (!$this->check_input_post()) break;
 				}
@@ -310,7 +315,7 @@ Class ChannelsController extends RESTController {
 		$input = $this->getParams();
 		
 		// (0) $input["id"] 
-		if (!array_key_exists("id", $input) or !is_int($input["id"])){
+		if (!array_key_exists("id", $input)){
 			$this->setInputError("This required input is missing: 'id' [integer]");
 			return false;
 		}
@@ -323,7 +328,7 @@ Class ChannelsController extends RESTController {
 		return true;
 	}
 
-	public function retrive_item_to_clone($jsonfields=array()) {
+	public function retrieve_item_to_clone($jsonfields=array()) {
 		
 		$input = $this->getParams();
 		try {	

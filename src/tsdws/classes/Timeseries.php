@@ -178,7 +178,7 @@ Class Timeseries extends QueryManager {
 			if (isset($input["mapping"])) {
 				if (isset($input["mapping"]["channel_id"])) {
 					// delete old mappings, if forced
-					if (isset($input["mapping"]["force"]) and $input["mapping"]["force"] === true) {
+					if (isset($input["mapping"]["force"]) and ($input["mapping"]["force"] === true or $input["mapping"]["force"] === "true" or $input["mapping"]["force"] === 1)) {
 						$next_query = "DELETE FROM " . $this->mapping_table . " WHERE timeseries_id = '" . $input["id"] . "'"; 	
 						//echo $next_query;
 						$stmt = $this->myConnection->prepare($next_query);
