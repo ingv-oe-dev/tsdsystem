@@ -986,6 +986,97 @@
                 }]
             }
         },
+        "/channels/{id}/timeseries": {
+            "get": {
+                "tags": [
+                    "channels", "timeseries"
+                ],
+                "summary": "List all timeseries referring to a channel by ID",
+                "description": "",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                        "name": "id",
+                        "in": "path",
+                        "description": "Channel ID",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "name": "listCol",
+                        "in": "query",
+                        "description": "Show timeseries column names list in the response",
+                        "type": "boolean"
+                    },
+                    {
+                        "name": "showColDefs",
+                        "in": "query",
+                        "description": "Show timeseries columns definitions in the response",
+                        "type": "boolean"
+                    },
+                    {
+                        "name": "showMapping",
+                        "in": "query",
+                        "description": "Add timeseries mapped channels list in the response",
+                        "type": "boolean"
+                    },
+                    {
+                        "name": "sort_by",
+                        "in": "query",
+                        "description": "How to sort result",
+                        "type": "string",
+                        "default": "name",
+                        "enum": ["id", "name", "sampling"]
+                    },
+                    {
+                        "name": "public",
+                        "in": "query",
+                        "description": "If not set, list all timeseries. If true, list only public timeseries (**no authorization required**), else only non-public timeseries.",
+                        "type": "boolean"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "params": {
+                                    "type": "object"
+                                },
+                                "data": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/ApiResponse"
+                                    }
+                                },
+                                "error": {
+                                    "type": "object"
+                                },
+                                "statusCode": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                },
+                                "records": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            }
+        },
         "/users": {
             "get": {
                 "tags": [
