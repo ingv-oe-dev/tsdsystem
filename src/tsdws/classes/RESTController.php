@@ -238,24 +238,6 @@ Class RESTController extends SimpleREST {
 
     }
 
-	public function compareAdminPermissions($auth_params, $auth_data) {
-
-		if ($auth_params["scope"] == "admin") {
-			if ($auth_data["userId"] == getenv("ADMIN_ID")) {
-				return true;
-			}
-			if (
-				array_key_exists("rights", $auth_data) and 
-				is_array($auth_data["rights"]) and
-				array_key_exists("admin", $auth_data["rights"]) and 
-				$auth_data["rights"]["admin"]
-			) {
-				return true; 
-			} 
-			throw new Exception("Unauthorized action - Administrator privileges required");
-		}
-	}
-
 	/**
 	 * Check authorization contained into $auth_data 
 	 * by $auth_params["scope"] <resource>-<read|edit> 
@@ -271,8 +253,20 @@ Class RESTController extends SimpleREST {
 			return true;
 		}
 
-		// CHECK IF SUPER USER ACTION
-		if ($this->compareAdminPermissions($auth_params, $auth_data)) return true;
+		// CHECK IF ADMIN USER
+		if (
+			array_key_exists("rights", $auth_data) and 
+			is_array($auth_data["rights"]) and
+			array_key_exists("admin", $auth_data["rights"]) and 
+			$auth_data["rights"]["admin"]
+		) {
+			return true; 
+		} 
+
+		// CHECK IF ADMIN ACTION (if here the user is not admin neither super user)
+		if ($auth_params["scope"] == "admin") {
+			throw new Exception("Unauthorized action - Administrator privileges required");
+		}
 		
 		// check if exists the section related to the scope
 		try {

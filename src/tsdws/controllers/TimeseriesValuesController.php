@@ -140,8 +140,20 @@ Class TimeseriesValuesController extends RESTController {
 			return true;
 		}
 
-		// CHECK IF SUPER USER ACTION
-		if ($this->compareAdminPermissions($auth_params, $auth_data)) return true;
+		// CHECK IF ADMIN USER
+		if (
+			array_key_exists("rights", $auth_data) and 
+			is_array($auth_data["rights"]) and
+			array_key_exists("admin", $auth_data["rights"]) and 
+			$auth_data["rights"]["admin"]
+		) {
+			return true; 
+		} 
+
+		// CHECK IF ADMIN ACTION (if here the user is not admin neither super user)
+		if ($auth_params["scope"] == "admin") {
+			throw new Exception("Unauthorized action - Administrator privileges required");
+		}
 		
 		// check if exists the section related to the scope
 		$scope = array();
