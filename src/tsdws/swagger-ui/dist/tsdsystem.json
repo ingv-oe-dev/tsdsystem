@@ -22,6 +22,9 @@
         "name": "timeseries",
         "description": "Timeseries management"
     }, {
+        "name": "channels",
+        "description": "Station network channels management"
+    }, {
         "name": "users",
         "description": "Administration end-points for users management"
     }, {
@@ -409,14 +412,14 @@
                     {
                         "name": "starttime",
                         "in": "query",
-                        "description": "Start time",
+                        "description": "Start time. Standard ISO8601 datetime UTC",
                         "type": "string",
                         "format": "date-time"
                     },
                     {
                         "name": "endtime",
                         "in": "query",
-                        "description": "End time",
+                        "description": "End time. Standard ISO8601 datetime UTC",
                         "type": "string",
                         "format": "date-time"
                     },
@@ -620,6 +623,362 @@
                     },
                     "500": {
                         "description": "Internal Server Error"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            }
+        },
+        "/channels": {
+            "get": {
+                "tags": [
+                    "channels"
+                ],
+                "summary": "Find channels",
+                "description": "",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                        "name": "id",
+                        "in": "query",
+                        "description": "Channel unique identifier",
+                        "type": "integer"
+                    },
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "description": "Channel name",
+                        "type": "string"
+                    },
+                    {
+                        "name": "sensor_id",
+                        "in": "query",
+                        "description": "ID of the sensor whom the channel belongs to",
+                        "type": "integer"
+                    },
+                    {
+                        "name": "sensor_name",
+                        "in": "query",
+                        "description": "Name of the sensor whom the channel belongs to",
+                        "type": "string"
+                    },
+                    {
+                        "name": "sensortype_id",
+                        "in": "query",
+                        "description": "ID of the sensortype of the channel",
+                        "type": "integer"
+                    },
+                    {
+                        "name": "sensortype_name",
+                        "in": "query",
+                        "description": "Name of the sensortype of the channel",
+                        "type": "string"
+                    },
+                    {
+                        "name": "net_id",
+                        "in": "query",
+                        "description": "ID of the net whom the channel refers to",
+                        "type": "integer"
+                    },
+                    {
+                        "name": "net_name",
+                        "in": "query",
+                        "description": "Name of the net whom the channel refers to",
+                        "type": "string"
+                    },
+                    {
+                        "name": "start_datetime",
+                        "in": "query",
+                        "description": "Acquisition start datetime. Standard ISO8601 datetime UTC",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    {
+                        "name": "end_datetime",
+                        "in": "query",
+                        "description": "Acquisition end datetime. Standard ISO8601 datetime UTC",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    {
+                        "name": "metadata",
+                        "in": "query",
+                        "description": "Find this string into channel's metadata",
+                        "type": "string"
+                    },
+                    {
+                        "name": "info",
+                        "in": "query",
+                        "description": "Find this string into channel's additional info",
+                        "type": "string"
+                    },
+                    {
+                        "name": "exact_match",
+                        "in": "query",
+                        "description": "Use exact match when filtering by query parameters",
+                        "type": "boolean"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponseGet"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            },
+            "post": {
+                "tags": [
+                    "channels"
+                ],
+                "summary": "Register a channel",
+                "description": "",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "in": "body",
+                    "name": "body",
+                    "description": "JSON object that needs to be passed as input to register a timeseries into the database",
+                    "required": true,
+                    "schema": {
+                        "$ref": "#/definitions/Channel"
+                    }
+                }],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "207": {
+                        "description": "Already exists. No Rows inserted",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    },
+                    "409": {
+                        "description": "Operation failed"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            }
+        },
+        "/channels/{id}": {
+            "get": {
+                "tags": [
+                    "channels"
+                ],
+                "summary": "Info about a channel by ID",
+                "description": "",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "path",
+                    "description": "Channel ID",
+                    "type": "integer",
+                    "format": "int64"
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "params": {
+                                    "type": "object"
+                                },
+                                "data": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/ApiResponse"
+                                    }
+                                },
+                                "error": {
+                                    "type": "object"
+                                },
+                                "statusCode": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                },
+                                "records": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            },
+            "patch": {
+                "tags": [
+                    "channels"
+                ],
+                "summary": "Update channel data by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "path",
+                    "description": "Channel ID",
+                    "type": "integer",
+                    "format": "int64"
+                }, {
+                    "in": "body",
+                    "name": "body",
+                    "description": "JSON object that needs to be passed as input to register a timeseries into the database",
+                    "required": true,
+                    "schema": {
+                        "$ref": "#/definitions/Channel"
+                    }
+                }],
+                "responses": {
+                    "202": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            },
+            "delete": {
+                "tags": [
+                    "channels"
+                ],
+                "summary": "Delete a channel by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "path",
+                    "description": "Role ID",
+                    "type": "integer",
+                    "format": "int64"
+                }],
+                "responses": {
+                    "202": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            }
+        },
+        "/channels/{id}/clone": {
+            "post": {
+                "tags": [
+                    "channels"
+                ],
+                "summary": "Clone a channel by ID",
+                "description": "",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "path",
+                    "description": "Channel ID",
+                    "type": "integer",
+                    "format": "int64"
+                }, {
+                    "name": "clone_name",
+                    "in": "query",
+                    "description": "Clone channel name",
+                    "type": "string"
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "params": {
+                                    "type": "object"
+                                },
+                                "data": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/ApiResponse"
+                                    }
+                                },
+                                "error": {
+                                    "type": "object"
+                                },
+                                "statusCode": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                },
+                                "records": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
                     }
                 },
                 "security": [{
@@ -2433,6 +2792,65 @@
                         ["2022-10-28 15:27:00", 10],
                         ["2022-10-28 15:28:00", null]
                     ]
+                }
+            }
+        },
+        "Channel": {
+            "type": "object",
+            "required": ["sensor_id", "name"],
+            "additionalProperties": false,
+            "properties": {
+                "name": {
+                    "title": "Name",
+                    "description": "Name",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "sensor_id": {
+                    "title": "Sensor",
+                    "description": "Sensor to which the channel belongs",
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "sensortype_id": {
+                    "title": "Sensortype",
+                    "description": "The sensor type",
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "metadata": {
+                    "title": "Metadata",
+                    "description": "Sensortype properties (metadata)",
+                    "type": "object"
+                },
+                "start_datetime": {
+                    "type": "string",
+                    "format": "date-time",
+                    "title": "Start Datetime",
+                    "description": "Standard ISO8601 datetime UTC"
+                },
+                "end_datetime": {
+                    "type": "string",
+                    "format": "date-time",
+                    "title": "End Datetime",
+                    "description": "Standard ISO8601 datetime UTC"
+                },
+                "info": {
+                    "title": "Info",
+                    "description": "Additional info of the channel (e.g.: digitizer)",
+                    "type": "object",
+                    "properties": {
+                        "digitizer": {
+                            "title": "Digitizer",
+                            "description": "Digitizer properties",
+                            "type": "object"
+                        },
+                        "other": {
+                            "title": "Additional properties",
+                            "description": "Additional properties",
+                            "type": "object"
+                        }
+                    }
                 }
             }
         },

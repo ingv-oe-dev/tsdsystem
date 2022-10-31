@@ -88,23 +88,41 @@ Class ChannelsController extends RESTController {
 		require_once("..".DIRECTORY_SEPARATOR."classes".DIRECTORY_SEPARATOR."PNet_Sensortypes.php");
 		
 		if (
-			$input["id"] and 
-			(!array_key_exists("sensortype_id", $input) or !is_int($input["sensortype_id"]))
+			array_key_exists("id", $input) and $input["id"]
 		) {
-			
-			$selected_sensor = $this->obj->getList($input);
-			if (
-				$selected_sensor and 
-				$selected_sensor["status"] and
-				is_array($selected_sensor["data"]) and
-				count($selected_sensor["data"]) > 0 and
-				isset($selected_sensor["data"][0]["sensortype_id"]) and 
-				!empty($selected_sensor["data"][0]["sensortype_id"])
-			) {
-				$input["sensortype_id"] = $selected_sensor["data"][0]["sensortype_id"];
+			// go here on patch (if id is defined)
+			$selected_sensor = $this->obj->getList(array("id" => $input["id"]));
+
+			// if sensortype_id is not defined on patch input, retrieve sensortype_id from record
+			if (!array_key_exists("sensortype_id", $input)) {
+				if (
+					$selected_sensor and 
+					$selected_sensor["status"] and
+					is_array($selected_sensor["data"]) and
+					count($selected_sensor["data"]) > 0 and
+					isset($selected_sensor["data"][0]["sensortype_id"]) and 
+					!empty($selected_sensor["data"][0]["sensortype_id"])
+				) {
+					// input sensortype_id from record
+					$input["sensortype_id"] = $selected_sensor["data"][0]["sensortype_id"];
+				}
+			}
+			// if sensortype_id is defined on patch input (checked before is numeric), retrieve metadata from record 
+			else {
+				if (
+					$selected_sensor and 
+					$selected_sensor["status"] and
+					is_array($selected_sensor["data"]) and
+					count($selected_sensor["data"]) > 0 and
+					!array_key_exists("metadata", $input)
+				) {
+					// input metadata from record
+					$input["metadata"] = json_decode($selected_sensor["data"][0]["metadata"]);
+				}
 			}
 		}
 
+		// here validate from input values and/or existent values
 		if(
 			array_key_exists("sensortype_id", $input) and 
 			isset($input["sensortype_id"]) and 
@@ -113,8 +131,7 @@ Class ChannelsController extends RESTController {
 		 ) {
 			$sensortypeObj = new Sensortypes();
 			$selected = $sensortypeObj->getList(array("id" => $input["sensortype_id"]));
-			//var_dump($selected);
-			$result = array("status" => false);
+			$result = array("status" => false, "message" => "", "errors" => []);
 			if (
 				$selected and 
 				$selected["status"] and
@@ -123,7 +140,7 @@ Class ChannelsController extends RESTController {
 				isset($selected["data"][0]["json_schema"]) and 
 				!empty($selected["data"][0]["json_schema"])
 			) {
-				$json_string = json_encode($input["metadata"]);
+				$json_string = json_encode((object) $input["metadata"]);
 				$schema = $selected["data"][0]["json_schema"];
 				$result = $this->validate_json_by_schema($json_string, $schema);
 			}
@@ -166,7 +183,7 @@ Class ChannelsController extends RESTController {
 				$this->setInputError("Error on decoding 'metadata' JSON input");
 				return false;
 			}
-			if (array_key_exists("sensortype_id", $input) and !is_int($input["sensortype_id"])) {
+			if (array_key_exists("sensortype_id", $input) and is_int($input["sensortype_id"]) and $input["sensortype_id"] > 0) {
 				// check if metadata properties are valid for the selected sensortype 
 				$validAgainstSchema = $this->validateSensortypeMetadataByJSONSchema($input);
 				if (isset($validAgainstSchema) and !$validAgainstSchema["status"]) {
@@ -181,8 +198,8 @@ Class ChannelsController extends RESTController {
 		} 
 		// (5) $input["sensortype_id"] is integer
 		if (array_key_exists("sensortype_id", $input)) {
-			if (!(is_int($input["sensortype_id"]) or is_null($input["sensortype_id"]))) {
-				$this->setInputError("Uncorrect input: 'sensortype_id' [int]");
+			if (!((is_int($input["sensortype_id"]) and $input["sensortype_id"] > 0) or is_null($input["sensortype_id"]))) {
+				$this->setInputError("Uncorrect input: 'sensortype_id' [int] > 0");
 				return false;
 			}
 			if (array_key_exists("metadata", $input)) {
@@ -262,21 +279,19 @@ Class ChannelsController extends RESTController {
 		} 
 		// (5) $input["sensortype_id"] is integer
 		if (array_key_exists("sensortype_id", $input)) {
-			if (!(is_int($input["sensortype_id"]) or is_null($input["sensortype_id"]))) {
+			if (!((is_int($input["sensortype_id"]) and $input["sensortype_id"] > 0) or is_null($input["sensortype_id"]))) {
 				$this->setInputError("Uncorrect input: 'sensortype_id' [int]");
 				return false;
 			}
-			if (array_key_exists("metadata", $input)) {
-				// check if metadata properties are valid for the selected sensortype 
-				$validAgainstSchema = $this->validateSensortypeMetadataByJSONSchema($input);
-				if (isset($validAgainstSchema) and !$validAgainstSchema["status"]) {
-					$error = array(
-						"message" => "'metadata' are not valid for the selected sensortype_id = " . $input["sensortype_id"] . ". See the violations.",
-						"violations" => $validAgainstSchema["errors"]
-					);
-					$this->setInputError($error);
-					return false;
-				}
+			// check if metadata (inputed or existent) properties are valid for the selected sensortype 
+			$validAgainstSchema = $this->validateSensortypeMetadataByJSONSchema($input);
+			if (isset($validAgainstSchema) and !$validAgainstSchema["status"]) {
+				$error = array(
+					"message" => "'metadata' are not valid for the selected sensortype_id = " . $input["sensortype_id"] . ". See the violations.",
+					"violations" => $validAgainstSchema["errors"]
+				);
+				$this->setInputError($error);
+				return false;
 			}
 		}
 		// (6) $input["start_datetime"]

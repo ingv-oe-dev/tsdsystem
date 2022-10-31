@@ -63,6 +63,7 @@ Class Utils {
 		if ($validator->isValid()) {
 			$result["status"] = true;
 			$result["message"] = "The supplied JSON validates against the schema.";
+			$result["errors"] = [];
 		} else {
 			$result["status"] = false;
 			$result["message"] = "The supplied JSON does not validate. Violations:";

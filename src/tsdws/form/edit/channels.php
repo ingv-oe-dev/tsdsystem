@@ -314,7 +314,7 @@
                     "error": function(jqXHR) {
                         jqXHR = Object.assign(jqXHR, {"messageType":"danger"});
                         emitSignal(jqXHR);
-                        $('#server_response span.mymessage').html(jqXHR.responseJSON.error);
+                        $('#server_response span.mymessage').html(JSON.stringify(jqXHR.responseJSON.error));
                         $('#server_response').addClass("alert-danger show");
                     }
                 });

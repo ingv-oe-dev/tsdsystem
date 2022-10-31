@@ -27,7 +27,8 @@
             "enum": [],
             "options": {
                 "enum_titles": []
-            }
+            },
+            "minimum": 1
         },
         "sensortype_id": {
             "title": "Sensortype",
@@ -36,7 +37,8 @@
             "enum": [],
             "options": {
                 "enum_titles": []
-            }
+            },
+            "minimum": 1
         },
         "metadata": {
             "title": "Metadata",

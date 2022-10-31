@@ -21,7 +21,7 @@ Class Channels extends QueryManager {
 				'" . $input["name"] . "',
 				" . $input["sensor_id"]. ", " .
 				(isset($input["sensortype_id"]) ? $input["sensortype_id"] : "NULL") . ", " .
-				(isset($input["metadata"]) ? ("'" . json_encode($input["metadata"], JSON_NUMERIC_CHECK) . "'") : "NULL") . ", " .
+				(isset($input["metadata"]) ? ("'" . json_encode((object) $input["metadata"], JSON_NUMERIC_CHECK) . "'") : "NULL") . ", " .
 				(isset($input["start_datetime"]) ? ("'" . $input["start_datetime"] . "'") : "NULL") . ", " .
 				(isset($input["end_datetime"]) ? ("'" . $input["end_datetime"] . "'") : "NULL") . ", " .
 				(isset($input["info"]) ? ("'" . json_encode($input["info"], JSON_NUMERIC_CHECK) . "'") : "NULL") . ", 
@@ -76,7 +76,7 @@ Class Channels extends QueryManager {
 				"sensortype_name" => array("quoted" => true, "alias" => "st.name")
 			));
 			if (array_key_exists("start_datetime", $input) and isset($input["start_datetime"])){
-				$query .= " AND c.start_datetime >= '" . $input["start_datetime"];
+				$query .= " AND c.start_datetime >= '" . $input["start_datetime"] . "'";
 			}
 			if (array_key_exists("end_datetime", $input) and isset($input["end_datetime"])){
 				$query .= " AND c.end_datetime <= '" . $input["end_datetime"] . "'";
