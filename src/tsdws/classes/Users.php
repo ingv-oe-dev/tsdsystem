@@ -18,6 +18,11 @@ Class Users extends QueryManager {
             return array("admin" => true);
         }
 
+        // check if administrator (based on permissions)
+        if (count($scope) == 1 and $scope[0] == "admin") {
+            return $this->getAdminPermissions();
+        }
+
         /**
          * Define json path where extract permissions
          */
@@ -65,6 +70,32 @@ Class Users extends QueryManager {
                 $permissions = array("resources" => array($scope[0] => $append));
             }
             return $permissions;
+        }
+        return null;
+	}
+
+    public function getAdminPermissions() {
+
+        // query 
+        $query = "select
+            json_extract_path(public.jsonb_recursive_merge(p.rp::jsonb, p.mp::jsonb)::json, 'admin') as permissions
+        from (
+            select 
+                rp.settings as rp, mp.settings as mp
+            from
+                tsd_users.members m
+            left join tsd_users.members_permissions mp on m.id = mp.member_id and mp.active = true and mp.remove_time is null
+            left join tsd_users.members_mapping_roles mmr on m.id = mmr.member_id and mmr.remove_time is null
+            left join tsd_users.roles_permissions rp on rp.role_id = mmr.role_id and rp.active = true and rp.remove_time is null 
+            where m.id = " . $this->user_id . "
+            order by mmr.priority, mmr.update_time DESC
+        ) p";
+
+        $result = $this->getSingleField($query);
+
+        // return result
+        if ($result["status"] and isset($result["data"])) {
+            return array("admin" => (intval($result["data"]) === 1 or $result["data"] === true or $result["data"] === "true"));
         }
         return null;
 	}
