@@ -23,10 +23,19 @@
         "description": "Timeseries management"
     }, {
         "name": "channels",
-        "description": "Station network channels management"
+        "description": "Station network management - channels"
     }, {
         "name": "sensors",
-        "description": "Station network sensors management"
+        "description": "Station network management - sensors"
+    }, {
+        "name": "nets",
+        "description": "Station network management - nets"
+    }, {
+        "name": "sites",
+        "description": "Station network management - sites"
+    }, {
+        "name": "owners",
+        "description": "Station network management - owners"
     }, {
         "name": "users",
         "description": "Administration end-points for users management"
@@ -1436,6 +1445,945 @@
                     "name": "id",
                     "in": "path",
                     "description": "Sensor ID",
+                    "type": "integer",
+                    "format": "int64"
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "params": {
+                                    "type": "object"
+                                },
+                                "data": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/ApiResponse"
+                                    }
+                                },
+                                "error": {
+                                    "type": "object"
+                                },
+                                "statusCode": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                },
+                                "records": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            }
+        },
+        "/nets": {
+            "get": {
+                "tags": [
+                    "nets"
+                ],
+                "summary": "Find nets",
+                "description": "",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "query",
+                    "description": "Net unique identifier",
+                    "type": "integer"
+                }, {
+                    "name": "name",
+                    "in": "query",
+                    "description": "Net name",
+                    "type": "string"
+                }, {
+                    "name": "owner_id",
+                    "in": "query",
+                    "description": "ID of the owner",
+                    "type": "integer"
+                }, {
+                    "name": "sort_by",
+                    "in": "query",
+                    "description": "How to sort result",
+                    "type": "string",
+                    "default": "name",
+                    "enum": ["id", "name"]
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponseGet"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            },
+            "post": {
+                "tags": [
+                    "nets"
+                ],
+                "summary": "Register a net",
+                "description": "",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "in": "body",
+                    "name": "body",
+                    "description": "JSON object that needs to be passed as input",
+                    "required": true,
+                    "schema": {
+                        "$ref": "#/definitions/Net"
+                    }
+                }],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "207": {
+                        "description": "Already exists. No Rows inserted",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    },
+                    "409": {
+                        "description": "Operation failed"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            }
+        },
+        "/nets/{id}": {
+            "get": {
+                "tags": [
+                    "nets"
+                ],
+                "summary": "Info about a net by ID",
+                "description": "",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "path",
+                    "description": "Net ID",
+                    "type": "integer",
+                    "format": "int64"
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "params": {
+                                    "type": "object"
+                                },
+                                "data": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/ApiResponse"
+                                    }
+                                },
+                                "error": {
+                                    "type": "object"
+                                },
+                                "statusCode": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                },
+                                "records": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            },
+            "patch": {
+                "tags": [
+                    "nets"
+                ],
+                "summary": "Update net data by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "path",
+                    "description": "Net ID",
+                    "type": "integer",
+                    "format": "int64"
+                }, {
+                    "in": "body",
+                    "name": "body",
+                    "description": "JSON object that needs to be passed as input",
+                    "required": true,
+                    "schema": {
+                        "$ref": "#/definitions/Net"
+                    }
+                }],
+                "responses": {
+                    "202": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            },
+            "delete": {
+                "tags": [
+                    "nets"
+                ],
+                "summary": "Delete a net by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "path",
+                    "description": "Net ID",
+                    "type": "integer",
+                    "format": "int64"
+                }],
+                "responses": {
+                    "202": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            }
+        },
+        "/nets/{id}/sensors": {
+            "get": {
+                "tags": [
+                    "nets", "sensors"
+                ],
+                "summary": "List all sensors belonging to a net by ID",
+                "description": "",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "path",
+                    "description": "Net ID",
+                    "type": "integer",
+                    "format": "int64"
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "params": {
+                                    "type": "object"
+                                },
+                                "data": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/ApiResponse"
+                                    }
+                                },
+                                "error": {
+                                    "type": "object"
+                                },
+                                "statusCode": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                },
+                                "records": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            }
+        },
+        "/sites": {
+            "get": {
+                "tags": [
+                    "sites"
+                ],
+                "summary": "Find sites",
+                "description": "",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "query",
+                    "description": "Site unique identifier",
+                    "type": "integer"
+                }, {
+                    "name": "name",
+                    "in": "query",
+                    "description": "Site name",
+                    "type": "string"
+                }, {
+                    "name": "info",
+                    "in": "query",
+                    "description": "Find this string into sites's additional info",
+                    "type": "string"
+                }, {
+                    "name": "minlatitude",
+                    "in": "query",
+                    "description": "**Spatial search**. Specify southern boundary for search.",
+                    "type": "number",
+                    "format": "double"
+                }, {
+                    "name": "maxlatitude",
+                    "in": "query",
+                    "description": "**Spatial search**. Specify northern boundary for search.",
+                    "type": "number",
+                    "format": "double"
+                }, {
+                    "name": "minlongitude",
+                    "in": "query",
+                    "description": "**Spatial search**. Specify western boundary for search.",
+                    "type": "number",
+                    "format": "double"
+                }, {
+                    "name": "maxlongitude",
+                    "in": "query",
+                    "description": "**Spatial search**. Specify eastern boundary for search.",
+                    "type": "number",
+                    "format": "double"
+                }, {
+                    "name": "latitude",
+                    "in": "query",
+                    "description": "**Spatial search**. Specify the central latitude point for a radial search.",
+                    "type": "number",
+                    "format": "double"
+                }, {
+                    "name": "longitude",
+                    "in": "query",
+                    "description": "**Spatial search**. Specify the central longitude point for a radial search.",
+                    "type": "number",
+                    "format": "double"
+                }, {
+                    "name": "minradius",
+                    "in": "query",
+                    "description": "**Spatial search**. Specify minimum distance from the geographic point defined by latitude and longitude. Degrees.",
+                    "type": "number",
+                    "format": "double"
+                }, {
+                    "name": "maxradius",
+                    "in": "query",
+                    "description": "**Spatial search**. Specify maximum distance from the geographic point defined by latitude and longitude. Degrees.",
+                    "type": "number",
+                    "format": "double"
+                }, {
+                    "name": "minradiuskm",
+                    "in": "query",
+                    "description": "**Spatial search**. Specify minimum distance from the geographic point defined by latitude and longitude. Kilometers.",
+                    "type": "number",
+                    "format": "double"
+                }, {
+                    "name": "maxradiuskm",
+                    "in": "query",
+                    "description": "**Spatial search**. Specify maximum distance from the geographic point defined by latitude and longitude. Kilometers.",
+                    "type": "number",
+                    "format": "double"
+                }, {
+                    "name": "exact_match",
+                    "in": "query",
+                    "description": "Use exact match when filtering by query parameters",
+                    "type": "boolean"
+                }, {
+                    "name": "sort_by",
+                    "in": "query",
+                    "description": "How to sort result",
+                    "type": "string",
+                    "default": "name",
+                    "enum": ["id", "name"]
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponseGet"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            },
+            "post": {
+                "tags": [
+                    "sites"
+                ],
+                "summary": "Register a site",
+                "description": "",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "in": "body",
+                    "name": "body",
+                    "description": "JSON object that needs to be passed as input",
+                    "required": true,
+                    "schema": {
+                        "$ref": "#/definitions/Site"
+                    }
+                }],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "207": {
+                        "description": "Already exists. No Rows inserted",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    },
+                    "409": {
+                        "description": "Operation failed"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            }
+        },
+        "/sites/{id}": {
+            "get": {
+                "tags": [
+                    "sites"
+                ],
+                "summary": "Info about a site by ID",
+                "description": "",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "path",
+                    "description": "Site ID",
+                    "type": "integer",
+                    "format": "int64"
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "params": {
+                                    "type": "object"
+                                },
+                                "data": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/ApiResponse"
+                                    }
+                                },
+                                "error": {
+                                    "type": "object"
+                                },
+                                "statusCode": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                },
+                                "records": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            },
+            "patch": {
+                "tags": [
+                    "sites"
+                ],
+                "summary": "Update site data by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "path",
+                    "description": "Site ID",
+                    "type": "integer",
+                    "format": "int64"
+                }, {
+                    "in": "body",
+                    "name": "body",
+                    "description": "JSON object that needs to be passed as input",
+                    "required": true,
+                    "schema": {
+                        "$ref": "#/definitions/Site"
+                    }
+                }],
+                "responses": {
+                    "202": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            },
+            "delete": {
+                "tags": [
+                    "sites"
+                ],
+                "summary": "Delete a site by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "path",
+                    "description": "Site ID",
+                    "type": "integer",
+                    "format": "int64"
+                }],
+                "responses": {
+                    "202": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            }
+        },
+        "/sites/{id}/sensors": {
+            "get": {
+                "tags": [
+                    "sites", "sensors"
+                ],
+                "summary": "List all sensors belonging to a site by ID",
+                "description": "",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "path",
+                    "description": "Site ID",
+                    "type": "integer",
+                    "format": "int64"
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "params": {
+                                    "type": "object"
+                                },
+                                "data": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/ApiResponse"
+                                    }
+                                },
+                                "error": {
+                                    "type": "object"
+                                },
+                                "statusCode": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                },
+                                "records": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            }
+        },
+        "/owners": {
+            "get": {
+                "tags": [
+                    "owners"
+                ],
+                "summary": "Find owners",
+                "description": "",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "query",
+                    "description": "Owner unique identifier",
+                    "type": "integer"
+                }, {
+                    "name": "name",
+                    "in": "query",
+                    "description": "Net name",
+                    "type": "string"
+                }, {
+                    "name": "sort_by",
+                    "in": "query",
+                    "description": "How to sort result",
+                    "type": "string",
+                    "default": "name",
+                    "enum": ["id", "name"]
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponseGet"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            },
+            "post": {
+                "tags": [
+                    "owners"
+                ],
+                "summary": "Register an owner",
+                "description": "",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "in": "body",
+                    "name": "body",
+                    "description": "JSON object that needs to be passed as input",
+                    "required": true,
+                    "schema": {
+                        "$ref": "#/definitions/Owner"
+                    }
+                }],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "207": {
+                        "description": "Already exists. No Rows inserted",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    },
+                    "409": {
+                        "description": "Operation failed"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            }
+        },
+        "/owners/{id}": {
+            "get": {
+                "tags": [
+                    "owners"
+                ],
+                "summary": "Info about an owner by ID",
+                "description": "",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "path",
+                    "description": "Owner ID",
+                    "type": "integer",
+                    "format": "int64"
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "params": {
+                                    "type": "object"
+                                },
+                                "data": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/ApiResponse"
+                                    }
+                                },
+                                "error": {
+                                    "type": "object"
+                                },
+                                "statusCode": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                },
+                                "records": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            },
+            "patch": {
+                "tags": [
+                    "owners"
+                ],
+                "summary": "Update owner data by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "path",
+                    "description": "Owner ID",
+                    "type": "integer",
+                    "format": "int64"
+                }, {
+                    "in": "body",
+                    "name": "body",
+                    "description": "JSON object that needs to be passed as input",
+                    "required": true,
+                    "schema": {
+                        "$ref": "#/definitions/Owner"
+                    }
+                }],
+                "responses": {
+                    "202": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            },
+            "delete": {
+                "tags": [
+                    "owners"
+                ],
+                "summary": "Delete an owner by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "path",
+                    "description": "Owner ID",
+                    "type": "integer",
+                    "format": "int64"
+                }],
+                "responses": {
+                    "202": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            }
+        },
+        "/owners/{id}/nets": {
+            "get": {
+                "tags": [
+                    "nets", "owners"
+                ],
+                "summary": "List all nets belonging to an owner by ID",
+                "description": "",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "path",
+                    "description": "Owner ID",
                     "type": "integer",
                     "format": "int64"
                 }],
@@ -3391,6 +4339,69 @@
                     "title": "Additional properties",
                     "description": "Additional properties",
                     "type": "object"
+                }
+            }
+        },
+        "Net": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "title": "Name",
+                    "description": "Name",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "owner_id": {
+                    "title": "Owner",
+                    "description": "Set the onwer of the net",
+                    "type": "integer"
+                }
+            }
+        },
+        "Site": {
+            "type": "object",
+            "required": ["name"],
+            "additionalProperties": false,
+            "properties": {
+                "name": {
+                    "title": "Name",
+                    "description": "Name",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "lat": {
+                    "title": "Latitude",
+                    "description": "Coordinate WGS84",
+                    "type": "number",
+                    "format": "double"
+                },
+                "lon": {
+                    "title": "Longitude",
+                    "description": "Coordinate WGS84",
+                    "type": "number",
+                    "format": "double"
+                },
+                "quote": {
+                    "title": "Quote",
+                    "description": "In meters",
+                    "type": "number",
+                    "format": "double"
+                },
+                "info": {
+                    "title": "Additional properties",
+                    "description": "Additional properties",
+                    "type": "object"
+                }
+            }
+        },
+        "Owner": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "title": "Name",
+                    "description": "Name",
+                    "type": "string",
+                    "minLength": 1
                 }
             }
         },
