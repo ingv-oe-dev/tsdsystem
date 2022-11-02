@@ -18,6 +18,11 @@ RewriteRule ^roles/mapping(/)?$ routes/getRolesMapping.php [NC]
 RewriteRule ^permissions/(member|role)(/)$ routes/getPermissions.php?role_type=$1 [NC]
 RewriteRule ^permissions/(member|role)/([0-9]+)(/)$ routes/getPermissions.php??role_type=$1&role_id=$2 [NC, QSA]
 
+
+RewriteRule ^sensors(/)?$ routes/pnet_routes.php [NC]
+RewriteRule ^sensors/([0-9]+)(/)?$ routes/pnet_routes.php?id=$1 [NC,QSA]
+RewriteRule ^sensors/([0-9]+)/channels(/)?$ channels/?sensor_id=$1 [NC,QSA]
+
 RewriteRule ^channels(/)?$ routes/pnet_routes.php [NC]
 RewriteRule ^channels/([0-9]+)(/)?$ routes/pnet_routes.php?id=$1 [NC,QSA]
 RewriteRule ^channels/([0-9]+)/timeseries(/)?$ timeseries/?channel_id=$1 [NC,QSA]
@@ -29,9 +34,6 @@ RewriteRule ^nets/([0-9]+)(/)?$ routes/pnet_routes.php?id=$1 [NC,QSA]
 
 RewriteRule ^sensortypes(/)?$ routes/pnet_routes.php [NC]
 RewriteRule ^sensortypes/([0-9]+)(/)?$ routes/pnet_routes.php?id=$1 [NC,QSA]
-
-RewriteRule ^sensors(/)?$ routes/pnet_routes.php [NC]
-RewriteRule ^sensors/([0-9]+)(/)?$ routes/pnet_routes.php?id=$1 [NC,QSA]
 
 RewriteRule ^owners(/)?$ routes/pnet_routes.php [NC]
 RewriteRule ^owners/([0-9]+)(/)?$ routes/pnet_routes.php?id=$1 [NC,QSA]

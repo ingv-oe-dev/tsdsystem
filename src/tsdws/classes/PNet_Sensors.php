@@ -23,7 +23,7 @@ Class Sensors extends QueryManager {
 				(isset($input["quote"]) ? $input["quote"] : "NULL") . ", " .
 				(isset($input["net_id"]) ? $input["net_id"] : "NULL") . ", " .
 				(isset($input["site_id"]) ? $input["site_id"] : "NULL") . ", " .
-				(isset($input["custom_props"]) ? ("'" . json_encode($input["custom_props"], JSON_NUMERIC_CHECK) . "'") : "NULL") . ",
+				(isset($input["custom_props"]) ? ("'" . json_encode((object)$input["custom_props"], JSON_NUMERIC_CHECK) . "'") : "NULL") . ",
 				" . ((array_key_exists("create_user", $input) and isset($input["create_user"]) and is_int($input["create_user"])) ? $input["create_user"] : "NULL") . " 
 			)";
 
@@ -63,10 +63,20 @@ Class Sensors extends QueryManager {
 				"id" => array("id" => true, "alias" => "s.id", "quoted" => false),
 				"name" => array("alias" => "s.name", "quoted" => true),
 				"sensortype_id" => array("alias" => "c.sensortype_id", "quoted" => false),
+				"sensortype_name" => array("alias" => "st.name", "quoted" => true),
 				"net_id" => array("alias" => "s.net_id", "quoted" => false),
+				"net_name" => array("alias" => "n.name", "quoted" => true),
 				"site_id" => array("alias" => "s.site_id", "quoted" => false),
+				"site_name" => array("alias" => "ss.name", "quoted" => true),
 				"custom_props" => array("quoted" => true, "alias" => "s.custom_props")
 			));
+			if (array_key_exists("start_datetime", $input) and isset($input["start_datetime"])){
+				$query .= " AND c.start_datetime >= '" . $input["start_datetime"] . "'";
+			}
+			if (array_key_exists("end_datetime", $input) and isset($input["end_datetime"])){
+				$query .= " AND c.end_datetime <= '" . $input["end_datetime"] . "'";
+			}
+			$query .= $this->extendSpatialQuery($input);
 		}
 
 		$query .= " group by s.id, st.name, n.name, ss.name, n.remove_time, c.start_datetime, c.end_datetime, c.sensortype_id  ";
@@ -91,6 +101,10 @@ Class Sensors extends QueryManager {
 		return $response;
 	}
 
+	public function extendSpatialQuery($input) {
+		return "";
+	}
+	
 	public function sanitizeResult($result) {
 
 		if (!$result["status"]) return $result;

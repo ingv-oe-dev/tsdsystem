@@ -25,6 +25,9 @@
         "name": "channels",
         "description": "Station network channels management"
     }, {
+        "name": "sensors",
+        "description": "Station network sensors management"
+    }, {
         "name": "users",
         "description": "Administration end-points for users management"
     }, {
@@ -250,7 +253,7 @@
                 "parameters": [{
                     "in": "body",
                     "name": "body",
-                    "description": "JSON object that needs to be passed as input to register a timeseries into the database",
+                    "description": "JSON object that needs to be passed as input",
                     "required": true,
                     "schema": {
                         "$ref": "#/definitions/Timeseries"
@@ -587,7 +590,7 @@
                 }, {
                     "in": "body",
                     "name": "body",
-                    "description": "JSON object that needs to be passed as input to register a timeseries into the database",
+                    "description": "JSON object that needs to be passed as input",
                     "required": true,
                     "schema": {
                         "$ref": "#/definitions/Timeseries_values_post"
@@ -754,7 +757,7 @@
                 "parameters": [{
                     "in": "body",
                     "name": "body",
-                    "description": "JSON object that needs to be passed as input to register a timeseries into the database",
+                    "description": "JSON object that needs to be passed as input",
                     "required": true,
                     "schema": {
                         "$ref": "#/definitions/Channel"
@@ -865,7 +868,7 @@
                 }, {
                     "in": "body",
                     "name": "body",
-                    "description": "JSON object that needs to be passed as input to register a timeseries into the database",
+                    "description": "JSON object that needs to be passed as input",
                     "required": true,
                     "schema": {
                         "$ref": "#/definitions/Channel"
@@ -900,7 +903,7 @@
                 "parameters": [{
                     "name": "id",
                     "in": "path",
-                    "description": "Role ID",
+                    "description": "Channel ID",
                     "type": "integer",
                     "format": "int64"
                 }],
@@ -928,7 +931,7 @@
                 "tags": [
                     "channels"
                 ],
-                "summary": "Clone a channel by ID",
+                "summary": "Duplicate a channel by ID",
                 "description": "",
                 "produces": [
                     "application/json"
@@ -1036,6 +1039,406 @@
                         "type": "boolean"
                     }
                 ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "params": {
+                                    "type": "object"
+                                },
+                                "data": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/ApiResponse"
+                                    }
+                                },
+                                "error": {
+                                    "type": "object"
+                                },
+                                "statusCode": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                },
+                                "records": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            }
+        },
+        "/sensors": {
+            "get": {
+                "tags": [
+                    "sensors"
+                ],
+                "summary": "Find sensors",
+                "description": "",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "query",
+                    "description": "Sensor unique identifier",
+                    "type": "integer"
+                }, {
+                    "name": "name",
+                    "in": "query",
+                    "description": "Sensor name",
+                    "type": "string"
+                }, {
+                    "name": "sensortype_id",
+                    "in": "query",
+                    "description": "ID of the sensortype",
+                    "type": "integer"
+                }, {
+                    "name": "sensortype_name",
+                    "in": "query",
+                    "description": "Sensortype name",
+                    "type": "string"
+                }, {
+                    "name": "net_id",
+                    "in": "query",
+                    "description": "ID of the net whom the sensor refers to",
+                    "type": "integer"
+                }, {
+                    "name": "net_name",
+                    "in": "query",
+                    "description": "Name of the net whom the sensor refers to",
+                    "type": "string"
+                }, {
+                    "name": "site_id",
+                    "in": "query",
+                    "description": "ID of the site whom the sensor belongs to",
+                    "type": "integer"
+                }, {
+                    "name": "site_name",
+                    "in": "query",
+                    "description": "Name of the site whom the sensor belongs to",
+                    "type": "string"
+                }, {
+                    "name": "start_datetime",
+                    "in": "query",
+                    "description": "Current instance start datetime. Standard ISO8601 datetime UTC",
+                    "type": "string",
+                    "format": "date-time"
+                }, {
+                    "name": "end_datetime",
+                    "in": "query",
+                    "description": "Current instance end datetime. Standard ISO8601 datetime UTC",
+                    "type": "string",
+                    "format": "date-time"
+                }, {
+                    "name": "custom_props",
+                    "in": "query",
+                    "description": "Find this string into sensors's additional info",
+                    "type": "string"
+                }, {
+                    "name": "minlatitude",
+                    "in": "query",
+                    "description": "**Spatial search**. Specify southern boundary for search.",
+                    "type": "number",
+                    "format": "double"
+                }, {
+                    "name": "maxlatitude",
+                    "in": "query",
+                    "description": "**Spatial search**. Specify northern boundary for search.",
+                    "type": "number",
+                    "format": "double"
+                }, {
+                    "name": "minlongitude",
+                    "in": "query",
+                    "description": "**Spatial search**. Specify western boundary for search.",
+                    "type": "number",
+                    "format": "double"
+                }, {
+                    "name": "maxlongitude",
+                    "in": "query",
+                    "description": "**Spatial search**. Specify eastern boundary for search.",
+                    "type": "number",
+                    "format": "double"
+                }, {
+                    "name": "latitude",
+                    "in": "query",
+                    "description": "**Spatial search**. Specify the central latitude point for a radial search.",
+                    "type": "number",
+                    "format": "double"
+                }, {
+                    "name": "longitude",
+                    "in": "query",
+                    "description": "**Spatial search**. Specify the central longitude point for a radial search.",
+                    "type": "number",
+                    "format": "double"
+                }, {
+                    "name": "minradius",
+                    "in": "query",
+                    "description": "**Spatial search**. Specify minimum distance from the geographic point defined by latitude and longitude. Degrees.",
+                    "type": "number",
+                    "format": "double"
+                }, {
+                    "name": "maxradius",
+                    "in": "query",
+                    "description": "**Spatial search**. Specify maximum distance from the geographic point defined by latitude and longitude. Degrees.",
+                    "type": "number",
+                    "format": "double"
+                }, {
+                    "name": "minradiuskm",
+                    "in": "query",
+                    "description": "**Spatial search**. Specify minimum distance from the geographic point defined by latitude and longitude. Kilometers.",
+                    "type": "number",
+                    "format": "double"
+                }, {
+                    "name": "maxradiuskm",
+                    "in": "query",
+                    "description": "**Spatial search**. Specify maximum distance from the geographic point defined by latitude and longitude. Kilometers.",
+                    "type": "number",
+                    "format": "double"
+                }, {
+                    "name": "exact_match",
+                    "in": "query",
+                    "description": "Use exact match when filtering by query parameters",
+                    "type": "boolean"
+                }, {
+                    "name": "sort_by",
+                    "in": "query",
+                    "description": "How to sort result",
+                    "type": "string",
+                    "default": "name",
+                    "enum": ["id", "name", "end_datetime"]
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponseGet"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            },
+            "post": {
+                "tags": [
+                    "sensors"
+                ],
+                "summary": "Register a sensor",
+                "description": "",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "in": "body",
+                    "name": "body",
+                    "description": "JSON object that needs to be passed as input",
+                    "required": true,
+                    "schema": {
+                        "$ref": "#/definitions/Sensor"
+                    }
+                }],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "207": {
+                        "description": "Already exists. No Rows inserted",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    },
+                    "409": {
+                        "description": "Operation failed"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            }
+        },
+        "/sensors/{id}": {
+            "get": {
+                "tags": [
+                    "sensors"
+                ],
+                "summary": "Info about a sensor by ID",
+                "description": "",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "path",
+                    "description": "Sensor ID",
+                    "type": "integer",
+                    "format": "int64"
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "params": {
+                                    "type": "object"
+                                },
+                                "data": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/ApiResponse"
+                                    }
+                                },
+                                "error": {
+                                    "type": "object"
+                                },
+                                "statusCode": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                },
+                                "records": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            },
+            "patch": {
+                "tags": [
+                    "sensors"
+                ],
+                "summary": "Update sensor data by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "path",
+                    "description": "Sensor ID",
+                    "type": "integer",
+                    "format": "int64"
+                }, {
+                    "in": "body",
+                    "name": "body",
+                    "description": "JSON object that needs to be passed as input",
+                    "required": true,
+                    "schema": {
+                        "$ref": "#/definitions/Sensor"
+                    }
+                }],
+                "responses": {
+                    "202": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            },
+            "delete": {
+                "tags": [
+                    "sensors"
+                ],
+                "summary": "Delete a sensor by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "path",
+                    "description": "Sensor ID",
+                    "type": "integer",
+                    "format": "int64"
+                }],
+                "responses": {
+                    "202": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            }
+        },
+        "/sensors/{id}/channels": {
+            "get": {
+                "tags": [
+                    "channels", "sensors"
+                ],
+                "summary": "List all channels referring to a sensor by ID",
+                "description": "",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "path",
+                    "description": "Sensor ID",
+                    "type": "integer",
+                    "format": "int64"
+                }],
                 "responses": {
                     "200": {
                         "description": "Successful operation",
@@ -1291,7 +1694,7 @@
                 }, {
                     "in": "body",
                     "name": "body",
-                    "description": "JSON object that needs to be passed as input to register a new permission into the database",
+                    "description": "JSON object that needs to be passed as input",
                     "required": true,
                     "schema": {
                         "$ref": "#/definitions/Permission_no_role_id"
@@ -1711,7 +2114,7 @@
                 "parameters": [{
                     "in": "body",
                     "name": "body",
-                    "description": "JSON object that needs to be passed as input to register a role into the database",
+                    "description": "JSON object that needs to be passed as input",
                     "required": true,
                     "schema": {
                         "type": "object",
@@ -1826,7 +2229,7 @@
                 }, {
                     "in": "body",
                     "name": "body",
-                    "description": "JSON object that needs to be passed as input to register a role into the database",
+                    "description": "JSON object that needs to be passed as input",
                     "required": true,
                     "schema": {
                         "type": "object",
@@ -2222,7 +2625,7 @@
                 }, {
                     "in": "body",
                     "name": "body",
-                    "description": "JSON object that needs to be passed as input to register a new permission into the database",
+                    "description": "JSON object that needs to be passed as input",
                     "required": true,
                     "schema": {
                         "$ref": "#/definitions/Permission_no_role_id"
@@ -2378,7 +2781,7 @@
                 "parameters": [{
                     "in": "body",
                     "name": "body",
-                    "description": "JSON object that needs to be passed as input to register a mapping into the database",
+                    "description": "JSON object that needs to be passed as input",
                     "required": true,
                     "schema": {
                         "type": "object",
@@ -2942,6 +3345,52 @@
                             "type": "object"
                         }
                     }
+                }
+            }
+        },
+        "Sensor": {
+            "type": "object",
+            "required": ["name"],
+            "additionalProperties": false,
+            "properties": {
+                "name": {
+                    "title": "Name",
+                    "description": "Name",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "lat": {
+                    "title": "Latitude",
+                    "description": "Coordinate WGS84",
+                    "type": "number",
+                    "format": "double"
+                },
+                "lon": {
+                    "title": "Longitude",
+                    "description": "Coordinate WGS84",
+                    "type": "number",
+                    "format": "double"
+                },
+                "quote": {
+                    "title": "Quote",
+                    "description": "In meters",
+                    "type": "number",
+                    "format": "double"
+                },
+                "net_id": {
+                    "title": "Net ID",
+                    "description": "ID of the net whom the channel refers to",
+                    "type": "integer"
+                },
+                "site_id": {
+                    "title": "Site ID",
+                    "description": "ID of the site whom the channel belongs to",
+                    "type": "integer"
+                },
+                "custom_props": {
+                    "title": "Additional properties",
+                    "description": "Additional properties",
+                    "type": "object"
                 }
             }
         },
