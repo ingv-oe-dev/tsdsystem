@@ -30,6 +30,11 @@ RewriteRule ^nets(/)?$ routes/nets.php [NC]
 RewriteRule ^nets/([0-9]+)(/)?$ routes/nets.php?id=$1 [NC,QSA]
 RewriteRule ^nets/([0-9]+)/sensors(/)?$ sensors/?net_id=$1 [NC,QSA]
 
+RewriteRule ^sensortypes(/)?$ routes/sensortypes.php [NC]
+RewriteRule ^sensortypes/([0-9]+)(/)?$ routes/sensortypes.php?id=$1 [NC,QSA]
+RewriteRule ^sensortypes/([0-9]+)/channels(/)?$ channels/?sensortype_id=$1 [NC,QSA]
+RewriteRule ^sensortypes/([0-9]+)/sensors(/)?$ sensors/?sensortype_id=$1 [NC,QSA]
+
 RewriteRule ^sensors(/)?$ routes/sensors.php [NC]
 RewriteRule ^sensors/([0-9]+)(/)?$ routes/sensors.php?id=$1 [NC,QSA]
 RewriteRule ^sensors/([0-9]+)/channels(/)?$ channels/?sensor_id=$1 [NC,QSA]
@@ -39,12 +44,6 @@ RewriteRule ^channels/([0-9]+)(/)?$ routes/channels.php?id=$1 [NC,QSA]
 RewriteRule ^channels/clone(/)?$ routes/channels.php [NC]
 RewriteRule ^channels/([0-9]+)/clone(/)?$ routes/channels.php?id=$1 [NC,QSA]
 RewriteRule ^channels/([0-9]+)/timeseries(/)?$ timeseries/?channel_id=$1 [NC,QSA]
-
-RewriteRule ^sensortypes(/)?$ routes/sensortypes.php [NC]
-RewriteRule ^sensortypes/([0-9]+)(/)?$ routes/sensortypes.php?id=$1 [NC,QSA]
-
-
-
 
 RewriteRule ^timeseries/values(/)?$ routes/ts_routes.php [NC]
 RewriteRule ^timeseries/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/values(/)?$ routes/ts_routes.php?id=$1 [NC,QSA]

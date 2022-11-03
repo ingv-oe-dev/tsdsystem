@@ -28,6 +28,9 @@
         "name": "sensors",
         "description": "Station network management - sensors"
     }, {
+        "name": "sensortypes",
+        "description": "Station network management - sensortypes"
+    }, {
         "name": "nets",
         "description": "Station network management - nets"
     }, {
@@ -1445,6 +1448,357 @@
                     "name": "id",
                     "in": "path",
                     "description": "Sensor ID",
+                    "type": "integer",
+                    "format": "int64"
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "params": {
+                                    "type": "object"
+                                },
+                                "data": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/ApiResponse"
+                                    }
+                                },
+                                "error": {
+                                    "type": "object"
+                                },
+                                "statusCode": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                },
+                                "records": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            }
+        },
+        "/sensortypes": {
+            "get": {
+                "tags": [
+                    "sensortypes"
+                ],
+                "summary": "Find sensortypes",
+                "description": "",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "query",
+                    "description": "Sensortype unique identifier",
+                    "type": "integer"
+                }, {
+                    "name": "name",
+                    "in": "query",
+                    "description": "Sensortype name",
+                    "type": "string"
+                }, {
+                    "name": "json_schema",
+                    "in": "query",
+                    "description": "Find this string into sensortype JSON schema",
+                    "type": "string"
+                }, {
+                    "name": "sort_by",
+                    "in": "query",
+                    "description": "How to sort result",
+                    "type": "string",
+                    "default": "name",
+                    "enum": ["id", "name"]
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponseGet"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            },
+            "post": {
+                "tags": [
+                    "sensortypes"
+                ],
+                "summary": "Register an sensortype",
+                "description": "",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "in": "body",
+                    "name": "body",
+                    "description": "JSON object that needs to be passed as input",
+                    "required": true,
+                    "schema": {
+                        "$ref": "#/definitions/Sensortype"
+                    }
+                }],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "207": {
+                        "description": "Already exists. No Rows inserted",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    },
+                    "409": {
+                        "description": "Operation failed"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            }
+        },
+        "/sensortypes/{id}": {
+            "get": {
+                "tags": [
+                    "sensortypes"
+                ],
+                "summary": "Info about a sensortype by ID",
+                "description": "",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "path",
+                    "description": "Sensortype ID",
+                    "type": "integer",
+                    "format": "int64"
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "params": {
+                                    "type": "object"
+                                },
+                                "data": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/ApiResponse"
+                                    }
+                                },
+                                "error": {
+                                    "type": "object"
+                                },
+                                "statusCode": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                },
+                                "records": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            },
+            "patch": {
+                "tags": [
+                    "sensortypes"
+                ],
+                "summary": "Update sensortypes data by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "path",
+                    "description": "Sensortype ID",
+                    "type": "integer",
+                    "format": "int64"
+                }, {
+                    "in": "body",
+                    "name": "body",
+                    "description": "JSON object that needs to be passed as input",
+                    "required": true,
+                    "schema": {
+                        "$ref": "#/definitions/Sensortype"
+                    }
+                }],
+                "responses": {
+                    "202": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            },
+            "delete": {
+                "tags": [
+                    "sensortypes"
+                ],
+                "summary": "Delete a sensortype by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "path",
+                    "description": "Sensortype ID",
+                    "type": "integer",
+                    "format": "int64"
+                }],
+                "responses": {
+                    "202": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            }
+        },
+        "/sensortypes/{id}/channels": {
+            "get": {
+                "tags": [
+                    "channels", "sensortypes"
+                ],
+                "summary": "List all channels belonging to a sensortype by ID",
+                "description": "",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "path",
+                    "description": "Sensortype ID",
+                    "type": "integer",
+                    "format": "int64"
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "params": {
+                                    "type": "object"
+                                },
+                                "data": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/ApiResponse"
+                                    }
+                                },
+                                "error": {
+                                    "type": "object"
+                                },
+                                "statusCode": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                },
+                                "records": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            }
+        },
+        "/sensortypes/{id}/sensors": {
+            "get": {
+                "tags": [
+                    "sensors", "sensortypes"
+                ],
+                "summary": "List all current sensors belonging to a sensortype by ID",
+                "description": "",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "path",
+                    "description": "Sensortype ID",
                     "type": "integer",
                     "format": "int64"
                 }],
@@ -4338,6 +4692,24 @@
                 "custom_props": {
                     "title": "Additional properties",
                     "description": "Additional properties",
+                    "type": "object"
+                }
+            }
+        },
+        "Sensortype": {
+            "type": "object",
+            "required": ["name"],
+            "additionalProperties": false,
+            "properties": {
+                "name": {
+                    "title": "Name",
+                    "description": "Name",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "json_schema": {
+                    "title": "JSON schema",
+                    "description": "JSON schema for sensortype properties",
                     "type": "object"
                 }
             }
