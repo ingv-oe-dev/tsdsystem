@@ -36,7 +36,7 @@
                     SwaggerUIBundle.plugins.DownloadUrl
                 ],
                 layout: "StandaloneLayout",
-                docExpansion: "none"
+                //docExpansion: "none"
             });
         };
     </script>

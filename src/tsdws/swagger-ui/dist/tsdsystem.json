@@ -3015,7 +3015,10 @@
                     "401": {
                         "description": "Authorization not found"
                     }
-                }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
             },
             "delete": {
                 "tags": ["users", "permissions"],
@@ -3946,7 +3949,10 @@
                     "401": {
                         "description": "Authorization not found"
                     }
-                }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
             },
             "delete": {
                 "tags": ["roles", "permissions"],
@@ -4225,7 +4231,10 @@
                     "401": {
                         "description": "Authorization not found"
                     }
-                }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
             },
             "delete": {
                 "tags": ["permissions"],
@@ -4252,7 +4261,10 @@
                     "401": {
                         "description": "Authorization not found"
                     }
-                }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
             }
         },
         "/permissions/{role_type}/{role_id}": {
@@ -4289,7 +4301,10 @@
                     "401": {
                         "description": "Authorization not found"
                     }
-                }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
             },
             "delete": {
                 "tags": ["permissions"],
@@ -4324,7 +4339,10 @@
                     "401": {
                         "description": "Authorization not found"
                     }
-                }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
             }
         }
     },
