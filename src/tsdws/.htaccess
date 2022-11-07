@@ -2,7 +2,7 @@ RewriteEngine On
 
 RewriteRule .* - [e=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
-RewriteRule ^token(/)$ routes/generateToken.php [NC]
+RewriteRule ^token(/)?$ routes/generateToken.php [NC]
 
 RewriteRule ^users(/)?$ routes/getUsers.php [NC]
 RewriteRule ^users/([0-9]+)(/)?$ routes/getUsers.php?id=$1 [NC,QSA]
@@ -15,8 +15,8 @@ RewriteRule ^roles/([0-9]+)/permissions(/)?$ permissions/role/$1 [NC,QSA]
 RewriteRule ^roles/([0-9]+)/members(/)?$ roles/mapping/?role_id=$1 [NC,QSA]
 RewriteRule ^roles/([0-9]+)/members/([0-9]+)(/)?$ roles/mapping/?member_id=$2&role_id=$1 [NC,QSA]
 RewriteRule ^roles/mapping(/)?$ routes/getRolesMapping.php [NC]
-RewriteRule ^permissions/(member|role)(/)$ routes/getPermissions.php?role_type=$1 [NC]
-RewriteRule ^permissions/(member|role)/([0-9]+)(/)$ routes/getPermissions.php??role_type=$1&role_id=$2 [NC, QSA]
+RewriteRule ^permissions/(member|role)(/)?$ routes/getPermissions.php?role_type=$1 [NC]
+RewriteRule ^permissions/(member|role)/([0-9]+)(/)?$ routes/getPermissions.php?role_type=$1&role_id=$2 [NC,QSA]
 
 RewriteRule ^owners(/)?$ routes/owners.php [NC]
 RewriteRule ^owners/([0-9]+)(/)?$ routes/owners.php?id=$1 [NC,QSA]
