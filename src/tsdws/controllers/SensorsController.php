@@ -175,6 +175,11 @@ Class SensorsController extends RESTController {
 	// ====================================================================//
 	// ****************** get  ********************//
 	// ====================================================================//
+	public function check_input_get() {
+		// check only if spatial inputs are defined and numerical
+		return $this->check_spatial_input();
+	}
+	
 	public function get($jsonfields=array("coords","custom_props")) {
 		// coords will be returned in GeoJSON format (as in SitesController.php)
 		parent::get($jsonfields);

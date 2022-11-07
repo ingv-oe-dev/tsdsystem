@@ -157,6 +157,11 @@ Class SitesController extends RESTController {
 	// ====================================================================//
 	// ****************** get  ********************//
 	// ====================================================================//
+	public function check_input_get() {
+		// check only if spatial inputs are defined and numerical
+		return $this->check_spatial_input();
+	}
+	
 	public function get($jsonfields=array("coords","info")) {
 	
 		parent::get($jsonfields);

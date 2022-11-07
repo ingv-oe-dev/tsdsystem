@@ -62,6 +62,8 @@ Class Sites extends QueryManager {
 				"info" => array("quoted" => true)
 			));
 
+			$query .= $this->extendSpatialQuery($input, "coords");
+
 			if (isset($input["sort_by"])) {
 				$cols = explode(",", $input["sort_by"]);
 				$query .= $this->composeOrderBy($cols, array(

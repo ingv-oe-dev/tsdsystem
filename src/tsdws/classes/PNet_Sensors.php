@@ -76,7 +76,7 @@ Class Sensors extends QueryManager {
 			if (array_key_exists("end_datetime", $input) and isset($input["end_datetime"])){
 				$query .= " AND c.end_datetime <= '" . $input["end_datetime"] . "'";
 			}
-			$query .= $this->extendSpatialQuery($input);
+			$query .= $this->extendSpatialQuery($input, "s.coords");
 		}
 
 		$query .= " group by s.id, st.name, n.name, ss.name, n.remove_time, c.start_datetime, c.end_datetime, c.sensortype_id  ";
@@ -99,10 +99,6 @@ Class Sensors extends QueryManager {
 		$response = $this->sanitizeResult($result);
 
 		return $response;
-	}
-
-	public function extendSpatialQuery($input) {
-		return "";
 	}
 	
 	public function sanitizeResult($result) {

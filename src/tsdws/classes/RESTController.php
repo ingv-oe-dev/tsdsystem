@@ -113,6 +113,68 @@ Class RESTController extends SimpleREST {
 	public function check_input_get() {
 		return true;
 	}
+
+	public function check_spatial_input() {
+
+		if ($this->isEmptyInput()) {
+			$this->setInputError("Empty input or malformed JSON");
+			return false;
+		}
+		
+		$input = $this->getParams();
+		
+		// (1) $input["minlatitude"] 
+		if (array_key_exists("minlatitude", $input) and !is_numeric($input["minlatitude"])){
+			$this->setInputError("Uncorrect input: 'minlatitude' [numeric]. Your value: '" . $input["minlatitude"] . "'");
+			return false;
+		}
+		// (2) $input["maxlatitude"] 
+		if (array_key_exists("maxlatitude", $input) and !is_numeric($input["maxlatitude"])){
+			$this->setInputError("Uncorrect input: 'maxlatitude' [numeric]. Your value: '" . $input["maxlatitude"] . "'");
+			return false;
+		}
+		// (3) $input["minlongitude"] 
+		if (array_key_exists("minlongitude", $input) and !is_numeric($input["minlongitude"])){
+			$this->setInputError("Uncorrect input: 'minlongitude' [numeric]. Your value: '" . $input["minlongitude"] . "'");
+			return false;
+		}
+		// (4) $input["maxlongitude"] 
+		if (array_key_exists("maxlongitude", $input) and !is_numeric($input["maxlongitude"])){
+			$this->setInputError("Uncorrect input: 'maxlongitude' [numeric]. Your value: '" . $input["maxlongitude"] . "'");
+			return false;
+		}
+		// (5) $input["latitude"] 
+		if (array_key_exists("latitude", $input) and !is_numeric($input["latitude"])){
+			$this->setInputError("Uncorrect input: 'latitude' [numeric]. Your value: '" . $input["latitude"] . "'");
+			return false;
+		}
+		// (6) $input["longitude"] 
+		if (array_key_exists("longitude", $input) and !is_numeric($input["longitude"])){
+			$this->setInputError("Uncorrect input: 'longitude' [numeric]. Your value: '" . $input["longitude"] . "'");
+			return false;
+		}
+		// (7) $input["minradius"] 
+		if (array_key_exists("minradius", $input) and !is_numeric($input["minradius"])){
+			$this->setInputError("Uncorrect input: 'minradius' [numeric]. Your value: '" . $input["minradius"] . "'");
+			return false;
+		}
+		// (8) $input["maxradius"] 
+		if (array_key_exists("maxradius", $input) and !is_numeric($input["maxradius"])){
+			$this->setInputError("Uncorrect input: 'maxradius' [numeric]. Your value: '" . $input["maxradius"] . "'");
+			return false;
+		}
+		// (9) $input["minradiuskm"] 
+		if (array_key_exists("minradiuskm", $input) and !is_numeric($input["minradiuskm"])){
+			$this->setInputError("Uncorrect input: 'minradiuskm' [numeric]. Your value: '" . $input["minradiuskm"] . "'");
+			return false;
+		}
+		// (10) $input["maxradiuskm"] 
+		if (array_key_exists("maxradiuskm", $input) and !is_numeric($input["maxradiuskm"])){
+			$this->setInputError("Uncorrect input: 'maxradiuskm' [numeric]. Your value: '" . $input["maxradiuskm"] . "'");
+			return false;
+		}
+		return true;
+	}
 	// ====================================================================//
 	// *************************      PATCH       *************************//
 	// ====================================================================//

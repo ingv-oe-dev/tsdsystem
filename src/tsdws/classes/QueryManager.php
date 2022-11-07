@@ -389,5 +389,63 @@ Class QueryManager extends Utils {
 			);
 		}
 	}
+
+	/* No Spatial Reference IDentifier (SRID) is set for the $geom_point_field_name geometry point stored into the database */
+	public function extendSpatialQuery($input, $geom_point_field_name) {
+
+		$substr = "";
+
+		// check if the $geom_point_field_name is not empty
+		if (!isset($geom_point_field_name) or empty($geom_point_field_name)) return $substr;
+
+		// get used projection
+		$epsg_degree = getenv("EPSG_DEGREE") ? getenv("EPSG_DEGREE") : "4326"; // WGS84 (SRID) - using degrees
+		$epsg_km = getenv("EPSG_KM") ? getenv("EPSG_KM") : "32632"; // UTM zone 32N (SRID) - using meters
+		
+		// check that $input is regular
+		if (!isset($input) or !is_array($input)) return $substr;
+
+		// Specify southern-northern-western-eastern boundary for search
+		if (array_key_exists("minlatitude", $input)) $substr .= " AND ST_Y($geom_point_field_name) >= " . $input["minlatitude"] . " ";
+		if (array_key_exists("maxlatitude", $input)) $substr .= " AND ST_Y($geom_point_field_name) <= " . $input["maxlatitude"] . " ";
+
+		if (array_key_exists("minlongitude", $input)) $substr .= " AND ST_X($geom_point_field_name) >= " . $input["minlongitude"] . " ";
+		if (array_key_exists("maxlongitude", $input)) $substr .= " AND ST_X($geom_point_field_name) <= " . $input["maxlongitude"] . " ";
+
+		// check if center coords are defined
+		if (!(array_key_exists("latitude", $input) and array_key_exists("longitude", $input))) return $substr;
+
+		// if here both latitude and longitude center are defined
+		// minradius (degrees)
+		if (array_key_exists("minradius", $input)) {
+			$substr .= " AND ST_DISTANCE(
+				ST_SetSRID(ST_POINT(". $input["longitude"] . ", " . $input["latitude"] . "), $epsg_degree), 
+				ST_SetSRID($geom_point_field_name, $epsg_degree) 
+			) >= " . $input["minradius"] . " ";
+		}
+		// maxradius (degrees)
+		if (array_key_exists("maxradius", $input)) {
+			$substr .= " AND ST_DISTANCE(
+				ST_SetSRID(ST_POINT(". $input["longitude"] . ", " . $input["latitude"] . "), $epsg_degree), 
+				ST_SetSRID($geom_point_field_name, $epsg_degree) 
+			) <= " . $input["maxradius"] . " ";
+		}
+		// minradius (km)
+		if (array_key_exists("minradiuskm", $input)) {
+			$substr .= " AND ST_DISTANCE(
+				ST_TRANSFORM(ST_SetSRID(ST_POINT(". $input["longitude"] . ", " . $input["latitude"] . "), $epsg_degree), $epsg_km),  
+				ST_TRANSFORM(ST_SetSRID($geom_point_field_name, $epsg_degree), $epsg_km) 
+			) >= " . $input["minradiuskm"] . " ";
+		}
+		// maxradius (km)
+		if (array_key_exists("maxradiuskm", $input)) {
+			$substr .= " AND ST_DISTANCE(
+				ST_TRANSFORM(ST_SetSRID(ST_POINT(". $input["longitude"] . ", " . $input["latitude"] . "), $epsg_degree), $epsg_km),  
+				ST_TRANSFORM(ST_SetSRID($geom_point_field_name, $epsg_degree), $epsg_km) 
+			) <= " . $input["maxradiuskm"] . " ";
+		}
+		
+		return $substr . " ";
+	}
 }
 ?>
