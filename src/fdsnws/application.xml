@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="utf-8"?>
+  <application xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://wadl.dev.java.net/2009/02">
+    <doc title="INGV CNT FDSNWS station Web Service Documentation" xml:lang="en">
+
+The **fdsnws-station** web service returns station metadata in [FDSN StationXML](http://www.fdsn.org/xml/station/) format ([schema here](http://www.fdsn.org/xml/station/fdsn-station-1.0.xsd)) or as delimited text.
+The purpose of the FDSN StationXML schema is to define an XML representation of the most important and commonly used structures of SEED 2.4 metadata.
+Results are available at multiple levels of granularity: **network**, **station**, **channel** and **response**.
+
+Metadata may be selected based on channel descriptors, time ranges, geographic regions, and more.
+
+This service is an implementation of the [FDSN web service specification version 1.1](http://www.fdsn.org/webservices/FDSN-WS-Specifications-1.1.pdf)
+
+ Optional parameters 'includeavailability', 'updatedafter' and 'matchtimeseries' are not implemented yet. 
+
+Below is a full list of service parameters and their usage.
+
+# Query Usage
+
+To retrieve data from the station service, submit a request _via HTTP GET_: Provide a series of parameter-value pairs in the URL that specify the start-time and end-time, along with the desired network(s), station(s), location(s) and channel(s). Please refer to the table below titled "Detailed Descriptions of each Query Parameter" for usage details. Each parameter-value pair should be separated by an ampersand **&amp;**, and with no space. A GET request may take the following general form:
+
+  ``
+/query? [channel-options] [time-constraints] [geographic-constraints] [miscellaneous]
+``
+
+ Find out more about FDSN Web Service Specifications http://www.fdsn.org/webservices/
+ </doc>
+    <resources base="http://localhost/fdsnws/station/1/">
+      <resource id="resource_sl_query" path="/query">
+        <method id="Query" name="GET">
+          <doc title="Query" xml:lang="en">Get StationXML</doc>
+          <request>
+            <param name="starttime" type="xsd:dateTime" style="query">
+              <doc title="starttime" xml:lang="en">Limit to channels that are active on or after the specified start time.</doc>
+            </param>
+            <param name="endtime" type="xsd:dateTime" style="query">
+              <doc title="endtime" xml:lang="en">Limit to channels that are active on or before the specified end time.</doc>
+            </param>
+            <param name="startbefore" type="xsd:dateTime" style="query">
+              <doc title="startbefore" xml:lang="en">Limit to stations starting before the specified time.</doc>
+            </param>
+            <param name="startafter" type="xsd:dateTime" style="query">
+              <doc title="startafter" xml:lang="en">Limit to stations starting after the specified time.</doc>
+            </param>
+            <param name="endbefore" type="xsd:dateTime" style="query">
+              <doc title="endbefore" xml:lang="en">Limit to stations ending before the specified time.</doc>
+            </param>
+            <param name="endafter" type="xsd:dateTime" style="query">
+              <doc title="endafter" xml:lang="en">Limit to stations ending after the specified time.</doc>
+            </param>
+            <param name="network" type="xsd:string" style="query">
+              <doc title="network" xml:lang="en">Select one or more network or virtual network codes. Lists and wildcards are accepted.</doc>
+            </param>
+            <param name="station" type="xsd:string" style="query">
+              <doc title="station" xml:lang="en">Select one or more SEED station codes. Lists and wildcards are accepted.</doc>
+            </param>
+            <param name="channel" type="xsd:string" style="query">
+              <doc title="channel" xml:lang="en">Select one or more SEED channel codes. Lists and wildcards are accepted.</doc>
+            </param>
+            <param name="location" type="xsd:string" style="query">
+              <doc title="location" xml:lang="en">Select one or more SEED location codes. Use -- for spaces. Lists and wildcards are accepted.</doc>
+            </param>
+            <param name="minlatitude" type="xsd:float" style="query">
+              <doc title="minlatitude" xml:lang="en">Specify southern boundary for search.</doc>
+            </param>
+            <param name="maxlatitude" type="xsd:float" style="query">
+              <doc title="maxlatitude" xml:lang="en">Specify northern boundary for search.</doc>
+            </param>
+            <param name="minlongitude" type="xsd:float" style="query">
+              <doc title="minlongitude" xml:lang="en">Specify western boundary for search.</doc>
+            </param>
+            <param name="maxlongitude" type="xsd:float" style="query">
+              <doc title="maxlongitude" xml:lang="en">Specify eastern boundary for search.</doc>
+            </param>
+            <param name="latitude" type="xsd:float" style="query">
+              <doc title="latitude" xml:lang="en">Specify the central latitude point for a radial search.</doc>
+            </param>
+            <param name="longitude" type="xsd:float" style="query">
+              <doc title="longitude" xml:lang="en">Specify the central longitude point for a radial search.</doc>
+            </param>
+            <param name="minradius" type="xsd:float" style="query">
+              <doc title="minradius" xml:lang="en">Specify minimum distance from the geographic point defined by latitude and longitude. Degrees.</doc>
+            </param>
+            <param name="maxradius" type="xsd:float" style="query">
+              <doc title="maxradius" xml:lang="en">Specify maximum distance from the geographic point defined by latitude and longitude. Degrees.</doc>
+            </param>
+            <param name="minradiuskm" type="xsd:float" style="query">
+              <doc title="minradiuskm" xml:lang="en">Specify minimum distance from the geographic point defined by latitude and longitude. Kilometers. **This is an INGV extension to the FDSN specification.**</doc>
+            </param>
+            <param name="maxradiuskm" type="xsd:float" style="query">
+              <doc title="maxradiuskm" xml:lang="en">Specify maximum distance from the geographic point defined by latitude and longitude. Kilometers. **This is an INGV extension to the FDSN specification.**</doc>
+            </param>
+            <param name="level" default="station" style="query">
+              <doc title="level" xml:lang="en">Specify the level of detail that is returned.</doc>
+              <option value="network">
+                <doc title="network" xml:lang="en"/>
+              </option>
+              <option value="station">
+                <doc title="station" xml:lang="en"/>
+              </option>
+              <option value="channel">
+                <doc title="channel" xml:lang="en"/>
+              </option>
+              <option value="response">
+                <doc title="response" xml:lang="en"/>
+              </option>
+            </param>
+            <param name="includerestricted" default="true" style="query">
+              <doc title="includerestricted" xml:lang="en">Specify if results should include information for restricted stations.</doc>
+            </param>
+            <param name="format" default="xml" style="query">
+              <doc title="format" xml:lang="en">Specify output format. Format *geojson* works only for level *station*, *channel* or *response* and always returns station coordinates. **This is an INGV extension to the FDSN specification.**</doc>
+              <option value="xml">
+                <doc title="xml" xml:lang="en"/>
+              </option>
+              <option value="text">
+                <doc title="text" xml:lang="en"/>
+              </option>
+              <option value="json">
+                <doc title="json" xml:lang="en"/>
+              </option>
+              <option value="geojson">
+                <doc title="geojson" xml:lang="en"/>
+              </option>
+            </param>
+          </request>
+          <response status="200">
+            <representation element="xsd:string"/>
+          </response>
+          <response status="204">
+            <doc title="204" xml:lang="en">Request was properly formatted and submitted but no data matches the selection</doc>
+          </response>
+          <response status="400">
+            <doc title="400" xml:lang="en">Bad request due to improper specification, unrecognized parameter, parameter value out of range, etc.</doc>
+          </response>
+          <response status="401">
+            <doc title="401" xml:lang="en">Unauthorized, authentication required</doc>
+          </response>
+          <response status="403">
+            <doc title="403" xml:lang="en">Authentication failed or access blocked to restricted data</doc>
+          </response>
+          <response status="404">
+            <doc title="404" xml:lang="en">Alternate to 204, normally used for results returned to a web browser.</doc>
+          </response>
+          <response status="413">
+            <doc title="413" xml:lang="en">Request would result in too much data being returned or the request itself is too large returned error message should include the service limitations in the detailed description. Service limits should also be documented in the service WADL.</doc>
+          </response>
+          <response status="414">
+            <doc title="414" xml:lang="en">Request URI too large</doc>
+          </response>
+          <response status="429">
+            <doc title="429" xml:lang="en">Too Many Requests</doc>
+          </response>
+          <response status="500">
+            <doc title="500" xml:lang="en">Internal server error</doc>
+          </response>
+          <response status="503">
+            <doc title="503" xml:lang="en">Service temporarily unavailable, used in maintenance and error conditions</doc>
+          </response>
+        </method>
+      </resource>
+      <resource id="resource_sl_version" path="/version">
+        <method id="Version" name="GET">
+          <doc title="Version" xml:lang="en">Get StationXML version</doc>
+          <request/>
+          <response status="200">
+            <representation element="xsd:string"/>
+          </response>
+        </method>
+      </resource>
+      <resource id="resource_sl_application_pt_wadl" path="/application.wadl">
+        <method id="ApplicationWadl" name="GET">
+          <doc title="ApplicationWadl" xml:lang="en">Get application.wadl</doc>
+          <request/>
+          <response status="200">
+            <representation element="xsd:string"/>
+          </response>
+        </method>
+      </resource>
+      <resource id="resource_sl_swagger_pt_json" path="/swagger.json">
+        <method id="SwaggerJson" name="GET">
+          <doc title="SwaggerJson" xml:lang="en">Get swagger.json</doc>
+          <request/>
+          <response status="200">
+            <representation mediaType="application/json" href="#A JSON Schema for Swagger 2.0 API."/>
+          </response>
+        </method>
+      </resource>
+      <resource id="resource_sl_test" path="/test">
+        <method id="test" name="GET">
+          <doc title="test" xml:lang="en">Returns a json message containing 'test'</doc>
+          <request/>
+          <response status="200">
+            <representation mediaType="application/json" href="#MessageResponse"/>
+          </response>
+        </method>
+      </resource>
+    </resources>
+    <representation id="MessageResponse" mediaType="application/json">
+      <doc title="MessageResponse" xml:lang="en"/>
+      <param name="message" type="xsd:string">
+        <doc title="message" xml:lang="en"/>
+      </param>
+    </representation>
+    <representation id="representation_A_sp_JSON_sp_Schema_sp_for_sp_Swagger_sp_2_pt_0_sp_API_pt" mediaType="application/json">
+      <doc title="A JSON Schema for Swagger 2.0 API." xml:lang="en"/>
+      <param name="swagger" required="true">
+        <doc title="swagger" xml:lang="en">The Swagger version of this document.</doc>
+        <option value="Enum_2.0">
+          <doc title="Enum_2.0" xml:lang="en"/>
+        </option>
+      </param>
+      <param href="#info" name="info" required="true">
+        <doc title="info" xml:lang="en">General information about the API.</doc>
+      </param>
+      <param name="host" type="xsd:string">
+        <doc title="host" xml:lang="en">The host (name or ip) of the API. Example: 'swagger.io'</doc>
+      </param>
+      <param name="basePath" type="xsd:string">
+        <doc title="basePath" xml:lang="en">The base path to the API. Example: '/api'.</doc>
+      </param>
+      <param name="schemes" repeating="true">
+        <doc title="schemes" xml:lang="en">The transfer protocol of the API.</doc>
+        <option value="http">
+          <doc title="http" xml:lang="en"/>
+        </option>
+        <option value="https">
+          <doc title="https" xml:lang="en"/>
+        </option>
+        <option value="ws">
+          <doc title="ws" xml:lang="en"/>
+        </option>
+        <option value="wss">
+          <doc title="wss" xml:lang="en"/>
+        </option>
+      </param>
+      <param name="consumes" type="xsd:string" repeating="true">
+        <doc title="consumes" xml:lang="en">A list of MIME types accepted by the API.</doc>
+      </param>
+      <param name="produces" type="xsd:string" repeating="true">
+        <doc title="produces" xml:lang="en">A list of MIME types the API can produce.</doc>
+      </param>
+      <param name="paths" type="xsd:string" required="true">
+        <doc title="paths" xml:lang="en">Relative paths to the individual endpoints. They must be relative to the 'basePath'.</doc>
+      </param>
+      <param name="definitions" type="xsd:string">
+        <doc title="definitions" xml:lang="en">One or more JSON objects describing the schemas being consumed and produced by the API.</doc>
+      </param>
+      <param name="parameters" type="xsd:string">
+        <doc title="parameters" xml:lang="en">One or more JSON representations for parameters</doc>
+      </param>
+      <param name="responses" type="xsd:string">
+        <doc title="responses" xml:lang="en">One or more JSON representations for responses</doc>
+      </param>
+      <param name="security" type="xsd:string" repeating="true">
+        <doc title="security" xml:lang="en"/>
+      </param>
+      <param name="securityDefinitions" type="xsd:string">
+        <doc title="securityDefinitions" xml:lang="en"/>
+      </param>
+      <param href="#tag" name="tags" repeating="true">
+        <doc title="tags" xml:lang="en"/>
+      </param>
+      <param href="#externalDocs" name="externalDocs">
+        <doc title="externalDocs" xml:lang="en">information about external documentation</doc>
+      </param>
+    </representation>
+    <representation id="info" mediaType="application/json">
+      <doc title="info" xml:lang="en"/>
+      <param name="title" type="xsd:string" required="true">
+        <doc title="title" xml:lang="en">A unique and precise title of the API.</doc>
+      </param>
+      <param name="version" type="xsd:string" required="true">
+        <doc title="version" xml:lang="en">A semantic version number of the API.</doc>
+      </param>
+      <param name="description" type="xsd:string">
+        <doc title="description" xml:lang="en">A longer description of the API. Should be different from the title.  GitHub Flavored Markdown is allowed.</doc>
+      </param>
+      <param name="termsOfService" type="xsd:string">
+        <doc title="termsOfService" xml:lang="en">The terms of service for the API.</doc>
+      </param>
+      <param href="#contact" name="contact">
+        <doc title="contact" xml:lang="en">Contact information for the owners of the API.</doc>
+      </param>
+      <param href="#license" name="license">
+        <doc title="license" xml:lang="en"/>
+      </param>
+    </representation>
+    <representation id="contact" mediaType="application/json">
+      <doc title="contact" xml:lang="en"/>
+      <param name="name" type="xsd:string">
+        <doc title="name" xml:lang="en">The identifying name of the contact person/organization.</doc>
+      </param>
+      <param name="url" type="xsd:string">
+        <doc title="url" xml:lang="en">The URL pointing to the contact information.</doc>
+      </param>
+      <param name="email" type="xsd:string">
+        <doc title="email" xml:lang="en">The email address of the contact person/organization.</doc>
+      </param>
+    </representation>
+    <representation id="license" mediaType="application/json">
+      <doc title="license" xml:lang="en"/>
+      <param name="name" type="xsd:string" required="true">
+        <doc title="name" xml:lang="en">The name of the license type. It's encouraged to use an OSI compatible license.</doc>
+      </param>
+      <param name="url" type="xsd:string">
+        <doc title="url" xml:lang="en">The URL pointing to the license.</doc>
+      </param>
+    </representation>
+    <representation id="tag" mediaType="application/json">
+      <doc title="tag" xml:lang="en"/>
+      <param name="name" type="xsd:string" required="true">
+        <doc title="name" xml:lang="en"/>
+      </param>
+      <param name="description" type="xsd:string">
+        <doc title="description" xml:lang="en"/>
+      </param>
+      <param href="#externalDocs" name="externalDocs">
+        <doc title="externalDocs" xml:lang="en">information about external documentation</doc>
+      </param>
+    </representation>
+    <representation id="externalDocs" mediaType="application/json">
+      <doc title="externalDocs" xml:lang="en"/>
+      <param name="description" type="xsd:string">
+        <doc title="description" xml:lang="en"/>
+      </param>
+      <param name="url" type="xsd:string" required="true">
+        <doc title="url" xml:lang="en"/>
+      </param>
+    </representation>
+  </application>

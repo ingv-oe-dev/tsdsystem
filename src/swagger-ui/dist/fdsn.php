@@ -1,7 +1,3 @@
-<?php
-    $timeseries_id = isset($_GET["timeseries_id"]) ? $_GET["timeseries_id"] : null;
-    $origin = isset($_GET["origin"]) ? $_GET["origin"] : null;
-?>
 <!-- HTML for static distribution bundle build -->
 <!DOCTYPE html>
 <html lang="en">
@@ -25,7 +21,7 @@
         window.onload = function() {
             // the following lines will be replaced by docker/configurator, when it runs in a docker-container
             window.ui = SwaggerUIBundle({
-                url: "./oedatarep-tsdsystem.json",
+                url: "/github/tsdsystem/src/fdsnws/swagger/fdsnws.json",
                 dom_id: '#swagger-ui',
                 deepLinking: true,
                 presets: [

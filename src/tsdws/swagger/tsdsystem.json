@@ -48,6 +48,9 @@
     }, {
         "name": "permissions",
         "description": "Administration end-points for permissions setting"
+    }, {
+        "name": "about",
+        "description": "Get information about the web service"
     }],
     "schemes": [
         "http",
@@ -4343,6 +4346,43 @@
                 "security": [{
                     "Bearer": []
                 }]
+            }
+        },
+        "/version": {
+            "get": {
+                "tags": [
+                    "about"
+                ],
+                "summary": "Get web service version",
+                "description": "Returns a string containing web service version",
+                "produces": [
+                    "text/plain"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    }
+                }
+            }
+        },
+        "/swagger.json": {
+            "get": {
+                "tags": [
+                    "about"
+                ],
+                "summary": "Get swagger.json",
+                "description": "Returns swagger.json file content.",
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "https://raw.githubusercontent.com/OAI/OpenAPI-Specification/master/schemas/v2.0/schema.json"
+                        }
+                    }
+                }
             }
         }
     },

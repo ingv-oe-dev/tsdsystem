@@ -1,0 +1,468 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "INGV OE FDSNWS station Web Service Documentation",
+        "description": "\n\nThe **fdsnws-station** web service returns station metadata in [FDSN StationXML](http://www.fdsn.org/xml/station/) format ([schema here](http://www.fdsn.org/xml/station/fdsn-station-1.1.xsd)) or as delimited text.\nThe purpose of the FDSN StationXML schema is to define an XML representation of the most important and commonly used structures of SEED 2.4 metadata.\nResults are available at multiple levels of granularity: **network**, **station**, **channel** and **response**.\n\nMetadata may be selected based on channel descriptors, time ranges, geographic regions, and more.\n\nThis service is an implementation of the [FDSN web service specification version 1.1](http://www.fdsn.org/webservices/FDSN-WS-Specifications-1.1.pdf)\n\n Optional parameters 'includeavailability', 'updatedafter' and 'matchtimeseries' are not implemented yet. \n\nBelow is a full list of service parameters and their usage.\n\n# Query Usage\n\nTo retrieve data from the station service, submit a request _via HTTP GET_: provide a series of parameter-value pairs in the URL that specify the start-time and end-time, along with the desired network(s), station(s), location(s) and channel(s). Please refer to the table below titled \"Detailed Descriptions of each Query Parameter\" for usage details. Each parameter-value pair should be separated by an ampersand **&**, and with no space. A GET request may take the following general form:\n\n  ``\n/query? [channel-options] [time-constraints] [geographic-constraints] [miscellaneous]\n``\n\n\n Find out more about FDSN Web Service Specifications http://www.fdsn.org/webservices/\n ",
+        "termsOfService": "http://www.fdsn.org/webservices/",
+        "contact": {
+            "email": "carmelo.cassisi@ingv.it"
+        },
+        "license": {
+            "name": "Creative Commons Attribution 4.0 International",
+            "url": "http://creativecommons.org/licenses/by/4.0/"
+        },
+        "version": "1.1"
+    },
+    "host": "localhost",
+    "basePath": "/github/tsdsystem/src/fdsnws/station/1",
+    "schemes": [
+        "http"
+    ],
+    "paths": {
+        "/query": {
+            "get": {
+                "tags": [
+                    "fdsnws-station-1.1"
+                ],
+                "summary": "Get StationXML",
+                "description": "Returns a StationXML message with the following schema http://www.fdsn.org/xml/station/fdsn-station-1.1.xsd",
+                "produces": [
+                    "application/xml",
+                    "text/plain"
+                ],
+                "parameters": [{
+                        "name": "starttime",
+                        "in": "query",
+                        "description": "Limit to channels that are active on or after the specified start time.",
+                        "required": false,
+                        "type": "string",
+                        "format": "date-time",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "endtime",
+                        "in": "query",
+                        "description": "Limit to channels that are active on or before the specified end time.",
+                        "required": false,
+                        "type": "string",
+                        "format": "date-time",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "startbefore",
+                        "in": "query",
+                        "description": "Limit to stations starting before the specified time.",
+                        "required": false,
+                        "type": "string",
+                        "format": "date-time",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "startafter",
+                        "in": "query",
+                        "description": "Limit to stations starting after the specified time.",
+                        "required": false,
+                        "type": "string",
+                        "format": "date-time",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "endbefore",
+                        "in": "query",
+                        "description": "Limit to stations ending before the specified time.",
+                        "required": false,
+                        "type": "string",
+                        "format": "date-time",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "endafter",
+                        "in": "query",
+                        "description": "Limit to stations ending after the specified time.",
+                        "required": false,
+                        "type": "string",
+                        "format": "date-time",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "network",
+                        "in": "query",
+                        "description": "Select one or more network or virtual network codes. Lists and wildcards are accepted.",
+                        "required": false,
+                        "type": "string",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "station",
+                        "in": "query",
+                        "description": "Select one or more SEED station codes. Lists and wildcards are accepted.",
+                        "required": false,
+                        "type": "string",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "channel",
+                        "in": "query",
+                        "description": "Select one or more SEED channel codes. Lists and wildcards are accepted.",
+                        "required": false,
+                        "type": "string",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "location",
+                        "in": "query",
+                        "description": "Select one or more SEED location codes. Use -- for spaces. Lists and wildcards are accepted.",
+                        "required": false,
+                        "type": "string",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "minlatitude",
+                        "in": "query",
+                        "description": "Specify southern boundary for search.",
+                        "required": false,
+                        "type": "number",
+                        "format": "double",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "maxlatitude",
+                        "in": "query",
+                        "description": "Specify northern boundary for search.",
+                        "required": false,
+                        "type": "number",
+                        "format": "double",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "minlongitude",
+                        "in": "query",
+                        "description": "Specify western boundary for search.",
+                        "required": false,
+                        "type": "number",
+                        "format": "double",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "maxlongitude",
+                        "in": "query",
+                        "description": "Specify eastern boundary for search.",
+                        "required": false,
+                        "type": "number",
+                        "format": "double",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "latitude",
+                        "in": "query",
+                        "description": "Specify the central latitude point for a radial search.",
+                        "required": false,
+                        "type": "number",
+                        "format": "double",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "longitude",
+                        "in": "query",
+                        "description": "Specify the central longitude point for a radial search.",
+                        "required": false,
+                        "type": "number",
+                        "format": "double",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "minradius",
+                        "in": "query",
+                        "description": "Specify minimum distance from the geographic point defined by latitude and longitude. Degrees.",
+                        "required": false,
+                        "type": "number",
+                        "format": "double",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "maxradius",
+                        "in": "query",
+                        "description": "Specify maximum distance from the geographic point defined by latitude and longitude. Degrees.",
+                        "required": false,
+                        "type": "number",
+                        "format": "double",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "minradiuskm",
+                        "in": "query",
+                        "description": "Specify minimum distance from the geographic point defined by latitude and longitude. Kilometers. **This is an INGV extension to the FDSN specification.**",
+                        "required": false,
+                        "type": "number",
+                        "format": "double",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "maxradiuskm",
+                        "in": "query",
+                        "description": "Specify maximum distance from the geographic point defined by latitude and longitude. Kilometers. **This is an INGV extension to the FDSN specification.**",
+                        "required": false,
+                        "type": "number",
+                        "format": "double",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "level",
+                        "in": "query",
+                        "description": "Specify the level of detail that is returned.",
+                        "required": false,
+                        "type": "string",
+                        "items": {
+                            "type": "string"
+                        },
+                        "default": "station",
+                        "enum": [
+                            "network",
+                            "station",
+                            "channel",
+                            "response"
+                        ]
+                    },
+                    {
+                        "name": "includerestricted",
+                        "in": "query",
+                        "description": "Specify if results should include information for restricted stations.",
+                        "required": false,
+                        "type": "boolean",
+                        "items": {
+                            "type": "boolean"
+                        },
+                        "default": true
+                    },
+                    {
+                        "name": "format",
+                        "in": "query",
+                        "description": "Specify output format. Format *geojson* works only for level *station*, *channel* or *response* and always returns station coordinates. **This is an INGV extension to the FDSN specification.**",
+                        "required": false,
+                        "type": "string",
+                        "items": {
+                            "type": "string"
+                        },
+                        "default": "xml",
+                        "enum": [
+                            "xml",
+                            "text",
+                            "json",
+                            "geojson"
+                        ]
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful request, results follow",
+                        "schema": {
+                            "$ref": "#/definitions/StationXMLResponse"
+                        }
+                    },
+                    "204": {
+                        "description": "Request was properly formatted and submitted but no data matches the selection",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request due to improper specification, unrecognized parameter, parameter value out of range, etc.",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized, authentication required",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Authentication failed or access blocked to restricted data",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Alternate to 204, normally used for results returned to a web browser.",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    },
+                    "413": {
+                        "description": "Request would result in too much data being returned or the request itself is too large returned error message should include the service limitations in the detailed description. Service limits should also be documented in the service WADL.",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    },
+                    "414": {
+                        "description": "Request URI too large",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    },
+                    "503": {
+                        "description": "Service temporarily unavailable, used in maintenance and error conditions",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    },
+                    "default": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/version": {
+            "get": {
+                "tags": [
+                    "fdsnws-station-1.1"
+                ],
+                "summary": "Get StationXML version",
+                "description": "Returns a string containing StationXML version",
+                "produces": [
+                    "text/plain"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/VersionResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/application.wadl": {
+            "get": {
+                "tags": [
+                    "fdsnws-station-1.1"
+                ],
+                "summary": "Get application.wadl",
+                "description": "Returns application.wadl file content",
+                "produces": [
+                    "text/xml"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "integer",
+                                "format": "int32"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/swagger.json": {
+            "get": {
+                "tags": [
+                    "fdsnws-station-1.1-ingv-extension"
+                ],
+                "summary": "Get swagger.json",
+                "description": "Returns swagger.json file content. **This is an INGV extension to the FDSN specification.**",
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "https://raw.githubusercontent.com/OAI/OpenAPI-Specification/master/schemas/v2.0/schema.json"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "StationXMLResponse": {
+            "xml": {
+                "namespace": "http://www.fdsn.org/xml/station/1"
+            }
+        },
+        "MessageResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "VersionResponse": {
+            "type": "string",
+            "example": "1.1.4"
+        },
+        "ErrorResponse": {
+            "type": "string",
+            "example": "Error CODE: SIMPLE ERROR DESCRIPTION ..."
+        },
+        "BodyRequestContent": {
+            "type": "string",
+            "example": "parameter1=value\nparameter2=value\nNET STA LOC CHA STARTTIME ENDTIME\nNET STA LOC CHA STARTTIME ENDTIME\nNET STA LOC CHA STARTTIME ENDTIME"
+        }
+    },
+    "tags": [{
+            "name": "fdsnws-station-1.1",
+            "description": "",
+            "externalDocs": {
+                "description": "Find out more",
+                "url": "http://www.fdsn.org/xml/station/"
+            }
+        },
+        {
+            "name": "fdsnws-station-1.1-ingv-extension",
+            "description": ""
+        }
+    ]
+
+}

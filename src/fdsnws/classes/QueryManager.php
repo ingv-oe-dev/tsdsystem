@@ -49,8 +49,8 @@ Class QueryManager extends Utils {
 	}
 
 	private function readCredentialsFromConfigFile() {
-		//$config_read = file_get_contents($_SERVER["DOCUMENT_ROOT"].DIRECTORY_SEPARATOR."tsdws".DIRECTORY_SEPARATOR."configs".DIRECTORY_SEPARATOR."db.json");
-		$config_read = file_get_contents("..".DIRECTORY_SEPARATOR."configs".DIRECTORY_SEPARATOR."db.webapp_user.json"); // for development test
+		$config_read = file_get_contents($_SERVER["DOCUMENT_ROOT"].DIRECTORY_SEPARATOR."tsdws".DIRECTORY_SEPARATOR."configs".DIRECTORY_SEPARATOR."db.json");
+		//$config_read = file_get_contents("..".DIRECTORY_SEPARATOR."configs".DIRECTORY_SEPARATOR."db.webapp_user.json"); // for development test
 		return json_decode($config_read, true);
 	}
 
@@ -400,7 +400,7 @@ Class QueryManager extends Utils {
 
 		// get used projection
 		$epsg_degree = getenv("EPSG_DEGREE") ? getenv("EPSG_DEGREE") : "4326"; // WGS84 (SRID) - using degrees
-		$epsg_km = getenv("EPSG_KM") ? getenv("EPSG_KM") : "32632"; // UTM zone 32N (SRID) - using meters
+		$epsg_m = getenv("EPSG_M") ? getenv("EPSG_M") : "32632"; // UTM zone 32N (SRID) - using meters
 		
 		// check that $input is regular
 		if (!isset($input) or !is_array($input)) return $substr;
@@ -433,16 +433,16 @@ Class QueryManager extends Utils {
 		// minradius (km)
 		if (array_key_exists("minradiuskm", $input)) {
 			$substr .= " AND ST_DISTANCE(
-				ST_TRANSFORM(ST_SetSRID(ST_POINT(". $input["longitude"] . ", " . $input["latitude"] . "), $epsg_degree), $epsg_km),  
-				ST_TRANSFORM(ST_SetSRID($geom_point_field_name, $epsg_degree), $epsg_km) 
-			) >= " . $input["minradiuskm"] . " ";
+				ST_TRANSFORM(ST_SetSRID(ST_POINT(". $input["longitude"] . ", " . $input["latitude"] . "), $epsg_degree), $epsg_m),  
+				ST_TRANSFORM(ST_SetSRID($geom_point_field_name, $epsg_degree), $epsg_m) 
+			) >= (" . $input["minradiuskm"] . " * 1000)";
 		}
 		// maxradius (km)
 		if (array_key_exists("maxradiuskm", $input)) {
 			$substr .= " AND ST_DISTANCE(
-				ST_TRANSFORM(ST_SetSRID(ST_POINT(". $input["longitude"] . ", " . $input["latitude"] . "), $epsg_degree), $epsg_km),  
-				ST_TRANSFORM(ST_SetSRID($geom_point_field_name, $epsg_degree), $epsg_km) 
-			) <= " . $input["maxradiuskm"] . " ";
+				ST_TRANSFORM(ST_SetSRID(ST_POINT(". $input["longitude"] . ", " . $input["latitude"] . "), $epsg_degree), $epsg_m),  
+				ST_TRANSFORM(ST_SetSRID($geom_point_field_name, $epsg_degree), $epsg_m) 
+			) <= (" . $input["maxradiuskm"] . " * 1000)";
 		}
 		
 		return $substr . " ";

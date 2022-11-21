@@ -14,7 +14,7 @@
         }
     },
     "host": "localhost",
-    "basePath": "/tsdws",
+    "basePath": "/github/tsdsystem/src/tsdws",
     "tags": [{
         "name": "timeseries",
         "description": "End-point for timeseries stored into the TSDSystem instance of OEDataRep"
