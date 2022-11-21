@@ -1,0 +1,7 @@
+{
+    "host": "localhost",
+    "user": "webapp_user",
+    "pwd": "#m?2U9xZ",
+    "db": "tsdsystem",
+    "port": "5432"
+}

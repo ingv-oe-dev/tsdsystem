@@ -1,0 +1,5 @@
+RewriteEngine On
+
+RewriteRule .* - [e=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+RewriteRule ^station/1/query(/)?$ routes/fdsn_station.php [NC,QSA]
