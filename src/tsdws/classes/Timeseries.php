@@ -12,7 +12,7 @@ Class Timeseries extends QueryManager {
 		return $this->TIME_COLUMN_NAME;
 	}
 
-	public function getDependencies($id) {
+	public function getDependencies($id, $transpose=true) {
 		// mapping dependencies from timeseries to nets
 		$query = "select
 			tmc.timeseries_id, tmc.channel_id, c.sensor_id, s.net_id 
@@ -31,6 +31,10 @@ Class Timeseries extends QueryManager {
 		$result = $this->getRecordSet($query);
 		
 		if ($result["status"] and isset($result["data"]) and (count($result["data"]) > 0)) {
+
+			if (!$transpose) return $result["data"];
+
+			// transpose result and make unique id(s) for nets, channels, sensors
 			$array_one = $result["data"];
 			$array_two = $this->transpose($array_one);
 			foreach ($array_two as $key => $item) {

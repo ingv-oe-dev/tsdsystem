@@ -221,12 +221,18 @@
                         "type": "boolean"
                     },
                     {
+                        "name": "showFirstMapping",
+                        "in": "query",
+                        "description": "Add list of first net/sensor/channel id mapped to the timeseries in the response",
+                        "type": "boolean"
+                    },
+                    {
                         "name": "sort_by",
                         "in": "query",
                         "description": "How to sort result",
                         "type": "string",
                         "default": "name",
-                        "enum": ["id", "name", "sampling"]
+                        "enum": ["id", "name", "sampling", "id.desc", "name.desc", "sampling.desc"]
                     },
                     {
                         "name": "public",

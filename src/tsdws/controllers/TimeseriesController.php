@@ -144,7 +144,7 @@ Class TimeseriesController extends RESTController {
 		
 		// (3) $input["sampling"]
 		if (array_key_exists("sampling", $input)) {
-			if (!is_int($input["sampling"]) || $input["sampling"] < 0) {
+			if (!is_int($input["sampling"]) || $input["sampling"] <= 0) {
 				$this->setInputError("Uncorrect input: 'sampling'[integer > 0] <in seconds>");
 				return false;
 			}
@@ -274,6 +274,13 @@ Class TimeseriesController extends RESTController {
 			$input["showColDefs"] = (intval($input["showColDefs"]) === 1 or $input["showColDefs"] === true or $input["showColDefs"] === "true");
 		}
 
+		// showFirstMapping
+		if(!array_key_exists("showFirstMapping", $input)) {
+			$input["showFirstMapping"] = false;
+		} else {
+			$input["showFirstMapping"] = (intval($input["showFirstMapping"]) === 1 or $input["showFirstMapping"] === true or $input["showFirstMapping"] === "true");
+		}
+
 		// showMapping
 		if(!array_key_exists("showMapping", $input)) {
 			$input["showMapping"] = false;
@@ -309,11 +316,31 @@ Class TimeseriesController extends RESTController {
 					if (array_key_exists("showColDefs", $params) and $params["showColDefs"]) {
 						$result["data"][$i]["columns"] = $this->obj->getColumnList($result["data"][$i]["id"], $addInfo=true);
 					}
-					// add channel list on response if by id
+					// add first mapping list on response if by id
+					$dependencies = null;
+					if (array_key_exists("showFirstMapping", $params) and $params["showFirstMapping"]) {
+						$dependencies = $this->obj->getDependencies($result["data"][$i]["id"], $transpose=false);
+						$result["data"][$i]["firstMapping"] = (isset($dependencies) and count($dependencies)) > 0 ? $dependencies[0] : array();
+					}
+					// add mapping (included channel_id) list on response if by id
 					if (array_key_exists("showMapping", $params) and $params["showMapping"]) {
+						/*
 						$result["data"][$i]["mapping"] = array(
 							"channel_id" => $this->obj->getIDChannelList($result["data"][$i]["id"])
 						);
+						*/
+						if (isset($dependencies)) {
+							// transpose result of firstMapping and make unique id(s) for nets, channels, sensors
+							$array_one = $dependencies;
+							$array_two = $this->transpose($array_one);
+							foreach ($array_two as $key => $item) {
+								$array_two[$key] = array_unique($array_two[$key]);
+							}
+							$dependencies = $array_two;
+						} else {
+							$dependencies = $this->obj->getDependencies($result["data"][$i]["id"]); // yet transposed
+						}
+						$result["data"][$i]["mapping"] = $dependencies;
 					}
 				}
 			}
@@ -348,7 +375,7 @@ Class TimeseriesController extends RESTController {
 			}
 		}
 		// $input["sampling"]
-		if (array_key_exists("sampling", $input) and (!is_int($input["sampling"]) || $input["sampling"] < 0)) {
+		if (array_key_exists("sampling", $input) and (!is_int($input["sampling"]) || $input["sampling"] <= 0)) {
 			$this->setInputError("Uncorrect input: 'sampling'[integer > 0] <in seconds>");
 			return false;
 		}
