@@ -1,81 +1,77 @@
 <b-overlay :show="loading" rounded="sm">
     <b-collapse v-model="settings" v-bind:id="chart.uuid+'_settings'">
         <b-card bg-variant="light">
-            <b-card-text class="text-center">{{chart.layout.title.text}} ( {{ chart.uuid }})</b-card-text>
+            <b-card-text class="text-center">
+                <b-form-group>
+                    <b-input-group prepend="Chart title" :title="chart.uuid" size="sm">
+                        <b-form-input v-model="chart.layout.title.text"></b-form-input>
+                        <b-button variant="secondary" v-b-toggle="chart.uuid+'_settings'" size="sm">Close</b-button>
+                    </b-input-group>
+                </b-form-group>
+            </b-card-text>
             <b-card>
-                <div class="float-right">
-                    <b-button v-b-toggle="chart.uuid+'_settings'" variant="primary">Close</b-button>
-                </div>
-                <label class="mr-sm-2">Chart title</label>
-                <input class="input" type='text' v-model="chart.layout.title.text" />
-                <hr class="col-xs-12">
-                <p>
-                    <b-form inline>
-                        <label class="mr-sm-2">X axis title</label>
-                        <input class="input" type='text' v-model="chart.layout.xaxis.title.text" />
-                    </b-form>
-                </p>
-                <b-form inline v-for="yAxis in yAxisList">
-                    <label class="mr-sm-2">Y axis (<b>{{yAxis}}</b>)</label>
-                    <label class="mr-sm-2">title</label>
-                    <input class="input" type='text' v-model="chart.layout[yAxis].title.text" /> &nbsp;
-                    <label class="mr-sm-2">Type</label>
-                    <b-form-radio-group v-model="chart.layout[yAxis].type" @input="relayout(yAxis)">
-                        <b-form-radio value="log">Log</b-form-radio>
-                        <b-form-radio value="linear">Linear</b-form-radio>
-                    </b-form-radio-group>
+                <b-form inline class="mb-3">
+                    <label class="mr-sm-2" size="sm">X axis</label>
+                    <b-input-group prepend="Title" size="sm">
+                        <b-form-input v-model="chart.layout.xaxis.title.text"></b-form-input>
+                    </b-input-group>
+                </b-form>
+                <b-form inline v-for="(yAxis, index) in yAxisList" size="sm">
+                    <label class="mr-sm-2" size="sm">Y axis [{{index+1}}]</label>
+                    <b-input-group prepend="Title" size="sm">
+                        <b-form-input class="input" type='text' v-model="chart.layout[yAxis].title.text" size="sm"></b-form-input>&nbsp;
+                        <b-form-radio-group v-model="chart.layout[yAxis].type" @input="relayout(yAxis)">
+                            <b-form-radio value="linear">Linear</b-form-radio>
+                            <b-form-radio value="log">Log</b-form-radio>
+                        </b-form-radio-group>
+                    </b-input-group>
                 </b-form>
                 <hr class="col-xs-12">
-                <p>
-                    <b-form inline>
-                        <label class="mr-sm-2">Select trace</label>
-                        <select v-model="selectedTraceIndex" @change="selectTrace()">
-                    <option v-for="(item, index) in chart.traces" v-bind:value="index">{{item.name}}</option>
-                </select>
-                    </b-form>
-                </p>
-                <p>
-                    <b-form inline>
-                        <b-button variant="primary" @click="newRandomData()">Set random data</b-button>&nbsp;
-                        <b-form-datepicker v-model="newData.date"></b-form-datepicker>&nbsp;
-                        <b-form-timepicker v-model="newData.time" locale="it" show-seconds></b-form-timepicker>&nbsp;
-                        <b-form-input v-model="newData.value" placeholder="Enter value"></b-form-input>&nbsp;
-                        <b-button variant="primary" @click="addData(chart, selectedTraceIndex)">Add data</b-button>
-                    </b-form>
-                </p>
-                <hr class="col-xs-12">
-                <p>
-                    <label class="mr-sm-2">Select trace type</label>
-                    <select v-model="chart.traces[selectedTraceIndex].type">
-                <option value="scatter">scatter</option>
-                <option value="bar">bar</option>
-            </select>
-                </p>
-                <p>
-                    <b-form inline>
-                        <label class="mr-sm-2">Scatter type</label>
-                        <select v-model="chart.traces[selectedTraceIndex].mode" :disabled="isBarTypeTrace">
-                    <option value="lines">lines</option>
-                    <option value="markers">markers</option>
-                    <option value="lines+markers">lines+markers</option>
-                </select> &nbsp;
-                        <label class="mr-sm-2">Line type</label>
-                        <select v-model="chart.traces[selectedTraceIndex].line.shape" :disabled="isBarTypeTrace || isMarkerOnlyTrace">
-                    <option value="line">line</option>
-                    <option value="spline">spline</option>
-                    <option value="hv">hv</option>
-                </select> &nbsp;
-                        <label class="mr-sm-2">Line color</label>
-                        <input class="input" type='color' v-model="chart.traces[selectedTraceIndex].line.color" :disabled="isBarTypeTrace || isMarkerOnlyTrace" /> &nbsp;
-                        <label class="mr-sm-2">Line width</label>
-                        <input class="input" type='number' min="1" max="10" v-model="chart.traces[selectedTraceIndex].line.width" :disabled="isBarTypeTrace || isMarkerOnlyTrace"></input>
-                        &nbsp;
-                        <label class="mr-sm-2">Marker color</label>
-                        <input class="input" type='color' v-model="chart.traces[selectedTraceIndex].marker.color" :disabled="isLineOnlyTrace  && !isBarTypeTrace" /> &nbsp;
-                        <label class="mr-sm-2">Marker size</label>
-                        <input class="input" type='number' min="1" max="10" v-model="chart.traces[selectedTraceIndex].marker.size" :disabled="isBarTypeTrace || isLineOnlyTrace"></input>
-                    </b-form>
-                </p>
+                <b-form inline>
+                    <b-input-group prepend="Select trace" size="sm">
+                        <b-form-select v-model="selectedTraceIndex" @change="selectTrace()">
+                            <option v-for="(item, index) in chart.traces" v-bind:value="index">{{item.name}}</option>
+                        </b-form-select>
+                    </b-input-group>
+                    <b-input-group prepend="Select trace type" size="sm">
+                        <b-form-select v-model="chart.traces[selectedTraceIndex].type">
+                            <option value="scatter">scatter</option>
+                            <option value="bar">bar</option>
+                        </b-form-select>
+                    </b-input-group>
+                </b-form>
+                <b-form inline class="mt-3">
+                    <b-input-group prepend="Scatter type" size="sm" v-show="isScatterTrace" class="mr-1">
+                        <b-form-select v-model="chart.traces[selectedTraceIndex].mode" size="sm">
+                            <option value="lines">lines</option>
+                            <option value="markers">markers</option>
+                            <option value="lines+markers">lines+markers</option>
+                        </b-form-select>
+                    </b-input-group>
+                    <b-input-group prepend="Line type" size="sm" v-show="!isBarTypeTrace && !isMarkerOnlyTrace" class="mr-1">
+                        <b-form-select v-model="chart.traces[selectedTraceIndex].line.shape" size="sm">
+                            <option value="line">line</option>
+                            <option value="spline">spline</option>
+                            <option value="hv">hv</option>
+                        </b-form-select>
+                    </b-input-group>
+                    <b-input-group prepend="Line color" size="sm" v-show="!isBarTypeTrace && !isMarkerOnlyTrace" class="mr-1">
+                        <b-form-input type='color' v-model="chart.traces[selectedTraceIndex].line.color" style="width:50px"></b-form-input>
+                    </b-input-group>
+                    <b-input-group prepend="Line width" size="sm" v-show="!isBarTypeTrace && !isMarkerOnlyTrace" class="mr-1">
+                        <b-form-input type='number' min="1" max="10" v-model="chart.traces[selectedTraceIndex].line.width"></b-form-input>
+                    </b-input-group>
+                    <b-input-group prepend="Marker color" size="sm" v-show="!isBarTypeTrace && !isLineOnlyTrace" class="mr-1">
+                        <b-form-input type='color' v-model="chart.traces[selectedTraceIndex].marker.color" style="width:50px"></b-form-input>
+                    </b-input-group>
+                    <b-input-group prepend="Marker size" size="sm" v-show="!isBarTypeTrace && !isLineOnlyTrace" class="mr-1">
+                        <b-form-input type='number' min="1" max="10" v-model="chart.traces[selectedTraceIndex].marker.size"></b-form-input>
+                    </b-input-group>
+                    <b-input-group prepend="Bar color" size="sm" v-show="isBarTypeTrace" class="mr-1">
+                        <b-form-input type='color' v-model="chart.traces[selectedTraceIndex].marker.color" style="width:50px"></b-form-input>
+                    </b-input-group>
+                </b-form>
+
     </b-collapse>
     <div class="text-danger text-center">{{ tsLoadingErrorResult }}</div>
     <div class="row chart-container">

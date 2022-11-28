@@ -67,6 +67,44 @@
                         "options": {
                             "enum_titles": ["smallint (2 bytes)", "integer (4 bytes)", "double precision (8 bytes)"]
                         }
+                    },
+                    "unit": {
+                        "type": "string",
+                        "title": "Measure unit",
+                        "description": "Measure unit"
+                    },
+                    "plot_options": {
+                        "type": "object",
+                        "title": "Plot options",
+                        "description": "Plot options on graphing charts",
+                        "properties": {
+                            "axis_type": {
+                                "description": "Sets the axis type. By default, attempts to determined the axis type by looking into the data of the traces that referenced the axis in question",
+                                "type": "string",
+                                "default": "linear",
+                                "enum": ["linear", "log"]
+                            },
+                            "type": {
+                                "description": "Chart type",
+                                "type": "string",
+                                "default": "scatter",
+                                "enum": ["scatter", "bar"]
+                            },
+                            "mode": {
+                                "description": "Type for scatter",
+                                "type": "string",
+                                "default": "markers",
+                                "enum": ["lines", "markers", "lines+markers"]
+                            },
+                            "color": {
+                                "description": "Color",
+                                "type": "string",
+                                "default": "#000000"
+                            }
+                        },
+                        "options": {
+                            "collapsed": true
+                        }
                     }
                 }
             }
@@ -123,6 +161,81 @@
             "title": "Metadata",
             "description": "Metadata for the timeseries",
             "type": "object",
+            "properties": {
+                "columns": {
+                    "title": "Columns",
+                    "description": "List of all the measurements of the timeseries",
+                    "type": "array",
+                    "format": "table",
+                    "minItems": 1,
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "pattern": "^[a-z_]+[a-z0-9_]*$",
+                                "title": "Name",
+                                "minLength": 1,
+                                "description": "Table column name (only lowercase letters, numbers and underscore characters admitted)"
+                            },
+                            "type": {
+                                "title": "Field type",
+                                "description": "Table column type",
+                                "type": "string",
+                                "minLength": 1,
+                                "default": "double precision",
+                                "enum": ["smallint", "integer", "double precision"],
+                                "options": {
+                                    "enum_titles": ["smallint (2 bytes)", "integer (4 bytes)", "double precision (8 bytes)"]
+                                }
+                            },
+                            "unit": {
+                                "type": "string",
+                                "title": "Measure unit",
+                                "description": "Measure unit"
+                            },
+                            "plot_options": {
+                                "type": "object",
+                                "title": "Plot options",
+                                "description": "Plot options on graphing charts",
+                                "properties": {
+                                    "axis_type": {
+                                        "description": "Sets the axis type. By default, attempts to determined the axis type by looking into the data of the traces that referenced the axis in question",
+                                        "type": "string",
+                                        "default": "linear",
+                                        "enum": ["linear", "log"]
+                                    },
+                                    "type": {
+                                        "description": "Chart type",
+                                        "type": "string",
+                                        "default": "scatter",
+                                        "enum": ["scatter", "bar"]
+                                    },
+                                    "mode": {
+                                        "description": "Type for scatter",
+                                        "type": "string",
+                                        "default": "markers",
+                                        "enum": ["lines", "markers", "lines+markers"]
+                                    },
+                                    "color": {
+                                        "description": "Color",
+                                        "type": "string",
+                                        "default": "#000000"
+                                    }
+                                },
+                                "options": {
+                                    "collapsed": true
+                                }
+                            }
+                        }
+                    },
+                    "options": {
+                        "disable_array_add": true,
+                        "disable_array_delete": true
+                    }
+                }
+            },
             "additionalProperties": true
         }
     }

@@ -24,7 +24,7 @@
                 "x" => [],
                 "y" => [],
                 "name" => $r["columns"][0],
-                "mode" => "lines",
+                "mode" => "markers",
                 "type" => "scatter",
                 "line" => array(
                     "color" => "#000000",
@@ -77,6 +77,7 @@
                 $chart["layout"][$label]["anchor"] = "free";
                 $chart["layout"][$label]["overlaying"] = "y";
                 $chart["layout"][$label]["side"] = $key%2==0 ? "left": "right";
+                $chart["layout"][$label]["type"] = "linear";
             }
         }
 

@@ -3,32 +3,48 @@ const tsdformRequestComponentDefinition = {
     data() {
         return {
             searchbyname: {
-                value: false,
+                disabled: true,
                 options: [
-                    { text: 'PNet', value: false },
-                    { text: 'Name', value: true },
+                    { text: 'ON', value: false },
+                    { text: 'OFF', value: true },
                 ],
                 typingTimer: null,
-                doneTypingInterval: 3000
+                doneTypingInterval: 500
             },
             resetID: 0,
             nets: [],
-            selectedNet: 0,
             sensors: [],
-            selectedSensor: 0,
             channels: [],
-            selectedChannel: 0,
             timeseries: [],
-            selectedTimeseries: 0,
             timeseries_columns: [],
             selectedTimeseriesColumns: [],
             filterTimeseriesName: '',
             filtered_timeseries: [],
+            selectedFilteredTimeseries: 0,
+            previous_selected: {
+                net_id: 0,
+                sensor_id: 0,
+                channel_id: 0,
+                timeseries_id: 0
+            },
+            selected: {
+                net_id: 0,
+                sensor_id: 0,
+                channel_id: 0,
+                timeseries_id: 0
+            },
+            firstMapping: {
+                net_id: 0,
+                sensor_id: 0,
+                channel_id: 0,
+                timeseries_id: 0
+            },
             defaultOption: {
                 nets: "--- Select net ---",
                 sensors: "--- Select sensor ---",
                 channels: "--- Select channel ---",
-                timeseries: "--- Select timeseries ---"
+                timeseries: "--- Select timeseries ---",
+                filtered_timeseries: "--- Filtered timeseries ---"
             },
             aggregation: {
                 functions: ["AVG", "MEDIAN", "COUNT", "MAX", "MIN", "SUM"],
@@ -64,7 +80,7 @@ const tsdformRequestComponentDefinition = {
     },
     computed: {
         searchbyname_active() {
-            return this.searchbyname.value
+            return !this.searchbyname.disabled;
         },
         alertMinTimeWindow() {
             return this.aggregation.selectedTimeTypeCount < 60 && this.aggregation.selectedTimeType == "second";
@@ -73,7 +89,7 @@ const tsdformRequestComponentDefinition = {
     methods: {
         initialFetch() {
             this.filterTimeseriesName = '';
-            this.searchbyname_active ? this.fetchTimeseries(this.filterTimeseriesName) : this.fetchNets();
+            this.fetchNets();
         },
         initForm() {
             this.aggregation.selectedFunction = "AVG";
@@ -108,11 +124,16 @@ const tsdformRequestComponentDefinition = {
                 .get("../nets")
                 .then(response => {
                     self.nets = response.data.data;
-                    self.selectedNet = self.resetID;
-                    try {
-                        self.selectedNet = self.nets[0].id
-                    } catch (e) {}
                     self.defaultOption.nets = "--- Select net ---";
+                    try {
+                        if (self.searchbyname_active) {
+                            self.selected.net_id = (self.firstMapping.net_id && self.firstMapping.net_id !== null) ? self.firstMapping.net_id : self.resetID;
+                        } else {
+                            self.selected.net_id = self.nets[0].id;
+                        }
+                    } catch (e) {
+                        self.selected.net_id = self.resetID;
+                    }
                 })
                 .catch(function(error) {
                     self.defaultOption.nets = "Loading failed";
@@ -124,15 +145,20 @@ const tsdformRequestComponentDefinition = {
 
             let self = this;
             axios
-                .get("../sensors/?net_id=" + self.selectedNet)
+                .get("../sensors/?net_id=" + self.selected.net_id)
                 .then(response => {
                     self.sensors = response.data.data;
-                    self.selectedSensor = self.resetID;
-                    try {
-                        self.selectedSensor = self.sensors[0].id;
-                    } catch (e) {}
                     self.defaultOption.sensors = "--- Select sensor ---";
-                    self.$refs.stationMap.plotOnMap(self.sensors, self.selectedSensor);
+                    try {
+                        if (self.searchbyname_active) {
+                            self.selected.sensor_id = (self.firstMapping.sensor_id && self.firstMapping.sensor_id !== null) ? self.firstMapping.sensor_id : self.resetID;
+                        } else {
+                            self.selected.sensor_id = self.sensors[0].id;
+                        }
+                    } catch (e) {
+                        self.selected.sensor_id = self.resetID;
+                    }
+                    self.$refs.stationMap.plotOnMap(self.sensors, self.selected.sensor_id);
                 })
                 .catch(function() {
                     self.defaultOption.sensors = "Loading failed";
@@ -144,36 +170,46 @@ const tsdformRequestComponentDefinition = {
 
             let self = this;
             axios
-                .get("../channels/?sensor_id=" + self.selectedSensor)
+                .get("../channels/?sensor_id=" + self.selected.sensor_id)
                 .then(response => {
                     self.channels = response.data.data;
-                    self.selectedChannel = self.resetID;
-                    try {
-                        self.selectedChannel = self.channels[0].id;
-                    } catch (e) {}
                     self.defaultOption.channels = "--- Select channel ---";
+                    try {
+                        if (self.searchbyname_active) {
+                            self.selected.channel_id = (self.firstMapping.channel_id && self.firstMapping.channel_id !== null) ? self.firstMapping.channel_id : self.resetID;
+                        } else {
+                            self.selected.channel_id = self.channels[0].id;
+                        }
+                    } catch (e) {
+                        self.selected.channel_id = self.resetID;
+                    }
                 })
                 .catch(function() {
                     self.defaultOption.channels = "Loading failed";
                 });
         },
-        fetchTimeseries(name) {
+        fetchTimeseries() {
             this.defaultOption.timeseries = "Loading...";
             this.timeseries = [];
-            this.filtered_timeseries = [];
-            let url = "../timeseries/?listCol=true" + ((name === undefined) ? ("&channel_id=" + this.selectedChannel) : ("&name=" + name));
+            let url = "../timeseries/?listCol=true&channel_id=" + this.selected.channel_id;
 
             let self = this;
             axios
                 .get(url)
                 .then(response => {
-                    self.timeseries = response.data.data;
-                    self.filtered_timeseries = response.data.data;
-                    self.selectedTimeseries = self.resetID;
-                    if (name === undefined) {
-                        try {
-                            self.selectedTimeseries = self.timeseries[0].id;
-                        } catch (e) {}
+                    if (response.data.data.length > 0) {
+                        self.timeseries = response.data.data;
+                    } else if (self.searchbyname_active) {
+                        self.timeseries = JSON.parse(JSON.stringify(self.filtered_timeseries));
+                    }
+                    try {
+                        if (self.searchbyname_active) {
+                            self.selected.timeseries_id = (self.firstMapping.timeseries_id && self.firstMapping.timeseries_id !== null) ? self.firstMapping.timeseries_id : self.resetID;
+                        } else {
+                            self.selected.timeseries_id = self.timeseries[0].id;
+                        }
+                    } catch (e) {
+                        self.selected.timeseries_id = self.resetID;
                     }
                     self.defaultOption.timeseries = "--- Select timeseries ---";
                 })
@@ -181,10 +217,38 @@ const tsdformRequestComponentDefinition = {
                     self.defaultOption.timeseries = "Loading failed";
                 });
         },
+        fetchFilteredTimeseries(name) {
+            this.defaultOption.filtered_timeseries = "Searching...";
+            let self = this;
+
+            clearTimeout(this.searchbyname.typingTimer);
+
+            this.searchbyname.typingTimer = setTimeout(function() {
+                this.filtered_timeseries = [];
+                let url = "../timeseries/?showFirstMapping=true&listCol=true&name=" + name;
+
+                axios
+                    .get(url)
+                    .then(response => {
+                        self.filtered_timeseries = response.data.data;
+                        self.selectedFilteredTimeseries = self.resetID;
+                        try {
+                            self.selectedFilteredTimeseries = self.filtered_timeseries[0].id;
+                        } catch (e) {
+
+                        }
+                        self.defaultOption.filtered_timeseries = "--- Filtered timeseries ---";
+                    })
+                    .catch(function() {
+                        self.defaultOption.filtered_timeseries = "Loading failed";
+                    });
+            }, this.searchbyname.doneTypingInterval);
+
+        },
         set_timeseries_columns(timeseries_array) {
             let self = this;
             let record = timeseries_array.filter(function(item) {
-                return (item.id == self.selectedTimeseries);
+                return (item.id == self.selected.timeseries_id);
             });
             this.timeseries_columns = [];
             try {
@@ -201,66 +265,81 @@ const tsdformRequestComponentDefinition = {
         },
         onReset(event) {
             event.preventDefault()
-                // Reset our form values
-            if (this.searchbyname_active) {
-                this.filterTimeseriesName = '';
-            } else {
-                this.selectedNet = this.resetID;
-                this.initialFetch();
-            }
+            this.selected.net_id = this.resetID;
+            this.initialFetch();
             this.initForm();
         },
         onStationMapMarkerClick(id) {
-            this.selectedSensor = id;
+            this.selected.sensor_id = id;
         }
     },
     watch: {
-        selectedNet: {
-            handler: function(r) {
-                //console.log(r);
-                this.fetchSensors();
+        selected: {
+            handler: function(v) {
+                console.log(v);
+                if (v.net_id != this.previous_selected.net_id) {
+                    this.previous_selected.net_id = v.net_id;
+                    this.fetchSensors();
+                }
+                if (v.sensor_id != this.previous_selected.sensor_id) {
+                    this.previous_selected.sensor_id = v.sensor_id;
+                    this.fetchChannels();
+                }
+                if (v.channel_id != this.previous_selected.channel_id) {
+                    this.previous_selected.channel_id = v.channel_id;
+                    this.fetchTimeseries();
+                }
+                if (v.timeseries_id != this.previous_selected.timeseries_id) {
+                    this.previous_selected.timeseries_id = v.timeseries_id;
+                    this.request.id = v.timeseries_id;
+                    this.set_timeseries_columns(this.searchbyname_active ? this.filtered_timeseries : this.timeseries);
+                }
+
             },
             deep: true
         },
-        selectedSensor: {
-            handler: function(r) {
-                //console.log(r);
-                this.fetchChannels();
+        searchbyname: {
+            handler: function(value) {
+                if (!value.disabled) {
+                    this.filterTimeseriesName = '' + this.filterTimeseriesName;
+                }
             },
             deep: true
         },
-        selectedChannel: {
-            handler: function(r) {
-                //console.log(r);
-                this.fetchTimeseries();
+        selectedFilteredTimeseries: {
+            handler: function(value) {
+                let f = this.filtered_timeseries.filter(function(item) {
+                    return (item.id == value);
+                });
+                this.firstMapping = f[0].firstMapping;
             },
             deep: true
         },
-        selectedTimeseries: {
-            handler: function(r) {
-                this.request.id = r;
-                this.set_timeseries_columns(this.searchbyname_active ? this.filtered_timeseries : this.timeseries);
-            }
+        firstMapping: {
+            handler: function() {
+                if (this.searchbyname_active) {
+                    let self = this;
+                    Object.keys(self.firstMapping).forEach(function(key) {
+                        if (self.firstMapping[key] === null) self.firstMapping[key] = self.resetID;
+                    });
+                    self.selected = self.firstMapping;
+                }
+            },
+            deep: true
         },
         selectedTimeseriesColumns: {
             handler: function(array) {
                 this.request.columns = array ? array : []; // avoid {"columns" : null}
             }
         },
-        searchbyname_active: {
-            handler: function() {
-                this.initialFetch();
-            }
-        },
         filterTimeseriesName: {
             handler: function(value) {
-                this.filtered_timeseries = this.timeseries.filter(function(item) {
-                    return (item.name.toLowerCase().indexOf(value.toLowerCase()) >= 0);
-                });
-                this.selectedTimeseries = this.resetID;
-                try {
-                    this.selectedTimeseries = this.filtered_timeseries[0].id;
-                } catch (e) {}
+                this.fetchFilteredTimeseries(value);
+            }
+        },
+        filtered_timeseries: {
+            handler: function(value) {
+                console.log(value);
             }
         },
         aggregation: {

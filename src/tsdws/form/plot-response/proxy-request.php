@@ -1,7 +1,7 @@
 <?php
     // $body = file_get_contents('php://input'); // used when called by axios Javascript library
-    $body = json_encode($_POST, JSON_NUMERIC_CHECK);
-    //echo $body;
+    $body = json_encode($_GET, JSON_NUMERIC_CHECK);
+    // echo $body;
 
     session_start();
     $userId = isset($_SESSION["userId"]) ? $_SESSION["userId"] : null;
@@ -18,8 +18,8 @@
     $url = "http://";
     if(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') $url = "https://";        
     // Append the host(domain name, ip) to the URL.   
-    $url.= $_SERVER['HTTP_HOST'] . "/tsdws/timeseries/values/?" . $data;
-    ///echo $url;
+    $url.= $_SERVER['HTTP_HOST'] . "/github/tsdsystem/src/tsdws/timeseries/values/?" . $data;
+    // echo $url;
     
     // prepare cURL request
     $curl = curl_init($url);

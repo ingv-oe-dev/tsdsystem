@@ -75,27 +75,47 @@ const plotlyChartComponentDefinition = {
         loadData: function(element, index) {
             let vueself = this;
             let wsURL = 'proxy-request.php';
-            /*
-            axios.post(wsURL, element.request)
-                .then(function(response) {
-                    element.x = response.data.data.timestamp;
-                    element.y = response.data.data[element.request.columns[0]];
-                })
-                .catch(function(error) {
-                    vueself.tsLoadingErrorResult = error;
-                })
-                .then(function() {
-                    // always executed
-                    vueself.loaded++;
-                });
-            */
+            wsURL = "/github/tsdsystem/src/tsdws/timeseries/" + element.request.id + "/values";
+
             $.ajax({
                 url: wsURL,
                 data: element.request,
-                type: 'POST',
+                type: 'GET',
                 success: function(response) {
+                    //console.log(response);
                     element.x = response.data.timestamp;
                     element.y = response.data[element.request.columns[0]];
+                    //console.log(element);
+
+                    // update column's label with measure unit returned from database
+                    let label = "yaxis" + (index == 0 ? "" : index + 1);
+                    try {
+                        let columns_info = response.additional_info.metadata.columns;
+                        for (let i = 0; i < columns_info.length; i++) {
+                            if (columns_info[i].name == element.name) {
+                                let mu = columns_info[i].unit ? columns_info[i].unit : "A.U.";
+                                vueself.chart.layout[label].title.text += " (" + mu + ")";
+
+                                // plot options
+                                let plot_options = columns_info[i].plot_options;
+                                if (plot_options) {
+
+                                    let axis_type = plot_options.axis_type ? plot_options.axis_type : element.request.axis_type;
+                                    vueself.chart.layout[label].type = axis_type;
+
+                                    let type = plot_options.type ? plot_options.type : element.request.type;
+                                    element.type = type;
+
+                                    let mode = plot_options.mode ? plot_options.mode : element.request.mode;
+                                    element.mode = mode;
+
+                                    let color = plot_options.color ? plot_options.color : element.request.color;
+                                    element.line.color = color;
+                                    element.marker.color = color;
+                                }
+                            }
+                        }
+                    } catch (e) {}
                 },
                 error: function(data) {
                     vueself.tsLoadingErrorResult = data.responseJSON["error"];
@@ -139,14 +159,17 @@ const plotlyChartComponentDefinition = {
         yAxisList: function() {
             return Object.keys(this.chart.layout).filter(v => /^yaxis/.test(v));
         },
+        isScatterTrace: function() {
+            return this.chart.traces[this.selectedTraceIndex].type == 'scatter';
+        },
         isBarTypeTrace: function() {
             return this.chart.traces[this.selectedTraceIndex].type == 'bar';
         },
         isMarkerOnlyTrace: function() {
-            return this.chart.traces[this.selectedTraceIndex].mode == "markers";
+            return this.isScatterTrace && this.chart.traces[this.selectedTraceIndex].mode == "markers";
         },
         isLineOnlyTrace: function() {
-            return this.chart.traces[this.selectedTraceIndex].mode == "lines";
+            return this.isScatterTrace && this.chart.traces[this.selectedTraceIndex].mode == "lines";
         }
     },
     watch: {

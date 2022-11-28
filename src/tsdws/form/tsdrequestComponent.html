@@ -5,52 +5,50 @@
                 <b-form-group label-align-lg="right" label-align-md="right" label-align-sm="left" label-align-xs="left" id="input-group-0" label="Request title:" label-for="input-0" label-size="sm" label-cols-md="3" label-cols-lg="3" label-cols-sm="3" label-cols-xs="3">
                     <b-form-input id="input-0" v-model="request.title" placeholder="Request title" size="sm"></b-form-input>
                 </b-form-group>
-                <b-form-group label-align-lg="right" label-align-md="right" label-align-sm="left" label-align-xs="left" label="Search timeseries by:" v-slot="{ ariaDescribedby }" label-size="sm" label-cols-md="3" label-cols-lg="3" label-cols-sm="3" label-cols-xs="3">
-                    <b-form-radio-group
-                        id="btn-radios-1"
-                        v-model="searchbyname.value"
-                        :options="searchbyname.options"
-                        :aria-describedby="ariaDescribedby"
-                        name="radios-btn-default"
-                        button-variant="outline-secondary"
-                        size="sm"
-                        buttons
-                    ></b-form-radio-group>
-                    <b-input-group prepend="Name" size="sm" v-show="searchbyname_active" class="mt-3">
-                        <b-form-input v-model="filterTimeseriesName"></b-form-input> 
+                <b-form-group label-align-lg="right" label-align-md="right" label-align-sm="left" label-align-xs="left" id="input-group-aggregation" label="Search timeseries by:" v-slot="{ ariaDescribedby }" label-for="input-timeseries-filter" label-size="sm" label-cols-md="3" label-cols-lg="3" label-cols-sm="3" label-cols-xs="3">
+                    <b-input-group prepend="Name" size="sm">
+                        <b-form-input v-model="filterTimeseriesName" :disabled="searchbyname.disabled"></b-form-input> 
+                        <b-form-select id="input-timeseries-filter" v-model="selectedFilteredTimeseries" size="sm" :disabled="searchbyname.disabled">
+                            <option :value="resetID" disabled> {{ defaultOption.filtered_timeseries }} </option>
+                            <option v-for="item in filtered_timeseries" :value="item.id">[{{ item.schema }}].{{ item.name }}</option>
+                        </b-form-select>
+                        <b-form-radio-group
+                            id="btn-radios-1"
+                            v-model="searchbyname.disabled"
+                            :options="searchbyname.options"
+                            :aria-describedby="ariaDescribedby"
+                            name="radios-btn-default"
+                            button-variant="outline-secondary"
+                            size="sm"
+                            buttons
+                        ></b-form-radio-group>
                     </b-input-group>
                 </b-form-group>
-                <b-form-group label-align-lg="right" label-align-md="right" label-align-sm="left" label-align-xs="left" v-show="searchbyname_active" label="Timeseries:" label-for="input-timeseries-filter" label-size="sm" label-cols-md="3" label-cols-lg="3" label-cols-sm="3" label-cols-xs="3">
-                    <b-form-select id="input-timeseries-filter" v-model="selectedTimeseries" size="sm">
-                        <option :value="resetID" disabled> {{ defaultOption.timeseries }} </option>
-                        <option v-for="item in filtered_timeseries" :value="item.id">[{{ item.schema }}].{{ item.name }}</option>
-                    </b-form-select>
-                </b-form-group>
-                <div v-show="!searchbyname_active">
+                <div>
                     <b-form-group label-align-lg="right" label-align-md="right" label-align-sm="left" label-align-xs="left" id="input-group-net" label="Net:" label-for="input-net" label-size="sm" label-cols-md="3" label-cols-lg="3" label-cols-sm="3" label-cols-xs="3">
-                        <b-form-select id="input-net" v-model="selectedNet" size="sm">
+                        <b-form-select id="input-net" v-model="selected.net_id" size="sm" :disabled="searchbyname_active">
                             <option :value="resetID" disabled> {{ defaultOption.nets }} </option>
                             <option v-for="item in nets" :value="item.id">{{ item.name }}</option>
                         </b-form-select>
                     </b-form-group>
                     <b-form-group label-align-lg="right" label-align-md="right" label-align-sm="left" label-align-xs="left" id="input-group-sensor" label="Sensor:" label-for="input-sensor" label-size="sm" label-cols-md="3" label-cols-lg="3" label-cols-sm="3" label-cols-xs="3">
-                        <b-form-select id="input-sensor" v-model="selectedSensor" size="sm">
+                        <b-form-select id="input-sensor" v-model="selected.sensor_id" size="sm" :disabled="searchbyname_active">
                             <option :value="resetID" disabled> {{ defaultOption.sensors }} </option>
                             <option v-for="item in sensors" :value="item.id">{{ item.name }}</option>
                         </b-form-select>
-                        <b-form-checkbox class="text-right" v-model="showStationMap" name="checkbox-stationmap" :value="true" :unchecked-value="false" size="sm" switch>
+                        <b-form-checkbox class="text-right" v-model="showStationMap" name="checkbox-stationmap" :value="true" :unchecked-value="false" size="sm" :disabled="searchbyname_active" switch>
                             Show map
                         </b-form-checkbox>
                         <stationmap v-show="showStationMap" class='mt-1' style="height:300px" ref="stationMap" @clickedMarker="onStationMapMarkerClick"></stationmap>
                     </b-form-group>
                     <b-form-group label-align-lg="right" label-align-md="right" label-align-sm="left" label-align-xs="left" id="input-group-channel" label="Channel:" label-for="input-channel" label-size="sm" label-cols-md="3" label-cols-lg="3" label-cols-sm="3" label-cols-xs="3">
-                        <b-form-select id="input-channel" v-model="selectedChannel" size="sm">
+                        <b-form-select id="input-channel" v-model="selected.channel_id" size="sm" :disabled="searchbyname_active">
                             <option :value="resetID" disabled> {{ defaultOption.channels }} </option>
                             <option v-for="item in channels" :value="item.id">{{ item.name }}</option>
                         </b-form-select>
                     </b-form-group>
                     <b-form-group label-align-lg="right" label-align-md="right" label-align-sm="left" label-align-xs="left" id="input-group-timeseries" label="Timeseries:" label-for="input-timeseries" label-size="sm" label-cols-md="3" label-cols-lg="3" label-cols-sm="3" label-cols-xs="3">
-                        <b-form-select id="input-timeseries" v-model="selectedTimeseries" size="sm">
+                        <b-form-select id="input-timeseries" v-model="selected.timeseries_id" size="sm" :disabled="searchbyname_active">
                             <option :value="resetID" disabled> {{ defaultOption.timeseries }} </option>
                             <option v-for="item in timeseries" :value="item.id">[{{ item.schema }}].{{ item.name }}</option>
                         </b-form-select>

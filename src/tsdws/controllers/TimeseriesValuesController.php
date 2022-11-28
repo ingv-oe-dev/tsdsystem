@@ -666,7 +666,7 @@ Class TimeseriesValuesController extends RESTController {
 		if (array_key_exists("columns", $input)){
 			
 			// explode string list into array -> return an array (ALWAYS)
-			$column_names_list = explode(",", $input["columns"]);
+			$column_names_list = is_array($input["columns"]) ? $input["columns"] : explode(",", $input["columns"]);
 
 			if (empty($column_names_list)) {
 				$input["columns"] = $this->obj->getColumnList($input["id"]); // select all columns
