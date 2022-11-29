@@ -191,7 +191,7 @@ const tsdformRequestComponentDefinition = {
         fetchTimeseries() {
             this.defaultOption.timeseries = "Loading...";
             this.timeseries = [];
-            let url = "../timeseries/?listCol=true&channel_id=" + this.selected.channel_id;
+            let url = "../timeseries/?channel_id=" + this.selected.channel_id;
 
             let self = this;
             axios
@@ -225,7 +225,7 @@ const tsdformRequestComponentDefinition = {
 
             this.searchbyname.typingTimer = setTimeout(function() {
                 this.filtered_timeseries = [];
-                let url = "../timeseries/?showFirstMapping=true&listCol=true&name=" + name;
+                let url = "../timeseries/?name=" + name;
 
                 axios
                     .get(url)
@@ -245,16 +245,26 @@ const tsdformRequestComponentDefinition = {
             }, this.searchbyname.doneTypingInterval);
 
         },
-        set_timeseries_columns(timeseries_array) {
-            let self = this;
-            let record = timeseries_array.filter(function(item) {
-                return (item.id == self.selected.timeseries_id);
-            });
+        fetchTimeseriesInfo() { // showFirstMapping=true&listCol=true
             this.timeseries_columns = [];
-            try {
-                this.timeseries_columns = record[0].columns;
-            } catch (e) {}
-            this.selectedTimeseriesColumns = this.timeseries_columns;
+            this.firstMapping = null;
+            let url = "../timeseries/?id=" + this.selected.timeseries_id + "&showFirstMapping=true&listCol=true";
+
+            let self = this;
+            axios
+                .get(url)
+                .then(response => {
+                    if (response.data.data.length > 0) {
+                        try {
+                            self.timeseries_columns = response.data.data[0].columns;
+                            self.firstMapping = response.data.data[0].firstMapping;
+                        } catch (e) {}
+                        self.selectedTimeseriesColumns = self.timeseries_columns;
+                    }
+                })
+                .catch(function() {
+                    self.timeseries_columns = ["Loading failed"];
+                });
         },
         onSubmit(event) {
             event.preventDefault();
@@ -292,9 +302,8 @@ const tsdformRequestComponentDefinition = {
                 if (v.timeseries_id != this.previous_selected.timeseries_id) {
                     this.previous_selected.timeseries_id = v.timeseries_id;
                     this.request.id = v.timeseries_id;
-                    this.set_timeseries_columns(this.searchbyname_active ? this.filtered_timeseries : this.timeseries);
+                    this.fetchTimeseriesInfo(v.timeseries_id);
                 }
-
             },
             deep: true
         },
@@ -308,21 +317,18 @@ const tsdformRequestComponentDefinition = {
         },
         selectedFilteredTimeseries: {
             handler: function(value) {
-                let f = this.filtered_timeseries.filter(function(item) {
-                    return (item.id == value);
-                });
-                this.firstMapping = f[0].firstMapping;
+                this.selected.timeseries_id = value;
             },
             deep: true
         },
         firstMapping: {
-            handler: function() {
+            handler: function(value) {
                 if (this.searchbyname_active) {
                     let self = this;
-                    Object.keys(self.firstMapping).forEach(function(key) {
-                        if (self.firstMapping[key] === null) self.firstMapping[key] = self.resetID;
+                    Object.keys(value).forEach(function(key) {
+                        if (value[key] === null) value[key] = self.resetID;
                     });
-                    self.selected = self.firstMapping;
+                    self.selected = value;
                 }
             },
             deep: true

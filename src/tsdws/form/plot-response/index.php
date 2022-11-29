@@ -41,7 +41,15 @@
     <div id="app" class="container">
         <?php 
         foreach($charts as $i => $chart) {
-            echo "<plotly-chart :chart='charts[".strval($i)."]'></plotly-chart>";
+            if (count($chart["traces"]) > 0) {
+                echo "<plotly-chart :chart='charts[".strval($i)."]'></plotly-chart>";
+            } else {
+                echo '
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <b>Error</b>: Empty columns list for request (name = "<b>' . $chart["layout"]["title"] . '"</b> - id = "' . $chart["uuid"] . '")
+                </div>
+                ';
+            }
         }
         ?>
     </div>

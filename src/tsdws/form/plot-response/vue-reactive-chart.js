@@ -100,18 +100,26 @@ const plotlyChartComponentDefinition = {
                                 let plot_options = columns_info[i].plot_options;
                                 if (plot_options) {
 
-                                    let axis_type = plot_options.axis_type ? plot_options.axis_type : element.request.axis_type;
-                                    vueself.chart.layout[label].type = axis_type;
+                                    if (plot_options.axis_type || element.request.axis_type) {
+                                        let axis_type = plot_options.axis_type ? plot_options.axis_type : element.request.axis_type;
+                                        vueself.chart.layout[label].type = axis_type;
+                                    }
 
-                                    let type = plot_options.type ? plot_options.type : element.request.type;
-                                    element.type = type;
+                                    if (plot_options.type || element.request.type) {
+                                        let type = plot_options.type ? plot_options.type : element.request.type;
+                                        element.type = type;
+                                    }
 
-                                    let mode = plot_options.mode ? plot_options.mode : element.request.mode;
-                                    element.mode = mode;
+                                    if (plot_options.mode || element.request.mode) {
+                                        let mode = plot_options.mode ? plot_options.mode : element.request.mode;
+                                        element.mode = mode;
+                                    }
 
-                                    let color = plot_options.color ? plot_options.color : element.request.color;
-                                    element.line.color = color;
-                                    element.marker.color = color;
+                                    if (plot_options.color || element.request.color) {
+                                        let color = plot_options.color ? plot_options.color : element.request.color;
+                                        element.line.color = color;
+                                        element.marker.color = color;
+                                    }
                                 }
                             }
                         }

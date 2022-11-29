@@ -328,7 +328,7 @@ var app = {
             let self = this;
             $.ajax({
                 url: self.baseURLws + "timeseries",
-                data: Object.assign(parameters, { "listCol": true, "sort_by": "name" }),
+                data: Object.assign(parameters, { "sort_by": "name" }),
                 beforeSend: function(jqXHR, settings) {
                     jqXHR = Object.assign(jqXHR, settings, { "messageText": "Loading timeseries" });
                 },
@@ -534,7 +534,7 @@ var app = {
             // open editor on rightside
             this.openSettings(false);
         },
-        openTSViewer(timeseries_id, columns = null) {
+        openTSViewer(t, columns = null) {
 
             // generate a request_id for a request
             function uuidv4() {
@@ -543,47 +543,50 @@ var app = {
                 );
             }
 
-            let params = {
-                "request_id": uuidv4(),
-                "title": "",
-                "id": timeseries_id,
-                "columns": columns
-            };
+            var self = this;
 
-            if (columns) {
-                /*
-                let self = this;
-                $.ajax({
-                    url: self.baseURLws + "timeseries/values",
-                    data: {
-                        "request": JSON.stringify(params)
-                    },
-                    beforeSend: function(jqXHR, settings) {
-                        jqXHR = Object.assign(jqXHR, settings, { "messageText": "Loading timeseries values" });
-                    },
-                    success: function(response, textStatus, jqXHR) {
-                        //console.log(response);
+            // retrieve columns info
+            $.ajax({
+                url: self.baseURLws + "timeseries",
+                data: {
+                    id: t.id,
+                    listCol: true
+                },
+                success: function(response, textStatus, jqXHR) {
+                    if (response.data.length > 0 && response.data[0].columns && response.data[0].columns.length > 0) {
+                        // prepare input
+                        let params = {
+                            "request_id": uuidv4(),
+                            "title": t.name,
+                            "id": t.id,
+                            "columns": response.data[0].columns
+                        };
+                        // apply form
+                        let form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = "../form/plot-response/";
+                        form.target = '_blank';
+                        let input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = 'requests';
+                        input.value = JSON.stringify([params]);
+                        form.appendChild(input);
+                        document.body.appendChild(form);
+                        form.submit();
+                        // notify message
                         let n = Object.assign(jqXHR, { "messageType": "info" });
                         self.$refs.notifications.notify(n);
-                    },
-                    error: function(jqXHR) {
-                        let n = Object.assign(jqXHR, { "messageType": "danger" });
+                    } else {
+                        // notify error
+                        let n = Object.assign(jqXHR, { "messageType": "danger", "messageText": "No columns information available" });
                         self.$refs.notifications.notify(n);
                     }
-                });
-                */
-                let form = document.createElement('form');
-                form.method = 'POST';
-                form.action = "../form/plot-response/";
-                form.target = '_blank';
-                let input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = 'requests';
-                input.value = JSON.stringify([params]);
-                form.appendChild(input);
-                document.body.appendChild(form);
-                form.submit();
-            }
+                },
+                error: function(jqXHR) {
+                    let n = Object.assign(jqXHR, { "messageType": "danger" });
+                    self.$refs.notifications.notify(n);
+                }
+            });
         }
     },
     watch: {

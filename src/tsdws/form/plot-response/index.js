@@ -20,11 +20,13 @@ window.onload = function() {
                     //console.log(this.charts);
                     var plot_divs = document.getElementsByClassName('plotly-plot');
                     this.charts.forEach(chart => {
-                        var myPlot = document.getElementById(chart.uuid);
-                        Plotly.newPlot(chart.uuid, chart.traces, chart.layout);
-                        myPlot.on("plotly_relayout", function(ed) {
-                            relayout(ed, plot_divs);
-                        });
+                        if (chart.traces.length > 0) {
+                            var myPlot = document.getElementById(chart.uuid);
+                            Plotly.newPlot(chart.uuid, chart.traces, chart.layout);
+                            myPlot.on("plotly_relayout", function(ed) {
+                                relayout(ed, plot_divs);
+                            });
+                        }
                     });
                 }
             });

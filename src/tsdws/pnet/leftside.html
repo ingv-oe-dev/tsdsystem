@@ -89,7 +89,7 @@
                                             <div class="showhim">
                                                 <i class="fa-li fa fa-chart-line" title="Timeseries"></i>{{t.name}} 
                                                 
-                                                <u class="text-primary"><i class="fa fa-table-columns fa-xs" title="Timeseries columns"> <span class="font-monospace">[{{t.columns === null ? "?" : t.columns.length}}]</span></i></u> <span class="showme"><span class="text-secondary" style="cursor:pointer" @click="openTSViewer(t.id, t.columns)"><i class="fa fa-eye" title="View timeseries"></i></span> <span class="text-secondary" style="cursor:pointer" @click="openEdit('timeseries', t.id, {'sensor_id':sensor.id, 'channel_id':c.id});"><i class="fa fa-gear" title="Edit timeseries"></i></span></span>
+                                                <span class="showme"><span class="text-secondary" style="cursor:pointer" @click="openTSViewer(t)"><i class="fa fa-eye" title="View timeseries"></i></span> <span class="text-secondary" style="cursor:pointer" @click="openEdit('timeseries', t.id, {'sensor_id':sensor.id, 'channel_id':c.id});"><i class="fa fa-gear" title="Edit timeseries"></i></span></span>
                                             </div>
                                         </li>
                                     </ul>

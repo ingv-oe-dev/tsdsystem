@@ -205,25 +205,25 @@
                     {
                         "name": "listCol",
                         "in": "query",
-                        "description": "Show timeseries column names list in the response",
+                        "description": "Show timeseries column names list in the response. **Only when 'id' input is specified**",
                         "type": "boolean"
                     },
                     {
                         "name": "showColDefs",
                         "in": "query",
-                        "description": "Show timeseries columns definitions in the response",
+                        "description": "Show timeseries columns definitions in the response. **Only when 'id' input is specified**",
                         "type": "boolean"
                     },
                     {
                         "name": "showMapping",
                         "in": "query",
-                        "description": "Add timeseries mapped channels list in the response",
+                        "description": "Add timeseries mapped channels list in the response. **Only when 'id' input is specified**",
                         "type": "boolean"
                     },
                     {
                         "name": "showFirstMapping",
                         "in": "query",
-                        "description": "Add list of first net/sensor/channel id mapped to the timeseries in the response",
+                        "description": "Add list of first net/sensor/channel id mapped to the timeseries in the response. **Only when 'id' input is specified**",
                         "type": "boolean"
                     },
                     {
@@ -327,17 +327,22 @@
                 }, {
                     "name": "listCol",
                     "in": "query",
-                    "description": "Show timeseries column names list in the response",
+                    "description": "Show timeseries column names list in the response. **Only when 'id' input is specified**",
                     "type": "boolean"
                 }, {
                     "name": "showColDefs",
                     "in": "query",
-                    "description": "Show timeseries columns definitions in the response",
+                    "description": "Show timeseries columns definitions in the response. **Only when 'id' input is specified**",
                     "type": "boolean"
                 }, {
                     "name": "showMapping",
                     "in": "query",
-                    "description": "Add timeseries mapped channels list in the response",
+                    "description": "Add timeseries mapped channels list in the response. **Only when 'id' input is specified**",
+                    "type": "boolean"
+                }, {
+                    "name": "showFirstMapping",
+                    "in": "query",
+                    "description": "Add list of first net/sensor/channel id mapped to the timeseries in the response. **Only when 'id' input is specified**",
                     "type": "boolean"
                 }],
                 "responses": {
@@ -1030,19 +1035,25 @@
                     {
                         "name": "listCol",
                         "in": "query",
-                        "description": "Show timeseries column names list in the response",
+                        "description": "Show timeseries column names list in the response. **Only when 'id' input is specified**",
                         "type": "boolean"
                     },
                     {
                         "name": "showColDefs",
                         "in": "query",
-                        "description": "Show timeseries columns definitions in the response",
+                        "description": "Show timeseries columns definitions in the response. **Only when 'id' input is specified**",
                         "type": "boolean"
                     },
                     {
                         "name": "showMapping",
                         "in": "query",
-                        "description": "Add timeseries mapped channels list in the response",
+                        "description": "Add timeseries mapped channels list in the response. **Only when 'id' input is specified**",
+                        "type": "boolean"
+                    },
+                    {
+                        "name": "showFirstMapping",
+                        "in": "query",
+                        "description": "Add list of first net/sensor/channel id mapped to the timeseries in the response. **Only when 'id' input is specified**",
                         "type": "boolean"
                     },
                     {

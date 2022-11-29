@@ -95,6 +95,7 @@ axios
                     this.currentUUID = null;
                 },
                 sendRequests: function() {
+                    this.flushRequests();
                     let form = document.createElement('form');
                     form.method = 'POST';
                     form.action = "plot-response/";
