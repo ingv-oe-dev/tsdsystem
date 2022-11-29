@@ -314,7 +314,7 @@ Class TimeseriesController extends RESTController {
 		return true;
 	}
 	
-	public function get($jsonfields=array("metadata")) {
+	public function get($jsonfields=array("metadata", "last_value")) {
 	
 		$params = $this->getParams();
 

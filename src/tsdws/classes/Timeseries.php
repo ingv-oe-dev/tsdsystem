@@ -252,7 +252,7 @@ Class Timeseries extends QueryManager {
 	
 	public function getList($input) {
 		
-		$query = "SELECT t.id, t.schema, t.name, t.sampling, t.public, TO_CHAR(t.last_time, '$this->OUTPUT_PSQL_ISO8601_FORMAT') AS last_time, t.metadata " .
+		$query = "SELECT t.id, t.schema, t.name, t.sampling, t.public, TO_CHAR(t.last_time, '$this->OUTPUT_PSQL_ISO8601_FORMAT') AS last_time, t.last_value, t.metadata " .
 			" FROM " . $this->tablename . " t " .
 			" LEFT JOIN tsd_main.timeseries_mapping_channels tmc ON t.id = tmc.timeseries_id " . 
 			" WHERE t.remove_time IS NULL ";
@@ -328,6 +328,10 @@ Class Timeseries extends QueryManager {
 			}
 			if (array_key_exists("update_time", $input) and isset($input["update_time"])) {
 				$next_query .= " update_time = " . strval($input["update_time"]) . ", ";
+			}
+			// (hidden for user interface) $input["update_first_time"]
+			if (array_key_exists("update_first_time", $input)) {
+				$next_query .= " first_time = (SELECT time FROM " . strval($requested["data"][0]["schema"]) . "." . strval($requested["data"][0]["name"]) . " ORDER BY time LIMIT 1), ";
 			}
 			$next_query = rtrim($next_query, ", ");
 			$next_query .= " WHERE id = '" . $input["id"] . "'";

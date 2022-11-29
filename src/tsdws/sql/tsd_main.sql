@@ -12,7 +12,9 @@ CREATE TABLE IF NOT EXISTS tsd_main.timeseries
     name character varying(63) COLLATE pg_catalog."default" NOT NULL,
     sampling integer,
     metadata jsonb,
+    first_time timestamp without time zone, 
     last_time timestamp without time zone,
+    last_value jsonb,
     create_time timestamp without time zone DEFAULT (now() AT TIME ZONE 'utc'::text),
     update_time timestamp without time zone,
     remove_time timestamp without time zone,
@@ -60,14 +62,22 @@ CREATE OR REPLACE PROCEDURE tsd_main."updateTimeseriesLastTime"(
 LANGUAGE 'plpgsql'
 AS $BODY$
 BEGIN
+    EXECUTE CONCAT('
+        WITH last_info AS (
+            SELECT * FROM ', my_schema, '.', my_name, ' ORDER BY time DESC LIMIT 1
+        )
+        UPDATE tsd_main.timeseries SET
+            last_time = last_info.time,
+            last_value = row_to_json(last_info)
+        from last_info
+        WHERE schema = ', quote_literal(my_schema), ' AND name = ' , quote_literal(my_name) , '
+    ');
+    /*
     EXECUTE CONCAT('UPDATE tsd_main.timeseries SET last_time = (
-      SELECT LAST(time, time) 
-      FROM ', my_schema, '.', my_name, 
-    ') WHERE schema = ', quote_literal(my_schema), 
+        SELECT time FROM ', my_schema, '.', my_name, ' ORDER BY time DESC LIMIT 1
+    ) WHERE schema = ', quote_literal(my_schema), 
      ' AND name = ' , quote_literal(my_name)
-    ); 
+    );
+    */ 
 END;
 $BODY$;
-
---------------------------------------------------------------------------------------
---------------------------------------------------------------------------------------
