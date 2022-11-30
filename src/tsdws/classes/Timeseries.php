@@ -252,7 +252,7 @@ Class Timeseries extends QueryManager {
 	
 	public function getList($input) {
 		
-		$query = "SELECT t.id, t.schema, t.name, t.sampling, t.public, TO_CHAR(t.last_time, '$this->OUTPUT_PSQL_ISO8601_FORMAT') AS last_time, t.last_value, t.metadata " .
+		$query = "SELECT t.id, t.schema, t.name, t.sampling, t.public, TO_CHAR(t.first_time, '$this->OUTPUT_PSQL_ISO8601_FORMAT') AS first_time, TO_CHAR(t.last_time, '$this->OUTPUT_PSQL_ISO8601_FORMAT') AS last_time, t.last_value, t.metadata " .
 			" FROM " . $this->tablename . " t " .
 			" LEFT JOIN tsd_main.timeseries_mapping_channels tmc ON t.id = tmc.timeseries_id " . 
 			" WHERE t.remove_time IS NULL ";

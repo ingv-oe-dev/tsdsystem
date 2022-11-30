@@ -4569,26 +4569,7 @@
                     "minItems": 1,
                     "uniqueItems": true,
                     "items": {
-                        "type": "object",
-                        "properties": {
-                            "name": {
-                                "type": "string",
-                                "title": "Name",
-                                "minLength": 1,
-                                "description": "Table column name",
-                                "default": "value"
-                            },
-                            "type": {
-                                "title": "Field type",
-                                "description": "Table column type",
-                                "type": "string",
-                                "default": "double precision",
-                                "enum": ["smallint", "integer", "double precision"],
-                                "options": {
-                                    "enum_titles": ["smallint (2 bytes)", "integer (4 bytes)", "double precision (8 bytes)"]
-                                }
-                            }
-                        }
+                        "$ref": "#/definitions/Column_def"
                     }
                 },
                 "mapping": {
@@ -4636,6 +4617,23 @@
                     "title": "Metadata",
                     "description": "Metadata for the timeseries",
                     "type": "object",
+                    "properties": {
+                        "columns": {
+                            "title": "Columns",
+                            "description": "List of all the measurements of the timeseries",
+                            "type": "array",
+                            "minItems": 1,
+                            "uniqueItems": true,
+                            "items": {
+                                "$ref": "#/definitions/Column_def"
+                            },
+                            "options": {
+                                "disable_array_add": true,
+                                "disable_array_delete": true,
+                                "disable_array_reorder": true
+                            }
+                        }
+                    },
                     "additionalProperties": true
                 },
                 "sampling": {
@@ -4948,6 +4946,166 @@
                     "description": "Set if the permission will be active immediately",
                     "type": "boolean",
                     "default": true
+                }
+            }
+        },
+        "Column_def": {
+            "type": "object",
+            "format": "grid",
+            "required": ["name"],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "pattern": "^[a-z_]+[a-z0-9_]*$",
+                    "title": "Name",
+                    "minLength": 1,
+                    "description": "Table column name (only lowercase letters, numbers and underscore characters admitted)"
+                },
+                "type": {
+                    "title": "Field type",
+                    "description": "Table column type",
+                    "type": "string",
+                    "minLength": 1,
+                    "default": "double precision",
+                    "enum": ["smallint", "integer", "double precision"],
+                    "options": {
+                        "enum_titles": ["smallint (2 bytes)", "integer (4 bytes)", "double precision (8 bytes)"]
+                    }
+                },
+                "unit": {
+                    "type": "string",
+                    "title": "Measure unit",
+                    "description": "Measure unit"
+                },
+                "plot_options": {
+                    "$ref": "#/definitions/Plot_options"
+                },
+                "thresholds": {
+                    "$ref": "#/definitions/Thresholds"
+                }
+            }
+        },
+        "Column_def_readonly": {
+            "type": "object",
+            "format": "grid",
+            "required": ["name"],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "pattern": "^[a-z_]+[a-z0-9_]*$",
+                    "title": "Name",
+                    "minLength": 1,
+                    "description": "Table column name (only lowercase letters, numbers and underscore characters admitted)",
+                    "readOnly": true
+                },
+                "type": {
+                    "title": "Field type",
+                    "description": "Table column type",
+                    "type": "string",
+                    "minLength": 1,
+                    "default": "double precision",
+                    "enum": ["smallint", "integer", "double precision"],
+                    "options": {
+                        "enum_titles": ["smallint (2 bytes)", "integer (4 bytes)", "double precision (8 bytes)"]
+                    },
+                    "readOnly": true
+                },
+                "unit": {
+                    "type": "string",
+                    "title": "Measure unit",
+                    "description": "Measure unit"
+                },
+                "plot_options": {
+                    "$ref": "#/definitions/Plot_options"
+                },
+                "thresholds": {
+                    "$ref": "#/definitions/Thresholds"
+                }
+            }
+        },
+        "Plot_options": {
+            "type": "object",
+            "format": "grid",
+            "title": "Plot options",
+            "description": "Plot options on graphing charts",
+            "properties": {
+                "axis_type": {
+                    "description": "Sets the axis type. By default, attempts to determined the axis type by looking into the data of the traces that referenced the axis in question",
+                    "type": "string",
+                    "default": "linear",
+                    "enum": ["linear", "log"]
+                },
+                "type": {
+                    "description": "Chart type",
+                    "type": "string",
+                    "default": "scatter",
+                    "enum": ["scatter", "bar"]
+                },
+                "mode": {
+                    "description": "Type for scatter",
+                    "type": "string",
+                    "default": "markers",
+                    "enum": ["lines", "markers", "lines+markers"]
+                },
+                "color": {
+                    "description": "Color",
+                    "type": "string",
+                    "format": "color",
+                    "default": "#000000",
+                    "options": {
+                        "ColorPicker": {
+                            "format": "hex"
+                        }
+                    }
+                }
+            },
+            "options": {
+                "collapsed": true
+            }
+        },
+        "Thresholds": {
+            "type": "array",
+            "format": "table",
+            "title": "Thresholds",
+            "description": "Thresholds used to define the status/level of the measurement",
+            "items": {
+                "type": "object",
+                "format": "grid",
+                "required": ["from_t", "to_t", "status", "label", "color"],
+                "properties": {
+                    "from_t": {
+                        "description": "Start value",
+                        "type": ["null", "number"],
+                        "default": null
+                    },
+                    "to_t": {
+                        "description": "End value",
+                        "type": ["null", "number"],
+                        "default": null
+                    },
+                    "status": {
+                        "description": "Status/Level category (code)",
+                        "type": "integer"
+                    },
+                    "label": {
+                        "description": "Status/level category (label)",
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "color": {
+                        "description": "Color",
+                        "type": "string",
+                        "format": "color",
+                        "default": "#000000",
+                        "options": {
+                            "ColorPicker": {
+                                "format": "hex"
+                            }
+                        }
+                    }
+                },
+                "options": {
+                    "collapsed": true
                 }
             }
         }
