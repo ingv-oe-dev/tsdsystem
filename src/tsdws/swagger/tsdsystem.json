@@ -31,6 +31,9 @@
         "name": "sensortypes",
         "description": "Station network management - sensortypes"
     }, {
+        "name": "stations",
+        "description": "Station network management - stations"
+    }, {
         "name": "nets",
         "description": "Station network management - nets"
     }, {
@@ -103,6 +106,9 @@
                                 "owners",
                                 "owners-edit",
                                 "owners-read",
+                                "stations",
+                                "stations-edit",
+                                "stations-read",
                                 "sensors",
                                 "sensors-edit",
                                 "sensors-read",
@@ -1798,12 +1804,12 @@
                 }]
             }
         },
-        "/sensortypes/{id}/channels": {
+        "/sensortypes/{id}/sensors": {
             "get": {
                 "tags": [
-                    "channels", "sensortypes"
+                    "sensors", "sensortypes"
                 ],
-                "summary": "List all channels belonging to a sensortype by ID",
+                "summary": "List all current sensors belonging to a sensortype by ID",
                 "description": "",
                 "produces": [
                     "application/json"
@@ -1856,12 +1862,219 @@
                 }]
             }
         },
-        "/sensortypes/{id}/sensors": {
+        "/stations": {
             "get": {
                 "tags": [
-                    "sensors", "sensortypes"
+                    "stations"
                 ],
-                "summary": "List all current sensors belonging to a sensortype by ID",
+                "summary": "Find stations",
+                "description": "",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "query",
+                    "description": "Station unique identifier",
+                    "type": "integer"
+                }, {
+                    "name": "name",
+                    "in": "query",
+                    "description": "Station name",
+                    "type": "string"
+                }, {
+                    "name": "sensortype_id",
+                    "in": "query",
+                    "description": "ID of the sensortype",
+                    "type": "integer"
+                }, {
+                    "name": "sensortype_name",
+                    "in": "query",
+                    "description": "Sensortype name",
+                    "type": "string"
+                }, {
+                    "name": "net_id",
+                    "in": "query",
+                    "description": "ID of the net whom the station refers to",
+                    "type": "integer"
+                }, {
+                    "name": "net_name",
+                    "in": "query",
+                    "description": "Name of the net whom the station refers to",
+                    "type": "string"
+                }, {
+                    "name": "site_id",
+                    "in": "query",
+                    "description": "ID of the site whom the station belongs to",
+                    "type": "integer"
+                }, {
+                    "name": "site_name",
+                    "in": "query",
+                    "description": "Name of the site whom the station belongs to",
+                    "type": "string"
+                }, {
+                    "name": "start_datetime",
+                    "in": "query",
+                    "description": "Current instance start datetime. Standard ISO8601 datetime UTC",
+                    "type": "string",
+                    "format": "date-time"
+                }, {
+                    "name": "end_datetime",
+                    "in": "query",
+                    "description": "Current instance end datetime. Standard ISO8601 datetime UTC",
+                    "type": "string",
+                    "format": "date-time"
+                }, {
+                    "name": "additional_info",
+                    "in": "query",
+                    "description": "Find this string into station's additional info",
+                    "type": "string"
+                }, {
+                    "name": "minlatitude",
+                    "in": "query",
+                    "description": "**Spatial search**. Specify southern boundary for search.",
+                    "type": "number",
+                    "format": "double"
+                }, {
+                    "name": "maxlatitude",
+                    "in": "query",
+                    "description": "**Spatial search**. Specify northern boundary for search.",
+                    "type": "number",
+                    "format": "double"
+                }, {
+                    "name": "minlongitude",
+                    "in": "query",
+                    "description": "**Spatial search**. Specify western boundary for search.",
+                    "type": "number",
+                    "format": "double"
+                }, {
+                    "name": "maxlongitude",
+                    "in": "query",
+                    "description": "**Spatial search**. Specify eastern boundary for search.",
+                    "type": "number",
+                    "format": "double"
+                }, {
+                    "name": "latitude",
+                    "in": "query",
+                    "description": "**Spatial search**. Specify the central latitude point for a radial search.",
+                    "type": "number",
+                    "format": "double"
+                }, {
+                    "name": "longitude",
+                    "in": "query",
+                    "description": "**Spatial search**. Specify the central longitude point for a radial search.",
+                    "type": "number",
+                    "format": "double"
+                }, {
+                    "name": "minradius",
+                    "in": "query",
+                    "description": "**Spatial search**. Specify minimum distance from the geographic point defined by latitude and longitude. Degrees.",
+                    "type": "number",
+                    "format": "double"
+                }, {
+                    "name": "maxradius",
+                    "in": "query",
+                    "description": "**Spatial search**. Specify maximum distance from the geographic point defined by latitude and longitude. Degrees.",
+                    "type": "number",
+                    "format": "double"
+                }, {
+                    "name": "minradiuskm",
+                    "in": "query",
+                    "description": "**Spatial search**. Specify minimum distance from the geographic point defined by latitude and longitude. Kilometers.",
+                    "type": "number",
+                    "format": "double"
+                }, {
+                    "name": "maxradiuskm",
+                    "in": "query",
+                    "description": "**Spatial search**. Specify maximum distance from the geographic point defined by latitude and longitude. Kilometers.",
+                    "type": "number",
+                    "format": "double"
+                }, {
+                    "name": "exact_match",
+                    "in": "query",
+                    "description": "Use exact match when filtering by query parameters",
+                    "type": "boolean"
+                }, {
+                    "name": "sort_by",
+                    "in": "query",
+                    "description": "How to sort result",
+                    "type": "string",
+                    "default": "name",
+                    "enum": ["id", "name", "end_datetime"]
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponseGet"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            },
+            "post": {
+                "tags": [
+                    "stations"
+                ],
+                "summary": "Register a station",
+                "description": "",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "in": "body",
+                    "name": "body",
+                    "description": "JSON object that needs to be passed as input",
+                    "required": true,
+                    "schema": {
+                        "$ref": "#/definitions/Station"
+                    }
+                }],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "207": {
+                        "description": "Already exists. No Rows inserted",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    },
+                    "409": {
+                        "description": "Operation failed"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            }
+        },
+        "/stations/{id}": {
+            "get": {
+                "tags": [
+                    "stations"
+                ],
+                "summary": "Info about a station by ID",
                 "description": "",
                 "produces": [
                     "application/json"
@@ -1869,7 +2082,142 @@
                 "parameters": [{
                     "name": "id",
                     "in": "path",
-                    "description": "Sensortype ID",
+                    "description": "Station ID",
+                    "type": "integer",
+                    "format": "int64"
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "params": {
+                                    "type": "object"
+                                },
+                                "data": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/ApiResponse"
+                                    }
+                                },
+                                "error": {
+                                    "type": "object"
+                                },
+                                "statusCode": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                },
+                                "records": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            },
+            "patch": {
+                "tags": [
+                    "stations"
+                ],
+                "summary": "Update station data by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "path",
+                    "description": "Station ID",
+                    "type": "integer",
+                    "format": "int64"
+                }, {
+                    "in": "body",
+                    "name": "body",
+                    "description": "JSON object that needs to be passed as input",
+                    "required": true,
+                    "schema": {
+                        "$ref": "#/definitions/Station"
+                    }
+                }],
+                "responses": {
+                    "202": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            },
+            "delete": {
+                "tags": [
+                    "stations"
+                ],
+                "summary": "Delete a station by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "path",
+                    "description": "Station ID",
+                    "type": "integer",
+                    "format": "int64"
+                }],
+                "responses": {
+                    "202": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            }
+        },
+        "/stations/{id}/sensors": {
+            "get": {
+                "tags": [
+                    "stations", "sensors"
+                ],
+                "summary": "List all sensors referring to a station by ID",
+                "description": "",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "path",
+                    "description": "Station ID",
                     "type": "integer",
                     "format": "int64"
                 }],
@@ -2149,12 +2497,12 @@
                 }]
             }
         },
-        "/nets/{id}/sensors": {
+        "/nets/{id}/stations": {
             "get": {
                 "tags": [
-                    "nets", "sensors"
+                    "nets", "stations"
                 ],
-                "summary": "List all sensors belonging to a net by ID",
+                "summary": "List all stations belonging to a net by ID",
                 "description": "",
                 "produces": [
                     "application/json"
@@ -2341,7 +2689,7 @@
                     "description": "JSON object that needs to be passed as input",
                     "required": true,
                     "schema": {
-                        "$ref": "#/definitions/Site"
+                        "$ref": "../json-schemas/sites.json"
                     }
                 }],
                 "responses": {
@@ -2452,7 +2800,7 @@
                     "description": "JSON object that needs to be passed as input",
                     "required": true,
                     "schema": {
-                        "$ref": "#/definitions/Site"
+                        "$ref": "../json-schemas/sites.json"
                     }
                 }],
                 "responses": {
@@ -2507,12 +2855,12 @@
                 }]
             }
         },
-        "/sites/{id}/sensors": {
+        "/sites/{id}/stations": {
             "get": {
                 "tags": [
-                    "sites", "sensors"
+                    "sites", "stations"
                 ],
-                "summary": "List all sensors belonging to a site by ID",
+                "summary": "List all stations belonging to a site by ID",
                 "description": "",
                 "produces": [
                     "application/json"
@@ -4838,6 +5186,52 @@
                 }
             }
         },
+        "Station": {
+            "type": "object",
+            "required": ["name"],
+            "additionalProperties": false,
+            "properties": {
+                "name": {
+                    "title": "Name",
+                    "description": "Name",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "lat": {
+                    "title": "Latitude",
+                    "description": "Coordinate WGS84",
+                    "type": "number",
+                    "format": "double"
+                },
+                "lon": {
+                    "title": "Longitude",
+                    "description": "Coordinate WGS84",
+                    "type": "number",
+                    "format": "double"
+                },
+                "quote": {
+                    "title": "Quote",
+                    "description": "In meters",
+                    "type": "number",
+                    "format": "double"
+                },
+                "net_id": {
+                    "title": "Net ID",
+                    "description": "ID of the net whom the channel refers to",
+                    "type": "integer"
+                },
+                "site_id": {
+                    "title": "Site ID",
+                    "description": "ID of the site whom the channel belongs to",
+                    "type": "integer"
+                },
+                "custom_props": {
+                    "title": "Additional properties",
+                    "description": "Additional properties",
+                    "type": "object"
+                }
+            }
+        },
         "Net": {
             "type": "object",
             "properties": {
@@ -4926,7 +5320,7 @@
                     "type": "integer"
                 },
                 "settings": {
-                    "$ref": "../../json-schemas/resource_permissions_swagger.json"
+                    "$ref": "../json-schemas/resource_permissions_swagger.json"
                 },
                 "active": {
                     "description": "Set if the permission will be active immediately",
@@ -4940,7 +5334,7 @@
             "required": ["settings"],
             "properties": {
                 "settings": {
-                    "$ref": "../../json-schemas/resource_permissions_swagger.json"
+                    "$ref": "../json-schemas/resource_permissions_swagger.json"
                 },
                 "active": {
                     "description": "Set if the permission will be active immediately",

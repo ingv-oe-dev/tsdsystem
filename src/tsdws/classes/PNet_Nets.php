@@ -50,7 +50,7 @@ Class Nets extends QueryManager {
 	
 	public function getList($input) {
 		
-		$query = "SELECT n.id, n.name, n.owner_id, count(s.id) as n_nodes FROM " . $this->tablename . " n left join tsd_pnet.sensors s on n.id = s.net_id and s.remove_time is null WHERE n.remove_time IS NULL ";
+		$query = "SELECT n.id, n.name, n.owner_id, count(s.id) as n_nodes FROM " . $this->tablename . " n left join tsd_pnet.stations s on n.id = s.net_id and s.remove_time is null WHERE n.remove_time IS NULL ";
 		
 		if (isset($input) and is_array($input)) { 
 			$query .= $this->composeWhereFilter($input, array(

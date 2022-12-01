@@ -1,0 +1,95 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Station",
+    "description": "Set the properties of the station",
+    "type": "object",
+    "required": ["name", "lat", "lon"],
+    "additionalProperties": false,
+    "format": "categories",
+    "basicCategoryTitle": "Main",
+    "properties": {
+        "id": {
+            "title": "ID",
+            "description": "Identificator",
+            "type": "integer",
+            "readOnly": true,
+            "propertyOrder": 1
+        },
+        "name": {
+            "title": "Name",
+            "description": "Name",
+            "type": "string",
+            "minLength": 1,
+            "propertyOrder": 2
+        },
+        "lat": {
+            "type": "number",
+            "title": "Latitude",
+            "minimum": -90,
+            "maximum": 90,
+            "propertyOrder": 3
+        },
+        "lon": {
+            "type": "number",
+            "title": "Longitude",
+            "minimum": -180,
+            "maximum": 180,
+            "propertyOrder": 4
+        },
+        "quote": {
+            "type": ["null", "number"],
+            "title": "Quote",
+            "propertyOrder": 5
+        },
+        "net_id": {
+            "title": "Net",
+            "description": "Network to which the sensor belongs",
+            "type": ["integer", "null"],
+            "enum": [],
+            "options": {
+                "enum_titles": []
+            },
+            "propertyOrder": 6
+        },
+        "site_id": {
+            "title": "Site",
+            "description": "Site in which the sensor is located",
+            "type": ["integer", "null"],
+            "enum": [],
+            "options": {
+                "enum_titles": []
+            },
+            "propertyOrder": 7
+        },
+        "additional_info": {
+            "title": "Additional Info",
+            "description": "Additional info",
+            "type": "object",
+            "propertyOrder": 8
+        },
+        "sensortype_name": {
+            "title": "Sensortype",
+            "description": "The current sensortype name",
+            "type": "string",
+            "readOnly": true
+        },
+        "n_channels": {
+            "title": "N. channels",
+            "description": "Total umber of channels belonging to this node",
+            "type": "integer",
+            "readOnly": true
+        },
+        "start_datetime": {
+            "title": "Start time",
+            "description": "Node start time",
+            "type": "string",
+            "readOnly": true
+        },
+        "end_datetime": {
+            "title": "End time",
+            "description": "Node end time",
+            "type": "string",
+            "readOnly": true
+        }
+    }
+}

@@ -24,15 +24,18 @@ RewriteRule ^owners/([0-9]+)/nets(/)?$ nets/?owner_id=$1 [NC,QSA]
 
 RewriteRule ^sites(/)?$ routes/sites.php [NC]
 RewriteRule ^sites/([0-9]+)(/)?$ routes/sites.php?id=$1 [NC,QSA]
-RewriteRule ^sites/([0-9]+)/sensors(/)?$ sensors/?site_id=$1 [NC,QSA]
+RewriteRule ^sites/([0-9]+)/stations(/)?$ stations/?site_id=$1 [NC,QSA]
 
 RewriteRule ^nets(/)?$ routes/nets.php [NC]
 RewriteRule ^nets/([0-9]+)(/)?$ routes/nets.php?id=$1 [NC,QSA]
-RewriteRule ^nets/([0-9]+)/sensors(/)?$ sensors/?net_id=$1 [NC,QSA]
+RewriteRule ^nets/([0-9]+)/stations(/)?$ stations/?net_id=$1 [NC,QSA]
+
+RewriteRule ^stations(/)?$ routes/stations.php [NC]
+RewriteRule ^stations/([0-9]+)(/)?$ routes/stations.php?id=$1 [NC,QSA]
+RewriteRule ^stations/([0-9]+)/sensors(/)?$ sensors/?station_id=$1 [NC,QSA]
 
 RewriteRule ^sensortypes(/)?$ routes/sensortypes.php [NC]
 RewriteRule ^sensortypes/([0-9]+)(/)?$ routes/sensortypes.php?id=$1 [NC,QSA]
-RewriteRule ^sensortypes/([0-9]+)/channels(/)?$ channels/?sensortype_id=$1 [NC,QSA]
 RewriteRule ^sensortypes/([0-9]+)/sensors(/)?$ sensors/?sensortype_id=$1 [NC,QSA]
 
 RewriteRule ^sensors(/)?$ routes/sensors.php [NC]

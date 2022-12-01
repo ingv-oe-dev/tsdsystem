@@ -48,10 +48,9 @@
         // We will use this to seed the initial editor 
         // and to provide a "Restore to Default" button.
         var default_starting_value = null;
-        
         var id = "<?php echo $id; ?>";
-        var ref = "../../json-schemas/sites.json";
-        var route = "../../sites";
+        var ref = "../../json-schemas/stations.json";
+        var route = "../../stations";
         var method =  id ? "PATCH" : "POST";
         var mySchema = {};
 
@@ -63,11 +62,10 @@
                         "url": route + "?id=" + id,
                         "method": "DELETE",
                         "beforeSend": function(jqXHR, settings) {
-                            jqXHR = Object.assign(jqXHR, {"messageText":"Remove site [id=" + id + "]"}, settings);
+                            jqXHR = Object.assign(jqXHR, {"messageText":"Remove station [id=" + id + "]"}, settings);
                         },
                         "success": function(response, textStatus, jqXHR) {
                             emitSignal(Object.assign(jqXHR, {"messageType":"success"}));
-
                             alert("Record with id=" + id + " removed successfully!");
                             let new_location = window.location.href.split('?')[0];
                             window.location.href = new_location;
@@ -82,18 +80,68 @@
             });  
         });
 
-        // Load schema
+        // Load schema and data
         $.ajax({
             "url": ref,
             "success": function(data) {
                 mySchema = data;
                 handleInputID();
-                startEditor();
+                // get list of nets
+                $.ajax({
+                    "url": "../../nets",
+                    "success": function(response) {
+                        fillEnum(response.data, "net_id");
+                        // get list of sites
+                        $.ajax({
+                            "url": "../../sites",
+                            "success": function(response) {
+                                fillEnum(response.data, "site_id");
+                                // load station data if station_id is defined
+                                if (id) {
+                                    $.ajax({
+                                        "url": route,
+                                        "data": {
+                                            "id": id
+                                        },
+                                        "success": function(starting_value) {
+                                            if (starting_value.data.length > 1) {
+                                                $('#server_response span.mymessage').html("<b>" + starting_value.records + "</b> records retrieved with id = <b>" + id + "</b> and name = <b>" + starting_value.data[0].name + "</b>. You have to check if its <u>current</u> associated <i>Sensors</i> have different '<i>sensortypes</i>' and/or '<i>start/end_datetime</i>'");
+                                                $('#server_response').addClass("alert-danger show");
+                                            } else {
+                                                // set the default starting value (JSON) with data of station with selected id 
+                                                default_starting_value = preprocessData(starting_value.data[0]);
+                                                // update schema and start editor
+                                                mySchema.properties.net_id.default = starting_value.data[0].net_id;
+                                                mySchema.properties.site_id.default = starting_value.data[0].site_id;
+                                                startEditor();
+                                            }
+                                        },
+                                        "error": function(jqXHR) {
+                                            $('#server_response span.mymessage').html(jqXHR.responseJSON.error);
+                                            $('#server_response').addClass("alert-danger show");
+                                        }
+                                    });
+                                } else {
+                                    // start editor
+                                    startEditor();
+                                }
+                            },
+                            "error": function(jqXHR) {
+                                $('#server_response span.mymessage').html(jqXHR.responseJSON.error);
+                                $('#server_response').addClass("alert-danger show");
+                            }
+                        });
+                    },
+                    "error": function(jqXHR) {
+                        $('#server_response span.mymessage').html(jqXHR.responseJSON.error);
+                        $('#server_response').addClass("alert-danger show");
+                    }
+                });
             },
             "error": function(jqXHR) {
-                            $('#server_response span.mymessage').html(jqXHR.responseJSON.error);
-                            $('#server_response').addClass("alert-danger show");
-                        }
+                $('#server_response span.mymessage').html(jqXHR.responseJSON.error);
+                $('#server_response').addClass("alert-danger show");
+            }
         });
 
         function handleInputID() {
@@ -106,39 +154,39 @@
             }
         }
 
+        function resetEditor() {
+            // make empty the JSON editor container
+            $('#editor_holder').html('');
+
+            // reset to null the variable representing the JSON editor11
+            editor = null;
+        }
+
         function startEditor() {
-            if (id) {
-                $.ajax({
-                    "url": route,
-                    "data": {
-                        "id": id
-                    },
-                    "success": function(starting_value) {
-                        var data = preprocessData(starting_value.data[0]);
-                        initializeEditor(data);
-                    },
-            "error": function(jqXHR) {
-                            $('#server_response span.mymessage').html(jqXHR.responseJSON.error);
-                            $('#server_response').addClass("alert-danger show");
-                        }
-                });
-            } else {
-                initializeEditor(default_starting_value);
-            }
+
+            // reset editor
+            resetEditor();
+
+            // initialize editor with the default starting JSON value
+            initializeEditor(default_starting_value);
         }
 
         function preprocessData(initData) {
-            if (initData["coords"]["type"] == "Point") {
-                initData["coords"]["coordinates"] = [initData.coords.coordinates]
-            } else {
-                initData["coords"]["coordinates"] = initData.coords.coordinates[0]
-            }
+			try {
+				initData["lon"] = initData.coords.coordinates[0];
+				initData["lat"] = initData.coords.coordinates[1];
+			} catch (e) {
+                // handling undefined coords
+				initData["lon"] = null;
+				initData["lat"] = null;
+			}
+            delete initData.coords;
             return initData;
         }
 
         function initializeEditor(starting_value) {
         
-            const container = document.getElementById('editor_holder')
+            const container = document.getElementById('editor_holder');
 
             // Initialize the editor
             editor = new JSONEditor(container,{
@@ -158,7 +206,8 @@
             });
 
             editor.on('ready',() => {
-                // Now the api methods will be available
+
+                // Validate the editor on start
                 editor.validate();
             });
             
@@ -167,12 +216,10 @@
                 // Get the value from the editor
                 console.log(editor.getValue());
 
+                // get JSON to post
                 var toPost = editor.getValue();
-                /*
-                if (toPost["info"]) {
-                    toPost.info = JSON.stringify(toPost.info);
-                }
-                */
+                //console.log(toPost);
+                
                 // PATCH if id is indicated, else POST
                 $.ajax({
                     "url": route,
@@ -181,10 +228,10 @@
                     "beforeSend": function(jqXHR, settings) {
                         jqXHR = Object.assign(jqXHR, settings);
                         if (method == 'POST') {
-                            jqXHR = Object.assign(jqXHR, {"messageText":"Add site"});
+                            jqXHR = Object.assign(jqXHR, {"messageText":"Add station"});
                         }
                         if (method == 'PATCH') {
-                            jqXHR = Object.assign(jqXHR, {"messageText":"Edit site [id=" + id + "]"});
+                            jqXHR = Object.assign(jqXHR, {"messageText":"Edit station [id=" + id + "]"});
                         }
                     },
                     "success": function(response, textStatus, jqXHR) {
@@ -221,6 +268,7 @@
                         $('#server_response').addClass("alert-danger show");
                     }
                 });
+                
             });
             
             // Hook up the Restore to Default button
@@ -231,35 +279,53 @@
             // Hook up the validation indicator to update its 
             // status whenever the editor changes
             editor.on('change',function() {
-                // Get an array of errors from the validator
-                var errors = editor.validate();
-                
-                // Not valid
-                if(errors.length) {
-                    $("#valid_indicator").removeClass();
-                    $("#valid_indicator").addClass('mt-1 alert alert-danger');
-                    let html = '<b>Not valid</b>:<br><ul>';
-                    for(var i=0; i<errors.length; i++) {
-                        html += '<li>' + errors[i].path + ': ' + errors[i].message + '</li>';
+
+                if (editor) {
+                    // Get an array of errors from the validator
+                    var errors = editor.validate();
+                    
+                    // Not valid
+                    if(errors.length) {
+                        $("#valid_indicator").removeClass();
+                        $("#valid_indicator").addClass('mt-1 alert alert-danger');
+                        let html = '<b>Not valid</b>:<br><ul>';
+                        for(var i=0; i<errors.length; i++) {
+                            html += '<li>' + errors[i].path + ': ' + errors[i].message + '</li>';
+                        }
+                        html += '</ul>';
+                        $("#valid_indicator").html(html);
+                        $("#submit").attr("disabled", true);
                     }
-                    html += '</ul>';
-                    $("#valid_indicator").html(html);
-                    $("#submit").attr("disabled", true);
-                }
-                // Valid
-                else {
-                    $("#valid_indicator").removeClass();
-                    $("#valid_indicator").addClass('mt-1 alert alert-success');
-                    $("#valid_indicator").html('Valid');
-                    $("#submit").attr("disabled", false);
+                    // Valid
+                    else {
+                        $("#valid_indicator").removeClass();
+                        $("#valid_indicator").addClass('mt-1 alert alert-success');
+                        $("#valid_indicator").html('Valid');
+                        $("#submit").attr("disabled", false);
+                    }
                 }
             });
+        }
+
+        // fill lists used for select form elements
+        function fillEnum(data, propertyKey) {
+           // console.log(data);
+            var custom_enum = new Array();
+            var custom_enum_titles = new Array();
+            custom_enum.push(null);
+            custom_enum_titles.push("--- Select one ---");
+            for (var i=0; i<data.length; i++) {
+                custom_enum.push(data[i].id);
+                custom_enum_titles.push(data[i].name);
+            }
+            mySchema.properties[propertyKey].enum = custom_enum;
+            mySchema.properties[propertyKey].options.enum_titles = custom_enum_titles;
         }
 
         // dispatch event if loaded from a parent frame
         function emitSignal(xhr=null) {
             try {
-                var event = new CustomEvent('siteEdit', {"detail": xhr} );
+                var event = new CustomEvent('stationEdit', {"detail": xhr} );
                 window.parent.document.dispatchEvent(event)
             } catch (e) {
                 console.log(e);

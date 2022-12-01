@@ -1,13 +1,13 @@
 <?php
 
 require_once("..".DIRECTORY_SEPARATOR."classes".DIRECTORY_SEPARATOR."RESTController.php");
-require_once("..".DIRECTORY_SEPARATOR."classes".DIRECTORY_SEPARATOR."PNet_Sites.php");
+require_once("..".DIRECTORY_SEPARATOR."classes".DIRECTORY_SEPARATOR."PNet_Stations.php");
 
-// Sites Controller class
-Class SitesController extends RESTController {
+// Stations Controller class
+Class StationsController extends RESTController {
 	
 	public function __construct() {
-		$this->obj = new Sites();
+		$this->obj = new Stations();
 		$this->route();
 	}
 
@@ -20,7 +20,7 @@ Class SitesController extends RESTController {
 				if (!$this->check_input_post()) break;
 				// check if authorized action
 				$this->authorizedAction(array(
-					"scope"=>"sites-edit"
+					"scope"=>"stations-edit"
 				));
 				$this->post();
 				break;
@@ -30,7 +30,7 @@ Class SitesController extends RESTController {
 				if (!$this->check_input_get()) break;
 				// check if authorized action
 				$this->authorizedAction(array(
-					"scope"=>"sites-read"
+					"scope"=>"stations-read"
 				));
 				$this->get();
 				break;
@@ -41,7 +41,7 @@ Class SitesController extends RESTController {
 				if (!$this->check_input_patch()) break;
 				// check if authorized action
 				$this->authorizedAction(array(
-					"scope"=>"sites-edit",
+					"scope"=>"stations-edit",
 					"resource_id"=>$input["id"]
 				));
 				$this->patch();
@@ -53,7 +53,7 @@ Class SitesController extends RESTController {
 				if (!$this->check_input_delete()) break;
 				// check if authorized action
 				$this->authorizedAction(array(
-					"scope"=>"sites-edit",
+					"scope"=>"stations-edit",
 					"resource_id"=>$input["id"]
 				));
 				$this->delete();
@@ -66,56 +66,9 @@ Class SitesController extends RESTController {
 
 		$this->elaborateResponse();
 	}
-
-	public function check_coords() {
-		
-		$input = $this->getParams();
-		
-		if (!array_key_exists("coords", $input)) {
-			$this->setInputError("This required input is missing: 'coords' [GeoJSON]");
-			return false;
-		} else {
-			if (!$this->validate_json($input["coords"])) {
-				$this->setInputError("Error on decoding 'coords' [GeoJSON]");
-				return false;
-			}
-			if (!array_key_exists("type", $input["coords"])) {
-				$this->setInputError("Error on decoding 'coords' [GeoJSON]: missing 'type' section");
-				return false;
-			}
-			if (!in_array($input["coords"]["type"], array("Point", "Polygon"))) {
-				$this->setInputError("Error on decoding 'coords' [GeoJSON]: error on 'type' section. Your value = " . $input["coords"]["type"] . ". Available ('Point', 'Polygon') [CASE SENSITIVE]");
-				return false;
-			}
-			if (!array_key_exists("coordinates", $input["coords"])) {
-				$this->setInputError("Error on decoding 'coords' [GeoJSON]: missing 'coordinates' section");
-				return false;
-			}
-			if (!is_array($input["coords"]["coordinates"])) {
-				$this->setInputError("Error on decoding 'coords' [GeoJSON]: error on 'coordinates' section. It must be an array");
-				return false;
-			}
-			if ($input["coords"]["type"] == "Polygon" and count($input["coords"]["coordinates"]) < 4) {
-				$this->setInputError("Error on decoding 'coords' [GeoJSON]: error on 'coordinates' section. For Polygon type it must contains at least 4 coordinates");
-				return false;
-			}
-			if ($input["coords"]["type"] == "Point") {
-				$input["coords"]["coordinates"] = $input["coords"]["coordinates"][0];
-			} else {
-				if ($input["coords"]["coordinates"][0] != $input["coords"]["coordinates"][count($input["coords"]["coordinates"]) - 1]) {
-					$this->setInputError("Error on decoding 'coords' [GeoJSON]: error on 'coordinates' section. For Polygon the last coordinate must be equal to first coordinate");
-					return false;
-				}
-				$input["coords"]["coordinates"] = array($input["coords"]["coordinates"]);
-			}
-			$this->setParams($input);
-		}
-
-		return true;
-	}
 	
 	// ====================================================================//
-	// ****************** post - sites **********************//
+	// ****************** post - sensor **********************//
 	// ====================================================================//
 	public function check_input_post() {
 		
@@ -131,8 +84,14 @@ Class SitesController extends RESTController {
 			$this->setInputError("This required input is missing: 'name' [string]");
 			return false;
 		}
-		// (2) $input["coords"] 
-		if (!$this->check_coords()) {
+		// (2) $input["lon"] 
+		if (array_key_exists("lat", $input) and (!array_key_exists("lon", $input) || !is_numeric($input["lon"]))) {
+			$this->setInputError("Uncorrect input: 'lon' [float]");
+			return false;
+		}
+		// (3) $input["lat"] 
+		if (array_key_exists("lon", $input) and (!array_key_exists("lat", $input) || !is_numeric($input["lat"]))) {
+			$this->setInputError("Uncorrect input: 'lat' [float]");
 			return false;
 		}
 		// (3) $input["quote"] 
@@ -140,17 +99,26 @@ Class SitesController extends RESTController {
 			$this->setInputError("Uncorrect input: 'quote' [float]");
 			return false;
 		}
-		// (4) $input["additional_info"] is json
+		// (5) $input["additional_info"] is json
 		if (array_key_exists("additional_info", $input) and !$this->validate_json($input["additional_info"])){
 			$this->setInputError("Error on decoding 'additional_info' JSON input");
 			return false;
 		}
-		
+		// (6) $input["net_id"] is integer
+		if (array_key_exists("net_id", $input) and !(is_int($input["net_id"]) or is_null($input["net_id"]))) {
+			$this->setInputError("Uncorrect input: 'net_id' [int]");
+			return false;
+		}
+		// (7) $input["site_id"] is integer
+		if (array_key_exists("site_id", $input) and !(is_int($input["site_id"]) or is_null($input["site_id"]))){
+			$this->setInputError("Uncorrect input: 'site_id' [int]");
+			return false;
+		}
 		return true;
 	}
 
 	// ====================================================================//
-	// ****************** patch - sites **********************//
+	// ****************** patch - sensor **********************//
 	// ====================================================================//
 	public function check_input_patch() {
 		
@@ -171,8 +139,14 @@ Class SitesController extends RESTController {
 			$this->setInputError("Uncorrect input: 'name' [string]");
 			return false;
 		}
-		// (2) $input["coords"] 
-		if (!$this->check_coords()) {
+		// (2) $input["lon"] 
+		if (array_key_exists("lat", $input) and (!array_key_exists("lon", $input) || !is_numeric($input["lon"]))) {
+			$this->setInputError("Uncorrect input: 'lon' [float]");
+			return false;
+		}
+		// (3) $input["lat"] 
+		if (array_key_exists("lon", $input) and (!array_key_exists("lat", $input) || !is_numeric($input["lat"]))) {
+			$this->setInputError("Uncorrect input: 'lat' [float]");
 			return false;
 		}
 		// (3) $input["quote"] 
@@ -185,7 +159,16 @@ Class SitesController extends RESTController {
 			$this->setInputError("Error on decoding 'additional_info' JSON input");
 			return false;
 		}
-		
+		// (5) $input["net_id"] is integer
+		if (array_key_exists("net_id", $input) and !(is_int($input["net_id"]) or is_null($input["net_id"]))) {
+			$this->setInputError("Uncorrect input: 'net_id' [int]");
+			return false;
+		}
+		// (6) $input["site_id"] is integer
+		if (array_key_exists("site_id", $input) and !(is_int($input["site_id"]) or is_null($input["site_id"]))){
+			$this->setInputError("Uncorrect input: 'site_id' [int]");
+			return false;
+		}
 		return true;
 	}
 
@@ -198,9 +181,8 @@ Class SitesController extends RESTController {
 	}
 	
 	public function get($jsonfields=array("coords","additional_info")) {
-	
+		// coords will be returned in GeoJSON format (as in SitesController.php)
 		parent::get($jsonfields);
-
 	}
 }
 ?>
