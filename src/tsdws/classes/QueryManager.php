@@ -36,14 +36,14 @@ Class QueryManager extends Utils {
 
 	private function readCredentialsFromEnv() {
 		if (!getenv("DB_HOST")) return null;
-		if (!getenv("DB_USER")) return null;
-		if (!getenv("DB_PASSWORD")) return null;
-		if (!getenv("DB_NAME")) return null;
+		if (!getenv("TSD_DB_USER")) return null;
+		if (!getenv("TSD_DB_PASSWORD")) return null;
+		if (!getenv("TSD_DB")) return null;
 		return array(
 			"host" => getenv("DB_HOST"),
-			"user" => getenv("DB_USER"),
-			"pwd" => getenv("DB_PASSWORD"),
-			"db" => getenv("DB_NAME"),
+			"user" => getenv("TSD_DB_USER"),
+			"pwd" => getenv("TSD_DB_PASSWORD"),
+			"db" => getenv("TSD_DB"),
 			"port" => getenv("DB_PORT")
 		);
 	}
