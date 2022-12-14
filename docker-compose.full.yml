@@ -32,6 +32,15 @@ services:
     extends:
       file: docker-services.yml
       service: pgadmin
+  frontend:
+    extends:
+      file: docker-services.yml
+      service: frontend
+    depends_on:
+      - app
+    ports:
+      - "80:80"
+      - "443:443"
   grafana:
     extends:
       file: docker-services.yml

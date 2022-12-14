@@ -2,7 +2,7 @@ FROM timescale/timescaledb-ha:pg14.2-ts2.6.0-oss-latest
 
 LABEL Maintainer="Fabrizio Pistagna <fabrizio.pistagna@ingv.it>, Mario Torrisi <mario.torrisi@ingv.it>"
 
-COPY sql/init_schema.sql /docker-entrypoint-initdb.d/01_init_schema.sql
+COPY sql/init.sql /docker-entrypoint-initdb.d/01_init_schema.sql
 
 COPY sql/tsd_main.sql /docker-entrypoint-initdb.d/02_tsd_main.sql
 

@@ -6,13 +6,14 @@
 
 CREATE DATABASE tsdsystem
     WITH 
-    OWNER = postgres
+    OWNER = tsdsystem
     ENCODING = 'UTF8'
-    LC_COLLATE = 'Italian_Italy.1252'
-    LC_CTYPE = 'Italian_Italy.1252'
+    LC_COLLATE = 'C.UTF-8'
+    LC_CTYPE = 'C.UTF-8'
     TABLESPACE = pg_default
     CONNECTION LIMIT = -1;
 
+\connect tsdsystem;
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------
 -- EXTENSION: timescaledb
@@ -36,18 +37,18 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp" CASCADE;
 -- SCHEMA: tsd_pnet
 
 CREATE SCHEMA IF NOT EXISTS tsd_pnet
-    AUTHORIZATION postgres;
+    AUTHORIZATION tsdsystem;
 
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------
 -- SCHEMA: tsd_main
 
 CREATE SCHEMA IF NOT EXISTS tsd_main
-    AUTHORIZATION postgres;
+    AUTHORIZATION tsdsystem;
 
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------
 -- SCHEMA: tsd_users
 
 CREATE SCHEMA IF NOT EXISTS tsd_users
-    AUTHORIZATION postgres;
+    AUTHORIZATION tsdsystem;
