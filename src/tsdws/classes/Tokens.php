@@ -120,6 +120,14 @@ Class Tokens extends QueryManager {
 
     public function createToken() {
         try {
+            if (
+                !isset($this->permissions) and 
+                isset($this->input['scope']) and 
+                !empty($this->input['scope']) and 
+                !strtolower($this->input['scope'] == 'all')
+            ) {
+                return -1; 
+            }
             $payloadArray = array(
                 "userId" => $this->userId
             );
@@ -135,8 +143,10 @@ Class Tokens extends QueryManager {
     }
 
     public function saveTokenIntoDB($token) {
-        $query = "INSERT INTO tsd_users.tokens (token, remote_addr) VALUES ('" . $token . "','" . $_SERVER["REMOTE_ADDR"] . "')";
-        $this->executeSQLCommand($query);
+        if (is_string($token)) {
+            $query = "INSERT INTO tsd_users.tokens (token, remote_addr) VALUES ('" . $token . "','" . $_SERVER["REMOTE_ADDR"] . "')";
+            $this->executeSQLCommand($query);
+        }
     }
 	
 }

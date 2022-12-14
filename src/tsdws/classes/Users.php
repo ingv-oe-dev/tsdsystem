@@ -95,7 +95,8 @@ Class Users extends QueryManager {
 
         // return result
         if ($result["status"] and isset($result["data"])) {
-            return array("admin" => (intval($result["data"]) === 1 or $result["data"] === true or $result["data"] === "true"));
+            $admin = (intval($result["data"]) === 1 or $result["data"] === true or $result["data"] === "true");
+            if ($admin) return array("admin" => true);
         }
         return null;
 	}

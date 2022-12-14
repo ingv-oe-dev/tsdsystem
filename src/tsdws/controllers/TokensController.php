@@ -96,8 +96,15 @@ Class TokensController extends RESTController {
     }
 
     public function prepareResponse($myToken) {
-        $this->response["token"] = $myToken;
-        $this->setStatusCode(201);
+
+        if ($myToken == -1) {
+            $this->setError("No permissions found for the selected scope");
+            $this->setStatusCode(401);
+        } 
+        else {
+            $this->response["token"] = $myToken;
+            $this->setStatusCode(201);
+        }
     }
 
     public function elaborateResponse() {     
