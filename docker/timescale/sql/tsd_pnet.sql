@@ -14,12 +14,9 @@ CREATE TABLE IF NOT EXISTS tsd_pnet.owners
     update_user integer,
     remove_user integer,
     CONSTRAINT owners_pkey PRIMARY KEY (id)
-);
+)
 
--- TABLESPACE pg_default;
-
-ALTER TABLE IF EXISTS tsd_pnet.owners
-    OWNER to tsdsystem;
+TABLESPACE pg_default;
 
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------
@@ -39,12 +36,9 @@ CREATE TABLE IF NOT EXISTS tsd_pnet.nets
     update_user integer,
     remove_user integer,
     CONSTRAINT nets_pkey PRIMARY KEY (id)
-);
+)
 
--- TABLESPACE pg_default;
-
-ALTER TABLE IF EXISTS tsd_pnet.nets
-    OWNER to tsdsystem;
+TABLESPACE pg_default;
 
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------
@@ -64,12 +58,9 @@ CREATE TABLE IF NOT EXISTS tsd_pnet.sensortypes
     update_user integer,
     remove_user integer,
     CONSTRAINT sensortypes_pkey PRIMARY KEY (id)
-);
+)
 
--- TABLESPACE pg_default;
-
-ALTER TABLE IF EXISTS tsd_pnet.sensortypes
-    OWNER to tsdsystem;
+TABLESPACE pg_default;
 
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------
@@ -91,12 +82,9 @@ CREATE TABLE IF NOT EXISTS tsd_pnet.sites
     update_user integer,
     remove_user integer,
     CONSTRAINT sites_pkey PRIMARY KEY (id)
-);
+)
 
--- TABLESPACE pg_default;
-
-ALTER TABLE IF EXISTS tsd_pnet.sites
-    OWNER to tsdsystem;
+TABLESPACE pg_default;
 
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------
@@ -120,12 +108,9 @@ CREATE TABLE IF NOT EXISTS tsd_pnet.sensors
     update_user integer,
     remove_user integer,
     CONSTRAINT sensors_pkey PRIMARY KEY (id)
-);
+)
 
--- TABLESPACE pg_default;
-
-ALTER TABLE IF EXISTS tsd_pnet.sensors
-    OWNER to tsdsystem;
+TABLESPACE pg_default;
 
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------
@@ -150,12 +135,9 @@ CREATE TABLE IF NOT EXISTS tsd_pnet.channels
     update_user integer,
     remove_user integer,
     CONSTRAINT channels_pkey PRIMARY KEY (id)
-);
+)
 
--- TABLESPACE pg_default;
-
-ALTER TABLE IF EXISTS tsd_pnet.channels
-    OWNER to tsdsystem;
+TABLESPACE pg_default;
 
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------
