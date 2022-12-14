@@ -4,16 +4,16 @@
 
 -- DROP DATABASE IF EXISTS tsdsystem;
 
-CREATE DATABASE tsdsystem
+CREATE DATABASE "TSD_DB"
     WITH 
-    OWNER = tsdsystem
+    OWNER = "TSD_DB_USER"
     ENCODING = 'UTF8'
     LC_COLLATE = 'C.UTF-8'
     LC_CTYPE = 'C.UTF-8'
     TABLESPACE = pg_default
     CONNECTION LIMIT = -1;
 
-\connect tsdsystem;
+\connect TSD_DB;
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------
 -- EXTENSION: timescaledb
@@ -37,18 +37,18 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp" CASCADE;
 -- SCHEMA: tsd_pnet
 
 CREATE SCHEMA IF NOT EXISTS tsd_pnet
-    AUTHORIZATION tsdsystem;
+    AUTHORIZATION TSD_DB_USER;
 
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------
 -- SCHEMA: tsd_main
 
 CREATE SCHEMA IF NOT EXISTS tsd_main
-    AUTHORIZATION tsdsystem;
+    AUTHORIZATION TSD_DB_USER;
 
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------
 -- SCHEMA: tsd_users
 
 CREATE SCHEMA IF NOT EXISTS tsd_users
-    AUTHORIZATION tsdsystem;
+    AUTHORIZATION TSD_DB_USER;

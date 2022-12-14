@@ -22,9 +22,7 @@ services:
     volumes:
       - ./src:/var/www/html
   db:
-    build:
-      context: ./docker/timescale/
-    image: tsdsystem-db
+    image: timescale/timescaledb-ha:pg14.2-ts2.6.0-oss-latest
     container_name: db
     restart: always
     environment:
