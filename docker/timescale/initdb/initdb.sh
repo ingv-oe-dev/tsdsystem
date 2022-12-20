@@ -20,17 +20,17 @@ echo "END init.sql"
 PGPASSWORD=${TSD_DB_PASSWORD}
 
 echo "RUN tsd_main.sql"
-psql -h ${DB_HOST} -U ${TSD_DB_USER} -d ${TSD_DB} < /sql_tsd/tsd_main.sql
+psql -h ${DB_HOST} -U ${TSD_DB_USER} -d ${TSD_DB} < /sql_create/tsd_main.sql
 echo "END tsd_main.sql"
 
 echo "RUN tsd_pnet.sql"
-psql -h ${DB_HOST} -U ${TSD_DB_USER} -d ${TSD_DB} < /sql_tsd/tsd_pnet.sql
+psql -h ${DB_HOST} -U ${TSD_DB_USER} -d ${TSD_DB} < /sql_create/tsd_pnet.sql
 echo "END tsd_pnet.sql"
 
 echo "RUN tsd_users.sql"
-psql -h ${DB_HOST} -U ${TSD_DB_USER} -d ${TSD_DB} < /sql_tsd/tsd_users.sql
+psql -h ${DB_HOST} -U ${TSD_DB_USER} -d ${TSD_DB} < /sql_create/tsd_users.sql
 echo "END tsd_users.sql"
 
 echo "RUN public.sql"
-psql -h ${DB_HOST} -U ${TSD_DB_USER} -d ${TSD_DB}  < /sql_tsd/public.sql
+psql -h ${DB_HOST} -U ${TSD_DB_USER} -d ${TSD_DB}  < /sql_create/public.sql
 echo "END public.sql"

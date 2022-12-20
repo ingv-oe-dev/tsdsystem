@@ -2,7 +2,7 @@ version: '3'
 services:
   init_db:
     image: governmentpaas/psql:latest
-    restart: "none"
+    restart: "no"
     environment:
       DB_HOST: "${DB_HOST}"
       DB_PORT: "${DB_PORT}"
