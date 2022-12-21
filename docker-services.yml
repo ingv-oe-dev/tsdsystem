@@ -10,9 +10,9 @@ services:
       - db
     environment:
       DB_HOST: "${DB_HOST}"
-      DB_USER: "${DB_USER}"
-      DB_PASSWORD: "${DB_PASSWORD}"
-      DB_NAME: "${DB_NAME}"
+      DB_USER: "${TSD_DB_USER}"
+      DB_PASSWORD: "${TSD_DB_PASSWORD}"
+      DB_NAME: "${TSD_DB}"
       DB_PORT: "${DB_PORT}"
       SERVER_KEY: "${SERVER_KEY}"
       APP_ALLOWED_HOSTS: "${APP_ALLOWED_HOSTS}"
