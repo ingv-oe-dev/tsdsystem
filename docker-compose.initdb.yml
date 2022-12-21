@@ -1,0 +1,22 @@
+version: '3'
+services:
+  init_db:
+    image: governmentpaas/psql:latest
+    restart: "no"
+    environment:
+      DB_HOST: "${DB_HOST}"
+      DB_PORT: "${DB_PORT}"
+      DB_USER: "${DB_USER}"
+      DB_PASSWORD: "${DB_PASSWORD}"
+      TSD_DB: "${TSD_DB}"
+      TSD_DB_USER: "${TSD_DB_USER}"
+      TSD_DB_PASSWORD: "${TSD_DB_PASSWORD}"
+      POSTGRES_USER: "${DB_USER}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD}"
+      PGPASSWORD: "${DB_PASSWORD}"
+    tty: true
+    working_dir: /
+    command: ["/bin/sh", "/scripts/initdb.sh"]
+    volumes:
+      - ./docker/timescale/initdb:/scripts
+      - ./docker/timescale/sql:/sql_create
