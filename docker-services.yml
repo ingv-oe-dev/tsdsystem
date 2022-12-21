@@ -16,6 +16,9 @@ services:
       DB_PORT: "${DB_PORT}"
       SERVER_KEY: "${SERVER_KEY}"
       APP_ALLOWED_HOSTS: "${APP_ALLOWED_HOSTS}"
+      ADMIN_ID: "${ADMIN_ID}"
+      ADMIN_PASSWORD: "${ADMIN_PASSWORD}"
+      ADMIN_EMAIL: "${ADMIN_EMAIL}"
     ports:
       - "8000:80"
     working_dir: /var/www/html/tsdws
