@@ -13,8 +13,7 @@
         },
         "version": "1.1"
     },
-    "host": "localhost",
-    "basePath": "/github/tsdsystem/src/fdsnws/station/1",
+    "basePath": "/fdsnws/station/1",
     "schemes": [
         "http"
     ],

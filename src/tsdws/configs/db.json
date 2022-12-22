@@ -1,7 +1,7 @@
 {
     "host": "db",
-    "user": "webapp_user",
-    "pwd": "smoketest",
+    "user": "tsd_user",
+    "pwd": "tsd_password",
     "db": "tsdsystem",
     "port": "5432"
 }

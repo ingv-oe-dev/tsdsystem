@@ -13,8 +13,7 @@
             "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
         }
     },
-    "host": "localhost",
-    "basePath": "/github/tsdsystem/src/tsdws",
+    "basePath": "/tsdws",
     "tags": [{
         "name": "token",
         "description": "Generation of authorization JWT tokens"
@@ -321,6 +320,7 @@
                 "parameters": [{
                     "name": "id",
                     "in": "path",
+                    "required": true,
                     "description": "Timeseries unique identifier (uuid)",
                     "type": "string",
                     "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"

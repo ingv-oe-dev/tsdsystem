@@ -2,6 +2,11 @@ RewriteEngine On
 
 RewriteRule .* - [e=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
-RewriteRule ^swagger/tsdsystem(/)?$ swagger-ui/dist/tsdsystem.php [NC]
-RewriteRule ^swagger/fdsn(/)?$ swagger-ui/dist/fdsn.php [NC]
-RewriteRule ^swagger/oedatarep(/)?$ swagger-ui/dist/oedatarep.php [NC]
+RewriteRule ^swagger/tsdsystem(/)?$ /swagger-ui/dist/tsdsystem.php [NC,R,L]
+RewriteRule ^swagger/fdsn(/)?$ /swagger-ui/dist/fdsn.php [NC,R,L]
+RewriteRule ^swagger/oedatarep(/)?$ /swagger-ui/dist/oedatarep.php [NC,R,L]
+
+<Files db.json>
+ order allow,deny
+ Deny from all
+</Files>

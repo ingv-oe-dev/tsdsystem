@@ -13,8 +13,7 @@
             "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
         }
     },
-    "host": "localhost",
-    "basePath": "/github/tsdsystem/src/tsdws",
+    "basePath": "/tsdws",
     "tags": [{
         "name": "timeseries",
         "description": "End-point for timeseries stored into the TSDSystem instance of OEDataRep"

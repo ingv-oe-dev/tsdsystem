@@ -1,7 +1,0 @@
-{
-    "host": "localhost",
-    "user": "postgres",
-    "pwd": "development",
-    "db": "tsdsystem",
-    "port": "5432"
-}

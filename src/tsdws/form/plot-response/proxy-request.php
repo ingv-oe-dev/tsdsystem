@@ -18,7 +18,7 @@
     $url = "http://";
     if(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') $url = "https://";        
     // Append the host(domain name, ip) to the URL.   
-    $url.= $_SERVER['HTTP_HOST'] . "/github/tsdsystem/src/tsdws/timeseries/values/?" . $data;
+    $url.= $_SERVER['HTTP_HOST'] . "/tsdws/timeseries/values/?" . $data;
     // echo $url;
     
     // prepare cURL request
