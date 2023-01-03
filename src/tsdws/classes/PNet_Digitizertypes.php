@@ -1,9 +1,9 @@
 <?php
 require_once("QueryManager.php");
 
-Class Sensortypes extends QueryManager {
+Class Digitizertypes extends QueryManager {
 	
-	protected $tablename = "tsd_pnet.sensortypes";
+	protected $tablename = "tsd_pnet.digitizertypes";
 	
 	public function insert($input) {
 
@@ -17,12 +17,15 @@ Class Sensortypes extends QueryManager {
 			// start transaction
 			$this->myConnection->beginTransaction();
 
-			$next_query = "INSERT INTO " . $this->tablename . " (name, model, components, sensortype_category_id, response_parameters, additional_info, create_user) VALUES (" . 
+			$next_query = "INSERT INTO " . $this->tablename . " (name, model, final_sample_rate, final_sample_rate_measure_unit, sensitivity, sensitivity_measure_unit, dynamical_range, dynamical_range_measure_unit, additional_info, create_user) VALUES (" . 
 				"'" .$input["name"] . "', " .
 				(isset($input["model"]) ? ("'" .$input["model"] . "'") : "NULL") . ", " .
-				(isset($input["components"]) ? ("'" . json_encode($input["components"], JSON_NUMERIC_CHECK) . "'") : "NULL") . ", " .
-				(isset($input["sensortype_category_id"]) ? $input["sensortype_category_id"] : "NULL") . ", " .
-				(isset($input["response_parameters"]) ? ("'" . json_encode((object) $input["response_parameters"], JSON_NUMERIC_CHECK) . "'") : "NULL") . ", " .
+				(isset($input["final_sample_rate"]) ? $input["final_sample_rate"] : "NULL") . ", " .
+				(isset($input["final_sample_rate_measure_unit"]) ? ("'" .$input["final_sample_rate_measure_unit"] . "'") : "NULL") . ", " .
+				(isset($input["sensitivity"]) ? $input["sensitivity"] : "NULL") . ", " .
+				(isset($input["sensitivity_measure_unit"]) ? ("'" .$input["sensitivity_measure_unit"] . "'") : "NULL") . ", " .
+				(isset($input["dynamical_range"]) ? $input["dynamical_range"] : "NULL") . ", " .
+				(isset($input["dynamical_range_measure_unit"]) ? ("'" .$input["dynamical_range_measure_unit"] . "'") : "NULL") . ", " .
 				(isset($input["additional_info"]) ? ("'" . json_encode((object) $input["additional_info"], JSON_NUMERIC_CHECK) . "'") : "NULL") . ", " .
 				((array_key_exists("create_user", $input) and isset($input["create_user"]) and is_int($input["create_user"])) ? $input["create_user"] : "NULL") . 
 			")";
@@ -54,16 +57,13 @@ Class Sensortypes extends QueryManager {
 	
 	public function getList($input) {
 		
-		$query = "SELECT id, name, model, components, sensortype_category_id, response_parameters, additional_info FROM " . $this->tablename . " WHERE remove_time IS NULL ";
+		$query = "SELECT id, name, model, final_sample_rate, final_sample_rate_measure_unit, sensitivity, sensitivity_measure_unit, dynamical_range, dynamical_range_measure_unit, additional_info FROM " . $this->tablename . " WHERE remove_time IS NULL ";
 		
 		if (isset($input) and is_array($input)) { 
 			$query .= $this->composeWhereFilter($input, array(
 				"id" => array("id" => true, "quoted" => false),
 				"name" => array("quoted" => true),
 				"model" => array("quoted" => true),
-				"components" => array("quoted" => true),
-				"sensortype_category_id" => array("quoted" => false),
-				"response_parameters" => array("quoted" => true),
 				"additional_info" => array("quoted" => true)
 			));
 
@@ -72,8 +72,7 @@ Class Sensortypes extends QueryManager {
 				$query .= $this->composeOrderBy($cols, array(
 					"id" => array("alias" => "id"),
 					"name" => array("alias" => "name"),
-					"model" => array("alias" => "model"),
-					"sensortype_category_id" => array("alias" => "sensortype_category_id")
+					"model" => array("alias" => "model")
 				));
 			}
 		}
@@ -87,9 +86,12 @@ Class Sensortypes extends QueryManager {
 		$updateFields = array(
 			"name" => array("quoted" => true),
 			"model" => array("quoted" => true),
-			"components" => array("json" => true, "associative" => false),
-			"sensotype_category_id" => array("quoted", false),
-			"response_parameters" => array("json" => true),
+			"final_sample_rate" => array("quoted" => false),
+			"final_sample_rate_measure_unit" => array("quoted" => true),
+			"sensitivity" => array("quoted" => false),
+			"sensitivity_measure_unit" => array("quoted" => true),
+			"dynamical_range" => array("quoted" => false),
+			"dynamical_range_measure_unit" => array("quoted" => true),
 			"additional_info" => array("json" => true),
 			"update_time" => array("quoted" => false),
 			"update_user" => array("quoted" => false)

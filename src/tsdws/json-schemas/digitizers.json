@@ -1,7 +1,7 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "title": "Sensor",
-    "description": "Set the properties of the sensor",
+    "title": "Digitizer",
+    "description": "Set the properties of the digitizer",
     "type": "object",
     "required": ["name"],
     "additionalProperties": false,
@@ -27,8 +27,8 @@
             "description": "Serial number",
             "type": "string"
         },
-        "sensortype_id": {
-            "title": "Sensortype",
+        "digitizertype_id": {
+            "title": "Digitizertype",
             "type": ["integer", "null"],
             "enum": [],
             "options": {

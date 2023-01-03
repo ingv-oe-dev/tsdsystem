@@ -1,0 +1,61 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Digitizertype",
+    "description": "Set the properties of the digitizertype",
+    "type": "object",
+    "required": ["name"],
+    "additionalProperties": false,
+    "format": "categories",
+    "basicCategoryTitle": "Main",
+    "properties": {
+        "id": {
+            "title": "ID",
+            "description": "Identificator",
+            "type": "integer",
+            "readOnly": true,
+            "propertyOrder": 1
+        },
+        "name": {
+            "title": "Name",
+            "description": "Name",
+            "type": "string",
+            "minLength": 1,
+            "propertyOrder": 2
+        },
+        "model": {
+            "title": "Model",
+            "description": "Model",
+            "type": "string"
+        },
+        "final_sample_rate": {
+            "title": "Final sample rate",
+            "type": "number"
+        },
+        "final_sample_rate_measure_unit": {
+            "title": "Final sample rate measure unit",
+            "type": "string"
+        },
+        "sensitivity": {
+            "title": "Sensitivity",
+            "type": "number"
+        },
+        "sensitivity_measure_unit": {
+            "title": "Sensitivity measure unit",
+            "type": "string"
+        },
+        "dynamical_range": {
+            "title": "Dynamical range",
+            "type": "number"
+        },
+        "dynamical_range_measure_unit": {
+            "title": "Dynamical range measure unit",
+            "type": "string"
+        },
+        "additional_info": {
+            "title": "Additional Info",
+            "description": "Additional info",
+            "type": "object",
+            "propertyOrder": 8
+        }
+    }
+}

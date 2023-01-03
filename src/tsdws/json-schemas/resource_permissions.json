@@ -57,7 +57,87 @@
                         }
                     }
                 },
+                "digitizertypes": {
+                    "type": "object",
+                    "properties": {
+                        "edit": {
+                            "$ref": "#/$defs/root_resource_edit_configuration"
+                        },
+                        "read": {
+                            "$ref": "#/$defs/root_resource_read_configuration"
+                        }
+                    },
+                    "options": {
+                        "collapsed": true
+                    }
+                },
                 "sensors": {
+                    "type": "object",
+                    "properties": {
+                        "edit": {
+                            "type": "object",
+                            "properties": {
+                                "ip": {
+                                    "type": ["array", "null"],
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                },
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "permissions": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "$ref": "#/$defs/array_of_int_primary_keys"
+                                        },
+                                        "net_id": {
+                                            "$ref": "#/$defs/array_of_int_primary_keys"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "read": {
+                            "$ref": "#/$defs/root_resource_read_configuration"
+                        }
+                    }
+                },
+                "digitizers": {
+                    "type": "object",
+                    "properties": {
+                        "edit": {
+                            "type": "object",
+                            "properties": {
+                                "ip": {
+                                    "type": ["array", "null"],
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                },
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "permissions": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "$ref": "#/$defs/array_of_int_primary_keys"
+                                        },
+                                        "net_id": {
+                                            "$ref": "#/$defs/array_of_int_primary_keys"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "read": {
+                            "$ref": "#/$defs/root_resource_read_configuration"
+                        }
+                    }
+                },
+                "stations": {
                     "type": "object",
                     "properties": {
                         "edit": {

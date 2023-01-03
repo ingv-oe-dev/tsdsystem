@@ -50,6 +50,7 @@ const notificationListComponentDefinition = {
             }
         },
         cleanAll() {
+            this.readAll();
             this.list = {};
         }
     },

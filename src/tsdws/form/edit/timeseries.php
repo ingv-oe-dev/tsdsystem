@@ -295,7 +295,7 @@
             var custom_enum_titles = new Array();
             for (var i=0; i<data.length; i++) {
                 custom_enum.push(data[i].id);
-                custom_enum_titles.push(data[i].net_name + " -> " + data[i].sensor_name + " -> " + data[i].name + " [ID: " + data[i].id + "]");
+                custom_enum_titles.push(data[i].net_name + " -> " + data[i].station_name + " -> " + data[i].sensortype_name +" -> " + data[i].name + " [ID: " + data[i].id + "] from " + data[i].start_datetime.substr(0,10));
             }
             //console.log(mySchema);
             mySchema.properties.mapping.properties.channel_list.items.enum = custom_enum;

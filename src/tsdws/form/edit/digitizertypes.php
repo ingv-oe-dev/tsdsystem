@@ -1,6 +1,5 @@
 <?php
     $id = isset($_GET["id"]) ? $_GET["id"] : null;
-	$station_config_id = isset($_GET["station_config_id"]) ? $_GET["station_config_id"] : null;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -32,7 +31,7 @@
                     } 
                 ?>
             </div>
-                </div>
+        </div>
         <div class='columns p-3 mt-0'>
             <div id='server_response' class="alert alert-dismissible fade" role="alert">
             <span class='mymessage'></span>
@@ -48,14 +47,14 @@
         // This is the starting value for the editor
         // We will use this to seed the initial editor 
         // and to provide a "Restore to Default" button.
-        var default_starting_value = {};
+        var default_starting_value = null;
         
         var id = "<?php echo $id; ?>";
-		var station_config_id = "<?php echo $station_config_id; ?>";
-        var ref = "../../json-schemas/channels.json";
-        var route = "../../channels";
+        var ref = "../../json-schemas/digitizertypes.json";
+        var route = "../../digitizertypes";
         var method =  id ? "PATCH" : "POST";
-        
+        var mySchema = {};
+
         // Set action on delete button
         $(function(){
             $("button#delete").on("click", function(){
@@ -64,7 +63,7 @@
                         "url": route + "?id=" + id,
                         "method": "DELETE",
                         "beforeSend": function(jqXHR, settings) {
-                            jqXHR = Object.assign(jqXHR, {"messageText":"Remove channel [id=" + id + "]", "station_config_id": station_config_id}, settings);
+                            jqXHR = Object.assign(jqXHR, {"messageText":"Remove digitizertype [id=" + id + "]"}, settings);
                         },
                         "success": function(response, textStatus, jqXHR) {
                             emitSignal(Object.assign(jqXHR, {"messageType":"success"}));
@@ -89,45 +88,12 @@
             "success": function(data) {
                 mySchema = data;
                 handleInputID();
-                $.ajax({
-                    "url": "../../stations/configs",
-                    "success": function(response) {
-                        fillEnum(response.data, "station_config_id");
-                        // load sensor data if station_config_id is defined
-                        if (id) {
-                            $.ajax({
-                                "url": route,
-                                "data": {
-                                    "id": id
-                                },
-                                "success": function(starting_value) {
-                                    // set the default starting value (JSON) with data of sensor with selected id 
-                                    default_starting_value = starting_value.data[0];
-                                    // update schema and start editor
-                                    mySchema.properties.station_config_id.default = starting_value.data[0].station_config_id;
-                                    mySchema.properties.station_config_id.readOnly = true;
-                                    startEditor();
-                                },
-                                "error": function(jqXHR) {
-                                    $('#server_response span.mymessage').html(jqXHR.responseJSON.error);
-                                    $('#server_response').addClass("alert-danger show");
-                                }
-                            });
-                        } else {
-                            // start editor
-                            startEditor();
-                        }
-                    },
-                    "error": function(jqXHR) {
-                        $('#server_response span.mymessage').html(jqXHR.responseJSON.error);
-                        $('#server_response').addClass("alert-danger show");
-                    }
-                });
+                startEditor();
             },
             "error": function(jqXHR) {
-                $('#server_response span.mymessage').html(jqXHR.responseJSON.error);
-                $('#server_response').addClass("alert-danger show");
-            }
+                            $('#server_response span.mymessage').html(jqXHR.responseJSON.error);
+                            $('#server_response').addClass("alert-danger show");
+                        }
         });
 
         function handleInputID() {
@@ -140,22 +106,25 @@
             }
         }
 
-        function resetEditor() {
-            // make empty the JSON editor container
-            $('#editor_holder').html('');
-
-            // reset to null the variable representing the JSON editor11
-            editor = null;
-        }
-
         function startEditor() {
-
-            // reset editor
-            resetEditor();
-
-            // initialize editor with the default starting JSON value
-            if (station_config_id) default_starting_value["station_config_id"] = station_config_id;
-            initializeEditor(default_starting_value);
+            if (id) {
+                $.ajax({
+                    "url": route,
+                    "data": {
+                        "id": id
+                    },
+                    "success": function(starting_value) {
+                        var data = starting_value.data[0];
+                        initializeEditor(data);
+                    },
+                    "error": function(jqXHR) {
+                        $('#server_response span.mymessage').html(jqXHR.responseJSON.error);
+                        $('#server_response').addClass("alert-danger show");
+                    }
+                });
+            } else {
+                initializeEditor(default_starting_value);
+            }
         }
 
         function initializeEditor(starting_value) {
@@ -190,19 +159,23 @@
                 console.log(editor.getValue());
 
                 var toPost = editor.getValue();
-
+                /*
+                if (toPost["info"]) {
+                    toPost.info = JSON.stringify(toPost.info);
+                }
+                */
                 // PATCH if id is indicated, else POST
                 $.ajax({
                     "url": route,
                     "data": JSON.stringify(toPost),
                     "method": method,
                     "beforeSend": function(jqXHR, settings) {
-                        jqXHR = Object.assign(jqXHR, settings, {"station_config_id": station_config_id});
+                        jqXHR = Object.assign(jqXHR, settings);
                         if (method == 'POST') {
-                            jqXHR = Object.assign(jqXHR, {"messageText":"Add channel"});
+                            jqXHR = Object.assign(jqXHR, {"messageText":"Add digitizertype"});
                         }
                         if (method == 'PATCH') {
-                            jqXHR = Object.assign(jqXHR, {"messageText":"Edit channel [id=" + id + "]"});
+                            jqXHR = Object.assign(jqXHR, {"messageText":"Edit digitizertype [id=" + id + "]"});
                         }
                     },
                     "success": function(response, textStatus, jqXHR) {
@@ -235,7 +208,7 @@
                     "error": function(jqXHR) {
                         jqXHR = Object.assign(jqXHR, {"messageType":"danger"});
                         emitSignal(jqXHR);
-                        $('#server_response span.mymessage').html(JSON.stringify(jqXHR.responseJSON.error));
+                        $('#server_response span.mymessage').html(jqXHR.responseJSON.error);
                         $('#server_response').addClass("alert-danger show");
                     }
                 });
@@ -249,52 +222,35 @@
             // Hook up the validation indicator to update its 
             // status whenever the editor changes
             editor.on('change',function() {
-
-                if (editor) {
-                    // Get an array of errors from the validator
-                    var errors = editor.validate();
-                    
-                    // Not valid
-                    if(errors.length) {
-                        $("#valid_indicator").removeClass();
-                        $("#valid_indicator").addClass('mt-1 alert alert-danger');
-                        let html = '<b>Not valid</b>:<br><ul>';
-                        for(var i=0; i<errors.length; i++) {
-                            html += '<li>' + errors[i].path + ': ' + errors[i].message + '</li>';
-                        }
-                        html += '</ul>';
-                        $("#valid_indicator").html(html);
-                        $("#submit").attr("disabled", true);
+                // Get an array of errors from the validator
+                var errors = editor.validate();
+                
+                // Not valid
+                if(errors.length) {
+                    $("#valid_indicator").removeClass();
+                    $("#valid_indicator").addClass('mt-1 alert alert-danger');
+                    let html = '<b>Not valid</b>:<br><ul>';
+                    for(var i=0; i<errors.length; i++) {
+                        html += '<li>' + errors[i].path + ': ' + errors[i].message + '</li>';
                     }
-                    // Valid
-                    else {
-                        $("#valid_indicator").removeClass();
-                        $("#valid_indicator").addClass('mt-1 alert alert-success');
-                        $("#valid_indicator").html('Valid');
-                        $("#submit").attr("disabled", false);
-                    }
+                    html += '</ul>';
+                    $("#valid_indicator").html(html);
+                    $("#submit").attr("disabled", true);
+                }
+                // Valid
+                else {
+                    $("#valid_indicator").removeClass();
+                    $("#valid_indicator").addClass('mt-1 alert alert-success');
+                    $("#valid_indicator").html('Valid');
+                    $("#submit").attr("disabled", false);
                 }
             });
-        }
-
-        function fillEnum(data, propertyKey) {
-            //console.log(data);
-            var custom_enum = new Array();
-            var custom_enum_titles = new Array();
-            custom_enum.push(null);
-            custom_enum_titles.push("--- Select one ---");
-            for (var i=0; i<data.length; i++) {
-                custom_enum.push(data[i].id);
-                custom_enum_titles.push(data[i].station_name + " from " + data[i].start_datetime.substr(0, 10) + "");
-            }
-            mySchema.properties[propertyKey].enum = custom_enum;
-            mySchema.properties[propertyKey].options.enum_titles = custom_enum_titles;
         }
 
         // dispatch event if loaded from a parent frame
         function emitSignal(xhr=null) {
             try {
-                var event = new CustomEvent('channelEdit', {"detail": xhr} );
+                var event = new CustomEvent('digitizertypeEdit', {"detail": xhr} );
                 window.parent.document.dispatchEvent(event)
             } catch (e) {
                 console.log(e);

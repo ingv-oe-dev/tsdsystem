@@ -1,13 +1,13 @@
 <?php
 
 require_once("..".DIRECTORY_SEPARATOR."classes".DIRECTORY_SEPARATOR."RESTController.php");
-require_once("..".DIRECTORY_SEPARATOR."classes".DIRECTORY_SEPARATOR."PNet_Sensors.php");
+require_once("..".DIRECTORY_SEPARATOR."classes".DIRECTORY_SEPARATOR."PNet_StationConfigs.php");
 
-// Sensors Controller class
-Class SensorsController extends RESTController {
+// StationConfigs Controller class
+Class StationConfigsController extends RESTController {
 	
 	public function __construct() {
-		$this->obj = new Sensors();
+		$this->obj = new StationConfigs();
 		$this->route();
 	}
 
@@ -20,7 +20,7 @@ Class SensorsController extends RESTController {
 				if (!$this->check_input_post()) break;
 				// check if authorized action
 				$this->authorizedAction(array(
-					"scope"=>"sensors-edit"
+					"scope"=>"stations-edit"
 				));
 				$this->post();
 				break;
@@ -30,7 +30,7 @@ Class SensorsController extends RESTController {
 				if (!$this->check_input_get()) break;
 				// check if authorized action
 				$this->authorizedAction(array(
-					"scope"=>"sensors-read"
+					"scope"=>"stations-read"
 				));
 				$this->get();
 				break;
@@ -41,7 +41,7 @@ Class SensorsController extends RESTController {
 				if (!$this->check_input_patch()) break;
 				// check if authorized action
 				$this->authorizedAction(array(
-					"scope"=>"sensors-edit",
+					"scope"=>"stations-edit",
 					"resource_id"=>$input["id"]
 				));
 				$this->patch();
@@ -53,7 +53,7 @@ Class SensorsController extends RESTController {
 				if (!$this->check_input_delete()) break;
 				// check if authorized action
 				$this->authorizedAction(array(
-					"scope"=>"sensors-edit",
+					"scope"=>"stations-edit",
 					"resource_id"=>$input["id"]
 				));
 				$this->delete();
@@ -68,7 +68,7 @@ Class SensorsController extends RESTController {
 	}
 	
 	// ====================================================================//
-	// ****************** post - sensor **********************//
+	// ****************** post - station config **********************//
 	// ====================================================================//
 	public function check_input_post() {
 		
@@ -79,27 +79,45 @@ Class SensorsController extends RESTController {
 		
 		$input = $this->getParams();
 		
-		// (1) $input["name"] 
-		if (!array_key_exists("name", $input) || empty($input["name"])){
-			$this->setInputError("This required input is missing: 'name' [string]");
+		// (0) $input["station_id"]
+		if (!array_key_exists("station_id", $input)){
+			$this->setInputError("This required input is missing: 'station_id' [integer]");
 			return false;
 		}
-		// (2) $input["sensortype_id"] is integer
-		if (array_key_exists("sensortype_id", $input) and !(is_int($input["sensortype_id"]) or is_null($input["sensortype_id"]))) {
-			$this->setInputError("Uncorrect input: 'sensortype_id' [int]");
+		// (1) $input["sensor_id"]
+		if (array_key_exists("sensor_id", $input) and !is_int($input["sensor_id"])){
+			$this->setInputError("This required input is missing: 'sensor_id' [integer]");
 			return false;
 		}
-		// (3) $input["additional_info"] is json
+		// (2) $input["digitizer_id"] 
+		if (array_key_exists("digitizer_id", $input) and !is_int($input["digitizer_id"])){
+			$this->setInputError("This required input is missing: 'digitizer_id' [integer]");
+			return false;
+		}
+		// (3) $input["start_datetime"]
+		if (!array_key_exists("start_datetime", $input)){
+			$this->setInputError("This required input is missing: 'start_datetime' [integer]");
+			return false;
+		}
+		if(array_key_exists("start_datetime", $input) and !$this->verifyDate($input["start_datetime"])) {
+			$this->setInputError("This input is incorrect: 'start_datetime' [string] <format ISO 8601>. Your value = " . strval($input["start_datetime"]));
+			return false;
+		}
+		// (4) $input["end_datetime"]
+		if(array_key_exists("end_datetime", $input) and !$this->verifyDate($input["end_datetime"])) {
+			$this->setInputError("This input is incorrect: 'end_datetime' [string] <format ISO 8601>. Your value = " . strval($input["end_datetime"]));
+			return false;
+		}
+		// (5) $input["additional_info"] is json
 		if (array_key_exists("additional_info", $input) and !$this->validate_json($input["additional_info"])){
 			$this->setInputError("Error on decoding 'additional_info' JSON input");
 			return false;
 		}
-		
 		return true;
 	}
 
 	// ====================================================================//
-	// ****************** patch - sensor **********************//
+	// ****************** patch - station config  **********************//
 	// ====================================================================//
 	public function check_input_patch() {
 		
@@ -115,14 +133,14 @@ Class SensorsController extends RESTController {
 			$this->setInputError("This required input is missing: 'id' [integer]");
 			return false;
 		}
-		// (1) $input["name]
-		if (array_key_exists("name", $input) and empty($input["name"])){
-			$this->setInputError("Uncorrect input: 'name' [string]");
+		// (1) $input["start_datetime"]
+		if(array_key_exists("start_datetime", $input) and !$this->verifyDate($input["start_datetime"])) {
+			$this->setInputError("This input is incorrect: 'start_datetime' [string] <format ISO 8601>. Your value = " . strval($input["start_datetime"]));
 			return false;
 		}
-		// (2) $input["sensortype_id"] is integer
-		if (array_key_exists("sensortype_id", $input) and !(is_int($input["sensortype_id"]) or is_null($input["sensortype_id"]))) {
-			$this->setInputError("Uncorrect input: 'sensortype_id' [int]");
+		// (2) $input["end_datetime"]
+		if(array_key_exists("end_datetime", $input) and !$this->verifyDate($input["end_datetime"])) {
+			$this->setInputError("This input is incorrect: 'end_datetime' [string] <format ISO 8601>. Your value = " . strval($input["end_datetime"]));
 			return false;
 		}
 		// (3) $input["additional_info"] is json
@@ -130,15 +148,17 @@ Class SensorsController extends RESTController {
 			$this->setInputError("Error on decoding 'additional_info' JSON input");
 			return false;
 		}
+		
 		return true;
 	}
 
 	// ====================================================================//
 	// ****************** get  ********************//
 	// ====================================================================//
-	public function get($jsonfields=array("sensortype_components", "additional_info")) {
-		// coords will be returned in GeoJSON format (as in SitesController.php)
+	public function get($jsonfields=array("additional_info")) {
+	
 		parent::get($jsonfields);
+		
 	}
 }
 ?>

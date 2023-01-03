@@ -1,6 +1,5 @@
 <?php
     $id = isset($_GET["id"]) ? $_GET["id"] : null;
-	$station_config_id = isset($_GET["station_config_id"]) ? $_GET["station_config_id"] : null;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -32,7 +31,7 @@
                     } 
                 ?>
             </div>
-                </div>
+        </div>
         <div class='columns p-3 mt-0'>
             <div id='server_response' class="alert alert-dismissible fade" role="alert">
             <span class='mymessage'></span>
@@ -48,14 +47,13 @@
         // This is the starting value for the editor
         // We will use this to seed the initial editor 
         // and to provide a "Restore to Default" button.
-        var default_starting_value = {};
-        
+        var default_starting_value = null;
         var id = "<?php echo $id; ?>";
-		var station_config_id = "<?php echo $station_config_id; ?>";
-        var ref = "../../json-schemas/channels.json";
-        var route = "../../channels";
+        var ref = "../../json-schemas/digitizers.json";
+        var route = "../../digitizers";
         var method =  id ? "PATCH" : "POST";
-        
+        var mySchema = {};
+
         // Set action on delete button
         $(function(){
             $("button#delete").on("click", function(){
@@ -64,11 +62,10 @@
                         "url": route + "?id=" + id,
                         "method": "DELETE",
                         "beforeSend": function(jqXHR, settings) {
-                            jqXHR = Object.assign(jqXHR, {"messageText":"Remove channel [id=" + id + "]", "station_config_id": station_config_id}, settings);
+                            jqXHR = Object.assign(jqXHR, {"messageText":"Remove digitizer [id=" + id + "]"}, settings);
                         },
                         "success": function(response, textStatus, jqXHR) {
                             emitSignal(Object.assign(jqXHR, {"messageType":"success"}));
-
                             alert("Record with id=" + id + " removed successfully!");
                             let new_location = window.location.href.split('?')[0];
                             window.location.href = new_location;
@@ -83,17 +80,18 @@
             });  
         });
 
-        // Load schema
+        // Load schema and data
         $.ajax({
             "url": ref,
             "success": function(data) {
                 mySchema = data;
                 handleInputID();
+                // get list of digitizertypes
                 $.ajax({
-                    "url": "../../stations/configs",
+                    "url": "../../digitizertypes",
                     "success": function(response) {
-                        fillEnum(response.data, "station_config_id");
-                        // load sensor data if station_config_id is defined
+                        fillEnum(response.data, "digitizertype_id");
+                        // load digitizer data if digitizer_id is defined
                         if (id) {
                             $.ajax({
                                 "url": route,
@@ -101,11 +99,10 @@
                                     "id": id
                                 },
                                 "success": function(starting_value) {
-                                    // set the default starting value (JSON) with data of sensor with selected id 
+                                    // set the default starting value (JSON) with data of digitizer with selected id 
                                     default_starting_value = starting_value.data[0];
                                     // update schema and start editor
-                                    mySchema.properties.station_config_id.default = starting_value.data[0].station_config_id;
-                                    mySchema.properties.station_config_id.readOnly = true;
+                                    mySchema.properties.digitizertype_id.default = starting_value.data[0].digitizertype_id;
                                     startEditor();
                                 },
                                 "error": function(jqXHR) {
@@ -154,13 +151,12 @@
             resetEditor();
 
             // initialize editor with the default starting JSON value
-            if (station_config_id) default_starting_value["station_config_id"] = station_config_id;
             initializeEditor(default_starting_value);
         }
 
         function initializeEditor(starting_value) {
         
-            const container = document.getElementById('editor_holder')
+            const container = document.getElementById('editor_holder');
 
             // Initialize the editor
             editor = new JSONEditor(container,{
@@ -180,7 +176,8 @@
             });
 
             editor.on('ready',() => {
-                // Now the api methods will be available
+
+                // Validate the editor on start
                 editor.validate();
             });
             
@@ -189,20 +186,22 @@
                 // Get the value from the editor
                 console.log(editor.getValue());
 
+                // get JSON to post
                 var toPost = editor.getValue();
-
+                //console.log(toPost);
+                
                 // PATCH if id is indicated, else POST
                 $.ajax({
                     "url": route,
                     "data": JSON.stringify(toPost),
                     "method": method,
                     "beforeSend": function(jqXHR, settings) {
-                        jqXHR = Object.assign(jqXHR, settings, {"station_config_id": station_config_id});
+                        jqXHR = Object.assign(jqXHR, settings);
                         if (method == 'POST') {
-                            jqXHR = Object.assign(jqXHR, {"messageText":"Add channel"});
+                            jqXHR = Object.assign(jqXHR, {"messageText":"Add digitizer"});
                         }
                         if (method == 'PATCH') {
-                            jqXHR = Object.assign(jqXHR, {"messageText":"Edit channel [id=" + id + "]"});
+                            jqXHR = Object.assign(jqXHR, {"messageText":"Edit digitizer [id=" + id + "]"});
                         }
                     },
                     "success": function(response, textStatus, jqXHR) {
@@ -235,10 +234,11 @@
                     "error": function(jqXHR) {
                         jqXHR = Object.assign(jqXHR, {"messageType":"danger"});
                         emitSignal(jqXHR);
-                        $('#server_response span.mymessage').html(JSON.stringify(jqXHR.responseJSON.error));
+                        $('#server_response span.mymessage').html(jqXHR.responseJSON.error);
                         $('#server_response').addClass("alert-danger show");
                     }
                 });
+                
             });
             
             // Hook up the Restore to Default button
@@ -277,15 +277,15 @@
             });
         }
 
+        // fill lists used for select form elements
         function fillEnum(data, propertyKey) {
-            //console.log(data);
             var custom_enum = new Array();
             var custom_enum_titles = new Array();
             custom_enum.push(null);
             custom_enum_titles.push("--- Select one ---");
             for (var i=0; i<data.length; i++) {
                 custom_enum.push(data[i].id);
-                custom_enum_titles.push(data[i].station_name + " from " + data[i].start_datetime.substr(0, 10) + "");
+                custom_enum_titles.push(data[i].name);
             }
             mySchema.properties[propertyKey].enum = custom_enum;
             mySchema.properties[propertyKey].options.enum_titles = custom_enum_titles;
@@ -294,7 +294,7 @@
         // dispatch event if loaded from a parent frame
         function emitSignal(xhr=null) {
             try {
-                var event = new CustomEvent('channelEdit', {"detail": xhr} );
+                var event = new CustomEvent('digitizerEdit', {"detail": xhr} );
                 window.parent.document.dispatchEvent(event)
             } catch (e) {
                 console.log(e);

@@ -86,51 +86,34 @@
             "success": function(data) {
                 mySchema = data;
                 handleInputID();
-                // get list of nets
+                // get list of sensortypes
                 $.ajax({
-                    "url": "../../nets",
+                    "url": "../../sensortypes",
                     "success": function(response) {
-                        fillEnum(response.data, "net_id");
-                        // get list of sites
-                        $.ajax({
-                            "url": "../../sites",
-                            "success": function(response) {
-                                fillEnum(response.data, "site_id");
-                                // load sensor data if sensor_id is defined
-                                if (id) {
-                                    $.ajax({
-                                        "url": route,
-                                        "data": {
-                                            "id": id
-                                        },
-                                        "success": function(starting_value) {
-                                            if (starting_value.data.length > 1) {
-                                                $('#server_response span.mymessage').html("<b>" + starting_value.records + "</b> records retrieved with id = <b>" + id + "</b> and name = <b>" + starting_value.data[0].name + "</b>. You have to check if its <u>current</u> associated <i>Channels</i> have different '<i>sensortypes</i>' and/or '<i>start/end_datetime</i>'");
-                                                $('#server_response').addClass("alert-danger show");
-                                            } else {
-                                                // set the default starting value (JSON) with data of sensor with selected id 
-                                                default_starting_value = preprocessData(starting_value.data[0]);
-                                                // update schema and start editor
-                                                mySchema.properties.net_id.default = starting_value.data[0].net_id;
-                                                mySchema.properties.site_id.default = starting_value.data[0].site_id;
-                                                startEditor();
-                                            }
-                                        },
-                                        "error": function(jqXHR) {
-                                            $('#server_response span.mymessage').html(jqXHR.responseJSON.error);
-                                            $('#server_response').addClass("alert-danger show");
-                                        }
-                                    });
-                                } else {
-                                    // start editor
+                        fillEnum(response.data, "sensortype_id");
+                        // load sensor data if sensor_id is defined
+                        if (id) {
+                            $.ajax({
+                                "url": route,
+                                "data": {
+                                    "id": id
+                                },
+                                "success": function(starting_value) {
+                                    // set the default starting value (JSON) with data of sensor with selected id 
+                                    default_starting_value = starting_value.data[0];
+                                    // update schema and start editor
+                                    mySchema.properties.sensortype_id.default = starting_value.data[0].sensortype_id;
                                     startEditor();
+                                },
+                                "error": function(jqXHR) {
+                                    $('#server_response span.mymessage').html(jqXHR.responseJSON.error);
+                                    $('#server_response').addClass("alert-danger show");
                                 }
-                            },
-                            "error": function(jqXHR) {
-                                $('#server_response span.mymessage').html(jqXHR.responseJSON.error);
-                                $('#server_response').addClass("alert-danger show");
-                            }
-                        });
+                            });
+                        } else {
+                            // start editor
+                            startEditor();
+                        }
                     },
                     "error": function(jqXHR) {
                         $('#server_response span.mymessage').html(jqXHR.responseJSON.error);
@@ -171,19 +154,6 @@
             initializeEditor(default_starting_value);
         }
 
-        function preprocessData(initData) {
-			try {
-				initData["lon"] = initData.coords.coordinates[0];
-				initData["lat"] = initData.coords.coordinates[1];
-			} catch (e) {
-                // handling undefined coords
-				initData["lon"] = null;
-				initData["lat"] = null;
-			}
-            delete initData.coords;
-            return initData;
-        }
-
         function initializeEditor(starting_value) {
         
             const container = document.getElementById('editor_holder');
@@ -218,12 +188,6 @@
 
                 // get JSON to post
                 var toPost = editor.getValue();
-
-                /*
-                if (toPost["custom_props"]) {
-                    toPost.custom_props = JSON.stringify(toPost.custom_props);
-                }
-                */
                 //console.log(toPost);
                 
                 // PATCH if id is indicated, else POST
@@ -315,7 +279,6 @@
 
         // fill lists used for select form elements
         function fillEnum(data, propertyKey) {
-           // console.log(data);
             var custom_enum = new Array();
             var custom_enum_titles = new Array();
             custom_enum.push(null);

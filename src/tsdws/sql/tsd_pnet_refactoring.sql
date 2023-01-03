@@ -139,7 +139,7 @@ CREATE TABLE IF NOT EXISTS tsd_pnet.sensortypes
     id SERIAL NOT NULL,
     name character varying(255) COLLATE pg_catalog."default" NOT NULL,
     model character varying(255) COLLATE pg_catalog."default",
-    n_components integer,
+    components jsonb, -- array of the name of the corresponding channels
     sensortype_category_id integer,
     response_parameters jsonb,
 	additional_info jsonb,
@@ -168,11 +168,8 @@ CREATE TABLE IF NOT EXISTS tsd_pnet.sensors
     id SERIAL NOT NULL,
     name character varying(255) COLLATE pg_catalog."default" NOT NULL,
 	serial_number character varying(255) COLLATE pg_catalog."default",
-    station_id integer,
     sensortype_id integer,
-    start_datetime timestamp without time zone,
-    end_datetime timestamp without time zone,
-	additional_info jsonb,
+    additional_info jsonb,
     create_time timestamp without time zone DEFAULT (now() AT TIME ZONE 'utc'::text),
     update_time timestamp without time zone,
     remove_time timestamp without time zone,
@@ -199,11 +196,11 @@ CREATE TABLE IF NOT EXISTS tsd_pnet.digitizertypes
     name character varying(255) COLLATE pg_catalog."default" NOT NULL,
 	model character varying(255) COLLATE pg_catalog."default",
     final_sample_rate real,
-    final_sample_rate_measure_unit real,
+    final_sample_rate_measure_unit character varying(255) COLLATE pg_catalog."default",
 	sensitivity real,
-    sensitivity_measure_unit real,
+    sensitivity_measure_unit character varying(255) COLLATE pg_catalog."default",
     dynamical_range real,
-    dynamical_range_measure_unit real,
+    dynamical_range_measure_unit character varying(255) COLLATE pg_catalog."default",
     additional_info jsonb,
     create_time timestamp without time zone DEFAULT (now() AT TIME ZONE 'utc'::text),
     update_time timestamp without time zone,
@@ -231,9 +228,7 @@ CREATE TABLE IF NOT EXISTS tsd_pnet.digitizers
     name character varying(255) COLLATE pg_catalog."default" NOT NULL,
 	serial_number character varying(255) COLLATE pg_catalog."default",
     digitizertype_id integer,
-    start_datetime timestamp without time zone,
-    end_datetime timestamp without time zone,
-	additional_info jsonb,
+    additional_info jsonb,
     create_time timestamp without time zone DEFAULT (now() AT TIME ZONE 'utc'::text),
     update_time timestamp without time zone,
     remove_time timestamp without time zone,
@@ -250,6 +245,35 @@ ALTER TABLE IF EXISTS tsd_pnet.digitizers
 
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------
+-- Table: tsd_pnet.station_configs
+
+-- DROP TABLE IF EXISTS tsd_pnet.station_configs;
+
+CREATE TABLE IF NOT EXISTS tsd_pnet.station_configs
+(
+    id SERIAL NOT NULL,
+    station_id integer NOT NULL,
+    sensor_id integer,
+    digitizer_id integer,
+    start_datetime timestamp without time zone NOT NULL,
+    end_datetime timestamp without time zone,
+    additional_info jsonb,
+    create_time timestamp without time zone DEFAULT (now() AT TIME ZONE 'utc'::text),
+    update_time timestamp without time zone,
+    remove_time timestamp without time zone,
+    create_user integer,
+    update_user integer,
+    remove_user integer,
+    CONSTRAINT station_configs_pkey PRIMARY KEY (id)
+);
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS tsd_pnet.station_configs
+    OWNER to postgres;
+
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
 -- Table: tsd_pnet.channels
 
 -- DROP TABLE IF EXISTS tsd_pnet.channels;
@@ -258,8 +282,7 @@ CREATE TABLE IF NOT EXISTS tsd_pnet.channels
 (
     id SERIAL NOT NULL,
     name character varying(255) COLLATE pg_catalog."default" NOT NULL,
-    sensor_id integer,
-    digitizer_id integer,
+    station_config_id integer,
     additional_info jsonb,
     create_time timestamp without time zone DEFAULT (now() AT TIME ZONE 'utc'::text),
     update_time timestamp without time zone,

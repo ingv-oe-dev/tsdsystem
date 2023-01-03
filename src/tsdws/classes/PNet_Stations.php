@@ -56,128 +56,82 @@ Class Stations extends QueryManager {
 	public function getList($input) {
 
 		$query = "SELECT 
-			stations.id, 
-			stations.name, 
-			ST_AsGeoJSON(stations.coords) AS coords, 
-			stations.quote, 
-			stations.net_id, 
-			stations.site_id, 
-			stations.additional_info, 
-			s.sensortype_id, 
+			" . $this->tablename . ".id, 
+			" . $this->tablename . ".name, 
+			ST_AsGeoJSON(" . $this->tablename . ".coords) AS coords, 
+			" . $this->tablename . ".quote, 
+			" . $this->tablename . ".net_id, 
+			" . $this->tablename . ".site_id, 
+			" . $this->tablename . ".additional_info, 
 			count(c.id) as n_channels, 
-			TO_CHAR(s.start_datetime,'$this->OUTPUT_PSQL_ISO8601_FORMAT') as start_datetime, 
-			TO_CHAR(s.end_datetime,'$this->OUTPUT_PSQL_ISO8601_FORMAT') as end_datetime, 
+			TO_CHAR(stc.start_datetime,'$this->OUTPUT_PSQL_ISO8601_FORMAT') as start_datetime, 
+			TO_CHAR(stc.end_datetime,'$this->OUTPUT_PSQL_ISO8601_FORMAT') as end_datetime, 
+			s.sensortype_id, 
 			st.name AS sensortype_name, 
 			n.name AS net_name, 
 			ss.name AS site_name, 
-			NULLIF(n.remove_time, NULL) AS deprecated FROM " . $this->tablename . " 
-		LEFT JOIN tsd_pnet.sensors s on stations.id = s.station_id and s.remove_time is null and (s.end_datetime is null or s.end_datetime > now() at time zone 'utc')
-		LEFT JOIN tsd_pnet.channels c on s.id = c.sensor_id and c.remove_time is null
+			NULLIF(n.remove_time, NULL) AS deprecated,
+			(NOT stc.end_datetime IS NULL AND stc.end_datetime < now() at time zone 'utc') AS old_station
+		FROM " . $this->tablename . "
+		LEFT JOIN (
+			SELECT DISTINCT ON (station_id) id, station_id, start_datetime, end_datetime, sensor_id 
+			FROM tsd_pnet.station_configs 
+			WHERE remove_time is null ";
+			if (isset($input) and is_array($input)) { 
+				if (array_key_exists("start_datetime", $input) and isset($input["start_datetime"])){
+					$query .= " AND start_datetime >= '" . $input["start_datetime"] . "'";
+				}
+				if (array_key_exists("end_datetime", $input) and isset($input["end_datetime"])){
+					$query .= " AND end_datetime <= '" . $input["end_datetime"] . "'";
+				}
+			}	
+		$query .= " ORDER BY station_id, start_datetime DESC
+		) stc on " . $this->tablename . ".id = stc.station_id 
+		LEFT JOIN tsd_pnet.sensors s on stc.sensor_id = s.id
 		LEFT JOIN tsd_pnet.sensortypes st on s.sensortype_id = st.id 
-		LEFT JOIN tsd_pnet.nets n ON stations.net_id = n.id 
-		LEFT JOIN tsd_pnet.sites ss ON stations.site_id = ss.id 
-		WHERE stations.remove_time IS NULL";
+		LEFT JOIN tsd_pnet.channels c on stc.id = c.station_config_id and c.remove_time is null
+		LEFT JOIN tsd_pnet.nets n ON " . $this->tablename . ".net_id = n.id 
+		LEFT JOIN tsd_pnet.sites ss ON " . $this->tablename . ".site_id = ss.id 
+		WHERE " . $this->tablename . ".remove_time IS NULL";
 		
 		if (isset($input) and is_array($input)) { 
 			$query .= $this->composeWhereFilter($input, array(
-				"id" => array("id" => true, "alias" => "stations.id", "quoted" => false),
-				"name" => array("alias" => "stations.name", "quoted" => true),
+				"id" => array("id" => true, "alias" => $this->tablename . ".id", "quoted" => false),
+				"name" => array("alias" => $this->tablename . ".name", "quoted" => true),
 				"sensortype_id" => array("alias" => "s.sensortype_id", "quoted" => false),
 				"sensortype_name" => array("alias" => "st.name", "quoted" => true),
-				"net_id" => array("alias" => "stations.net_id", "quoted" => false),
+				"net_id" => array("alias" => $this->tablename . ".net_id", "quoted" => false),
 				"net_name" => array("alias" => "n.name", "quoted" => true),
-				"site_id" => array("alias" => "stations.site_id", "quoted" => false),
+				"site_id" => array("alias" => $this->tablename . ".site_id", "quoted" => false),
 				"site_name" => array("alias" => "ss.name", "quoted" => true),
-				"additional_info" => array("quoted" => true, "alias" => "stations.additional_info")
+				"additional_info" => array("quoted" => true, "alias" => $this->tablename . ".additional_info")
 			));
 			if (array_key_exists("start_datetime", $input) and isset($input["start_datetime"])){
-				$query .= " AND s.start_datetime >= '" . $input["start_datetime"] . "'";
+				$query .= " AND stc.start_datetime >= '" . $input["start_datetime"] . "'";
 			}
 			if (array_key_exists("end_datetime", $input) and isset($input["end_datetime"])){
-				$query .= " AND s.end_datetime <= '" . $input["end_datetime"] . "'";
+				$query .= " AND stc.end_datetime <= '" . $input["end_datetime"] . "'";
 			}
-			$query .= $this->extendSpatialQuery($input, "stations.coords");
+			$query .= $this->extendSpatialQuery($input, $this->tablename . ".coords");
 		}
 
-		$query .= " group by stations.id, st.name, n.name, ss.name, n.remove_time, s.start_datetime, s.end_datetime, s.sensortype_id  ";
+		$query .= " group by " . $this->tablename . ".id, st.name, n.name, ss.name, n.remove_time, stc.start_datetime, stc.end_datetime, s.sensortype_id  ";
 
 		if (isset($input) and is_array($input)) { 
 			if (isset($input["sort_by"])) {
 				$cols = explode(",", $input["sort_by"]);
 				$query .= $this->composeOrderBy($cols, array(
-					"id" => array("alias" => "stations.id"),
-					"name" => array("alias" => "stations.name"),
-					"end_datetime" => array("alias" => "s.end_datetime")
+					"id" => array("alias" => $this->tablename . ".id"),
+					"name" => array("alias" => $this->tablename . ".name"),
+					"end_datetime" => array("alias" => "stc.end_datetime")
 				));
 			}
 		}
 		
 		//echo $query;
-		$result = $this->getRecordSet($query);
+		$response = $this->getRecordSet($query);
 		
-		// check for invalid resultset (duplicated sensors id from channels with different sensortypes and/or start/end_datetime)
-		$response = $this->sanitizeResult($result);
 		return $response;
-	}
-	
-	public function sanitizeResult($result) {
-
-		if (!$result["status"]) return $result;
-
-		$duplicated_indexes = array();
-
-		try {
-			// prepare duplicated_indexes data structure
-			foreach($result["data"] as $i => $current_item) {
-				if (isset($duplicated_indexes[$current_item["id"]])) {
-					array_push($duplicated_indexes[$current_item["id"]]["idx"], $i);
-					if ($current_item["sensortype_id"] != $duplicated_indexes[$current_item["id"]]["sensortype_id"]) {
-						$duplicated_indexes[$current_item["id"]]["sensortype_id"] = null;
-						$duplicated_indexes[$current_item["id"]]["sensortype_name"] = "! Uncorrect mix of sensortypes: check for associated Sensors. More than one associated Sensor have null value for 'end_datetime', or 'end_datetime' greater than current datetime";
-					}
-					$duplicated_indexes[$current_item["id"]]["n_channels"] += $current_item["n_channels"];
-				} else {
-					$duplicated_indexes[$current_item["id"]] = array(
-						"idx" => array($i),
-						"sensortype_id" => $current_item["sensortype_id"],
-						"sensortype_name" => $current_item["sensortype_name"],
-						"n_channels" => $current_item["n_channels"]
-					);
-				}
-			}
-
-			// update $result using duplicated_indexes data structure
-			foreach($duplicated_indexes as $i => $item) {
-				if (count($item["idx"]) > 1) {
-					$result["data"][$item["idx"][0]]["sensortype_id"] = $item["sensortype_id"];
-					$result["data"][$item["idx"][0]]["sensortype_name"] = $item["sensortype_name"];
-					$result["data"][$item["idx"][0]]["n_channels"] = $item["n_channels"];
-					$result["data"][$item["idx"][0]]["start_datetime"] = null;
-					$result["data"][$item["idx"][0]]["end_datetime"] = null;
-					for($j=1; $j<count($item["idx"]); $j++) {
-						$result["data"][$item["idx"][$j]] = null;
-					}
-				}
-			}
-
-			// prepare response with not null items of result
-			$data = array();
-			foreach($result["data"] as $item) {
-				if (isset($item)) {
-					array_push($data, $item);
-				}
-			}
-			return array(
-				"status" => true,
-				"data" => $data
-			);
-			
-		} catch(Exception $e) {
-			return array(
-				"status" => false,
-				"error" => "Something gone wrong on sanitizing result: " . $e->getMessage()
-			);
-		}
 	}
 
 	public function update($input) {

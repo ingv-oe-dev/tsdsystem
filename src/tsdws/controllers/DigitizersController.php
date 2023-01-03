@@ -1,13 +1,13 @@
 <?php
 
 require_once("..".DIRECTORY_SEPARATOR."classes".DIRECTORY_SEPARATOR."RESTController.php");
-require_once("..".DIRECTORY_SEPARATOR."classes".DIRECTORY_SEPARATOR."PNet_Sensors.php");
+require_once("..".DIRECTORY_SEPARATOR."classes".DIRECTORY_SEPARATOR."PNet_Digitizers.php");
 
-// Sensors Controller class
-Class SensorsController extends RESTController {
+// Digitizers Controller class
+Class DigitizersController extends RESTController {
 	
 	public function __construct() {
-		$this->obj = new Sensors();
+		$this->obj = new Digitizers();
 		$this->route();
 	}
 
@@ -20,7 +20,7 @@ Class SensorsController extends RESTController {
 				if (!$this->check_input_post()) break;
 				// check if authorized action
 				$this->authorizedAction(array(
-					"scope"=>"sensors-edit"
+					"scope"=>"digitizers-edit"
 				));
 				$this->post();
 				break;
@@ -30,7 +30,7 @@ Class SensorsController extends RESTController {
 				if (!$this->check_input_get()) break;
 				// check if authorized action
 				$this->authorizedAction(array(
-					"scope"=>"sensors-read"
+					"scope"=>"digitizers-read"
 				));
 				$this->get();
 				break;
@@ -41,7 +41,7 @@ Class SensorsController extends RESTController {
 				if (!$this->check_input_patch()) break;
 				// check if authorized action
 				$this->authorizedAction(array(
-					"scope"=>"sensors-edit",
+					"scope"=>"digitizers-edit",
 					"resource_id"=>$input["id"]
 				));
 				$this->patch();
@@ -53,7 +53,7 @@ Class SensorsController extends RESTController {
 				if (!$this->check_input_delete()) break;
 				// check if authorized action
 				$this->authorizedAction(array(
-					"scope"=>"sensors-edit",
+					"scope"=>"digitizers-edit",
 					"resource_id"=>$input["id"]
 				));
 				$this->delete();
@@ -68,7 +68,7 @@ Class SensorsController extends RESTController {
 	}
 	
 	// ====================================================================//
-	// ****************** post - sensor **********************//
+	// ****************** post - digitizer **********************//
 	// ====================================================================//
 	public function check_input_post() {
 		
@@ -84,9 +84,9 @@ Class SensorsController extends RESTController {
 			$this->setInputError("This required input is missing: 'name' [string]");
 			return false;
 		}
-		// (2) $input["sensortype_id"] is integer
-		if (array_key_exists("sensortype_id", $input) and !(is_int($input["sensortype_id"]) or is_null($input["sensortype_id"]))) {
-			$this->setInputError("Uncorrect input: 'sensortype_id' [int]");
+		// (2) $input["digitizertype_id"] is integer
+		if (array_key_exists("digitizertype_id", $input) and !(is_int($input["digitizertype_id"]) or is_null($input["digitizertype_id"]))) {
+			$this->setInputError("Uncorrect input: 'digitizertype_id' [int]");
 			return false;
 		}
 		// (3) $input["additional_info"] is json
@@ -99,7 +99,7 @@ Class SensorsController extends RESTController {
 	}
 
 	// ====================================================================//
-	// ****************** patch - sensor **********************//
+	// ****************** patch - digitizer **********************//
 	// ====================================================================//
 	public function check_input_patch() {
 		
@@ -120,9 +120,9 @@ Class SensorsController extends RESTController {
 			$this->setInputError("Uncorrect input: 'name' [string]");
 			return false;
 		}
-		// (2) $input["sensortype_id"] is integer
-		if (array_key_exists("sensortype_id", $input) and !(is_int($input["sensortype_id"]) or is_null($input["sensortype_id"]))) {
-			$this->setInputError("Uncorrect input: 'sensortype_id' [int]");
+		// (2) $input["digitizertype_id"] is integer
+		if (array_key_exists("digitizertype_id", $input) and !(is_int($input["digitizertype_id"]) or is_null($input["digitizertype_id"]))) {
+			$this->setInputError("Uncorrect input: 'digitizertype_id' [int]");
 			return false;
 		}
 		// (3) $input["additional_info"] is json
@@ -136,7 +136,7 @@ Class SensorsController extends RESTController {
 	// ====================================================================//
 	// ****************** get  ********************//
 	// ====================================================================//
-	public function get($jsonfields=array("sensortype_components", "additional_info")) {
+	public function get($jsonfields=array("additional_info")) {
 		// coords will be returned in GeoJSON format (as in SitesController.php)
 		parent::get($jsonfields);
 	}

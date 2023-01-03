@@ -3,7 +3,7 @@
     "title": "Channel",
     "description": "Set the properties of the channel",
     "type": "object",
-    "required": ["name", "sensor_id"],
+    "required": ["name", "station_config_id"],
     "additionalProperties": false,
     "format": "categories",
     "basicCategoryTitle": "Main",
@@ -20,9 +20,9 @@
             "type": "string",
             "minLength": 1
         },
-        "sensor_id": {
-            "title": "Sensor",
-            "description": "Sensor to which the channel belongs",
+        "station_config_id": {
+            "title": "Station configuration",
+            "description": "Station configuration to which the channel belongs",
             "type": "integer",
             "enum": [],
             "options": {
@@ -30,62 +30,9 @@
             },
             "minimum": 1
         },
-        "sensortype_id": {
-            "title": "Sensortype",
-            "description": "The sensor type",
-            "type": ["integer", "null"],
-            "enum": [],
-            "options": {
-                "enum_titles": []
-            },
-            "minimum": 1
-        },
-        "metadata": {
-            "title": "Metadata",
-            "description": "Sensortype properties (metadata)",
+        "additional_info": {
+            "title": "Additional info",
             "type": "object",
-            "options": {
-                "hidden": true
-            }
-        },
-        "start_datetime": {
-            "type": ["string", "null"],
-            "format": "date-time",
-            "title": "Start Datetime",
-            "description": "Standard ISO8601 datetime UTC",
-            "options": {
-                "grid_columns": 4,
-                "inputAttributes": {
-                    "placeholder": "YYYY-MM-DD HH:MM:SS"
-                }
-            }
-        },
-        "end_datetime": {
-            "type": ["string", "null"],
-            "format": "date-time",
-            "title": "End Datetime",
-            "description": "Standard ISO8601 datetime UTC",
-            "options": {
-                "grid_columns": 4,
-                "inputAttributes": {
-                    "placeholder": "YYYY-MM-DD HH:MM:SS"
-                }
-            }
-        },
-        "info": {
-            "title": "Info",
-            "description": "Additional info of the channel (e.g.: digitizer)",
-            "type": "object",
-            "properties": {
-                "digitizer": {
-                    "$ref": "#/$defs/digitizer"
-                },
-                "other": {
-                    "title": "Other properties",
-                    "description": "Other properties",
-                    "type": "object"
-                }
-            },
             "additionalProperties": true
         }
     },
