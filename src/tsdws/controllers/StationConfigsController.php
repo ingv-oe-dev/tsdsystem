@@ -17,12 +17,25 @@ Class StationConfigsController extends RESTController {
 			
 			case 'POST':
 				$this->readInput();
-				if (!$this->check_input_post()) break;
-				// check if authorized action
-				$this->authorizedAction(array(
-					"scope"=>"stations-edit"
-				));
-				$this->post();
+				if (strripos($_SERVER["REQUEST_URI"], "generateChannels")) { // generate channels for the configuration by id
+
+					if (!$this->check_input_generateChannels()) break;
+					// check if authorized action
+					$this->authorizedAction(array(
+						"scope"=>"stations-edit"
+					));
+					$this->generateChannels();
+
+				} else { // save a new configuration
+
+					if (!$this->check_input_post()) break;
+					// check if authorized action
+					$this->authorizedAction(array(
+						"scope"=>"stations-edit"
+					));
+					$this->post();
+				}
+				
 				break;
 
 			case 'GET':
@@ -133,17 +146,27 @@ Class StationConfigsController extends RESTController {
 			$this->setInputError("This required input is missing: 'id' [integer]");
 			return false;
 		}
-		// (1) $input["start_datetime"]
+		// (1) $input["sensor_id"]
+		if (array_key_exists("sensor_id", $input) and !is_int($input["sensor_id"])){
+			$this->setInputError("This required input is missing: 'sensor_id' [integer]");
+			return false;
+		}
+		// (2) $input["digitizer_id"] 
+		if (array_key_exists("digitizer_id", $input) and !is_int($input["digitizer_id"])){
+			$this->setInputError("This required input is missing: 'digitizer_id' [integer]");
+			return false;
+		}
+		// (3) $input["start_datetime"]
 		if(array_key_exists("start_datetime", $input) and !$this->verifyDate($input["start_datetime"])) {
 			$this->setInputError("This input is incorrect: 'start_datetime' [string] <format ISO 8601>. Your value = " . strval($input["start_datetime"]));
 			return false;
 		}
-		// (2) $input["end_datetime"]
+		// (4) $input["end_datetime"]
 		if(array_key_exists("end_datetime", $input) and !$this->verifyDate($input["end_datetime"])) {
 			$this->setInputError("This input is incorrect: 'end_datetime' [string] <format ISO 8601>. Your value = " . strval($input["end_datetime"]));
 			return false;
 		}
-		// (3) $input["additional_info"] is json
+		// (5) $input["additional_info"] is json
 		if (array_key_exists("additional_info", $input) and !$this->validate_json($input["additional_info"])){
 			$this->setInputError("Error on decoding 'additional_info' JSON input");
 			return false;
@@ -160,5 +183,48 @@ Class StationConfigsController extends RESTController {
 		parent::get($jsonfields);
 		
 	}
+
+	// ====================================================================//
+	// ****************** generate channels  ********************//
+	// ====================================================================//
+	public function check_input_generateChannels() {
+		
+		if ($this->isEmptyInput()) {
+			$this->setInputError("Empty input or malformed JSON");
+			return false;
+		}
+		
+		$input = $this->getParams();
+		
+		// (0) $input["id"] 
+		if (!array_key_exists("id", $input) or !is_numeric($input["id"])){
+			$this->setInputError("This required input is missing: 'id' [integer]");
+			return false;
+		}
+		
+		return true;
+	}
+
+	public function generateChannels() {
+
+		$input = $this->getParams();
+		$auth_data = $this->_get_auth_data();
+		$input["create_user"] = isset($auth_data) ? $auth_data["userId"] : NULL;
+		$input["remove_user"] = isset($auth_data) ? $auth_data["userId"] : NULL;
+		$input["remove_time"] = "timezone('utc'::text, now())";
+
+		$result = $this->obj->generateChannels($input);
+		
+		if ($result["status"]) {
+			$this->setData($result);
+			if (isset($result["created_channels"])) {
+				$this->setStatusCode(201);
+			}
+		} else {
+			$this->setStatusCode(409);
+			$this->setError($result);
+		}
+	}
+
 }
 ?>

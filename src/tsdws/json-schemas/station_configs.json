@@ -16,7 +16,7 @@
         },
         "station_id": {
             "title": "Station",
-            "description": "Station to which the channel belongs",
+            "description": "Station ID",
             "type": "integer",
             "enum": [],
             "options": {
@@ -26,7 +26,7 @@
         },
         "sensor_id": {
             "title": "Sensor",
-            "description": "Sensor to which the channel is related",
+            "description": "Sensor ID",
             "type": "integer",
             "enum": [],
             "options": {
@@ -36,7 +36,7 @@
         },
         "digitizer_id": {
             "title": "Digitizer",
-            "description": "Digitizer to which the channel is related",
+            "description": "Digitizer ID",
             "type": ["integer", "null"],
             "enum": [],
             "options": {

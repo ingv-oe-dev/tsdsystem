@@ -37,6 +37,7 @@ RewriteRule ^stations/([0-9]+)/configs(/)?$ stations/configs/?station_id=$1 [NC,
 RewriteRule ^stations/configs(/)?$ routes/station_configs.php [NC]
 RewriteRule ^stations/configs/([0-9]+)(/)?$ routes/station_configs.php?id=$1 [NC,QSA]
 RewriteRule ^stations/configs/([0-9]+)/channels(/)?$ channels/?station_config_id=$1 [NC,QSA]
+RewriteRule ^stations/configs/([0-9]+)/generateChannels(/)?$ routes/station_configs.php?id=$1&generateChannels=1 [NC,QSA]
 
 RewriteRule ^sensortype_categories(/)?$ routes/sensortype_categories.php [NC]
 RewriteRule ^sensortype_categories/([0-9]+)(/)?$ routes/sensortype_categories.php?id=$1 [NC,QSA]

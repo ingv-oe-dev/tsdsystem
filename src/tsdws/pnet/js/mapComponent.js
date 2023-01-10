@@ -44,7 +44,7 @@ const mapComponentDefinition = {
             new L.Control.Zoom({ position: 'topright' }).addTo(this.map);
         },
         // funzione per il plotting dei nodi
-        plotNodesOnMap(data, options) {
+        plotStationsOnMap(data, options) {
             //console.log(data, options);
             var self = this;
             this.resetLayers(options);
@@ -59,16 +59,17 @@ const mapComponentDefinition = {
                             radius: this.circle_marker_radius,
                             color: "#000",
                             weight: 1,
-                            opacity: 1,
+                            opacity: (item.old_station ? 0.5 : 1),
                             fillColor: colors.nets[item.net_id ? item.net_id % paletteLength : 0].backgroundColor, // prendo il colore dal valore ritornato dal db
-                            fillOpacity: 1,
+                            fillOpacity: (item.old_station ? 0.5 : 1),
                             customProp: item, // aggiungi le info dell'item come proprietÃ  custom ('customProp' Ã¨ una key scelta arbitrariamente)
+                            className: (item.old_station ? 'old_station-marker' : '')
                         }) // le prossime tre funzioni in basso sono concatenate
 
                     marker.bindPopup(this.makePopup(item)) // aggiungi popup al marker (testo per il popup ritornato dalla funzione makePopup(item))
                         .on('click', function() {
                             let selected = this.options.customProp;
-                            selected.marker_type = 'node';
+                            selected.marker_type = 'station';
                             self.$emit('clicked-marker', selected);
                         }); // per test => per vedere nella console, sul click del marker, i valori custom assegnati  
 
@@ -80,9 +81,9 @@ const mapComponentDefinition = {
                         icon: L.divIcon({
                             html: item.name,
                             iconAnchor: [this.circle_marker_radius * 2, -this.circle_marker_radius],
-                            className: 'circle-marker-label', // con la classe definisco anche lo stile del testo (style css della classe 'circle-marker-label' definito nella pagina html)
+                            className: 'circle-marker-label' + (item.old_station ? ' old_station-marker' : ''), // con la classe definisco anche lo stile del testo (style css della classe 'circle-marker-label' definito nella pagina html)
                             customProp: {
-                                "id": "label_node_" + item.id
+                                "id": "label_station_" + item.id
                             }
                         })
                     })
@@ -230,7 +231,7 @@ const mapComponentDefinition = {
                 // fit la mappa nel bound che rinchiude tutti i marker
                 this.map.fitBounds(bounds);
             } catch (e) {
-                console.log(e);
+                //console.log(e);
             }
         },
         removeMarkerById(id) {
@@ -240,7 +241,7 @@ const mapComponentDefinition = {
                 for (var j = 0; j < markers.length; j++) {
                     let marker = markers[j];
                     console.log(marker);
-                    if (marker.options && marker.options.customProp && (marker.options.customProp.id === id || marker.options.customProp.id === "label_node_" + id)) {
+                    if (marker.options && marker.options.customProp && (marker.options.customProp.id === id || marker.options.customProp.id === "label_station_" + id)) {
                         markers.removeLayer(marker);
                     }
                 }

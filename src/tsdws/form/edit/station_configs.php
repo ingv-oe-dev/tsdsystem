@@ -1,5 +1,6 @@
 <?php
     $id = isset($_GET["id"]) ? $_GET["id"] : null;
+    $station_id = isset($_GET["station_id"]) ? $_GET["station_id"] : null;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -47,8 +48,9 @@
         // This is the starting value for the editor
         // We will use this to seed the initial editor 
         // and to provide a "Restore to Default" button.
-        var default_starting_value = null;
+        var default_starting_value = {};
         var id = "<?php echo $id; ?>";
+        var station_id = "<?php echo $station_id; ?>";
         var ref = "../../json-schemas/station_configs.json";
         var route = "../../stations/configs";
         var method =  id ? "PATCH" : "POST";
@@ -62,7 +64,7 @@
                         "url": route + "?id=" + id,
                         "method": "DELETE",
                         "beforeSend": function(jqXHR, settings) {
-                            jqXHR = Object.assign(jqXHR, {"messageText":"Remove station config [id=" + id + "]"}, settings);
+                            jqXHR = Object.assign(jqXHR, {"messageText":"Remove station config [id=" + id + "]", "station_id": station_id}, settings);
                         },
                         "success": function(response, textStatus, jqXHR) {
                             emitSignal(Object.assign(jqXHR, {"messageType":"success"}));
@@ -115,9 +117,7 @@
                                                     mySchema.properties.station_id.default = starting_value.data[0].station_id;
                                                     mySchema.properties.station_id.readOnly = true;
                                                     mySchema.properties.sensor_id.default = starting_value.data[0].sensor_id;
-                                                    mySchema.properties.sensor_id.readOnly = true;
                                                     mySchema.properties.digitizer_id.default = starting_value.data[0].digitizer_id;
-                                                    mySchema.properties.digitizer_id.readOnly = true;
                                                     startEditor();
                                                 },
                                                 "error": function(jqXHR) {
@@ -178,6 +178,7 @@
             resetEditor();
 
             // initialize editor with the default starting JSON value
+            if (station_id) default_starting_value["station_id"] = station_id;
             initializeEditor(default_starting_value);
         }
 
@@ -240,7 +241,7 @@
                     "data": JSON.stringify(toPost),
                     "method": method,
                     "beforeSend": function(jqXHR, settings) {
-                        jqXHR = Object.assign(jqXHR, settings);
+                        jqXHR = Object.assign(jqXHR, settings, {"station_id": station_id, "id": id});
                         if (method == 'POST') {
                             jqXHR = Object.assign(jqXHR, {"messageText":"Add station config"});
                         }

@@ -14,7 +14,7 @@ Class Utils {
 	}
 
 	public function verifyDate($date) {
-		return preg_match($this->CORRECT_DATETIME_REGEX, $date);
+		return !isset($date) or preg_match($this->CORRECT_DATETIME_REGEX, $date);
 	}
 
 	public function verifySecureDBString($str) {

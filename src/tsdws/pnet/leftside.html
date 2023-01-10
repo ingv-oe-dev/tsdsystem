@@ -1,4 +1,58 @@
-<div class="accordion" id="accordionPanelsStayOpenExample">
+<div class="accordion" id="accordionPanelsInstruments">
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="panelsStayOpen-headingTwo">
+            <button class="accordion-button p-2 collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseTwo" aria-expanded="true" aria-controls="panelsStayOpen-collapseTwo">
+          Instruments management
+        </button>
+        </h2>
+        <div id="panelsStayOpen-collapseTwo" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingTwo">
+            <div class="accordion-body">
+                <div class="row row-cols-lg-auto align-items-center">
+                    <!-- Sensors -->
+                    <div class="col-12 m-1">
+                        <div class="input-group input-group-sm">
+                            <div class="input-group-text">Sensors</div>
+                            <button title="Reload sensors" class="btn-light border" type="button" id="button-reload-sensor" @click="fetchSensors()"><i class='fa fa-sm fa-rotate-right'></i></button>
+                            <select class="form-select" id="input-sensor" v-model="filters.sensor_id" size="sm">
+                                <option :value="resetID"> {{ defaultOption.sensors }} </option>
+                                <option v-for="item in sensors" :value="item.id">{{ item.name }} (SN: {{ item.serial_number }})</option>
+                            <select>
+                            <button v-if="filters.sensor_id!=0" title="Edit sensor settings" class="btn-light border" type="button" id="button-settings-sensor" @click="openEdit('sensor', filters.sensor_id)"><i class='fa fa-sm fa-gear'></i></button>
+                            <button v-if="filters.sensor_id==0" title="Add new sensor" class="btn-light border" type="button" id="button-add-sensor" @click="openEdit('sensor')"><i class='fa fa-sm fa-plus'></i></button>
+                        </div>
+                    </div>
+                    <!-- Digitizers -->
+                    <div class="col-12 m-1">
+                        <div class="input-group input-group-sm">
+                            <div class="input-group-text">Digitizers</div>
+                            <button title="Reload digitizers" class="btn-light border" type="button" id="button-reload-digitizer" @click="fetchDigitizers()"><i class='fa fa-sm fa-rotate-right'></i></button>
+                            <select class="form-select" id="input-digitizer" v-model="filters.digitizer_id" size="sm">
+                                <option :value="resetID"> {{ defaultOption.digitizers }} </option>
+                                <option v-for="item in digitizers" :value="item.id">{{ item.name }} (SN: {{ item.serial_number }})</option>
+                            <select>
+                            <button v-if="filters.digitizer_id!=0" title="Edit digitizers settings" class="btn-light border" type="button" id="button-settings-digitizer" @click="openEdit('digitizer', filters.digitizer_id)"><i class='fa fa-sm fa-gear'></i></button>
+                            <button v-if="filters.digitizer_id==0" title="Add new digitizer" class="btn-light border" type="button" id="button-add-digitizer" @click="openEdit('digitizer')"><i class='fa fa-sm fa-plus'></i></button>
+                        </div>
+                    </div>
+
+                    <!-- Digitizertypes -->
+                    <div class="col-12 m-1">
+                        <div class="input-group input-group-sm">
+                            <div class="input-group-text">Digitizertypes</div>
+                            <button title="Reload digitizertypes" class="btn-light border" type="button" id="button-reload-digitizertype" @click="fetchDigitizertypes()"><i class='fa fa-sm fa-rotate-right'></i></button>
+                            <select class="form-select" id="input-digitizertype" v-model="filters.digitizertype_id" size="sm">
+                                <option :value="resetID"> {{ defaultOption.digitizertypes }} </option>
+                                <option v-for="item in digitizertypes" :value="item.id">{{ item.name }} {{ item.model ? '- ' + item.model : ''}}</option>
+                            <select>
+                            <button v-if="filters.digitizertype_id!=0" title="Edit digitizertypes settings" class="btn-light border" type="button" id="button-settings-digitizertype" @click="openEdit('digitizertype', filters.digitizertype_id)"><i class='fa fa-sm fa-gear'></i></button>
+                            <button v-if="filters.digitizertype_id==0" title="Add new digitizertype" class="btn-light border" type="button" id="button-add-digitizertype" @click="openEdit('digitizertype')"><i class='fa fa-sm fa-plus'></i></button>
+                        </div>
+                    </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="accordion" id="accordionPanelsFilters">
     <div class="accordion-item">
         <h2 class="accordion-header" id="panelsStayOpen-headingOne">
             <button class="accordion-button p-2" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="true" aria-controls="panelsStayOpen-collapseOne">
@@ -12,7 +66,7 @@
                     <div class="col-12 m-1">
                         <div class="input-group input-group-sm">
                             <div class="input-group-text"><i class="fa fa-filter"></i></div>
-                            <input type="text" v-model="filters.name" class="form-control" id="filterSensorName" placeholder="Filter by name">
+                            <input type="text" v-model="filters.name" class="form-control" id="filterStationName" placeholder="Filter by name">
                             <button class="btn btn-light border" type="button" id="button-erase-name" @click="filters.name=''"><i class='fa fa-sm fa-delete-left'></i></button>
                         </div>
                     </div>
@@ -36,7 +90,7 @@
                             <button title="Reload sensortypes" class="btn-light border" type="button" id="button-reload-net" @click="fetchSensortypes()"><i class='fa fa-sm fa-rotate-right'></i></button>
                             <select class="form-select" id="input-sensortype" v-model="filters.sensortype_id" size="sm">
                                 <option :value="resetID"> {{ defaultOption.sensortypes }} </option>
-                                <option v-for="item in sensortypes" :value="item.id">{{ item.name }}</option>
+                                <option v-for="item in sensortypes" :value="item.id">{{ item.name }} {{item.model ? '- ' + item.model : ''}}</option>
                             <select>
                             <button v-if="filters.sensortype_id!=0" title="Edit sensortypes settings" class="btn-light border" type="button" id="button-settings-sensortype" @click="openEdit('sensortype', filters.sensortype_id)"><i class='fa fa-sm fa-gear'></i></button>
                             <button v-if="filters.sensortype_id==0" title="Add new sensortype" class="btn-light border" type="button" id="button-add-sensortype" @click="openEdit('sensortype')"><i class='fa fa-sm fa-plus'></i></button>
@@ -56,6 +110,15 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="col-12 m-1">
+                    <div class="input-group input-group-sm">
+                        <div class="form-check form-switch" size="sm">
+                            <input class="form-check-input" type="checkbox" id="modelSeeOldChannels" v-model="seeOldChannels">
+                            <label class="form-check-label" for="modelSeeOldChannels" size="sm">Show dismissed channels</label>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -63,40 +126,52 @@
 <div class="row row-cols-lg-auto align-items-center m-0">
     <div class="col-12">
         <div class="showhim">
-            <!--<input class="align-middle" type="checkbox" v-model="checkedAllSensors"/> --><span class="fst-italic align-middle">Nodes <small>({{sensorsList.length}})</small></span> <span class="showme"><span class="text-secondary" style="cursor:pointer" @click="sorting='byName'" v-show="sorting=='byNetAndName'"><i class="fa fa-arrow-up-a-z" title="Sort by name"></i></span> <span class="text-secondary" style="cursor:pointer" @click="sorting='byNetAndName'" v-show="sorting=='byName'"><i class="fa fa-arrow-up-short-wide" title="Sort by net and name"></i></span><span class="text-secondary" style="cursor:pointer" @click="fetchSensors()"><i class="fa fa-rotate-right" title="Reload nodes"></i></span> <span class="text-secondary" style="cursor:pointer"><i class="fa fa-plus" title="Create node" @click="openEdit('sensor')"></i></span></span>
+            <!--<input class="align-middle" type="checkbox" v-model="checkedAllStations"/> --><span class="fst-italic align-middle">Stations <small>({{stationsList.length}})</small></span> <span class="align-middle"><span class="text-secondary" style="cursor:pointer" @click="sorting='byName'" v-show="sorting=='byNetAndName'"><i class="fa fa-arrow-up-a-z" title="Sort by name"></i></span> <span class="text-secondary" style="cursor:pointer" @click="sorting='byNetAndName'" v-show="sorting=='byName'"><i class="fa fa-arrow-up-short-wide" title="Sort by net and name"></i></span><span class="text-secondary" style="cursor:pointer" @click="fetchStations()"><i class="fa fa-rotate-right" title="Reload stations"></i></span> <span class="text-secondary" style="cursor:pointer"><i class="fa fa-plus" title="Create station" @click="openEdit('station')"></i></span></span>
         </div>
-        <div v-if="sensorsList.length == 0" class="fst-italic">{{loadingMessages.sensors}}</div>
-        <div v-if="sensorsList.length > 0">
-            <ul id="sensorsList" class="list-group">
-                <li class="list-group-item p-1 ps-0 pt-0 pb-0" v-for="sensor in sensorsList" :id="'sensor_'+sensor.id" v-show="!sensor.hidden" style="font-size:0.9em; border:none">
+        <div v-if="stationsList.length == 0" class="fst-italic">{{loadingMessages.stations}}</div>
+        <div v-if="stationsList.length > 0">
+            <ul id="stationsList" class="list-group">
+                <li class="list-group-item p-1 ps-0 pt-0 pb-0" v-for="station in stationsList" :id="'station_'+station.id" v-show="!station.hidden" style="font-size:0.9em; border:none">
                         
-                    <div class="showhim"><span><!--<input class="align-middle" type="checkbox" v-model="sensor.checked"/> --><i class="fa-solid fa-genderless"></i> <u title='Load channel list' class="font-monospace align-middle" style="cursor:pointer" @click="listElementAction(sensor.id)">{{ sensor.name }}</u><small class="font-monospace align-middle" title="Current (active) channels">({{sensor.n_channels}})</small> <span class="badge align-middle" :style="getNetColor(sensor.net_id)" style="padding:.2em .3em; font-size:.65em" :title="'Net:' + sensor.net_name">{{getNetAbbreviation(sensor.net_name)}}</span> <span class="badge rounded-pill align-middle" :style="getSensortypeColor(sensor.sensortype_id)" style="padding:.2em .45em; font-size:.65em" :title="'Sensortype:' + sensor.sensortype_name">{{getSensortypeAbbreviation(sensor.sensortype_name)}}</span></span> <span class='showme'><u class="text-secondary" style="cursor:pointer" @click="fetchChannels({sensor_id: sensor.id})"><i class="fa fa-rotate-right" title="Reload channels"></i></u> <u class="text-secondary" style="cursor:pointer" @click="openEdit('sensor',sensor.id)"><i class="fa fa-gear" title="View/edit sensor"></i></u> <u class="text-secondary" style="cursor:pointer" @click="removeSensor(sensor.id)"><i class="fa fa-trash" title="Remove sensor"></i></u></span></div>
+                    <div class="showhim" v-if="!station.old_station || seeOldChannels"><span><!--<input class="align-middle" type="checkbox" v-model="station.checked"/> --><i class="fa-solid fa-genderless"></i> <u title='Load configurations list' class="font-monospace align-middle" :class="{'text-danger':station.old_station}" style="cursor:pointer" @click="toggleStationConfigList(station.id)">{{ station.name }}<i v-if="station.old_station" class="fa-regular fa-clock align-middle" title="Old station"></i></u><!--<small class="font-monospace align-middle" title="N. channels of last configuration">({{station.n_channels}})</small>-->&nbsp;<span class="badge align-middle" :style="getNetColor(station.net_id)" style="padding:.2em .3em; font-size:.65em" :title="'Net:' + station.net_name">{{getNetAbbreviation(station.net_name)}}</span> <span class="badge rounded-pill align-middle" :style="getSensortypeColor(station.sensortype_id)" style="padding:.2em .45em; font-size:.65em" :title="'Sensortype:' + station.sensortype_name">{{getSensortypeAbbreviation(station.sensortype_name)}}</span></span> <span class='showme'><u class="text-secondary" style="cursor:pointer" @click="selectMapMarker(station.id)"><i class="fa fa-location-dot" title="Locate on map"></i></u> <u class="text-secondary" style="cursor:pointer" @click="fetchStationConfigs({station_id: station.id})"><i class="fa fa-rotate-right" title="Reload configurations"></i></u> <u class="text-secondary" style="cursor:pointer" @click="openEdit('station',station.id)"><i class="fa fa-gear" title="View/edit station"></i></u> <u class="text-secondary" style="cursor:pointer" @click="removeStation(station.id)"><i class="fa fa-trash" title="Remove station"></i></u> <u class="text-secondary" style="cursor:pointer" @click="openEdit('stationConfig', null, {'station_id':station.id})"><i class="fa fa-plus" title="New config"></i></u></span></div>
 
-                        <ul v-if="channelsList[sensor.id]" v-show="!channelsList[sensor.id].hidden" class='fa-ul'>
-                            <li v-for="c in channelsList[sensor.id]" :id="'channel_'+c.id">
-                                <div v-if="!c.old_channel || seeOldChannels">
-                                    <div class="showhim">
-                                        <span class="text-secondary fa-li" @click="">#{{c.id}}</span> 
-
-                                        <u v-if="(timeseriesList[c.id] && timeseriesList[c.id].length>0)" title='Load timeseries list' class="font-monospace align-middle" :class="{'text-danger':c.old_channel}" style="cursor:pointer" @click="toggleTimeseriesList(c.id)"><i v-if="c.old_channel" class="fa-regular fa-clock" title="Old channel"></i>{{c.name}}</u> 
-                                        <span v-if="(!timeseriesList[c.id] || timeseriesList[c.id].length == 0)" title="" class="font-monospace align-middle" :class="{'text-danger':c.old_channel}"><i v-if="c.old_channel" class="fa-regular fa-clock" title="Old channel"></i>{{c.name}}</span> <span class="badge rounded-pill align-middle" :style="getSensortypeColor(c.sensortype_id)" style="padding:.2em .45em; font-size:.65em" :title="'Sensortype:' + c.sensortype_name">{{getSensortypeAbbreviation(c.sensortype_name)}}</span>&nbsp;
-    
-                                        <u><i class="fa fa-chart-line fa-xs" title="Mapped timeseries"> <span class="font-monospace">[{{timeseriesList[c.id] ? timeseriesList[c.id].length : ""}}]</span></i></u> <span class='showme'><u class="text-secondary" style="cursor:pointer" @click="fetchTimeseries({channel_id: c.id})"><i class="fa fa-rotate-right" title="Reload timeseries"></i></u> <u class="text-secondary" style="cursor:pointer" @click="openEdit('channel',c.id, {'sensor_id':sensor.id})"><i class="fa fa-gear" title="View/edit channel"></i></u> <u class="text-secondary" style="cursor:pointer" @click="cloneChannel(c.id, sensor.id)"><i class="fa-regular fa-clone" title="Duplicate channel"></i></u> <u class="text-secondary" style="cursor:pointer"><i class="fa fa-folder-plus" title="Register a new timeseries and map to this channel" @click="openEdit('timeseries', null, {'channel_id':c.id})"></i></u> <u class="text-secondary" style="cursor:pointer" @click="removeChannel(c.id, sensor.id)"><i class="fa fa-trash" title="Remove channel"></i></u></span>
-
-                                    </div>
-                                    <ul v-if="timeseriesList[c.id]" v-show="!timeseriesList[c.id].hidden" class='fa-ul'>
-                                        <li v-for="t in timeseriesList[c.id]" :id="'timeseries_'+t.id">
-                                            <div class="showhim">
-                                                <i class="fa-li fa fa-chart-line" title="Timeseries"></i>{{t.name}} 
+                        <ul v-if="stationConfigsList[station.id]" v-show="!stationConfigsList[station.id].hidden" class='fa-ul'>
+                            <li v-for="sc in stationConfigsList[station.id]" :id="'stationConfig_'+sc.id">
+                                
+                                <div class="showhim" v-if="!sc.old_config || seeOldChannels">
+                                    <span><u title='Load channel list' class="align-middle" :class="{'text-danger':sc.old_config}" style="cursor:pointer" @click="toggleChannelList(sc.id)">[{{ sc.start_datetime.substr(0,10) }} - {{ sc.end_datetime ? sc.end_datetime.substr(0,10) : "now"}}] <small class="font-monospace align-middle" title="N. channels">({{sc.n_channels}})</small> <i v-if="sc.old_config" class="fa-regular fa-clock align-middle" title="Old configuration"></i></u></span>&nbsp;<span class="text-secondary fa-li"><i class="fa-solid fa-genderless"></i></span> 
+                                    <span class="badge rounded-pill align-middle" :style="getSensortypeColor(sc.sensortype_id)" style="padding:.2em .45em; font-size:.65em" :title="'Sensortype:' + sc.sensortype_name">{{getSensortypeAbbreviation(sc.sensortype_name)}}</span> <span class='showme'><u class="text-secondary" style="cursor:pointer" @click="fetchChannels({station_config_id: sc.id})"><i class="fa fa-rotate-right" title="Reload channels"></i></u> <u class="text-secondary" style="cursor:pointer" @click="openEdit('stationConfig',sc.id, {'station_id':station.id})"><i class="fa fa-gear" title="View/edit station config"></i></u> <u class="text-secondary" style="cursor:pointer" @click="removeStationConfig(sc.id, station.id)"><i class="fa fa-trash" title="Remove station config"></i></u> <u class="text-secondary" style="cursor:pointer"><i class="fa fa-folder-plus" title="(Re)Generate channels for this configuration" @click="generateChannels(sc.id, station.id)"></i></u></span>
+                                </div>
+                                      
+                                <div v-if="Object.keys(channelsList).length > 0">
+                                    <ul v-if="channelsList[sc.id]" v-show="!channelsList[sc.id].hidden" class='fa-ul'>
+                                        <li v-for="c in channelsList[sc.id]" :id="'channel_'+c.id" v-show="!sc.old_config || seeOldChannels">
+                                            
+                                            <div v-if="!c.old_channel || seeOldChannels">
+                                                <div class="showhim">
+                                                    <span class="text-secondary fa-li">#{{c.id}}</span> 
+                                                    <u v-if="(timeseriesList[c.id] && timeseriesList[c.id].length>0)" title='Load timeseries list' class="font-monospace align-middle" :class="{'text-danger':c.old_channel}" style="cursor:pointer" @click="toggleTimeseriesList(c.id)">{{c.name}}<i v-if="c.old_channel" class="fa-regular fa-clock align-middle" title="Old channel"></i></u> 
+                                                    <span v-if="(!timeseriesList[c.id] || timeseriesList[c.id].length == 0)" title="" class="font-monospace align-middle" :class="{'text-danger':c.old_channel}">{{c.name}}<i v-if="c.old_channel" class="fa-regular fa-clock align-middle" title="Old channel"></i></span><!-- <span class="badge rounded-pill align-middle" :style="getSensortypeColor(c.sensortype_id)" style="padding:.2em .45em; font-size:.65em" :title="'Sensortype:' + c.sensortype_name">{{getSensortypeAbbreviation(c.sensortype_name)}}</span>-->&nbsp;
+                                                    <u><i class="fa fa-chart-line fa-xs" title="Mapped timeseries"> <span class="font-monospace">[{{timeseriesList[c.id] ? timeseriesList[c.id].length : ""}}]</span></i></u> <span class='showme'><u class="text-secondary" style="cursor:pointer" @click="fetchTimeseries({channel_id: c.id})"><i class="fa fa-rotate-right" title="Reload timeseries"></i></u> <u class="text-secondary" style="cursor:pointer" @click="openEdit('channel',c.id, {'station_config_id':sc.id})"><i class="fa fa-gear" title="View/edit channel"></i></u> <u class="text-secondary" style="cursor:pointer"><i class="fa fa-plus" title="Register a new timeseries and map to this channel" @click="openEdit('timeseries', null, {'channel_id':c.id})"></i></u> <u class="text-secondary" style="cursor:pointer" @click="removeChannel(c.id, sc.id, station.id)"><i class="fa fa-trash" title="Remove channel"></i></u></span>
+                                                </div>
                                                 
-                                                <span class="showme"><span class="text-secondary" style="cursor:pointer" @click="openTSViewer(t)"><i class="fa fa-eye" title="View timeseries"></i></span> <span class="text-secondary" style="cursor:pointer" @click="openEdit('timeseries', t.id, {'sensor_id':sensor.id, 'channel_id':c.id});"><i class="fa fa-gear" title="Edit timeseries"></i></span></span>
+                                                <ul v-if="timeseriesList[c.id]" v-show="!timeseriesList[c.id].hidden" class='fa-ul'>
+                                                    <li v-for="t in timeseriesList[c.id]" :id="'timeseries_'+t.id">
+                                                        <div class="showhim">
+                                                            <i class="fa-li fa fa-chart-line" title="Timeseries"></i>{{t.name}} 
+                                                            <span class="showme"><span class="text-secondary" style="cursor:pointer" @click="openTSViewer(t)"><i class="fa fa-eye" title="View timeseries"></i></span> <span class="text-secondary" style="cursor:pointer" @click="openEdit('timeseries', t.id, {'station_id':station.id, 'channel_id':c.id});"><i class="fa fa-gear" title="Edit timeseries"></i></span></span>
+                                                        </div>
+                                                    </li>
+                                                </ul>
                                             </div>
+                                            
                                         </li>
+                                        <li class="fst-italic" v-show="!sc.old_config || seeOldChannels"><i class="fa-li fa fa-plus"></i><u class="text-primary" style="cursor:pointer" @click="openEdit('channel', null, {'station_config_id':sc.id})">&lt;add channel&gt;</u></li>
                                     </ul>
                                 </div>
                             </li>
-                            <li class="fst-italic"><i class="fa-li fa fa-plus"></i><u class="text-primary" style="cursor:pointer" @click="openEdit('channel', null, {'sensor_id':sensor.id})">&lt;add channel&gt;</u></li>
                         </ul>
+                    
                 </li>
             </ul>
         </div>

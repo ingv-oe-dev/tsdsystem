@@ -1,5 +1,6 @@
 <?php
     $id = isset($_GET["id"]) ? $_GET["id"] : null;
+    $station_id = isset($_GET["station_id"]) ? $_GET["station_id"] : null;
 	$station_config_id = isset($_GET["station_config_id"]) ? $_GET["station_config_id"] : null;
 ?>
 <!DOCTYPE html>
@@ -52,6 +53,7 @@
         
         var id = "<?php echo $id; ?>";
 		var station_config_id = "<?php echo $station_config_id; ?>";
+        var station_id = "<?php echo $station_id; ?>";
         var ref = "../../json-schemas/channels.json";
         var route = "../../channels";
         var method =  id ? "PATCH" : "POST";
@@ -197,7 +199,7 @@
                     "data": JSON.stringify(toPost),
                     "method": method,
                     "beforeSend": function(jqXHR, settings) {
-                        jqXHR = Object.assign(jqXHR, settings, {"station_config_id": station_config_id});
+                        jqXHR = Object.assign(jqXHR, settings, {"station_config_id": station_config_id, "station_id": station_id});
                         if (method == 'POST') {
                             jqXHR = Object.assign(jqXHR, {"messageText":"Add channel"});
                         }
