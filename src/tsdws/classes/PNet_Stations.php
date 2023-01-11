@@ -123,7 +123,8 @@ Class Stations extends QueryManager {
 				$query .= $this->composeOrderBy($cols, array(
 					"id" => array("alias" => $this->tablename . ".id"),
 					"name" => array("alias" => $this->tablename . ".name"),
-					"end_datetime" => array("alias" => "stc.end_datetime")
+					"end_datetime" => array("alias" => "stc.end_datetime"),
+					"start_datetime" => array("alias" => "stc.start_datetime")
 				));
 			}
 		}

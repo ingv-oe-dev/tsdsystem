@@ -33,6 +33,7 @@ RewriteRule ^nets/([0-9]+)/stations(/)?$ stations/?net_id=$1 [NC,QSA]
 RewriteRule ^stations(/)?$ routes/stations.php [NC]
 RewriteRule ^stations/([0-9]+)(/)?$ routes/stations.php?id=$1 [NC,QSA]
 RewriteRule ^stations/([0-9]+)/configs(/)?$ stations/configs/?station_id=$1 [NC,QSA]
+RewriteRule ^stations/([0-9]+)/channels(/)?$ channels/?station_id=$1 [NC,QSA]
 
 RewriteRule ^stations/configs(/)?$ routes/station_configs.php [NC]
 RewriteRule ^stations/configs/([0-9]+)(/)?$ routes/station_configs.php?id=$1 [NC,QSA]

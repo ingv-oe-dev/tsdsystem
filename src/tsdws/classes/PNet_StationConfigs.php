@@ -120,7 +120,8 @@ Class StationConfigs extends QueryManager {
 				"sensor_id" => array("alias" => $this->tablename . ".sensor_id", "quoted" => false),
 				"sensor_name" => array("alias" => "s.name", "quoted" => true),
 				"digitizer_id" => array("alias" => $this->tablename . ".digitizer_id", "quoted" => false),
-				"digitizer_name" => array("alias" => "d.name", "quoted" => true)
+				"digitizer_name" => array("alias" => "d.name", "quoted" => true),
+				"additional_info" => array("quoted" => true, "alias" => $this->tablename . ".additional_info")
 			));
 			if (array_key_exists("start_datetime", $input) and isset($input["start_datetime"])){
 				$query .= " AND start_datetime >= '" . $input["start_datetime"] . "'";

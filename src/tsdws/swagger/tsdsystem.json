@@ -31,6 +31,15 @@
         "name": "sensortypes",
         "description": "Station network management - sensortypes"
     }, {
+        "name": "sensortype_categories",
+        "description": "Station network management - sensortype categories"
+    }, {
+        "name": "digitizertypes",
+        "description": "Station network management - digitizertypes"
+    }, {
+        "name": "digitizers",
+        "description": "Station network management - digitizers"
+    }, {
         "name": "stations",
         "description": "Station network management - stations"
     }, {
@@ -739,15 +748,15 @@
                         "type": "string"
                     },
                     {
-                        "name": "sensor_id",
+                        "name": "station_id",
                         "in": "query",
-                        "description": "ID of the sensor whom the channel belongs to",
+                        "description": "ID of the station whom the channel belongs to",
                         "type": "integer"
                     },
                     {
-                        "name": "sensor_name",
+                        "name": "station_name",
                         "in": "query",
-                        "description": "Name of the sensor whom the channel belongs to",
+                        "description": "Name of the station whom the channel belongs to",
                         "type": "string"
                     },
                     {
@@ -1009,69 +1018,6 @@
                 }]
             }
         },
-        "/channels/{id}/clone": {
-            "post": {
-                "tags": [
-                    "channels"
-                ],
-                "summary": "Duplicate a channel by ID",
-                "description": "",
-                "produces": [
-                    "application/json"
-                ],
-                "parameters": [{
-                    "name": "id",
-                    "in": "path",
-                    "description": "Channel ID",
-                    "type": "integer",
-                    "format": "int64"
-                }, {
-                    "name": "clone_name",
-                    "in": "query",
-                    "description": "Clone channel name",
-                    "type": "string"
-                }],
-                "responses": {
-                    "200": {
-                        "description": "Successful operation",
-                        "schema": {
-                            "type": "object",
-                            "properties": {
-                                "params": {
-                                    "type": "object"
-                                },
-                                "data": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/definitions/ApiResponse"
-                                    }
-                                },
-                                "error": {
-                                    "type": "object"
-                                },
-                                "statusCode": {
-                                    "type": "integer",
-                                    "format": "int32"
-                                },
-                                "records": {
-                                    "type": "integer",
-                                    "format": "int32"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid status value"
-                    },
-                    "401": {
-                        "description": "Authorization not found"
-                    }
-                },
-                "security": [{
-                    "Bearer": []
-                }]
-            }
-        },
         "/channels/{id}/timeseries": {
             "get": {
                 "tags": [
@@ -1190,6 +1136,11 @@
                     "description": "Sensor name",
                     "type": "string"
                 }, {
+                    "name": "serial_number",
+                    "in": "query",
+                    "description": "Sensor serial number",
+                    "type": "string"
+                }, {
                     "name": "sensortype_id",
                     "in": "query",
                     "description": "ID of the sensortype",
@@ -1200,102 +1151,20 @@
                     "description": "Sensortype name",
                     "type": "string"
                 }, {
-                    "name": "net_id",
+                    "name": "sensortype_model",
                     "in": "query",
-                    "description": "ID of the net whom the sensor refers to",
-                    "type": "integer"
-                }, {
-                    "name": "net_name",
-                    "in": "query",
-                    "description": "Name of the net whom the sensor refers to",
+                    "description": "Sensortype name",
                     "type": "string"
                 }, {
-                    "name": "site_id",
+                    "name": "sensortype_components",
                     "in": "query",
-                    "description": "ID of the site whom the sensor belongs to",
-                    "type": "integer"
-                }, {
-                    "name": "site_name",
-                    "in": "query",
-                    "description": "Name of the site whom the sensor belongs to",
+                    "description": "Sensortype components",
                     "type": "string"
                 }, {
-                    "name": "start_datetime",
-                    "in": "query",
-                    "description": "Current instance start datetime. Standard ISO8601 datetime UTC",
-                    "type": "string",
-                    "format": "date-time"
-                }, {
-                    "name": "end_datetime",
-                    "in": "query",
-                    "description": "Current instance end datetime. Standard ISO8601 datetime UTC",
-                    "type": "string",
-                    "format": "date-time"
-                }, {
-                    "name": "custom_props",
+                    "name": "additional_info",
                     "in": "query",
                     "description": "Find this string into sensors's additional info",
                     "type": "string"
-                }, {
-                    "name": "minlatitude",
-                    "in": "query",
-                    "description": "**Spatial search**. Specify southern boundary for search.",
-                    "type": "number",
-                    "format": "double"
-                }, {
-                    "name": "maxlatitude",
-                    "in": "query",
-                    "description": "**Spatial search**. Specify northern boundary for search.",
-                    "type": "number",
-                    "format": "double"
-                }, {
-                    "name": "minlongitude",
-                    "in": "query",
-                    "description": "**Spatial search**. Specify western boundary for search.",
-                    "type": "number",
-                    "format": "double"
-                }, {
-                    "name": "maxlongitude",
-                    "in": "query",
-                    "description": "**Spatial search**. Specify eastern boundary for search.",
-                    "type": "number",
-                    "format": "double"
-                }, {
-                    "name": "latitude",
-                    "in": "query",
-                    "description": "**Spatial search**. Specify the central latitude point for a radial search.",
-                    "type": "number",
-                    "format": "double"
-                }, {
-                    "name": "longitude",
-                    "in": "query",
-                    "description": "**Spatial search**. Specify the central longitude point for a radial search.",
-                    "type": "number",
-                    "format": "double"
-                }, {
-                    "name": "minradius",
-                    "in": "query",
-                    "description": "**Spatial search**. Specify minimum distance from the geographic point defined by latitude and longitude. Degrees.",
-                    "type": "number",
-                    "format": "double"
-                }, {
-                    "name": "maxradius",
-                    "in": "query",
-                    "description": "**Spatial search**. Specify maximum distance from the geographic point defined by latitude and longitude. Degrees.",
-                    "type": "number",
-                    "format": "double"
-                }, {
-                    "name": "minradiuskm",
-                    "in": "query",
-                    "description": "**Spatial search**. Specify minimum distance from the geographic point defined by latitude and longitude. Kilometers.",
-                    "type": "number",
-                    "format": "double"
-                }, {
-                    "name": "maxradiuskm",
-                    "in": "query",
-                    "description": "**Spatial search**. Specify maximum distance from the geographic point defined by latitude and longitude. Kilometers.",
-                    "type": "number",
-                    "format": "double"
                 }, {
                     "name": "exact_match",
                     "in": "query",
@@ -1307,7 +1176,7 @@
                     "description": "How to sort result",
                     "type": "string",
                     "default": "name",
-                    "enum": ["id", "name", "end_datetime"]
+                    "enum": ["id", "name", "sensortype_id", "sensortype_name", "sensortype_model"]
                 }],
                 "responses": {
                     "200": {
@@ -1511,12 +1380,132 @@
                 }]
             }
         },
-        "/sensors/{id}/channels": {
+        "/digitizers": {
             "get": {
                 "tags": [
-                    "channels", "sensors"
+                    "digitizers"
                 ],
-                "summary": "List all channels referring to a sensor by ID",
+                "summary": "Find digitizers",
+                "description": "",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "query",
+                    "description": "Digitizer unique identifier",
+                    "type": "integer"
+                }, {
+                    "name": "name",
+                    "in": "query",
+                    "description": "Digitizer name",
+                    "type": "string"
+                }, {
+                    "name": "serial_number",
+                    "in": "query",
+                    "description": "Digitizer serial number",
+                    "type": "string"
+                }, {
+                    "name": "digitizertype_id",
+                    "in": "query",
+                    "description": "ID of the digitizertype",
+                    "type": "integer"
+                }, {
+                    "name": "digitizertype_name",
+                    "in": "query",
+                    "description": "Digitizertype name",
+                    "type": "string"
+                }, {
+                    "name": "additional_info",
+                    "in": "query",
+                    "description": "Find this string into sensors's additional info",
+                    "type": "string"
+                }, {
+                    "name": "exact_match",
+                    "in": "query",
+                    "description": "Use exact match when filtering by query parameters",
+                    "type": "boolean"
+                }, {
+                    "name": "sort_by",
+                    "in": "query",
+                    "description": "How to sort result",
+                    "type": "string",
+                    "default": "name",
+                    "enum": ["id", "name", "digitizertype_id"]
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponseGet"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            },
+            "post": {
+                "tags": [
+                    "digitizers"
+                ],
+                "summary": "Register a digitizer",
+                "description": "",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "in": "body",
+                    "name": "body",
+                    "description": "JSON object that needs to be passed as input",
+                    "required": true,
+                    "schema": {
+                        "$ref": "#/definitions/Digitizer"
+                    }
+                }],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "207": {
+                        "description": "Already exists. No Rows inserted",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    },
+                    "409": {
+                        "description": "Operation failed"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            }
+        },
+        "/digitizers/{id}": {
+            "get": {
+                "tags": [
+                    "digitizers"
+                ],
+                "summary": "Info about a digitizer by ID",
                 "description": "",
                 "produces": [
                     "application/json"
@@ -1524,7 +1513,7 @@
                 "parameters": [{
                     "name": "id",
                     "in": "path",
-                    "description": "Sensor ID",
+                    "description": "Digitizer ID",
                     "type": "integer",
                     "format": "int64"
                 }],
@@ -1567,6 +1556,83 @@
                 "security": [{
                     "Bearer": []
                 }]
+            },
+            "patch": {
+                "tags": [
+                    "digitizers"
+                ],
+                "summary": "Update digitizer data by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "path",
+                    "description": "Digitizer ID",
+                    "type": "integer",
+                    "format": "int64"
+                }, {
+                    "in": "body",
+                    "name": "body",
+                    "description": "JSON object that needs to be passed as input",
+                    "required": true,
+                    "schema": {
+                        "$ref": "#/definitions/Digitizer"
+                    }
+                }],
+                "responses": {
+                    "202": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            },
+            "delete": {
+                "tags": [
+                    "digitizers"
+                ],
+                "summary": "Delete a digitizer by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "path",
+                    "description": "Digitizer ID",
+                    "type": "integer",
+                    "format": "int64"
+                }],
+                "responses": {
+                    "202": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
             }
         },
         "/sensortypes": {
@@ -1590,17 +1656,37 @@
                     "description": "Sensortype name",
                     "type": "string"
                 }, {
-                    "name": "json_schema",
+                    "name": "model",
                     "in": "query",
-                    "description": "Find this string into sensortype JSON schema",
+                    "description": "Sensortype model",
                     "type": "string"
+                }, {
+                    "name": "components",
+                    "in": "query",
+                    "description": "Find this string into sensortype components",
+                    "type": "string"
+                }, {
+                    "name": "response_parameters",
+                    "in": "query",
+                    "description": "Find this string into sensortype response parameters",
+                    "type": "string"
+                }, {
+                    "name": "additional_info",
+                    "in": "query",
+                    "description": "Find this string into sensortype additional info",
+                    "type": "string"
+                }, {
+                    "name": "sensortype_category_id",
+                    "in": "query",
+                    "description": "Sensortype category unique identifier",
+                    "type": "integer"
                 }, {
                     "name": "sort_by",
                     "in": "query",
                     "description": "How to sort result",
                     "type": "string",
                     "default": "name",
-                    "enum": ["id", "name"]
+                    "enum": ["id", "name", "model", "sensortype_category_id"]
                 }],
                 "responses": {
                     "200": {
@@ -1862,6 +1948,597 @@
                 }]
             }
         },
+        "/sensortype_categories": {
+            "get": {
+                "tags": [
+                    "sensortype_categories"
+                ],
+                "summary": "Find sensortype categories",
+                "description": "",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "query",
+                    "description": "Sensortype category unique identifier",
+                    "type": "integer"
+                }, {
+                    "name": "name",
+                    "in": "query",
+                    "description": "Sensortype category name",
+                    "type": "string"
+                }, {
+                    "name": "json_schema",
+                    "in": "query",
+                    "description": "Find this string into sensortype category JSON schema",
+                    "type": "string"
+                }, {
+                    "name": "sort_by",
+                    "in": "query",
+                    "description": "How to sort result",
+                    "type": "string",
+                    "default": "name",
+                    "enum": ["id", "name"]
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponseGet"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            },
+            "post": {
+                "tags": [
+                    "sensortype_categories"
+                ],
+                "summary": "Register a sensortype category",
+                "description": "",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "in": "body",
+                    "name": "body",
+                    "description": "JSON object that needs to be passed as input",
+                    "required": true,
+                    "schema": {
+                        "$ref": "#/definitions/SensortypeCaterogy"
+                    }
+                }],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "207": {
+                        "description": "Already exists. No Rows inserted",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    },
+                    "409": {
+                        "description": "Operation failed"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            }
+        },
+        "/sensortype_categories/{id}": {
+            "get": {
+                "tags": [
+                    "sensortype_categories"
+                ],
+                "summary": "Info about a sensortype category by ID",
+                "description": "",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "path",
+                    "description": "Sensortype category ID",
+                    "type": "integer",
+                    "format": "int64"
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "params": {
+                                    "type": "object"
+                                },
+                                "data": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/ApiResponse"
+                                    }
+                                },
+                                "error": {
+                                    "type": "object"
+                                },
+                                "statusCode": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                },
+                                "records": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            },
+            "patch": {
+                "tags": [
+                    "sensortype_categories"
+                ],
+                "summary": "Update sensortype category data by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "path",
+                    "description": "Sensortype category ID",
+                    "type": "integer",
+                    "format": "int64"
+                }, {
+                    "in": "body",
+                    "name": "body",
+                    "description": "JSON object that needs to be passed as input",
+                    "required": true,
+                    "schema": {
+                        "$ref": "#/definitions/SensortypeCategory"
+                    }
+                }],
+                "responses": {
+                    "202": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            },
+            "delete": {
+                "tags": [
+                    "sensortype_categories"
+                ],
+                "summary": "Delete a sensortype category by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "path",
+                    "description": "Sensortype caterogy ID",
+                    "type": "integer",
+                    "format": "int64"
+                }],
+                "responses": {
+                    "202": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            }
+        },
+        "/sensortype_categories/{id}/sensortypes": {
+            "get": {
+                "tags": [
+                    "sensortypes", "sensortype_categories"
+                ],
+                "summary": "List all sensortypes belonging to a sensortype category by ID",
+                "description": "",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "path",
+                    "description": "Sensortype category ID",
+                    "type": "integer",
+                    "format": "int64"
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "params": {
+                                    "type": "object"
+                                },
+                                "data": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/ApiResponse"
+                                    }
+                                },
+                                "error": {
+                                    "type": "object"
+                                },
+                                "statusCode": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                },
+                                "records": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            }
+        },
+        "/digitizertypes": {
+            "get": {
+                "tags": [
+                    "digitizertypes"
+                ],
+                "summary": "Find digitizertypes",
+                "description": "",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "query",
+                    "description": "Digitizertype unique identifier",
+                    "type": "integer"
+                }, {
+                    "name": "name",
+                    "in": "query",
+                    "description": "Sensortype name",
+                    "type": "string"
+                }, {
+                    "name": "model",
+                    "in": "query",
+                    "description": "Sensortype model",
+                    "type": "string"
+                }, {
+                    "name": "additional_info",
+                    "in": "query",
+                    "description": "Find this string into sensortype additional info",
+                    "type": "string"
+                }, {
+                    "name": "sort_by",
+                    "in": "query",
+                    "description": "How to sort result",
+                    "type": "string",
+                    "default": "name",
+                    "enum": ["id", "name", "model"]
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponseGet"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            },
+            "post": {
+                "tags": [
+                    "digitizertypes"
+                ],
+                "summary": "Register an digitizertype",
+                "description": "",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "in": "body",
+                    "name": "body",
+                    "description": "JSON object that needs to be passed as input",
+                    "required": true,
+                    "schema": {
+                        "$ref": "#/definitions/Digitizertype"
+                    }
+                }],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "207": {
+                        "description": "Already exists. No Rows inserted",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    },
+                    "409": {
+                        "description": "Operation failed"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            }
+        },
+        "/digitizertypes/{id}": {
+            "get": {
+                "tags": [
+                    "digitizertypes"
+                ],
+                "summary": "Info about a digitizertype by ID",
+                "description": "",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "path",
+                    "description": "Digitizertype ID",
+                    "type": "integer",
+                    "format": "int64"
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "params": {
+                                    "type": "object"
+                                },
+                                "data": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/ApiResponse"
+                                    }
+                                },
+                                "error": {
+                                    "type": "object"
+                                },
+                                "statusCode": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                },
+                                "records": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            },
+            "patch": {
+                "tags": [
+                    "digitizertypes"
+                ],
+                "summary": "Update digitizertypes data by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "path",
+                    "description": "Digitizertype ID",
+                    "type": "integer",
+                    "format": "int64"
+                }, {
+                    "in": "body",
+                    "name": "body",
+                    "description": "JSON object that needs to be passed as input",
+                    "required": true,
+                    "schema": {
+                        "$ref": "#/definitions/Digitizertype"
+                    }
+                }],
+                "responses": {
+                    "202": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            },
+            "delete": {
+                "tags": [
+                    "digitizertypes"
+                ],
+                "summary": "Delete a digitizertype by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "path",
+                    "description": "Digitizertype ID",
+                    "type": "integer",
+                    "format": "int64"
+                }],
+                "responses": {
+                    "202": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            }
+        },
+        "/digitizertypes/{id}/digitizers": {
+            "get": {
+                "tags": [
+                    "digitizers", "digitizertypes"
+                ],
+                "summary": "List all current digitizers belonging to a digitizertype by ID",
+                "description": "",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "path",
+                    "description": "Digitizertype ID",
+                    "type": "integer",
+                    "format": "int64"
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "params": {
+                                    "type": "object"
+                                },
+                                "data": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/ApiResponse"
+                                    }
+                                },
+                                "error": {
+                                    "type": "object"
+                                },
+                                "statusCode": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                },
+                                "records": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            }
+        },
         "/stations": {
             "get": {
                 "tags": [
@@ -2000,7 +2677,7 @@
                     "description": "How to sort result",
                     "type": "string",
                     "default": "name",
-                    "enum": ["id", "name", "end_datetime"]
+                    "enum": ["id", "name", "start_datetime", "end_datetime"]
                 }],
                 "responses": {
                     "200": {
@@ -2204,12 +2881,12 @@
                 }]
             }
         },
-        "/stations/{id}/sensors": {
+        "/stations/{id}/configs": {
             "get": {
                 "tags": [
-                    "stations", "sensors"
+                    "stations"
                 ],
-                "summary": "List all sensors referring to a station by ID",
+                "summary": "List all configurations referring to a station by ID",
                 "description": "",
                 "produces": [
                     "application/json"
@@ -2218,6 +2895,399 @@
                     "name": "id",
                     "in": "path",
                     "description": "Station ID",
+                    "type": "integer",
+                    "format": "int64"
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "params": {
+                                    "type": "object"
+                                },
+                                "data": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/ApiResponse"
+                                    }
+                                },
+                                "error": {
+                                    "type": "object"
+                                },
+                                "statusCode": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                },
+                                "records": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            }
+        },
+        "/stations/{id}/channels": {
+            "get": {
+                "tags": [
+                    "stations", "channels"
+                ],
+                "summary": "List all channels referring to a station by ID",
+                "description": "",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "path",
+                    "description": "Station ID",
+                    "type": "integer",
+                    "format": "int64"
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "params": {
+                                    "type": "object"
+                                },
+                                "data": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/ApiResponse"
+                                    }
+                                },
+                                "error": {
+                                    "type": "object"
+                                },
+                                "statusCode": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                },
+                                "records": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            }
+        },
+        "/stations/configs": {
+            "get": {
+                "tags": [
+                    "stations"
+                ],
+                "summary": "Find stations' configurations",
+                "description": "",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "query",
+                    "description": "Station configuration unique identifier",
+                    "type": "integer"
+                }, {
+                    "name": "station_id",
+                    "in": "query",
+                    "description": "Station unique identifier",
+                    "type": "integer"
+                }, {
+                    "name": "station_name",
+                    "in": "query",
+                    "description": "Station name",
+                    "type": "string"
+                }, {
+                    "name": "sensor_id",
+                    "in": "query",
+                    "description": "ID of the sensor",
+                    "type": "integer"
+                }, {
+                    "name": "sensor_name",
+                    "in": "query",
+                    "description": "Sensor name",
+                    "type": "string"
+                }, {
+                    "name": "digitizer_id",
+                    "in": "query",
+                    "description": "ID of the digitizer",
+                    "type": "integer"
+                }, {
+                    "name": "digitizer_name",
+                    "in": "query",
+                    "description": "Name of the digitizer",
+                    "type": "string"
+                }, {
+                    "name": "start_datetime",
+                    "in": "query",
+                    "description": "Station configuration start datetime. Standard ISO8601 datetime UTC",
+                    "type": "string",
+                    "format": "date-time"
+                }, {
+                    "name": "end_datetime",
+                    "in": "query",
+                    "description": "Station configuration end datetime. Standard ISO8601 datetime UTC",
+                    "type": "string",
+                    "format": "date-time"
+                }, {
+                    "name": "additional_info",
+                    "in": "query",
+                    "description": "Find this string into station configuration's additional info",
+                    "type": "string"
+                }, {
+                    "name": "exact_match",
+                    "in": "query",
+                    "description": "Use exact match when filtering by query parameters",
+                    "type": "boolean"
+                }, {
+                    "name": "sort_by",
+                    "in": "query",
+                    "description": "How to sort result",
+                    "type": "string",
+                    "default": "start_datetime",
+                    "enum": ["id", "station_id", "sensor_id", "digitizer_id", "station_name", "sensor_name", "digitizer_name", "start_datetime", "end_datetime"]
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponseGet"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            },
+            "post": {
+                "tags": [
+                    "stations"
+                ],
+                "summary": "Register a station configuration",
+                "description": "",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "in": "body",
+                    "name": "body",
+                    "description": "JSON object that needs to be passed as input",
+                    "required": true,
+                    "schema": {
+                        "$ref": "#/definitions/StationConfig"
+                    }
+                }],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "207": {
+                        "description": "Already exists. No Rows inserted",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    },
+                    "409": {
+                        "description": "Operation failed"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            }
+        },
+        "/stations/configs/{id}": {
+            "get": {
+                "tags": [
+                    "stations"
+                ],
+                "summary": "Info about a station configuration by ID",
+                "description": "",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "path",
+                    "description": "Station configuration ID",
+                    "type": "integer",
+                    "format": "int64"
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "params": {
+                                    "type": "object"
+                                },
+                                "data": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/ApiResponse"
+                                    }
+                                },
+                                "error": {
+                                    "type": "object"
+                                },
+                                "statusCode": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                },
+                                "records": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            },
+            "patch": {
+                "tags": [
+                    "stations"
+                ],
+                "summary": "Update station configuration data by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "path",
+                    "description": "Station configuration ID",
+                    "type": "integer",
+                    "format": "int64"
+                }, {
+                    "in": "body",
+                    "name": "body",
+                    "description": "JSON object that needs to be passed as input",
+                    "required": true,
+                    "schema": {
+                        "$ref": "#/definitions/StationConfig"
+                    }
+                }],
+                "responses": {
+                    "202": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            },
+            "delete": {
+                "tags": [
+                    "stations"
+                ],
+                "summary": "Delete a station configuration by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "path",
+                    "description": "Station configuration ID",
+                    "type": "integer",
+                    "format": "int64"
+                }],
+                "responses": {
+                    "202": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            }
+        },
+        "/stations/configs/{id}/channels": {
+            "get": {
+                "tags": [
+                    "channels", "stations"
+                ],
+                "summary": "List all channels referring to a station configuration by ID",
+                "description": "",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "path",
+                    "description": "Sensor ID",
                     "type": "integer",
                     "format": "int64"
                 }],
@@ -5074,51 +6144,91 @@
                     "type": "string",
                     "minLength": 1
                 },
-                "sensor_id": {
-                    "title": "Sensor",
-                    "description": "Sensor to which the channel belongs",
+                "station_config_id": {
+                    "title": "Station configuration",
+                    "description": "Station configuration to which the channel belongs",
                     "type": "integer",
                     "minimum": 1
                 },
-                "sensortype_id": {
-                    "title": "Sensortype",
-                    "description": "The sensor type",
-                    "type": "integer",
-                    "minimum": 1
-                },
-                "metadata": {
-                    "title": "Metadata",
-                    "description": "Sensortype properties (metadata)",
-                    "type": "object"
-                },
-                "start_datetime": {
-                    "type": "string",
-                    "format": "date-time",
-                    "title": "Start Datetime",
-                    "description": "Standard ISO8601 datetime UTC"
-                },
-                "end_datetime": {
-                    "type": "string",
-                    "format": "date-time",
-                    "title": "End Datetime",
-                    "description": "Standard ISO8601 datetime UTC"
-                },
-                "info": {
-                    "title": "Info",
-                    "description": "Additional info of the channel (e.g.: digitizer)",
+                "additional_info": {
+                    "title": "Additional info",
                     "type": "object",
-                    "properties": {
-                        "digitizer": {
-                            "title": "Digitizer",
-                            "description": "Digitizer properties",
-                            "type": "object"
-                        },
-                        "other": {
-                            "title": "Additional properties",
-                            "description": "Additional properties",
-                            "type": "object"
-                        }
-                    }
+                    "additionalProperties": true
+                }
+            }
+        },
+        "Digitizer": {
+            "type": "object",
+            "required": ["name"],
+            "additionalProperties": false,
+            "properties": {
+                "name": {
+                    "title": "Name",
+                    "description": "Name",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "serial_number": {
+                    "title": "Serial number",
+                    "description": "Serial number",
+                    "type": "string"
+                },
+                "digitizertype_id": {
+                    "title": "Digitizertype",
+                    "type": "integer"
+                },
+                "additional_info": {
+                    "title": "Additional Info",
+                    "description": "Additional info",
+                    "type": "object"
+                }
+            }
+        },
+        "Digitizertype": {
+            "type": "object",
+            "required": ["name"],
+            "additionalProperties": false,
+            "properties": {
+                "name": {
+                    "title": "Name",
+                    "description": "Name",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "model": {
+                    "title": "Model",
+                    "description": "Model",
+                    "type": "string"
+                },
+                "final_sample_rate": {
+                    "title": "Final sample rate",
+                    "type": "number"
+                },
+                "final_sample_rate_measure_unit": {
+                    "title": "Final sample rate measure unit",
+                    "type": "string"
+                },
+                "sensitivity": {
+                    "title": "Sensitivity",
+                    "type": "number"
+                },
+                "sensitivity_measure_unit": {
+                    "title": "Sensitivity measure unit",
+                    "type": "string"
+                },
+                "dynamical_range": {
+                    "title": "Dynamical range",
+                    "type": "number"
+                },
+                "dynamical_range_measure_unit": {
+                    "title": "Dynamical range measure unit",
+                    "type": "string"
+                },
+                "additional_info": {
+                    "title": "Additional Info",
+                    "description": "Additional info",
+                    "type": "object",
+                    "propertyOrder": 8
                 }
             }
         },
@@ -5133,37 +6243,18 @@
                     "type": "string",
                     "minLength": 1
                 },
-                "lat": {
-                    "title": "Latitude",
-                    "description": "Coordinate WGS84",
-                    "type": "number",
-                    "format": "double"
+                "serial_number": {
+                    "title": "Serial number",
+                    "description": "Serial number",
+                    "type": "string"
                 },
-                "lon": {
-                    "title": "Longitude",
-                    "description": "Coordinate WGS84",
-                    "type": "number",
-                    "format": "double"
-                },
-                "quote": {
-                    "title": "Quote",
-                    "description": "In meters",
-                    "type": "number",
-                    "format": "double"
-                },
-                "net_id": {
-                    "title": "Net ID",
-                    "description": "ID of the net whom the channel refers to",
+                "sensortype_id": {
+                    "title": "Sensortype",
                     "type": "integer"
                 },
-                "site_id": {
-                    "title": "Site ID",
-                    "description": "ID of the site whom the channel belongs to",
-                    "type": "integer"
-                },
-                "custom_props": {
-                    "title": "Additional properties",
-                    "description": "Additional properties",
+                "additional_info": {
+                    "title": "Additional Info",
+                    "description": "Additional info",
                     "type": "object"
                 }
             }
@@ -5179,9 +6270,54 @@
                     "type": "string",
                     "minLength": 1
                 },
+                "model": {
+                    "title": "Model",
+                    "description": "Model",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "components": {
+                    "title": "Components",
+                    "description": "List of the components of the sensortype",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "sensortype_category_id": {
+                    "title": "Sensortype category",
+                    "type": "integer",
+                    "enum": [],
+                    "options": {
+                        "enum_titles": []
+                    }
+                },
+                "response_parameters": {
+                    "title": "Response parameters",
+                    "description": "Response parameters structure based on the JSON schema of the selected sensortype category",
+                    "type": "object"
+                },
+                "additional_info": {
+                    "title": "Additional info",
+                    "type": "object",
+                    "additionalProperties": true
+                }
+            }
+        },
+        "SensortypeCategory": {
+            "type": "object",
+            "required": ["name"],
+            "additionalProperties": false,
+            "properties": {
+                "name": {
+                    "title": "Name",
+                    "description": "Name",
+                    "type": "string",
+                    "minLength": 1
+                },
                 "json_schema": {
                     "title": "JSON schema",
-                    "description": "JSON schema for sensortype properties",
+                    "description": "JSON schema for sensortype response parameters",
                     "type": "object"
                 }
             }
@@ -5225,10 +6361,64 @@
                     "description": "ID of the site whom the channel belongs to",
                     "type": "integer"
                 },
-                "custom_props": {
+                "additional_info": {
                     "title": "Additional properties",
                     "description": "Additional properties",
                     "type": "object"
+                }
+            }
+        },
+        "StationConfig": {
+            "type": "object",
+            "required": ["station_id", "start_datetime"],
+            "properties": {
+                "station_id": {
+                    "title": "Station",
+                    "description": "Station ID",
+                    "type": "integer",
+                    "enum": [],
+                    "options": {
+                        "enum_titles": []
+                    },
+                    "minimum": 1
+                },
+                "sensor_id": {
+                    "title": "Sensor",
+                    "description": "Sensor ID",
+                    "type": "integer",
+                    "enum": [],
+                    "options": {
+                        "enum_titles": []
+                    },
+                    "minimum": 1
+                },
+                "digitizer_id": {
+                    "title": "Digitizer",
+                    "description": "Digitizer ID",
+                    "type": "integer",
+                    "enum": [],
+                    "options": {
+                        "enum_titles": []
+                    },
+                    "minimum": 1
+                },
+                "additional_info": {
+                    "title": "Additional info",
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "start_datetime": {
+                    "type": "string",
+                    "format": "date-time",
+                    "title": "Start Datetime",
+                    "description": "Standard ISO8601 datetime UTC",
+                    "minLength": 1
+                },
+                "end_datetime": {
+                    "type": "string",
+                    "format": "date-time",
+                    "title": "End Datetime",
+                    "description": "Standard ISO8601 datetime UTC"
                 }
             }
         },
