@@ -31,15 +31,21 @@
                             <option v-for="item in nets" :value="item.id">{{ item.name }}</option>
                         </b-form-select>
                     </b-form-group>
-                    <b-form-group label-align-lg="right" label-align-md="right" label-align-sm="left" label-align-xs="left" id="input-group-sensor" label="Sensor:" label-for="input-sensor" label-size="sm" label-cols-md="3" label-cols-lg="3" label-cols-sm="3" label-cols-xs="3">
-                        <b-form-select id="input-sensor" v-model="selected.sensor_id" size="sm" :disabled="searchbyname_active">
-                            <option :value="resetID" disabled> {{ defaultOption.sensors }} </option>
-                            <option v-for="item in sensors" :value="item.id">{{ item.name }}</option>
+                    <b-form-group label-align-lg="right" label-align-md="right" label-align-sm="left" label-align-xs="left" id="input-group-station" label="Station:" label-for="input-station" label-size="sm" label-cols-md="3" label-cols-lg="3" label-cols-sm="3" label-cols-xs="3">
+                        <b-form-select id="input-station" v-model="selected.station_id" size="sm" :disabled="searchbyname_active">
+                            <option :value="resetID" disabled> {{ defaultOption.stations }} </option>
+                            <option v-for="item in stations" :value="item.id">{{ item.name }}</option>
                         </b-form-select>
                         <b-form-checkbox class="text-right" v-model="showStationMap" name="checkbox-stationmap" :value="true" :unchecked-value="false" size="sm" :disabled="searchbyname_active" switch>
                             Show map
                         </b-form-checkbox>
                         <stationmap v-show="showStationMap" class='mt-1' style="height:300px" ref="stationMap" @clickedMarker="onStationMapMarkerClick"></stationmap>
+                    </b-form-group>
+                    <b-form-group label-align-lg="right" label-align-md="right" label-align-sm="left" label-align-xs="left" id="input-group-station_config" label="Configuration:" label-for="input-station_config" label-size="sm" label-cols-md="3" label-cols-lg="3" label-cols-sm="3" label-cols-xs="3">
+                        <b-form-select id="input-station_config" v-model="selected.station_config_id" size="sm" :disabled="searchbyname_active">
+                            <option :value="resetID" disabled> {{ defaultOption.station_configs }} </option>
+                            <option v-for="item in station_configs" :value="item.id">{{ item.sensor_name }} ({{ item.sensortype_name}}) [{{ item.start_datetime.substr(0, 10) }} - {{ item.end_datetime ? item.end_datetime.substr(0,10) : "now" }}]</option>
+                        </b-form-select>
                     </b-form-group>
                     <b-form-group label-align-lg="right" label-align-md="right" label-align-sm="left" label-align-xs="left" id="input-group-channel" label="Channel:" label-for="input-channel" label-size="sm" label-cols-md="3" label-cols-lg="3" label-cols-sm="3" label-cols-xs="3">
                         <b-form-select id="input-channel" v-model="selected.channel_id" size="sm" :disabled="searchbyname_active">

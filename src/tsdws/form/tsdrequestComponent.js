@@ -13,7 +13,8 @@ const tsdformRequestComponentDefinition = {
             },
             resetID: 0,
             nets: [],
-            sensors: [],
+            stations: [],
+            station_configs: [],
             channels: [],
             timeseries: [],
             timeseries_columns: [],
@@ -23,25 +24,29 @@ const tsdformRequestComponentDefinition = {
             selectedFilteredTimeseries: 0,
             previous_selected: {
                 net_id: 0,
-                sensor_id: 0,
+                station_id: 0,
+                station_config_id: 0,
                 channel_id: 0,
                 timeseries_id: 0
             },
             selected: {
                 net_id: 0,
-                sensor_id: 0,
+                station_id: 0,
+                station_config_id: 0,
                 channel_id: 0,
                 timeseries_id: 0
             },
             firstMapping: {
                 net_id: 0,
-                sensor_id: 0,
+                station_id: 0,
+                station_config_id: 0,
                 channel_id: 0,
                 timeseries_id: 0
             },
             defaultOption: {
                 nets: "--- Select net ---",
-                sensors: "--- Select sensor ---",
+                stations: "--- Select station ---",
+                station_configs: "--- Select configuration ---",
                 channels: "--- Select channel ---",
                 timeseries: "--- Select timeseries ---",
                 filtered_timeseries: "--- Filtered timeseries ---"
@@ -139,29 +144,53 @@ const tsdformRequestComponentDefinition = {
                     self.defaultOption.nets = "Loading failed";
                 });
         },
-        fetchSensors() {
-            this.defaultOption.sensors = "Loading...";
-            this.sensors = [];
+        fetchStations() {
+            this.defaultOption.stations = "Loading...";
+            this.stations = [];
 
             let self = this;
             axios
-                .get("../sensors/?net_id=" + self.selected.net_id)
+                .get("../stations/?net_id=" + self.selected.net_id)
                 .then(response => {
-                    self.sensors = response.data.data;
-                    self.defaultOption.sensors = "--- Select sensor ---";
+                    self.stations = response.data.data;
+                    self.defaultOption.stations = "--- Select station ---";
                     try {
                         if (self.searchbyname_active) {
-                            self.selected.sensor_id = (self.firstMapping.sensor_id && self.firstMapping.sensor_id !== null) ? self.firstMapping.sensor_id : self.resetID;
+                            self.selected.station_id = (self.firstMapping.station_id && self.firstMapping.station_id !== null) ? self.firstMapping.station_id : self.resetID;
                         } else {
-                            self.selected.sensor_id = self.sensors[0].id;
+                            self.selected.station_id = self.stations[0].id;
                         }
                     } catch (e) {
-                        self.selected.sensor_id = self.resetID;
+                        self.selected.station_id = self.resetID;
                     }
-                    self.$refs.stationMap.plotOnMap(self.sensors, self.selected.sensor_id);
+                    self.$refs.stationMap.plotOnMap(self.stations, self.selected.station_id);
                 })
                 .catch(function() {
-                    self.defaultOption.sensors = "Loading failed";
+                    self.defaultOption.stations = "Loading failed";
+                });
+        },
+        fetchStationConfigs() {
+            this.defaultOption.station_configs = "Loading...";
+            this.station_configs = [];
+
+            let self = this;
+            axios
+                .get("../stations/configs/?station_id=" + self.selected.station_id + "&sort_by=start_datetime.desc")
+                .then(response => {
+                    self.station_configs = response.data.data;
+                    self.defaultOption.station_configs = "--- Select configuration ---";
+                    try {
+                        if (self.searchbyname_active) {
+                            self.selected.station_config_id = (self.firstMapping.station_config_id && self.firstMapping.station_config_id !== null) ? self.firstMapping.station_config_id : self.resetID;
+                        } else {
+                            self.selected.station_config_id = self.station_configs[0].id;
+                        }
+                    } catch (e) {
+                        self.selected.station_config_id = self.resetID;
+                    }
+                })
+                .catch(function() {
+                    self.defaultOption.station_configs = "Loading failed";
                 });
         },
         fetchChannels() {
@@ -170,7 +199,7 @@ const tsdformRequestComponentDefinition = {
 
             let self = this;
             axios
-                .get("../channels/?sensor_id=" + self.selected.sensor_id)
+                .get("../channels/?station_config_id=" + self.selected.station_config_id)
                 .then(response => {
                     self.channels = response.data.data;
                     self.defaultOption.channels = "--- Select channel ---";
@@ -280,7 +309,7 @@ const tsdformRequestComponentDefinition = {
             this.initForm();
         },
         onStationMapMarkerClick(id) {
-            this.selected.sensor_id = id;
+            this.selected.station_id = id;
         }
     },
     watch: {
@@ -289,10 +318,14 @@ const tsdformRequestComponentDefinition = {
                 console.log(v);
                 if (v.net_id != this.previous_selected.net_id) {
                     this.previous_selected.net_id = v.net_id;
-                    this.fetchSensors();
+                    this.fetchStations();
                 }
-                if (v.sensor_id != this.previous_selected.sensor_id) {
-                    this.previous_selected.sensor_id = v.sensor_id;
+                if (v.station_id != this.previous_selected.station_id) {
+                    this.previous_selected.station_id = v.station_id;
+                    this.fetchStationConfigs();
+                }
+                if (v.station_config_id != this.previous_selected.station_config_id) {
+                    this.previous_selected.station_config_id = v.station_config_id;
                     this.fetchChannels();
                 }
                 if (v.channel_id != this.previous_selected.channel_id) {

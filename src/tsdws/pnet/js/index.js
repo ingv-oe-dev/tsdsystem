@@ -413,7 +413,7 @@ var app = {
         },
         generateChannels(id, station_id) {
             let self = this;
-            if (confirm("Are you sure to generate channels for this station configuration?")) {
+            if (confirm("Are you sure to (re)generate channels for this station configuration?")) {
                 $.ajax({
                     url: self.baseURLws + "stations/configs/" + id + "/generateChannels",
                     type: "POST",

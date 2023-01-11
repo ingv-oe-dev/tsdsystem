@@ -15,7 +15,7 @@ Class Timeseries extends QueryManager {
 	public function getDependencies($id, $transpose=true) {
 		// mapping dependencies from timeseries to nets
 		$query = "select
-			t.id as timeseries_id, tmc.channel_id, sc.station_id, s.net_id 
+			t.id as timeseries_id, tmc.channel_id, c.station_config_id, sc.station_id, s.net_id 
 		from
 			" . $this->tablename . " t
 		left join tsd_main.timeseries_mapping_channels tmc on
