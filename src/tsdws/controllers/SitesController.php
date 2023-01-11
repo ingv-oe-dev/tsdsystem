@@ -197,7 +197,7 @@ Class SitesController extends RESTController {
 		return $this->check_spatial_input();
 	}
 	
-	public function get($jsonfields=array("coords","additional_info")) {
+	public function get($jsonfields=array("coords","centroid","additional_info")) {
 	
 		parent::get($jsonfields);
 

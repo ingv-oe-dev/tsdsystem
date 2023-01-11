@@ -126,8 +126,19 @@ const mapComponentDefinition = {
                 var item = data[i];
 
                 try {
+                    if (item.coords.type == "Polygon") {
+                        let latlng = [];
+                        for (var i = 0; i < item.coords.coordinates[0].length - 1; i++) {
+                            c = item.coords.coordinates[0][i];
+                            latlng.push([c[1], c[0]]);
+                        }
+                        console.log(latlng);
+                        let polygon = L.polygon(latlng);
+                        this.overlayMaps[options.group_id].addLayer(polygon);
+                    }
+
                     // crea il marker circolare passando lat e lon tramite la funzione di riproiezione L.latLng
-                    let marker = L.marker(L.latLng(item.coords.coordinates[1], item.coords.coordinates[0]), {
+                    let marker = L.marker(L.latLng(item.centroid.coordinates[1], item.centroid.coordinates[0]), {
                         icon: L.icon({
                             iconUrl: 'img/pin.png',
                             iconSize: [32, 32],
@@ -135,7 +146,7 @@ const mapComponentDefinition = {
                         })
                     });
 
-                    marker.bindPopup(this.makePopup(item)) // aggiungi popup al marker (testo per il popup ritornato dalla funzione makePopup(item)) 
+                    marker.bindPopup(this.makePopupSite(item)) // aggiungi popup al marker (testo per il popup ritornato dalla funzione makePopup(item)) 
                         .on('click', function() {
                             let selected = this.options.icon.options.additionalInfo;
                             selected.marker_type = 'site';
@@ -146,7 +157,7 @@ const mapComponentDefinition = {
                     this.overlayMaps[options.group_id].addLayer(marker);
 
                     // crea la label per il marker sfruttando L.marker e L.divIcon (il testo della label Ã¨ nell'attributo 'html' di divIcon)
-                    let label = L.marker(L.latLng(item.coords.coordinates[1], item.coords.coordinates[0]), {
+                    let label = L.marker(L.latLng(item.centroid.coordinates[1], item.centroid.coordinates[0]), {
                         icon: L.divIcon({
                             html: item.name,
                             iconAnchor: [this.circle_marker_radius * 2, -this.circle_marker_radius],
@@ -192,6 +203,16 @@ const mapComponentDefinition = {
                 "<div><i>Lat:</i> " + item.coords.coordinates[1] + "&deg; N</div>" +
                 "<div><i>Lon:</i> " + item.coords.coordinates[0] + "&deg; E</div>" +
                 "<div><i>Quote:</i> " + item.quote + " m</div>";
+            return html;
+        },
+        makePopupSite(item) {
+            var html = "<h6>" + item.name + "</h6>";
+            html += "<div><b>Coordinates (of centroid for polygons)</b> (WGS84):</div>" +
+                "<div><i>Lat:</i> " + item.centroid.coordinates[1] + "&deg; N</div>" +
+                "<div><i>Lon:</i> " + item.centroid.coordinates[0] + "&deg; E</div>" +
+                "<div><i>Quote:</i> " + item.quote + " m</div><br>";
+            html += "<div><b>GeoJSON</b> (WGS84 coordinates):</div>" +
+                "<div>" + JSON.stringify(item.coords) + "</div>";
             return html;
         },
         openPopupById(id) {
