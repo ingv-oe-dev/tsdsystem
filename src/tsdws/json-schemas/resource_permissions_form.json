@@ -294,7 +294,7 @@
                                                 "net_id": {
                                                     "$ref": "#/$defs/array_of_int_primary_keys"
                                                 },
-                                                "sensor_id": {
+                                                "station_id": {
                                                     "$ref": "#/$defs/array_of_int_primary_keys"
                                                 }
                                             }
@@ -342,7 +342,7 @@
                                                 "net_id": {
                                                     "$ref": "#/$defs/array_of_int_primary_keys"
                                                 },
-                                                "sensor_id": {
+                                                "station_id": {
                                                     "$ref": "#/$defs/array_of_int_primary_keys"
                                                 },
                                                 "channel_id": {
@@ -374,7 +374,7 @@
                                                 "properties": {
                                                     "target": {
                                                         "type": "string",
-                                                        "enum": ["all", "nets", "sensors", "channels", "timeseries"]
+                                                        "enum": ["all", "nets", "stations", "channels", "timeseries"]
                                                     },
                                                     "id": {
                                                         "type": "string"

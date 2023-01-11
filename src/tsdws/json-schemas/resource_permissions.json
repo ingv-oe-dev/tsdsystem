@@ -194,7 +194,7 @@
                                         "net_id": {
                                             "$ref": "#/$defs/array_of_int_primary_keys"
                                         },
-                                        "sensor_id": {
+                                        "station_id": {
                                             "$ref": "#/$defs/array_of_int_primary_keys"
                                         }
                                     }
@@ -233,7 +233,7 @@
                                         "net_id": {
                                             "$ref": "#/$defs/array_of_int_primary_keys"
                                         },
-                                        "sensor_id": {
+                                        "station_id": {
                                             "$ref": "#/$defs/array_of_int_primary_keys"
                                         },
                                         "channel_id": {
@@ -270,7 +270,7 @@
                                             },
                                             "additionalProperties": false
                                         },
-                                        "sensor_id": {
+                                        "station_id": {
                                             "type": "object",
                                             "patternProperties": {
                                                 "^[0-9]+$": {

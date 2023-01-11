@@ -15,15 +15,17 @@ Class Timeseries extends QueryManager {
 	public function getDependencies($id, $transpose=true) {
 		// mapping dependencies from timeseries to nets
 		$query = "select
-			t.id as timeseries_id, tmc.channel_id, c.sensor_id, s.net_id 
+			t.id as timeseries_id, tmc.channel_id, sc.station_id, s.net_id 
 		from
 			" . $this->tablename . " t
 		left join tsd_main.timeseries_mapping_channels tmc on
 			t.id = tmc.timeseries_id
 		left join tsd_pnet.channels c on
 			tmc.channel_id  = c.id
-		left join tsd_pnet.sensors s on
-			c.sensor_id = s.id
+		left join tsd_pnet.station_configs sc on
+			c.station_config_id = sc.id
+		left join tsd_pnet.stations s on
+			sc.station_id = s.id
 		left join tsd_pnet.nets n on
 			s.net_id = n.id
 		where t.id ='$id'";
@@ -70,11 +72,12 @@ Class Timeseries extends QueryManager {
 
 	public function getIDChannelList($id) {
 
-		$query = "SELECT c.id, c.name, s.id AS sensor_id, s.name AS sensor_name, n.id AS net_id, n.name AS net_name " .
+		$query = "SELECT c.id, c.name, s.id AS station_id, s.name AS station_name, n.id AS net_id, n.name AS net_name " .
 			" FROM " . $this->tablename . " t " .
 			" INNER JOIN tsd_main.timeseries_mapping_channels tmc ON t.id = tmc.timeseries_id " . 
 			" INNER JOIN tsd_pnet.channels c ON c.id = tmc.channel_id " . 
-			" INNER JOIN tsd_pnet.sensors s ON s.id = c.sensor_id " . 
+			" INNER JOIN tsd_pnet.station_configs sc ON sc.id = c.station_config_id " .
+			" INNER JOIN tsd_pnet.stations s ON s.id = sc.station_id " . 
 			" INNER JOIN tsd_pnet.nets n ON n.id = s.net_id " . 
 			" WHERE t.id = '" . $id . "' AND t.remove_time IS NULL ";
 
