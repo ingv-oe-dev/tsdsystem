@@ -51,7 +51,9 @@ const notificationListComponentDefinition = {
         },
         cleanAll() {
             this.readAll();
-            this.list = {};
+            for (n in this.list) {
+                delete this.list[n];
+            }
         }
     },
     watch: {
