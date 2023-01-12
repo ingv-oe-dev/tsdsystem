@@ -706,6 +706,7 @@ var app = {
                         link += "?dummy=1";
                     };
                     if (additionalInfo.station_config_id !== undefined) link += "&station_config_id=" + additionalInfo.station_config_id;
+                    if (additionalInfo.station_id !== undefined) link += "&station_id=" + additionalInfo.station_id;
                     iframe.setAttribute("src", link);
                     break;
 

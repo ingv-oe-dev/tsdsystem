@@ -292,7 +292,7 @@ const tsdformRequestComponentDefinition = {
                     }
                 })
                 .catch(function() {
-                    self.timeseries_columns = ["Loading failed"];
+                    self.timeseries_columns = ["No columns"];
                 });
         },
         onSubmit(event) {
