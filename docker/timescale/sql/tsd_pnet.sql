@@ -63,7 +63,7 @@ CREATE TABLE IF NOT EXISTS tsd_pnet.stations
     update_user integer,
     remove_user integer,
     CONSTRAINT stations_pkey PRIMARY KEY (id)
-);
+)
 
 TABLESPACE pg_default;
 
@@ -111,7 +111,7 @@ CREATE TABLE IF NOT EXISTS tsd_pnet.sensortype_categories
     update_user integer,
     remove_user integer,
     CONSTRAINT sensortype_categories_pkey PRIMARY KEY (id)
-);
+)
 
 TABLESPACE pg_default;
 
@@ -188,7 +188,7 @@ CREATE TABLE IF NOT EXISTS tsd_pnet.digitizertypes
     update_user integer,
     remove_user integer,
     CONSTRAINT digitizertypes_pkey PRIMARY KEY (id)
-);
+)
 
 TABLESPACE pg_default;
 
@@ -212,7 +212,7 @@ CREATE TABLE IF NOT EXISTS tsd_pnet.digitizers
     update_user integer,
     remove_user integer,
     CONSTRAINT digitizers_pkey PRIMARY KEY (id)
-);
+)
 
 TABLESPACE pg_default;
 
@@ -238,7 +238,7 @@ CREATE TABLE IF NOT EXISTS tsd_pnet.station_configs
     update_user integer,
     remove_user integer,
     CONSTRAINT station_configs_pkey PRIMARY KEY (id)
-);
+)
 
 TABLESPACE pg_default;
 

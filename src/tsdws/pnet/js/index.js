@@ -288,7 +288,7 @@ var app = {
                     self.$refs.notifications.notify(n);
                 },
                 error: function(jqXHR) {
-                    self.defaultOption.sites = "Loading failed";
+                    self.defaultOption.digitizers = "Loading failed";
                     let n = Object.assign(jqXHR, { "messageType": "danger" });
                     self.$refs.notifications.notify(n);
                 }
@@ -314,7 +314,7 @@ var app = {
                     self.$refs.notifications.notify(n);
                 },
                 error: function(jqXHR) {
-                    self.defaultOption.sites = "Loading failed";
+                    self.defaultOption.digitizertypes = "Loading failed";
                     let n = Object.assign(jqXHR, { "messageType": "danger" });
                     self.$refs.notifications.notify(n);
                 }
