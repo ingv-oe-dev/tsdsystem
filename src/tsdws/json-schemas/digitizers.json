@@ -1,0 +1,46 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Digitizer",
+    "description": "Set the properties of the digitizer",
+    "type": "object",
+    "required": ["name"],
+    "additionalProperties": false,
+    "format": "categories",
+    "basicCategoryTitle": "Main",
+    "properties": {
+        "id": {
+            "title": "ID",
+            "description": "Identificator",
+            "type": "integer",
+            "readOnly": true,
+            "propertyOrder": 1
+        },
+        "name": {
+            "title": "Name",
+            "description": "Name",
+            "type": "string",
+            "minLength": 1,
+            "propertyOrder": 2
+        },
+        "serial_number": {
+            "title": "Serial number",
+            "description": "Serial number",
+            "type": "string"
+        },
+        "digitizertype_id": {
+            "title": "Digitizertype",
+            "type": ["integer", "null"],
+            "enum": [],
+            "options": {
+                "enum_titles": []
+            },
+            "propertyOrder": 6
+        },
+        "additional_info": {
+            "title": "Additional Info",
+            "description": "Additional info",
+            "type": "object",
+            "propertyOrder": 8
+        }
+    }
+}

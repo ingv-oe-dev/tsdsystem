@@ -57,6 +57,26 @@
                         }
                     }
                 },
+                "digitizertypes": {
+                    "type": "object",
+                    "properties": {
+                        "edit": {
+                            "$ref": "#/$defs/root_resource_edit_configuration",
+                            "options": {
+                                "collapsed": true
+                            }
+                        },
+                        "read": {
+                            "$ref": "#/$defs/root_resource_read_configuration",
+                            "options": {
+                                "collapsed": true
+                            }
+                        }
+                    },
+                    "options": {
+                        "collapsed": true
+                    }
+                },
                 "sensors": {
                     "type": "object",
                     "properties": {
@@ -90,6 +110,90 @@
                         }
                     }
                 },
+                "digitizers": {
+                    "type": "object",
+                    "properties": {
+                        "edit": {
+                            "type": "object",
+                            "properties": {
+                                "ip": {
+                                    "type": ["array", "null"],
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                },
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "permissions": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "$ref": "#/$defs/array_of_int_primary_keys"
+                                        },
+                                        "net_id": {
+                                            "$ref": "#/$defs/array_of_int_primary_keys"
+                                        }
+                                    }
+                                }
+                            },
+                            "options": {
+                                "collapsed": true
+                            }
+                        },
+                        "read": {
+                            "$ref": "#/$defs/root_resource_read_configuration",
+                            "options": {
+                                "collapsed": true
+                            }
+                        }
+                    },
+                    "options": {
+                        "collapsed": true
+                    }
+                },
+                "stations": {
+                    "type": "object",
+                    "properties": {
+                        "edit": {
+                            "type": "object",
+                            "properties": {
+                                "ip": {
+                                    "type": ["array", "null"],
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                },
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "permissions": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "$ref": "#/$defs/array_of_int_primary_keys"
+                                        },
+                                        "net_id": {
+                                            "$ref": "#/$defs/array_of_int_primary_keys"
+                                        }
+                                    }
+                                }
+                            },
+                            "options": {
+                                "collapsed": true
+                            }
+                        },
+                        "read": {
+                            "$ref": "#/$defs/root_resource_read_configuration",
+                            "options": {
+                                "collapsed": true
+                            }
+                        }
+                    },
+                    "options": {
+                        "collapsed": true
+                    }
+                },
                 "channels": {
                     "type": "object",
                     "properties": {
@@ -114,7 +218,7 @@
                                         "net_id": {
                                             "$ref": "#/$defs/array_of_int_primary_keys"
                                         },
-                                        "sensor_id": {
+                                        "station_id": {
                                             "$ref": "#/$defs/array_of_int_primary_keys"
                                         }
                                     }
@@ -153,7 +257,7 @@
                                         "net_id": {
                                             "$ref": "#/$defs/array_of_int_primary_keys"
                                         },
-                                        "sensor_id": {
+                                        "station_id": {
                                             "$ref": "#/$defs/array_of_int_primary_keys"
                                         },
                                         "channel_id": {
@@ -182,7 +286,7 @@
                                         "properties": {
                                             "target": {
                                                 "type": "string",
-                                                "enum": ["all", "nets", "sensors", "channels", "timeseries"]
+                                                "enum": ["all", "nets", "stations", "channels", "timeseries"]
                                             },
                                             "id": {
                                                 "type": "string"

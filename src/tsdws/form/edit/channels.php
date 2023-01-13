@@ -1,6 +1,7 @@
 <?php
     $id = isset($_GET["id"]) ? $_GET["id"] : null;
-	$sensor_id = isset($_GET["sensor_id"]) ? $_GET["sensor_id"] : null;
+    $station_id = isset($_GET["station_id"]) ? $_GET["station_id"] : null;
+	$station_config_id = isset($_GET["station_config_id"]) ? $_GET["station_config_id"] : null;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -51,13 +52,12 @@
         var default_starting_value = {};
         
         var id = "<?php echo $id; ?>";
-		var sensor_id = "<?php echo $sensor_id; ?>";
+		var station_config_id = "<?php echo $station_config_id; ?>";
+        var station_id = "<?php echo $station_id; ?>";
         var ref = "../../json-schemas/channels.json";
         var route = "../../channels";
         var method =  id ? "PATCH" : "POST";
-        var mySchema = {};
-        var mySensortypeSchemas = {};
-
+        
         // Set action on delete button
         $(function(){
             $("button#delete").on("click", function(){
@@ -66,7 +66,7 @@
                         "url": route + "?id=" + id,
                         "method": "DELETE",
                         "beforeSend": function(jqXHR, settings) {
-                            jqXHR = Object.assign(jqXHR, {"messageText":"Remove channel [id=" + id + "]", "sensor_id": sensor_id}, settings);
+                            jqXHR = Object.assign(jqXHR, {"messageText":"Remove channel [id=" + id + "]", "station_config_id": station_config_id}, settings);
                         },
                         "success": function(response, textStatus, jqXHR) {
                             emitSignal(Object.assign(jqXHR, {"messageType":"success"}));
@@ -92,56 +92,44 @@
                 mySchema = data;
                 handleInputID();
                 $.ajax({
-                    "url": "../../sensors",
+                    "url": "../../stations/configs",
                     "success": function(response) {
-                        fillEnum(response.data, "sensor_id");
-                        // get list of sensortypes
-                        $.ajax({
-                            "url": "../../sensortypes",
-                            "success": function(response) {
-                                fillEnum(response.data, "sensortype_id");
-                                // save schemas for each sensortype
-                                for (let i=0; i < response.data.length; i++) {
-                                    mySensortypeSchemas[response.data[i].id] = response.data[i].json_schema;
-                                }
-                                // load sensor data if sensor_id is defined
-                                if (id) {
-                                    $.ajax({
-                                        "url": route,
-                                        "data": {
-                                            "id": id
-                                        },
-                                        "success": function(starting_value) {
-                                            // set the default starting value (JSON) with data of sensor with selected id 
-                                            default_starting_value = starting_value.data[0];
-                                            // update schema and start editor
-                                            mySchema.properties.sensor_id.default = starting_value.data[0].sensor_id;
-                                            mySchema.properties.sensortype_id.default = starting_value.data[0].sensortype_id;
-                                            startEditor();
-                                        },
-                                        "error": function(jqXHR) {
-                                            $('#server_response span.mymessage').html(jqXHR.responseJSON.error);
-                                            $('#server_response').addClass("alert-danger show");
-                                        }
-                                    });
-                                } else {
-                                    // start editor
+                        fillEnum(response.data, "station_config_id");
+                        // load sensor data if station_config_id is defined
+                        if (id) {
+                            $.ajax({
+                                "url": route,
+                                "data": {
+                                    "id": id
+                                },
+                                "success": function(starting_value) {
+                                    // set the default starting value (JSON) with data of sensor with selected id 
+                                    default_starting_value = starting_value.data[0];
+                                    // update schema and start editor
+                                    mySchema.properties.station_config_id.default = starting_value.data[0].station_config_id;
+                                    mySchema.properties.station_config_id.readOnly = true;
                                     startEditor();
+                                },
+                                "error": function(jqXHR) {
+                                    $('#server_response span.mymessage').html(jqXHR.responseJSON.error);
+                                    $('#server_response').addClass("alert-danger show");
                                 }
-                                
-                            },
-                            "error": function(jqXHR) {
-                                $('#server_response span.mymessage').html(jqXHR.responseJSON.error);
-                                $('#server_response').addClass("alert-danger show");
-                            }
-                        });
+                            });
+                        } else {
+                            // start editor
+                            startEditor();
+                        }
+                    },
+                    "error": function(jqXHR) {
+                        $('#server_response span.mymessage').html(jqXHR.responseJSON.error);
+                        $('#server_response').addClass("alert-danger show");
                     }
                 });
             },
             "error": function(jqXHR) {
-                            $('#server_response span.mymessage').html(jqXHR.responseJSON.error);
-                            $('#server_response').addClass("alert-danger show");
-                        }
+                $('#server_response span.mymessage').html(jqXHR.responseJSON.error);
+                $('#server_response').addClass("alert-danger show");
+            }
         });
 
         function handleInputID() {
@@ -167,34 +155,10 @@
             // reset editor
             resetEditor();
 
-            // update schema by setting metadata schema with selected sensortype schema
-            console.log(default_starting_value);
-            if (default_starting_value !== null && default_starting_value["sensortype_id"] !== undefined) {
-                //console.log(mySensortypeSchemas[default_starting_value["sensortype_id"]]);
-                mySchema.properties.metadata = mySensortypeSchemas[default_starting_value["sensortype_id"]];
-            }
-
             // initialize editor with the default starting JSON value
-            if (sensor_id) default_starting_value["sensor_id"] = sensor_id;
+            if (station_config_id) default_starting_value["station_config_id"] = station_config_id;
             initializeEditor(default_starting_value);
         }
-
-        // Custom validators must return an array of errors or an empty array if valid
-		JSONEditor.defaults.custom_validators.push((schema, value, path) => {
-		  const errors = [];
-          if (!value) return errors;
-		  if (schema.format==="date-time") {
-			if (!/^\d{4}-(0\d|1[0-2])-([0-2]\d|3[0-2])([T|\s{1}](([01]\d|2[0-4]):([0-5]\d)(:[0-5]\d([\.,]\d+)?)?|([01]\d|2[0-4])(:[0-5]\d([\.,]\d+)?)?|([01]\d|2[0-4])([\.,]\d+)?))?([+-]\d\d(:[0-5]\d)?|Z)?$/.test(value)) {
-			  // Errors must be an object with `path`, `property`, and `message`
-			  errors.push({
-				path: path,
-				property: 'format',
-				message: 'Dates must be in the ISO 8601 format (ex. 2022-01-01 00:00:00)'
-			  });
-			}
-		  }
-		  return errors;
-		});
 
         function initializeEditor(starting_value) {
         
@@ -220,63 +184,22 @@
             editor.on('ready',() => {
                 // Now the api methods will be available
                 editor.validate();
-
-                // add functionalities: 
-                // change metadata (sensortype properties) editor section when change sensortype_id selection
-                $(document.getElementById("root[sensortype_id]")).off().on("change", function(event) {
-                    //console.log(event.target.value);
-                    refreshSensortypeEditor(event.target.value);
-                });
-                $(document.getElementsByName("root[sensortype_id]")[0]).off().on("change", function(event) {
-                    //console.log(event.target.value);
-                    refreshSensortypeEditor(event.target.value);
-                });
-                $("[data-schemapath='root.sensortype_id'] .form-control.je-switcher").off().on("change", function(event) {
-                    //console.log(event.target.value);
-                    if (event.target.value == null || event.target.value == "null") {
-                        refreshSensortypeEditor(null);
-                    } else {
-                        refreshSensortypeEditor(Object.keys(mySensortypeSchemas)[0]); // first sensortype_id in mySensortypeSchemas keys
-                    }
-                });
-
-                function refreshSensortypeEditor(sensortype_id) {
-                    //console.log(sensortype_id);
-                    // set the new default starting value to current editor value 
-                    // (current JSON = current user edited data)
-                    default_starting_value = editor.getValue();
-                    default_starting_value["sensortype_id"] = sensortype_id ? parseInt(sensortype_id) : null;
-                    //console.log(default_starting_value);
-                    // restart editor with new specific sensortype properties form 
-                    // and fill the new editor with current data
-                    startEditor();
-                }
             });
             
             // Hook up the submit button to log to the console
-            $('#submit').off().on('click',function() { // off previous submit click event when editor restarts (e.g. when sensortype_id changes)
+            $('#submit').on('click',function() {
                 // Get the value from the editor
                 console.log(editor.getValue());
 
                 var toPost = editor.getValue();
 
-                // preprocessing JSON data before post
-                if (toPost["metadata"]) {
-                    delete toPost.metadata.id;
-                    //toPost.metadata = JSON.stringify(toPost.metadata);
-                }
-                /*
-                if (toPost["info"]) {
-                    toPost.info = JSON.stringify(toPost.info);
-                }
-                */
                 // PATCH if id is indicated, else POST
                 $.ajax({
                     "url": route,
                     "data": JSON.stringify(toPost),
                     "method": method,
                     "beforeSend": function(jqXHR, settings) {
-                        jqXHR = Object.assign(jqXHR, settings, {"sensor_id": sensor_id});
+                        jqXHR = Object.assign(jqXHR, settings, {"station_config_id": station_config_id, "station_id": station_id});
                         if (method == 'POST') {
                             jqXHR = Object.assign(jqXHR, {"messageText":"Add channel"});
                         }
@@ -321,7 +244,7 @@
             });
             
             // Hook up the Restore to Default button
-            $('#restore').off().on('click',function() { // off previous submit click event when editor restarts (e.g. when sensortype_id changes)
+            $('#restore').on('click',function() {
                 editor.setValue(starting_value);
             });
             
@@ -364,7 +287,7 @@
             custom_enum_titles.push("--- Select one ---");
             for (var i=0; i<data.length; i++) {
                 custom_enum.push(data[i].id);
-                custom_enum_titles.push(data[i].name);
+                custom_enum_titles.push(data[i].station_name + " from " + data[i].start_datetime.substr(0, 10) + "");
             }
             mySchema.properties[propertyKey].enum = custom_enum;
             mySchema.properties[propertyKey].options.enum_titles = custom_enum_titles;

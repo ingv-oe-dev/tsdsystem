@@ -32,14 +32,14 @@ class FDSN_Station_Encoder extends FDSN_Station {
 			"Latitude" => "station_latitude", 
 			"Longitude" => "station_longitude", 
 			"Elevation" => "station_elevation", 
-			"Depth" => "channel_additionalinfo->Depth",
-			"Azimuth" => "channel_additionalinfo->Azimuth", 
-			"Dip" => "channel_additionalinfo->Dip", 
-			"SensorDescription" => "channel_metadata->model", 
-			"Scale" => "channel_additionalinfo->Response->InstrumentSensitivity->Value", 
-			"ScaleFreq" => "channel_additionalinfo->Response->InstrumentSensitivity->Frequency", 
-			"ScaleUnits" => "channel_additionalinfo->Response->InstrumentSensitivity->InputUnits->Name", 
-			"SampleRate" => "channel_additionalinfo->SampleRate", 
+			"Depth" => "channel_additional_info->Depth",
+			"Azimuth" => "channel_additional_info->Azimuth", 
+			"Dip" => "channel_additional_info->Dip", 
+			"SensorDescription" => "sensortype_model", 
+			"Scale" => "sensitivity", 
+			"ScaleFreq" => "dynamical_range", 
+			"ScaleUnits" => "sensitivity_measure_unit", 
+			"SampleRate" => "final_sample_rate", 
 			"StartTime" => "channel_startdate", 
 			"EndTime" => "channel_enddate"
 		)
@@ -391,9 +391,13 @@ class FDSN_Station_Encoder extends FDSN_Station {
 		$channelItem->addChild("Longitude", $this->sanitize($item["station_longitude"]));
 		$channelItem->addChild("Elevation", $this->sanitize($item["station_elevation"]));
 
+		// append sensor and digitizer info
+		$channelItem->addChild("DataLogger")->addChild("Description", $item["digitizertype_model"]);
+		$channelItem->addChild("Sensor")->addChild("Description", $item["sensortype_model"]);
+
 		// append other properties
 		$this->append_Channel_additionalInfo($channelItem, $item); // additional info
-		$this->append_Channel_metadata($channelItem, $item); // from sensortype
+		
 		$this->create_Response_XML_section($channelItem, $item); // response section
 
 		return $channelItem;
@@ -404,59 +408,34 @@ class FDSN_Station_Encoder extends FDSN_Station {
 		$responseItem = $channelItem->addChild("Response");
 		$instrumentSensivityItem = $responseItem->addChild("InstrumentSensitivity");
 
-		if (isset($item["channel_additionalinfo"])) {
-			$addInfo = $this->object_to_array($item["channel_additionalinfo"]); // convert to an associative array
+		if (isset($item["response_parameters"])) {
+			$addInfo = $this->object_to_array($item["response_parameters"]); // convert to an associative array
 			
-			if ($this->isSetArrayVal($addInfo, "Response")) {
-				if ($this->isSetArrayVal($addInfo["Response"], "InstrumentSensitivity")) {
-					if ($this->isSetArrayVal($addInfo["Response"]["InstrumentSensitivity"], "Value")) {
-						$instrumentSensivityItem->addChild("Value", $this->sanitize($addInfo["Response"]["InstrumentSensitivity"]["Value"]));
-					}
-					if ($this->isSetArrayVal($addInfo["Response"]["InstrumentSensitivity"], "Frequency")) {
-						$instrumentSensivityItem->addChild("Frequency", $this->sanitize($addInfo["Response"]["InstrumentSensitivity"]["Frequency"]));
-					}
-					if ($this->isSetArrayVal($addInfo["Response"]["InstrumentSensitivity"], "InputUnits")) {
-						if ($this->isSetArrayVal($addInfo["Response"]["InstrumentSensitivity"]["InputUnits"], "Name")) {
-							$instrumentSensivityItem->addChild("InputUnits")->addChild("Name", $this->sanitize($addInfo["Response"]["InstrumentSensitivity"]["InputUnits"]["Name"]));
-						}
-					}
-					if ($this->isSetArrayVal($addInfo["Response"]["InstrumentSensitivity"], "OutputUnits")) {
-						if ($this->isSetArrayVal($addInfo["Response"]["InstrumentSensitivity"]["OutputUnits"], "Name")) {
-							$instrumentSensivityItem->addChild("OutputUnits")->addChild("Name", $this->sanitize($addInfo["Response"]["InstrumentSensitivity"]["OutputUnits"]["Name"]));
-						}
-					}
-				}
+			if ($this->isSetArrayVal($addInfo, "K")) {
+				$instrumentSensivityItem->addChild("Value", $this->sanitize($addInfo["K"]));
+			}
+			if ($this->isSetArrayVal($addInfo, "S")) {
+				$instrumentSensivityItem->addChild("Frequency", $this->sanitize($addInfo["S"]));
+			}
+			if ($this->isSetArrayVal($addInfo, "PZ")) {
+				$instrumentSensivityItem->addChild("InputUnits")->addChild("Name", $this->sanitize($addInfo["PZ"]));
+			}
+			if ($this->isSetArrayVal($addInfo, "fn")) {
+				$instrumentSensivityItem->addChild("OutputUnits")->addChild("Name", $this->sanitize($addInfo["fn"]));
 			}
 		}
 	}
 
 	public function append_Channel_additionalInfo(&$channelItem, $item) {
 
-		if (isset($item["channel_additionalinfo"])) {
-			$addInfo = $this->object_to_array($item["channel_additionalinfo"]); // convert to an associative array
+		if (isset($item["channel_additional_info"])) {
+			$addInfo = $this->object_to_array($item["channel_additional_info"]); // convert to an associative array
 
 			if ($this->isSetArrayVal($addInfo, "Depth")) $channelItem->addChild("Depth", strval($addInfo["Depth"]));
 			if ($this->isSetArrayVal($addInfo, "Azimuth")) $channelItem->addChild("Azimuth", strval($addInfo["Azimuth"]));
 			if ($this->isSetArrayVal($addInfo, "Dip")) $channelItem->addChild("Dip", strval($addInfo["Dip"]));
 			if ($this->isSetArrayVal($addInfo, "SampleRate")) $channelItem->addChild("SampleRate", strval($addInfo["SampleRate"]));
 			if ($this->isSetArrayVal($addInfo, "ClockDrift")) $channelItem->addChild("ClockDrift", strval($addInfo["ClockDrift"]));
-
-			if ($this->isSetArrayVal($addInfo, "digitizer")) {
-				if ($this->isSetArrayVal($addInfo["digitizer"], "model")) {
-					$channelItem->addChild("DataLogger")->addChild("Description", $addInfo["digitizer"]["model"]);
-				}
-			}
-		}
-	}
-
-	public function append_Channel_metadata(&$channelItem, $item) {
-
-		if (isset($item["channel_metadata"])) {
-			$addInfo = $this->object_to_array($item["channel_metadata"]); // convert to an associative array
-			
-			if ($this->isSetArrayVal($addInfo, "model")) {
-				$channelItem->addChild("Sensor")->addChild("Description", $addInfo["model"]);
-			}
 		}
 	}
 }

@@ -1,0 +1,30 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Sensortype Categories",
+    "description": "Set the properties of the sensortype",
+    "type": "object",
+    "required": ["name"],
+    "additionalProperties": false,
+    "format": "categories",
+    "basicCategoryTitle": "Main",
+    "properties": {
+        "id": {
+            "title": "ID",
+            "description": "Identificator",
+            "type": "integer",
+            "readOnly": true
+        },
+        "name": {
+            "title": "Name",
+            "description": "Name",
+            "type": "string",
+            "minLength": 1
+        },
+        "json_schema": {
+            "title": "JSON schema",
+            "description": "JSON schema for sensortype response parameters",
+            "type": "object",
+            "additionalProperties": true
+        }
+    }
+}

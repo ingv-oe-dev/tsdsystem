@@ -20,9 +20,35 @@
             "type": "string",
             "minLength": 1
         },
-        "json_schema": {
-            "title": "JSON schema",
-            "description": "JSON schema for sensortype properties",
+        "model": {
+            "title": "Model",
+            "description": "Model",
+            "type": "string",
+            "minLength": 1
+        },
+        "components": {
+            "title": "Components",
+            "description": "List of the components of the sensortype",
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "sensortype_category_id": {
+            "title": "Sensortype category",
+            "type": "integer",
+            "enum": [],
+            "options": {
+                "enum_titles": []
+            }
+        },
+        "response_parameters": {
+            "title": "Response parameters",
+            "description": "Response parameters structure based on the JSON schema of the selected sensortype category",
+            "type": "object"
+        },
+        "additional_info": {
+            "title": "Additional info",
             "type": "object",
             "additionalProperties": true
         }

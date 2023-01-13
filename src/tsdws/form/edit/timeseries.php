@@ -1,7 +1,7 @@
 <?php
     $id = isset($_GET["id"]) ? $_GET["id"] : null;
 	$channel_id = isset($_GET["channel_id"]) ? $_GET["channel_id"] : null;
-    $sensor_id = isset($_GET["sensor_id"]) ? $_GET["sensor_id"] : null;
+    $station_id = isset($_GET["station_id"]) ? $_GET["station_id"] : null;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -48,7 +48,7 @@
         
         var id = "<?php echo $id; ?>";
 		var channel_id = "<?php echo $channel_id; ?>";
-        var sensor_id = "<?php echo $sensor_id; ?>";
+        var station_id = "<?php echo $station_id; ?>";
         var ref = "../../json-schemas/timeseries.json";
         var route = "../../timeseries?showColDefs=true&showMapping=true";
         var method =  id ? "PATCH" : "POST";
@@ -203,7 +203,7 @@
                     "data": JSON.stringify(toPost),
                     "method": method,
                     "beforeSend": function(jqXHR, settings) {
-                        jqXHR = Object.assign(jqXHR, settings, {"channel_id": channel_id, "sensor_id": sensor_id});
+                        jqXHR = Object.assign(jqXHR, settings, {"channel_id": channel_id, "station_id": station_id});
                         if (method == 'POST') {
                             jqXHR = Object.assign(jqXHR, {"messageText":"Add timeseries"});
                         }
@@ -295,7 +295,7 @@
             var custom_enum_titles = new Array();
             for (var i=0; i<data.length; i++) {
                 custom_enum.push(data[i].id);
-                custom_enum_titles.push(data[i].net_name + " -> " + data[i].sensor_name + " -> " + data[i].name + " [ID: " + data[i].id + "]");
+                custom_enum_titles.push(data[i].net_name + " -> " + data[i].station_name + " -> " + data[i].sensortype_name +" -> " + data[i].name + " [ID: " + data[i].id + "] from " + data[i].start_datetime.substr(0,10));
             }
             //console.log(mySchema);
             mySchema.properties.mapping.properties.channel_list.items.enum = custom_enum;

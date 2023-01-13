@@ -24,25 +24,42 @@ RewriteRule ^owners/([0-9]+)/nets(/)?$ nets/?owner_id=$1 [NC,QSA]
 
 RewriteRule ^sites(/)?$ routes/sites.php [NC]
 RewriteRule ^sites/([0-9]+)(/)?$ routes/sites.php?id=$1 [NC,QSA]
-RewriteRule ^sites/([0-9]+)/sensors(/)?$ sensors/?site_id=$1 [NC,QSA]
+RewriteRule ^sites/([0-9]+)/stations(/)?$ stations/?site_id=$1 [NC,QSA]
 
 RewriteRule ^nets(/)?$ routes/nets.php [NC]
 RewriteRule ^nets/([0-9]+)(/)?$ routes/nets.php?id=$1 [NC,QSA]
-RewriteRule ^nets/([0-9]+)/sensors(/)?$ sensors/?net_id=$1 [NC,QSA]
+RewriteRule ^nets/([0-9]+)/stations(/)?$ stations/?net_id=$1 [NC,QSA]
+
+RewriteRule ^stations(/)?$ routes/stations.php [NC]
+RewriteRule ^stations/([0-9]+)(/)?$ routes/stations.php?id=$1 [NC,QSA]
+RewriteRule ^stations/([0-9]+)/configs(/)?$ stations/configs/?station_id=$1 [NC,QSA]
+RewriteRule ^stations/([0-9]+)/channels(/)?$ channels/?station_id=$1 [NC,QSA]
+
+RewriteRule ^stations/configs(/)?$ routes/station_configs.php [NC]
+RewriteRule ^stations/configs/([0-9]+)(/)?$ routes/station_configs.php?id=$1 [NC,QSA]
+RewriteRule ^stations/configs/([0-9]+)/channels(/)?$ channels/?station_config_id=$1 [NC,QSA]
+RewriteRule ^stations/configs/([0-9]+)/generateChannels(/)?$ routes/station_configs.php?id=$1&generateChannels=1 [NC,QSA]
+
+RewriteRule ^sensortype_categories(/)?$ routes/sensortype_categories.php [NC]
+RewriteRule ^sensortype_categories/([0-9]+)(/)?$ routes/sensortype_categories.php?id=$1 [NC,QSA]
+RewriteRule ^sensortype_categories/([0-9]+)/sensortypes(/)?$ sensortypes/?sensortype_category_id=$1 [NC,QSA]
 
 RewriteRule ^sensortypes(/)?$ routes/sensortypes.php [NC]
 RewriteRule ^sensortypes/([0-9]+)(/)?$ routes/sensortypes.php?id=$1 [NC,QSA]
-RewriteRule ^sensortypes/([0-9]+)/channels(/)?$ channels/?sensortype_id=$1 [NC,QSA]
 RewriteRule ^sensortypes/([0-9]+)/sensors(/)?$ sensors/?sensortype_id=$1 [NC,QSA]
 
 RewriteRule ^sensors(/)?$ routes/sensors.php [NC]
 RewriteRule ^sensors/([0-9]+)(/)?$ routes/sensors.php?id=$1 [NC,QSA]
-RewriteRule ^sensors/([0-9]+)/channels(/)?$ channels/?sensor_id=$1 [NC,QSA]
+
+RewriteRule ^digitizertypes(/)?$ routes/digitizertypes.php [NC]
+RewriteRule ^digitizertypes/([0-9]+)(/)?$ routes/digitizertypes.php?id=$1 [NC,QSA]
+RewriteRule ^digitizertypes/([0-9]+)/digitizers(/)?$ digitizers/?digitizertype_id=$1 [NC,QSA]
+
+RewriteRule ^digitizers(/)?$ routes/digitizers.php [NC]
+RewriteRule ^digitizers/([0-9]+)(/)?$ routes/digitizers.php?id=$1 [NC,QSA]
 
 RewriteRule ^channels(/)?$ routes/channels.php [NC]
 RewriteRule ^channels/([0-9]+)(/)?$ routes/channels.php?id=$1 [NC,QSA]
-RewriteRule ^channels/clone(/)?$ routes/channels.php [NC]
-RewriteRule ^channels/([0-9]+)/clone(/)?$ routes/channels.php?id=$1 [NC,QSA]
 RewriteRule ^channels/([0-9]+)/timeseries(/)?$ timeseries/?channel_id=$1 [NC,QSA]
 
 RewriteRule ^timeseries/values(/)?$ routes/ts_routes.php [NC]

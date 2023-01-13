@@ -5,6 +5,10 @@
     text-shadow: -1px 1px 1px #000, 1px -1px 1px #000, 1px 1px 1px #000, -1px -1px 1px #000;
 }
 
+.old_station-marker {
+    visibility: 'hidden';
+}
+
 .dot {
     height: 12px;
     width: 12px;

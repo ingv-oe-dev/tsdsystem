@@ -84,36 +84,17 @@ Class SensorsController extends RESTController {
 			$this->setInputError("This required input is missing: 'name' [string]");
 			return false;
 		}
-		// (2) $input["lon"] 
-		if (array_key_exists("lat", $input) and (!array_key_exists("lon", $input) || !is_numeric($input["lon"]))) {
-			$this->setInputError("Uncorrect input: 'lon' [float]");
+		// (2) $input["sensortype_id"] is integer
+		if (array_key_exists("sensortype_id", $input) and !(is_int($input["sensortype_id"]) or is_null($input["sensortype_id"]))) {
+			$this->setInputError("Uncorrect input: 'sensortype_id' [int]");
 			return false;
 		}
-		// (3) $input["lat"] 
-		if (array_key_exists("lon", $input) and (!array_key_exists("lat", $input) || !is_numeric($input["lat"]))) {
-			$this->setInputError("Uncorrect input: 'lat' [float]");
+		// (3) $input["additional_info"] is json
+		if (array_key_exists("additional_info", $input) and !$this->validate_json($input["additional_info"])){
+			$this->setInputError("Error on decoding 'additional_info' JSON input");
 			return false;
 		}
-		// (3) $input["quote"] 
-		if (array_key_exists("quote", $input) and !(is_numeric($input["quote"]) or is_null($input["quote"]))) {
-			$this->setInputError("Uncorrect input: 'quote' [float]");
-			return false;
-		}
-		// (5) $input["custom_props"] is json
-		if (array_key_exists("custom_props", $input) and !$this->validate_json($input["custom_props"])){
-			$this->setInputError("Error on decoding 'custom_props' JSON input");
-			return false;
-		}
-		// (6) $input["net_id"] is integer
-		if (array_key_exists("net_id", $input) and !(is_int($input["net_id"]) or is_null($input["net_id"]))) {
-			$this->setInputError("Uncorrect input: 'net_id' [int]");
-			return false;
-		}
-		// (7) $input["site_id"] is integer
-		if (array_key_exists("site_id", $input) and !(is_int($input["site_id"]) or is_null($input["site_id"]))){
-			$this->setInputError("Uncorrect input: 'site_id' [int]");
-			return false;
-		}
+		
 		return true;
 	}
 
@@ -139,34 +120,14 @@ Class SensorsController extends RESTController {
 			$this->setInputError("Uncorrect input: 'name' [string]");
 			return false;
 		}
-		// (2) $input["lon"] 
-		if (array_key_exists("lat", $input) and (!array_key_exists("lon", $input) || !is_numeric($input["lon"]))) {
-			$this->setInputError("Uncorrect input: 'lon' [float]");
+		// (2) $input["sensortype_id"] is integer
+		if (array_key_exists("sensortype_id", $input) and !(is_int($input["sensortype_id"]) or is_null($input["sensortype_id"]))) {
+			$this->setInputError("Uncorrect input: 'sensortype_id' [int]");
 			return false;
 		}
-		// (3) $input["lat"] 
-		if (array_key_exists("lon", $input) and (!array_key_exists("lat", $input) || !is_numeric($input["lat"]))) {
-			$this->setInputError("Uncorrect input: 'lat' [float]");
-			return false;
-		}
-		// (3) $input["quote"] 
-		if (array_key_exists("quote", $input) and !(is_numeric($input["quote"]) or is_null($input["quote"]))) {
-			$this->setInputError("Uncorrect input: 'quote' [float]");
-			return false;
-		}
-		// (4) $input["custom_props"] is json
-		if (array_key_exists("custom_props", $input) and !$this->validate_json($input["custom_props"])){
-			$this->setInputError("Error on decoding 'custom_props' JSON input");
-			return false;
-		}
-		// (5) $input["net_id"] is integer
-		if (array_key_exists("net_id", $input) and !(is_int($input["net_id"]) or is_null($input["net_id"]))) {
-			$this->setInputError("Uncorrect input: 'net_id' [int]");
-			return false;
-		}
-		// (6) $input["site_id"] is integer
-		if (array_key_exists("site_id", $input) and !(is_int($input["site_id"]) or is_null($input["site_id"]))){
-			$this->setInputError("Uncorrect input: 'site_id' [int]");
+		// (3) $input["additional_info"] is json
+		if (array_key_exists("additional_info", $input) and !$this->validate_json($input["additional_info"])){
+			$this->setInputError("Error on decoding 'additional_info' JSON input");
 			return false;
 		}
 		return true;
@@ -175,12 +136,7 @@ Class SensorsController extends RESTController {
 	// ====================================================================//
 	// ****************** get  ********************//
 	// ====================================================================//
-	public function check_input_get() {
-		// check only if spatial inputs are defined and numerical
-		return $this->check_spatial_input();
-	}
-	
-	public function get($jsonfields=array("coords","custom_props")) {
+	public function get($jsonfields=array("sensortype_components", "additional_info")) {
 		// coords will be returned in GeoJSON format (as in SitesController.php)
 		parent::get($jsonfields);
 	}

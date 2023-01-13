@@ -66,6 +66,73 @@ Class SensortypesController extends RESTController {
 
 		$this->elaborateResponse();
 	}
+
+	public function validateSensortypeResponseParametersByJSONSchema($input) {
+		
+		require_once("..".DIRECTORY_SEPARATOR."classes".DIRECTORY_SEPARATOR."PNet_SensortypeCategories.php");
+		
+		if (
+			array_key_exists("id", $input) and $input["id"]
+		) {
+			// go here on patch (if id is defined)
+			$selected_sensortype = $this->obj->getList(array("id" => $input["id"]));
+
+			// if sensortype_category_id is not defined on patch input, retrieve sensortype_category_id from record
+			if (!array_key_exists("sensortype_category_id", $input)) {
+				if (
+					$selected_sensortype and 
+					$selected_sensortype["status"] and
+					is_array($selected_sensortype["data"]) and
+					count($selected_sensortype["data"]) > 0 and
+					isset($selected_sensortype["data"][0]["sensortype_category_id"]) and 
+					!empty($selected_sensortype["data"][0]["sensortype_category_id"])
+				) {
+					// input sensortype_category_id from record
+					$input["sensortype_category_id"] = $selected_sensortype["data"][0]["sensortype_category_id"];
+				}
+			}
+			// if sensortype_category_id is defined on patch input (checked before is numeric), retrieve response_parameters from record 
+			else {
+				if (
+					$selected_sensortype and 
+					$selected_sensortype["status"] and
+					is_array($selected_sensortype["data"]) and
+					count($selected_sensortype["data"]) > 0 and
+					!array_key_exists("response_parameters", $input)
+				) {
+					// input response_parameters from record
+					$input["response_parameters"] = json_decode($selected_sensortype["data"][0]["response_parameters"]);
+				}
+			}
+		}
+
+		// here validate from input values and/or existent values
+		if(
+			array_key_exists("sensortype_category_id", $input) and 
+			isset($input["sensortype_category_id"]) and 
+			array_key_exists("response_parameters", $input) and 
+			isset($input["response_parameters"])
+		 ) {
+			$sensortypeCategoryObj = new SensortypeCategories();
+			$selected = $sensortypeCategoryObj->getList(array("id" => $input["sensortype_category_id"]));
+			$result = array("status" => false, "message" => "", "errors" => []);
+			if (
+				$selected and 
+				$selected["status"] and
+				is_array($selected["data"]) and
+				count($selected["data"]) > 0 and
+				isset($selected["data"][0]["json_schema"]) and 
+				!empty($selected["data"][0]["json_schema"])
+			) {
+				$json_string = json_encode((object) $input["response_parameters"]);
+				$schema = $selected["data"][0]["json_schema"];
+				$result = $this->validate_json_by_schema($json_string, $schema);
+			}
+			$result["sensortype_category_id"] = $input["sensortype_category_id"];
+			return $result;
+		}
+		return null;
+	}
 	
 	// ====================================================================//
 	// ****************** post - sensortype **********************//
@@ -84,9 +151,62 @@ Class SensortypesController extends RESTController {
 			$this->setInputError("This required input is missing: 'name' [string]");
 			return false;
 		}
-		// (2) $input["json_schema"] is json
-		if (array_key_exists("json_schema", $input) and !$this->validate_json($input["json_schema"])){
-			$this->setInputError("Error on decoding 'json_schema' JSON input");
+		// (2) $input["model"] 
+		if (array_key_exists("model", $input) and empty($input["model"])){
+			$this->setInputError("Uncorrect input: 'model' [string]");
+			return false;
+		}
+		// (3) $input["components"] is array
+		if (array_key_exists("components", $input)) {
+			if (
+				!is_array($input["components"]) or 
+				array_sum(array_map('is_string', $input["components"])) != count($input["components"])
+			) {
+				$this->setInputError("Uncorrect input 'components' [array of strings]");
+				return false;
+			}
+		}
+		// (4) $input["response_parameters"] is json
+		if (array_key_exists("response_parameters", $input)) {
+			if (!$this->validate_json($input["response_parameters"])){
+				$this->setInputError("Error on decoding 'response_parameters' JSON input");
+				return false;
+			}
+			if (array_key_exists("sensortype_category_id", $input) and is_int($input["sensortype_category_id"]) and $input["sensortype_category_id"] > 0) {
+				// check if response_parameters properties are valid for the selected sensortype 
+				$validAgainstSchema = $this->validateSensortypeResponseParametersByJSONSchema($input);
+				if (isset($validAgainstSchema) and !$validAgainstSchema["status"]) {
+					$error = array(
+						"message" => "'response_parameters' are not valid for the selected sensortype_category_id = " . $input["sensortype_category_id"] . ". See the violations.",
+						"violations" => $validAgainstSchema["errors"]
+					);
+					$this->setInputError($error);
+					return false;
+				}
+			}
+		} 
+		// (5) $input["sensortype_category_id"] is integer
+		if (array_key_exists("sensortype_category_id", $input)) {
+			if (!((is_int($input["sensortype_category_id"]) and $input["sensortype_category_id"] > 0) or is_null($input["sensortype_category_id"]))) {
+				$this->setInputError("Uncorrect input: 'sensortype_category_id' [int] > 0");
+				return false;
+			}
+			if (array_key_exists("response_parameters", $input)) {
+				// check if response_parameters properties are valid for the selected sensortype 
+				$validAgainstSchema = $this->validateSensortypeResponseParametersByJSONSchema($input);
+				if (isset($validAgainstSchema) and !$validAgainstSchema["status"]) {
+					$error = array(
+						"message" => "'response_parameters' are not valid for the selected sensortype_category_id = " . $input["sensortype_category_id"] . ". See the violations.",
+						"violations" => $validAgainstSchema["errors"]
+					);
+					$this->setInputError($error);
+					return false;
+				}
+			}
+		}
+		// (6) $input["additional_info"] is json
+		if (array_key_exists("additional_info", $input) and !$this->validate_json($input["additional_info"])){
+			$this->setInputError("Error on decoding 'additional_info' JSON input");
 			return false;
 		}
 		
@@ -115,9 +235,58 @@ Class SensortypesController extends RESTController {
 			$this->setInputError("Uncorrect input: 'name' [string]");
 			return false;
 		}
-		// (2) $input["json_schema"] is json
-		if (array_key_exists("json_schema", $input) and !$this->validate_json($input["json_schema"])){
-			$this->setInputError("Error on decoding 'json_schema' JSON input");
+		// (2) $input["model"] 
+		if (array_key_exists("model", $input) and empty($input["model"])){
+			$this->setInputError("Uncorrect input: 'model' [string]");
+			return false;
+		}
+		// (3) $input["components"] is array
+		if (array_key_exists("components", $input)) {
+			if (
+				!is_array($input["components"]) or 
+				array_sum(array_map('is_string', $input["components"])) != count($input["components"])
+			) {
+				$this->setInputError("Uncorrect input 'components' [array of strings]");
+				return false;
+			}
+		}
+		// (4) $input["response_parameters"] is json
+		if (array_key_exists("response_parameters", $input)) {
+			if (!$this->validate_json($input["response_parameters"])){
+				$this->setInputError("Error on decoding 'response_parameters' JSON input");
+				return false;
+			}
+			// check if response_parameters properties are valid for the selected sensortype 
+			$validAgainstSchema = $this->validateSensortypeResponseParametersByJSONSchema($input);
+			if (isset($validAgainstSchema) and !$validAgainstSchema["status"]) {
+				$error = array(
+					"message" => "'response_parameters' are not valid for the sensortype_category_id = " . $validAgainstSchema["sensortype_category_id"] . ". See the violations.",
+					"violations" => $validAgainstSchema["errors"]
+				);
+				$this->setInputError($error);
+				return false;
+			}
+		} 
+		// (5) $input["sensortype_category_id"] is integer
+		if (array_key_exists("sensortype_category_id", $input)) {
+			if (!((is_int($input["sensortype_category_id"]) and $input["sensortype_category_id"] > 0) or is_null($input["sensortype_category_id"]))) {
+				$this->setInputError("Uncorrect input: 'sensortype_category_id' [int]");
+				return false;
+			}
+			// check if response_parameters (inputed or existent) properties are valid for the selected sensortype 
+			$validAgainstSchema = $this->validateSensortypeResponseParametersByJSONSchema($input);
+			if (isset($validAgainstSchema) and !$validAgainstSchema["status"]) {
+				$error = array(
+					"message" => "'response_parameters' are not valid for the selected sensortype_category_id = " . $input["sensortype_category_id"] . ". See the violations.",
+					"violations" => $validAgainstSchema["errors"]
+				);
+				$this->setInputError($error);
+				return false;
+			}
+		}
+		// (6) $input["additional_info"] is json
+		if (array_key_exists("additional_info", $input) and !$this->validate_json($input["additional_info"])){
+			$this->setInputError("Error on decoding 'additional_info' JSON input");
 			return false;
 		}
 		
@@ -127,7 +296,7 @@ Class SensortypesController extends RESTController {
 	// ====================================================================//
 	// ****************** get  ********************//
 	// ====================================================================//
-	public function get($jsonfields=array("json_schema")) {
+	public function get($jsonfields=array("components", "response_parameters", "additional_info")) {
 	
 		parent::get($jsonfields);
 		

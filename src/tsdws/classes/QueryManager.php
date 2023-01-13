@@ -340,7 +340,11 @@ Class QueryManager extends Utils {
 			if (array_key_exists($key, $input)){
 				if (isset($input[$key])) {
 					if (array_key_exists("json", $value) and $value["json"]) {
-						$updStmt .= $key . " = '" . json_encode((object) $input[$key]) . "', ";
+						if (array_key_exists("associative", $value) and !$value["associative"]) {
+							$updStmt .= $key . " = '" . json_encode($input[$key]) . "', ";
+						} else {
+							$updStmt .= $key . " = '" . json_encode((object) $input[$key]) . "', ";
+						}
 					} else {
 						$updStmt .= "$key = " . ((array_key_exists("quoted", $value) and $value["quoted"]) ? "'$input[$key]'" : "$input[$key]") . ", ";
 					}

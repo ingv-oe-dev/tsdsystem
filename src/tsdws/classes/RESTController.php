@@ -8,7 +8,7 @@ Class RESTController extends SimpleREST {
 	public $obj;
 
 	// define scopes
-    public $resources = array("owners","nets","sensortypes","sensors","sites","channels","timeseries");
+    public $resources = array("owners","nets","stations","sensortypes","sensors","sites","channels","timeseries", "digitizers", "digitizertypes");
     public $actions = array("read", "edit");
     public $scopes = array("admin","all");
 	

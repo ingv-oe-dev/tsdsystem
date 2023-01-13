@@ -128,9 +128,11 @@
         }
 
         function preprocessData(initData) {
-            initData["lon"] = initData.coords.coordinates[0];
-            initData["lat"] = initData.coords.coordinates[1];
-            delete initData.coords;
+            if (initData["coords"]["type"] == "Point") {
+                initData["coords"]["coordinates"] = [initData.coords.coordinates]
+            } else {
+                initData["coords"]["coordinates"] = initData.coords.coordinates[0]
+            }
             return initData;
         }
 

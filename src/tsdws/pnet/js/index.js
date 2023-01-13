@@ -30,31 +30,42 @@ var app = {
             nets: [],
             sensortypes: [],
             sites: [],
+            stations: [],
+            stationConfigs: [],
             sensors: [],
-            sensorsList: [],
+            digitizers: [],
+            digitizertypes: [],
+            stationsList: [],
+            stationConfigsList: [],
             channelsList: {},
             timeseriesList: {},
             defaultOption: {
                 nets: "--- Select ---",
                 sensortypes: "--- Select ---",
-                sites: "--- Select ---"
+                sites: "--- Select ---",
+                sensors: "--- Select ---",
+                digitizers: "--- Select ---",
+                digitizertypes: "--- Select ---"
             },
             filters: {
                 name: "",
                 net_id: 0,
                 sensortype_id: 0,
-                site_id: 0
+                site_id: 0,
+                sensor_id: 0,
+                digitizer_id: 0,
+                digitizertype_id: 0
             },
-            //checkedAllSensors: false,
+            //checkedAllStations: false,
             sorting: 'byNetAndName',
             loadingMessages: {
-                "sensors": "No items"
+                "stations": "No items"
             },
             notifications: {},
             notifyAllMessages: false,
             lastNotify: {},
             showSettings: true,
-            seeOldChannels: false,
+            seeOldChannels: true,
             toast: [],
             toastDelay: 2000
         }
@@ -85,6 +96,9 @@ var app = {
             this.fetchSensortypes();
             this.fetchSites();
             this.fetchSensors();
+            this.fetchDigitizers();
+            this.fetchDigitizertypes();
+            this.fetchStations();
             //this.$forceUpdate();
         },
         initToast() {
@@ -113,15 +127,38 @@ var app = {
                 self.fetchSensors();
                 self.$refs.notifications.notify(e.detail);
             }, false);
+            window.document.addEventListener('digitizerEdit', function(e) {
+                //console.log(e);
+                self.fetchDigitizers();
+                self.$refs.notifications.notify(e.detail);
+            }, false);
+            window.document.addEventListener('digitizertypeEdit', function(e) {
+                //console.log(e);
+                self.fetchDigitizertypes();
+                self.$refs.notifications.notify(e.detail);
+            }, false);
+            window.document.addEventListener('stationEdit', function(e) {
+                //console.log(e);
+                self.fetchStations();
+                self.$refs.notifications.notify(e.detail);
+            }, false);
+            window.document.addEventListener('stationConfigEdit', function(e) {
+                //console.log(e);
+                self.fetchStations();
+                self.fetchStationConfigs({ station_id: e.detail.station_id });
+                self.fetchChannels({ station_config_id: e.detail.id });
+                self.$refs.notifications.notify(e.detail);
+            }, false);
             window.document.addEventListener('channelEdit', function(e) {
                 //console.log(e);
-                self.fetchSensors();
-                self.fetchChannels({ sensor_id: e.detail.sensor_id });
+                self.fetchStations();
+                self.fetchStationConfigs({ station_id: e.detail.station_id });
+                self.fetchChannels({ station_config_id: e.detail.station_config_id });
                 self.$refs.notifications.notify(e.detail);
             }, false);
             window.document.addEventListener('timeseriesEdit', function(e) {
                 //console.log(e);
-                //self.fetchChannels({ sensor_id: e.detail.sensor_id });
+                //self.fetchChannels({ station_id: e.detail.station_id });
                 self.fetchTimeseries({ channel_id: e.detail.channel_id });
                 self.$refs.notifications.notify(e.detail);
             })
@@ -205,43 +242,189 @@ var app = {
                 }
             });
         },
-        fetchSensors(parameters = {}) {
+        fetchSensors() {
+            this.defaultOption.sensors = "Loading...";
             this.sensors = [];
 
             let self = this;
             $.ajax({
                 url: self.baseURLws + "sensors",
-                data: Object.assign(parameters, { "sort_by": "name" }),
+                data: {
+                    sort_by: "name"
+                },
                 beforeSend: function(jqXHR, settings) {
                     jqXHR = Object.assign(jqXHR, settings, { "messageText": "Loading sensors" });
                 },
                 success: function(response, textStatus, jqXHR) {
-                    //console.log(response);
                     self.sensors = response.data;
+                    self.defaultOption.sensors = "--- Select ---";
+                    let n = Object.assign(jqXHR, { "messageType": "info" });
+                    self.$refs.notifications.notify(n);
+                },
+                error: function(jqXHR) {
+                    self.defaultOption.sensors = "Loading failed";
+                    let n = Object.assign(jqXHR, { "messageType": "danger" });
+                    self.$refs.notifications.notify(n);
+                }
+            });
+        },
+        fetchDigitizers() {
+            this.defaultOption.digitizers = "Loading...";
+            this.digitizers = [];
+
+            let self = this;
+            $.ajax({
+                url: self.baseURLws + "digitizers",
+                data: {
+                    sort_by: "name"
+                },
+                beforeSend: function(jqXHR, settings) {
+                    jqXHR = Object.assign(jqXHR, settings, { "messageText": "Loading digitizers" });
+                },
+                success: function(response, textStatus, jqXHR) {
+                    self.digitizers = response.data;
+                    self.defaultOption.digitizers = "--- Select ---";
+                    let n = Object.assign(jqXHR, { "messageType": "info" });
+                    self.$refs.notifications.notify(n);
+                },
+                error: function(jqXHR) {
+                    self.defaultOption.sites = "Loading failed";
+                    let n = Object.assign(jqXHR, { "messageType": "danger" });
+                    self.$refs.notifications.notify(n);
+                }
+            });
+        },
+        fetchDigitizertypes() {
+            this.defaultOption.digitizertypes = "Loading...";
+            this.digitizertypes = [];
+
+            let self = this;
+            $.ajax({
+                url: self.baseURLws + "digitizertypes",
+                data: {
+                    sort_by: "name"
+                },
+                beforeSend: function(jqXHR, settings) {
+                    jqXHR = Object.assign(jqXHR, settings, { "messageText": "Loading digitizertypes" });
+                },
+                success: function(response, textStatus, jqXHR) {
+                    self.digitizertypes = response.data;
+                    self.defaultOption.digitizertypes = "--- Select ---";
+                    let n = Object.assign(jqXHR, { "messageType": "info" });
+                    self.$refs.notifications.notify(n);
+                },
+                error: function(jqXHR) {
+                    self.defaultOption.sites = "Loading failed";
+                    let n = Object.assign(jqXHR, { "messageType": "danger" });
+                    self.$refs.notifications.notify(n);
+                }
+            });
+        },
+        fetchStations(parameters = {}) {
+            this.stations = [];
+
+            let self = this;
+            $.ajax({
+                url: self.baseURLws + "stations",
+                data: Object.assign(parameters, { "sort_by": "name" }),
+                beforeSend: function(jqXHR, settings) {
+                    jqXHR = Object.assign(jqXHR, settings, { "messageText": "Loading stations" });
+                },
+                success: function(response, textStatus, jqXHR) {
+                    //console.log(response);
+                    self.stations = response.data;
                     self.applyFilters();
                     self.handlePlot();
                     let n = Object.assign(jqXHR, { "messageType": "info" });
                     self.$refs.notifications.notify(n);
                 },
                 error: function(jqXHR) {
-                    self.loadingMessages.sensors = "Loading failed";
+                    self.loadingMessages.stations = "Loading failed";
                     let n = Object.assign(jqXHR, { "messageType": "danger" });
                     self.$refs.notifications.notify(n);
                 }
             });
         },
-        removeSensor(id) {
+        removeStation(id) {
             let self = this;
-            if (confirm("Are you sure to remove this node?")) {
+            if (confirm("Are you sure to remove this station?")) {
                 $.ajax({
-                    url: self.baseURLws + "sensors?id=" + id,
+                    url: self.baseURLws + "stations?id=" + id,
                     type: "DELETE",
                     beforeSend: function(jqXHR, settings) {
-                        jqXHR = Object.assign(jqXHR, settings, { "messageText": "Remove sensor [id=" + id + "]" });
+                        jqXHR = Object.assign(jqXHR, settings, { "messageText": "Remove station [id=" + id + "]" });
                     },
                     success: function(response, textStatus, jqXHR) {
                         console.log(response);
-                        self.fetchSensors();
+                        self.fetchStations();
+                        let n = Object.assign(jqXHR, { "messageType": "success" });
+                        self.$refs.notifications.notify(n);
+                    },
+                    error: function(jqXHR) {
+                        let n = Object.assign(jqXHR, { "messageType": "danger" });
+                        self.$refs.notifications.notify(n);
+                    }
+                });
+            }
+        },
+        fetchStationConfigs(parameters) {
+            let self = this;
+            $.ajax({
+                url: self.baseURLws + "stations/configs",
+                data: Object.assign(parameters, { "sort_by": "end_datetime.desc" }),
+                beforeSend: function(jqXHR, settings) {
+                    jqXHR = Object.assign(jqXHR, settings, { "messageText": "Loading station configs" });
+                },
+                success: function(response, textStatus, jqXHR) {
+                    self.stationConfigsList[parameters.station_id] = response.data;
+                    let n = Object.assign(jqXHR, { "messageType": "info" });
+                    self.$refs.notifications.notify(n);
+                },
+                error: function(jqXHR) {
+                    self.stationConfigsList[parameters.station_id] = [];
+                    let n = Object.assign(jqXHR, { "messageType": "danger" });
+                    self.$refs.notifications.notify(n);
+                }
+            });
+        },
+        removeStationConfig(id, station_id) {
+            let self = this;
+            if (confirm("Are you sure to remove this station configuration?")) {
+                $.ajax({
+                    url: self.baseURLws + "stations/configs/?id=" + id,
+                    type: "DELETE",
+                    beforeSend: function(jqXHR, settings) {
+                        jqXHR = Object.assign(jqXHR, settings, { "messageText": "Remove station configuration [id=" + id + "]" });
+                    },
+                    success: function(response, textStatus, jqXHR) {
+                        console.log(response);
+                        self.fetchStations();
+                        self.fetchStationConfigs({ station_id: station_id });
+                        self.fetchChannels({ station_config_id: id });
+                        let n = Object.assign(jqXHR, { "messageType": "success" });
+                        self.$refs.notifications.notify(n);
+                    },
+                    error: function(jqXHR) {
+                        let n = Object.assign(jqXHR, { "messageType": "danger" });
+                        self.$refs.notifications.notify(n);
+                    }
+                });
+            }
+        },
+        generateChannels(id, station_id) {
+            let self = this;
+            if (confirm("Are you sure to (re)generate channels for this station configuration?")) {
+                $.ajax({
+                    url: self.baseURLws + "stations/configs/" + id + "/generateChannels",
+                    type: "POST",
+                    beforeSend: function(jqXHR, settings) {
+                        jqXHR = Object.assign(jqXHR, settings, { "messageText": "Generate channels for station configuration [id=" + id + "]" });
+                    },
+                    success: function(response, textStatus, jqXHR) {
+                        console.log(response);
+                        self.fetchStations();
+                        self.fetchStationConfigs({ station_id: station_id });
+                        self.fetchChannels({ station_config_id: id });
                         let n = Object.assign(jqXHR, { "messageType": "success" });
                         self.$refs.notifications.notify(n);
                     },
@@ -261,7 +444,7 @@ var app = {
                     jqXHR = Object.assign(jqXHR, settings, { "messageText": "Loading channels" });
                 },
                 success: function(response, textStatus, jqXHR) {
-                    self.channelsList[parameters.sensor_id] = response.data;
+                    self.channelsList[parameters.station_config_id] = response.data;
                     for (let i = 0; i < response.data.length; i++) {
                         self.fetchTimeseries({ "channel_id": response.data[i].id, "hidden": true });
                     }
@@ -269,13 +452,13 @@ var app = {
                     self.$refs.notifications.notify(n);
                 },
                 error: function(jqXHR) {
-                    self.channelsList[parameters.sensor_id] = [];
+                    self.channelsList[parameters.station_config_id] = [];
                     let n = Object.assign(jqXHR, { "messageType": "danger" });
                     self.$refs.notifications.notify(n);
                 }
             });
         },
-        removeChannel(id, sensor_id) {
+        removeChannel(id, station_config_id, station_id) {
             let self = this;
             if (confirm("Are you sure to remove this channel?")) {
                 $.ajax({
@@ -286,34 +469,9 @@ var app = {
                     },
                     success: function(response, textStatus, jqXHR) {
                         console.log(response);
-                        self.fetchSensors();
-                        self.fetchChannels({ sensor_id: sensor_id });
-                        let n = Object.assign(jqXHR, { "messageType": "success" });
-                        self.$refs.notifications.notify(n);
-                    },
-                    error: function(jqXHR) {
-                        let n = Object.assign(jqXHR, { "messageType": "danger" });
-                        self.$refs.notifications.notify(n);
-                    }
-                });
-            }
-        },
-        cloneChannel(id, sensor_id) {
-            let self = this;
-            if (confirm("Are you sure to clone this channel?")) {
-                $.ajax({
-                    url: self.baseURLws + "channels/clone",
-                    data: JSON.stringify({
-                        "id": id
-                    }),
-                    type: "POST",
-                    beforeSend: function(jqXHR, settings) {
-                        jqXHR = Object.assign(jqXHR, settings, { "messageText": "Clone channel [id=" + id + "]" });
-                    },
-                    success: function(response, textStatus, jqXHR) {
-                        console.log(response);
-                        self.fetchSensors();
-                        self.fetchChannels({ sensor_id: sensor_id });
+                        self.fetchStations();
+                        self.fetchStationConfigs({ station_id: station_id });
+                        self.fetchChannels({ station_config_id: station_config_id });
                         let n = Object.assign(jqXHR, { "messageType": "success" });
                         self.$refs.notifications.notify(n);
                     },
@@ -339,7 +497,7 @@ var app = {
                     self.$refs.notifications.notify(n);
                 },
                 error: function(jqXHR) {
-                    self.timeseriesList[parameters.sensor_id] = [];
+                    self.timeseriesList[parameters.station_id] = [];
                     let n = Object.assign(jqXHR, { "messageType": "danger" });
                     self.$refs.notifications.notify(n);
                 }
@@ -348,7 +506,7 @@ var app = {
         onMapMarkerClick(el) {
             //console.log(el);
             switch (el.marker_type) {
-                case 'node':
+                case 'station':
                     this.filters.name = el.name;
                     break;
                 case 'site':
@@ -363,10 +521,10 @@ var app = {
             //console.log(filters);
 
             // Sort the array based on 1) net_id and 2) name [and make a deep copy!]
-            let items = this.sensors.sort(this.sorting == 'byName' ? this.sortByName : this.sortByNetAndName);
+            let items = this.stations.sort(this.sorting == 'byName' ? this.sortByName : this.sortByNetAndName);
             //console.log(items);
             // apply filters
-            this.sensorsList = items.filter(function(item) {
+            this.stationsList = items.filter(function(item) {
                 let check_condition = true;
                 if (filters.name && filters.name != "") check_condition = check_condition && item.name.toLowerCase().includes(filters.name.toLowerCase());
                 if (filters.net_id) check_condition = check_condition && item.net_id == filters.net_id;
@@ -389,30 +547,30 @@ var app = {
             return 1;
         },
         handlePlot() {
-            if (this.sensorsList.length === 0) return;
+            if (this.stationsList.length === 0) return;
 
             let no_net_name = "No net";
-            // force (un)plotting of "no net" nodes
-            this.$refs.leafmap.plotNodesOnMap([], { "group_id": no_net_name, "net_id": null, "append": false })
+            // force (un)plotting of "no net" stations
+            this.$refs.leafmap.plotStationsOnMap([], { "group_id": no_net_name, "net_id": null, "append": false })
 
             let init_net_id = -1;
             let init_net_name = '';
             let toPlot = [];
             let element = null;
-            for (let i = 0; i < this.sensorsList.length; i++) {
+            for (let i = 0; i < this.stationsList.length; i++) {
                 //console.log(i);
-                element = this.sensorsList[i];
+                element = this.stationsList[i];
                 // essendo ordinati sempre per net_id posso permettermi di passare in rassegna l'array e richiamare la funzione di plot non appena net_id cambia
                 if (init_net_id != -1 && element.net_id != init_net_id) {
                     //console.log(init_net_id, element.net_id, init_net_name);
-                    this.$refs.leafmap.plotNodesOnMap(toPlot, { "group_id": init_net_name, "net_id": init_net_id, "append": false });
+                    this.$refs.leafmap.plotStationsOnMap(toPlot, { "group_id": init_net_name, "net_id": init_net_id, "append": false });
                     toPlot = [];
                 }
                 toPlot.push(element);
                 init_net_id = element.net_id;
                 init_net_name = element.net_name ? element.net_name : no_net_name;
             }
-            this.$refs.leafmap.plotNodesOnMap(toPlot, { "group_id": init_net_name, "net_id": init_net_id, "append": false })
+            this.$refs.leafmap.plotStationsOnMap(toPlot, { "group_id": init_net_name, "net_id": init_net_id, "append": false })
         },
         getNetColor(net_id) {
             return colors.nets[net_id % paletteLength];
@@ -434,34 +592,38 @@ var app = {
                 return '/';
             }
         },
-        listElementAction(sensor_id) {
-            this.toggleChannelList(sensor_id);
-            this.selectMapMarker(sensor_id);
-        },
-        toggleChannelList(sensor_id) {
-            //console.log(sensor_id);
-            if (this.channelsList[sensor_id]) {
-                this.channelsList[sensor_id].hidden = !this.channelsList[sensor_id].hidden;
+        toggleStationConfigList(station_id) {
+            //console.log(station_id);
+            if (this.stationConfigsList[station_id]) {
+                this.stationConfigsList[station_id].hidden = !this.stationConfigsList[station_id].hidden;
             } else {
-                this.fetchChannels({ "sensor_id": sensor_id });
+                this.fetchStationConfigs({ "station_id": station_id });
+            }
+        },
+        toggleChannelList(station_config_id) {
+            //console.log(station_config_id);
+            if (this.channelsList[station_config_id]) {
+                this.channelsList[station_config_id].hidden = !this.channelsList[station_config_id].hidden;
+            } else {
+                this.fetchChannels({ "station_config_id": station_config_id });
             }
         },
         toggleTimeseriesList(channel_id) {
-            //console.log(sensor_id);
+            ///console.log(channel_id);
             if (this.timeseriesList[channel_id]) {
                 this.timeseriesList[channel_id].hidden = !this.timeseriesList[channel_id].hidden;
             } else {
                 this.fetchTimeseries({ "channel_id": channel_id });
             }
         },
-        selectMapMarker(sensor_id) {
-            //console.log(sensor_id);
-            let marker = this.$refs.leafmap.openPopupById(sensor_id);
+        selectMapMarker(station_id) {
+            //console.log(station_id);
+            let marker = this.$refs.leafmap.openPopupById(station_id);
             //console.log(marker);
             this.$refs.leafmap.zoomToMarkerById(marker, zoomLevel = 15);
         },
         selectSiteOnMap(site_id) {
-            //console.log(sensor_id);
+            //console.log(station_id);
             let marker = this.$refs.leafmap.openSitePopupById(site_id);
             //console.log(marker);
             this.$refs.leafmap.zoomToMarkerById(marker, zoomLevel = 15);
@@ -502,6 +664,39 @@ var app = {
                     iframe.setAttribute("src", link);
                     break;
 
+                    // digitizer
+                case 'digitizer':
+                    link += "form/edit/digitizers.php";
+                    if (id) link += "?id=" + id;
+                    iframe.setAttribute("src", link);
+                    break;
+
+                    // digitizertype
+                case 'digitizertype':
+                    link += "form/edit/digitizertypes.php";
+                    if (id) link += "?id=" + id;
+                    iframe.setAttribute("src", link);
+                    break;
+
+                    // station
+                case 'station':
+                    link += "form/edit/stations.php";
+                    if (id) link += "?id=" + id;
+                    iframe.setAttribute("src", link);
+                    break;
+
+                    // stationConfig
+                case 'stationConfig':
+                    link += "form/edit/station_configs.php";
+                    if (id) {
+                        link += "?id=" + id;
+                    } else {
+                        link += "?dummy=1";
+                    }
+                    if (additionalInfo.station_id !== undefined) link += "&station_id=" + additionalInfo.station_id;
+                    iframe.setAttribute("src", link);
+                    break;
+
                     // channel
                 case 'channel':
                     link += "form/edit/channels.php";
@@ -510,7 +705,8 @@ var app = {
                     } else {
                         link += "?dummy=1";
                     };
-                    if (additionalInfo.sensor_id !== undefined) link += "&sensor_id=" + additionalInfo.sensor_id;
+                    if (additionalInfo.station_config_id !== undefined) link += "&station_config_id=" + additionalInfo.station_config_id;
+                    if (additionalInfo.station_id !== undefined) link += "&station_id=" + additionalInfo.station_id;
                     iframe.setAttribute("src", link);
                     break;
 
@@ -523,7 +719,7 @@ var app = {
                         link += "?dummy=1";
                     };
                     if (additionalInfo.channel_id !== undefined) link += "&channel_id=" + additionalInfo.channel_id;
-                    if (additionalInfo.sensor_id !== undefined) link += "&sensor_id=" + additionalInfo.sensor_id;
+                    if (additionalInfo.station_id !== undefined) link += "&station_id=" + additionalInfo.station_id;
                     iframe.setAttribute("src", link);
                     break;
 
@@ -599,7 +795,7 @@ var app = {
             },
             deep: true
         },
-        sensors: {
+        stations: {
             handler(a, b) {
                 //console.log(a, b);
             },
@@ -614,7 +810,7 @@ var app = {
             },
             deep: true
         },
-        sensorsList: {
+        stationsList: {
             handler(a, b) {
                 //console.log(a, b);
             },
@@ -641,8 +837,8 @@ var app = {
             }
         },
         /*
-        checkedAllSensors(a, b) {
-            this.sensorsList.forEach(element => {
+        checkedAllStations(a, b) {
+            this.stationsList.forEach(element => {
                 element.checked = a;
             });
         },*/
@@ -672,6 +868,9 @@ var app = {
                 }
             },
             deep: true
+        },
+        seeOldChannels(val) {
+            val ? $(".old_station-marker").show() : $(".old_station-marker").hide();
         }
     },
     computed: {

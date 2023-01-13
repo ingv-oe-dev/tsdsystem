@@ -382,7 +382,7 @@ Class TimeseriesValuesController extends RESTController {
 					array_key_exists("resource_id", $auth_params) and 
 					strcasecmp($p["target"],"channels") == 0 and 
 					isset($p["id"]) and
-					in_array(intval($p["id"]), $dependencies["channel_id"]) // net_id are integer, so use intval() casting for permission id (string) with target 'channels'
+					in_array(intval($p["id"]), $dependencies["channel_id"]) // channel_id are integer, so use intval() casting for permission id (string) with target 'channels'
 				) {
 					//echo "channels";
 					//var_dump($p["settings"]);
@@ -391,14 +391,14 @@ Class TimeseriesValuesController extends RESTController {
 			}
 		}
 
-		// sensors level
-		if (array_key_exists("sensors", $permission_groups)) {
-			foreach ($permission_groups["sensors"] as $p) {
+		// stations level
+		if (array_key_exists("stations", $permission_groups)) {
+			foreach ($permission_groups["stations"] as $p) {
 				if (
 					array_key_exists("resource_id", $auth_params) and 
-					strcasecmp($p["target"],"sensors") == 0 and 
+					strcasecmp($p["target"],"stations") == 0 and 
 					isset($p["id"]) and
-					in_array(intval($p["id"]), $dependencies["sensor_id"]) // net_id are integer, so use intval() casting for permission id (string) with target 'sensors'
+					in_array(intval($p["id"]), $dependencies["station_id"]) // station_id are integer, so use intval() casting for permission id (string) with target 'sensors'
 				) {
 					//echo "sensors";
 					//var_dump($p["settings"]);

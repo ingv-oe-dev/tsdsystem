@@ -17,11 +17,11 @@ Class Sites extends QueryManager {
 			// start transaction
 			$this->myConnection->beginTransaction();
 
-			$next_query = "INSERT INTO " . $this->tablename . " (name, coords, quote, info, create_user) VALUES (".
+			$next_query = "INSERT INTO " . $this->tablename . " (name, coords, quote, additional_info, create_user) VALUES (".
 				"'" . $input["name"] . "', " . 
-				((isset($input["lon"]) and isset($input["lat"])) ? ("'POINT(" . $input["lon"] . " " . $input["lat"] . ")'::geometry") : "NULL") . ", " .
+				(isset($input["coords"]) ? ("ST_GeomFromGeoJSON('" . json_encode((object) $input["coords"], JSON_NUMERIC_CHECK) . "')") : "NULL") . ", " .
 				(isset($input["quote"]) ? $input["quote"] : "NULL") . ", " .
-				(isset($input["info"]) ? ("'" . json_encode((object) $input["info"], JSON_NUMERIC_CHECK) . "'") : "NULL") . ",
+				(isset($input["additional_info"]) ? ("'" . json_encode((object) $input["additional_info"], JSON_NUMERIC_CHECK) . "'") : "NULL") . ",
 				" . ((array_key_exists("create_user", $input) and isset($input["create_user"]) and is_int($input["create_user"])) ? $input["create_user"] : "NULL") . " 
 			)";
 
@@ -53,13 +53,13 @@ Class Sites extends QueryManager {
 	
 	public function getList($input) {
 		
-		$query = "SELECT id, name, ST_AsGeoJSON(coords) AS coords, quote, info FROM " . $this->tablename . " WHERE remove_time IS NULL ";
+		$query = "SELECT id, name, ST_AsGeoJSON(coords) AS coords, ST_AsGeoJSON(ST_Centroid(coords)) AS centroid, additional_info FROM " . $this->tablename . " WHERE remove_time IS NULL ";
 		
 		if (isset($input) and is_array($input)) { 
 			$query .= $this->composeWhereFilter($input, array(
 				"id" => array("id" => true, "quoted" => false),
 				"name" => array("quoted" => true),
-				"info" => array("quoted" => true)
+				"additional_info" => array("quoted" => true)
 			));
 
 			$query .= $this->extendSpatialQuery($input, "coords");
@@ -82,12 +82,12 @@ Class Sites extends QueryManager {
 		$updateFields = array(
 			"name" => array("quoted" => true),
 			"quote" => array("quoted" => false),
-			"info" => array("json" => true),
+			"additional_info" => array("json" => true),
 			"update_time" => array("quoted" => false),
 			"update_user" => array("quoted" => false)
 		);
 
-		$input["coords"] = ((isset($input["lon"]) and isset($input["lat"])) ? ("'POINT(" . $input["lon"] . " " . $input["lat"] . ")'::geometry") : "NULL");
+		$input["coords"] = isset($input["coords"]) ? ("ST_GeomFromGeoJSON('" . json_encode((object) $input["coords"], JSON_NUMERIC_CHECK) . "')") : "NULL";
 		if ($input["coords"] != "NULL") {
 			$updateFields["coords"] = array("quoted" => false);
 		}

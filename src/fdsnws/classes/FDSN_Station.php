@@ -3,7 +3,7 @@ require_once("QueryManager.php");
 
 Class FDSN_Station extends QueryManager {
 	
-	protected $tablename = "public.fdsn_station";
+	protected $tablename = "public.fdsn_station_dataset";
 
 	public $levels = array("network", "station", "channel", "response");
 
@@ -19,7 +19,7 @@ Class FDSN_Station extends QueryManager {
 			}
 			// Limit to channels that are active on or before the specified end time.
 			if (array_key_exists("endtime", $input) and isset($input["endtime"])){
-				$filter_query .= " AND fdsn_station.channel_enddate <= '" . $input["endtime"] . "'";
+				$filter_query .= " AND fdsn_station.channel_startdate <= '" . $input["endtime"] . "'";
 			}
 			// Limit to stations starting before the specified time.
 			if (array_key_exists("startbefore", $input) and isset($input["startbefore"])){
@@ -61,6 +61,14 @@ Class FDSN_Station extends QueryManager {
 					$filter_query .= " AND UPPER(fdsn_station.channel_name) = '" . $input["channel"][0] . "'";
 				}
 			}
+			// Select one or more SEED location codes. Lists and wildcards are accepted.
+			if (array_key_exists("location", $input) and is_array($input["location"]) and count($input["location"]) > 0) {
+				if (count($input["location"]) > 1) {
+					$filter_query .= " AND UPPER(fdsn_station.station_sitename) IN ('" . implode("','", $input["location"]) . "')";
+				} else {
+					$filter_query .= " AND UPPER(fdsn_station.station_sitename) = '" . $input["location"][0] . "'";
+				}
+			}
 			// Spatial query
 			$filter_query .= $this->extendSpatialQuery($input, "fdsn_station.station_coords");
 		}
@@ -85,10 +93,24 @@ Class FDSN_Station extends QueryManager {
 			t2.selectednumberchannels,
 			fdsn_station.channel_id,
 			fdsn_station.channel_name,
-			fdsn_station.channel_metadata,
 			fdsn_station.channel_startdate,
 			fdsn_station.channel_enddate,
-			fdsn_station.channel_additionalinfo
+			fdsn_station.channel_additional_info,
+			fdsn_station.sensor_name,
+			fdsn_station.sensor_serial_number,
+			fdsn_station.sensortype_name,
+			fdsn_station.sensortype_model,
+			fdsn_station.response_parameters,
+			fdsn_station.digitizer_name,
+			fdsn_station.digitizer_serial_number,
+			fdsn_station.digitizertype_name,
+			fdsn_station.digitizertype_model,
+			fdsn_station.final_sample_rate,
+			fdsn_station.final_sample_rate_measure_unit,
+			fdsn_station.sensitivity,
+			fdsn_station.sensitivity_measure_unit,
+			fdsn_station.dynamical_range,
+			fdsn_station.dynamical_range_measure_unit
 		from $this->tablename fdsn_station 
 		inner join (
 			select net_id, count(net_id) as selectednumberstations from (
