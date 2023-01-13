@@ -16,7 +16,7 @@
 
   <body>
     <?php if (isset($origin) and isset($timeseries_id)) { ?>
-      <div id="timeseries_id" style="background-color:#f0e79a; font-family:sans-serif; padding:1em; font-size:2em"><i>From <?php echo $origin; ?></i>: The <u>timeseries id</u> to use is: <b><?php echo $timeseries_id ?></b></div>
+      <div id="timeseries_id" style="background-color:#f0e79a; font-family:sans-serif; padding:1em; font-size:2em"><i>From <a href='<?php echo $origin; ?>'><?php echo $origin; ?></a></i>: The <u>timeseries id</u> to use is: <b><?php echo $timeseries_id ?></b></div>
     <?php } ?>
     <div id="swagger-ui"></div>
     <script src="./swagger-ui-bundle.js" charset="UTF-8"> </script>
