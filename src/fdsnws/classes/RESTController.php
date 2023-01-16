@@ -336,6 +336,10 @@ Class RESTController extends SimpleREST {
 			
 			if (
 				count($scope)>1 and 
+				array_key_exists("rights", $auth_data) and 
+				is_array($auth_data["rights"]) and
+				array_key_exists("resources", $auth_data["rights"]) and 
+				is_array($auth_data["resources"]) and
 				array_key_exists($scope[0],$auth_data["rights"]["resources"]) and 
 				is_array($auth_data["rights"]["resources"][$scope[0]]) and
 				array_key_exists($scope[1],$auth_data["rights"]["resources"][$scope[0]])
