@@ -81,6 +81,7 @@ Class TimeseriesValuesController extends RESTController {
 					// append info to response
 					$ts_info["metadata"] = isset($ts_info["metadata"]) ? json_decode($ts_info["metadata"]) : NULL;
 					$ts_info["last_value"] = isset($ts_info["last_value"]) ? json_decode($ts_info["last_value"]) : NULL;
+					$ts_info["n_samples"] = isset($ts_info["n_samples"]) ? json_decode($ts_info["n_samples"]) : NULL;
 					$this->response["additional_info"] = $ts_info;
 				}
 
