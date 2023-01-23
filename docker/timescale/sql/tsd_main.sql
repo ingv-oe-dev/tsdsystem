@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS tsd_main.timeseries
     first_time timestamp without time zone,
     last_time timestamp without time zone,
     last_value jsonb,
+    n_samples integer null,
     create_time timestamp without time zone DEFAULT (now() AT TIME ZONE 'utc'::text),
     update_time timestamp without time zone,
     remove_time timestamp without time zone,
@@ -59,21 +60,17 @@ BEGIN
     EXECUTE CONCAT('
         WITH last_info AS (
             SELECT * FROM ', my_schema, '.', my_name, ' ORDER BY time DESC LIMIT 1
+        ),
+		count_info AS (
+            SELECT COUNT(*) AS counter FROM ', my_schema, '.', my_name, '
         )
         UPDATE tsd_main.timeseries SET
             last_time = last_info.time,
-            last_value = row_to_json(last_info)
-        from last_info
+            last_value = row_to_json(last_info),
+			n_samples = count_info.counter
+        from last_info, count_info
         WHERE schema = ', quote_literal(my_schema), ' AND name = ' , quote_literal(my_name) , '
     ');
-    /*
-    EXECUTE CONCAT('UPDATE tsd_main.timeseries SET last_time = (
-      SELECT LAST(time, time) 
-      FROM ', my_schema, '.', my_name, 
-    ') WHERE schema = ', quote_literal(my_schema), 
-     ' AND name = ' , quote_literal(my_name)
-    ); 
-    */
 END;
 $BODY$;
 

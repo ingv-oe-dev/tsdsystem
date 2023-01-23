@@ -11,6 +11,12 @@ if (strripos($_SERVER["REQUEST_URI"], "values")) {
 	
 	$tsc = new TimeseriesValuesController();
 }
+else if (strripos($_SERVER["REQUEST_URI"], "uploadFromFile")) {
+	
+	require_once("..".DIRECTORY_SEPARATOR."controllers".DIRECTORY_SEPARATOR."TimeseriesFromCSVController.php");
+	
+	$tsc = new TimeseriesFromCSVController();
+}
 else {
 	
 	require_once("..".DIRECTORY_SEPARATOR."controllers".DIRECTORY_SEPARATOR."TimeseriesController.php");

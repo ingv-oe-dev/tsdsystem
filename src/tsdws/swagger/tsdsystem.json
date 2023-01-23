@@ -725,6 +725,115 @@
                 }]
             }
         },
+        "/timeseries/uploadFromFile": {
+            "post": {
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "description": "",
+                "operationId": "uploadFile",
+                "parameters": [{
+                    "name": "id",
+                    "in": "formData",
+                    "description": "The unique identifier (**uuid**) of the registered timeseries related to the uploading data",
+                    "minLength": 1,
+                    "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                    "type": "string"
+                }, {
+                    "name": "insert",
+                    "in": "formData",
+                    "description": "Insertion mode.\nIGNORE: Values corresponding to already stored timestamp will be ignored.\nUPDATE: Values corresponding to already stored timestamp will be updated",
+                    "type": "string",
+                    "enum": ["IGNORE", "UPDATE"],
+                    "default": "IGNORE"
+                }, {
+                    "name": "schema",
+                    "in": "formData",
+                    "description": "The name of the schema where timeseries tables will be archived.\n**NOTE**: **ignored** if timeseries _id_ is defined. It will be used if uploading data set up a new timeseries registration.",
+                    "minLength": 1,
+                    "default": "test",
+                    "type": "string"
+                }, {
+                    "name": "name",
+                    "in": "formData",
+                    "description": "The name of the timeseries.\n**NOTE**: **ignored** if timeseries _id_ is defined. It will be used if uploading data set up a new timeseries registration.",
+                    "type": "string",
+                    "minLength": 1,
+                    "default": "test"
+                }, {
+                    "name": "sampling",
+                    "in": "formData",
+                    "description": "Timeseries values sampling in seconds.\n**NOTE**: **ignored** if timeseries _id_ is defined. It will be used if uploading data set up a new timeseries registration.",
+                    "required": false,
+                    "type": "number",
+                    "minimum": 1,
+                    "default": 60
+                }, {
+                    "name": "public",
+                    "in": "formData",
+                    "description": "Public timeseries.\n**NOTE**: **ignored** if timeseries _id_ is defined. It will be used if uploading data set up a new timeseries registration.",
+                    "required": false,
+                    "type": "boolean",
+                    "default": true
+                }, {
+                    "description": "file to upload",
+                    "in": "formData",
+                    "name": "file",
+                    "required": true,
+                    "type": "file"
+                }, {
+                    "name": "delimiter",
+                    "in": "formData",
+                    "description": "Delimiter for CSV file",
+                    "required": false,
+                    "minLength": 1,
+                    "default": ",",
+                    "type": "string"
+                }],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "202": {
+                        "description": "Values inserted, but not update timeseries 'last_time' info",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "207": {
+                        "description": "Already exists. No Rows inserted",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    },
+                    "409": {
+                        "description": "Operation failed"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }],
+                "summary": "Upload a CSV file",
+                "tags": [
+                    "timeseries"
+                ]
+            }
+        },
         "/channels": {
             "get": {
                 "tags": [
@@ -6092,7 +6201,7 @@
                 },
                 "public": {
                     "title": "Public",
-                    "description": "If not set, list all timeseries. If true, list only public timeseries (**no authorization required**), else only non-public timeseries.",
+                    "description": "Public timeseries",
                     "type": "boolean"
                 }
             }
