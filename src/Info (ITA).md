@@ -254,6 +254,16 @@ Content-Length: 286
 ```
 L'informazione principale risiede nel campo `data`, che indica il numero di record correttamente inseriti (campo `rows`).
 
+> **_NOTA IMPORTANTE:_**
+> 
+> Fino al commit [41940d9e](https://github.com/ingv-oe-dev/tsdsystem/tree/41940d9e8bbfd072777b2450feaa13d98afcf9f0) [tag: `LAST_NO_TZD`] della versione del branch `master` del repositori GitHub, il formato data che include il Time Zone Designator [(TZD)](https://www.w3.org/TR/NOTE-datetime) viene accettato ma non gestito, nel senso che accetta la data passata, ma non considera la parte TZD, perché le tabelle vengono create con colonna "`time`" di tipo `TIMESTAMP WITHOUT TIME ZONE`. 
+> 
+> A partire dalle versioni successive il TZD viene gestito ma l'utente che registra la serie temporale deve aver cura di indicare al sistema che nei tempi dei valori immessi viene specificato lo TZD.
+>
+> Per indicare ciò si deve utilizzare il campo `with_tz` (booleano = `TRUE`) in fase di registrazione della serie temporale. In tal caso la tabella PostGreSQL verrà creata con colonna "`time`" di tipo `TIMESTAMP WITH TIME ZONE` e i valori ritornati durante le richieste dei dati saranno restituiti con il TZD utilizzato.
+> 
+> **Default**: Nel caso in cui non viene utilizzata questa opzione o nel caso venga specificato `with_tz` = `FALSE`, il sistema tratterà i tempi come **UTC** salvandoli in una colonna "`time`" di tipo `TIMESTAMP WITHOUT TIME ZONE`.
+
 ## Leggere i valori di una Timeseries registrata
 Per leggere i valori inseriti si utilizza sempre lo stesso endpoint:
 
@@ -361,4 +371,152 @@ Il campo `params` riassume il tipo di richiesta nel formato JSON. Da notare che 
     "statusCode": 200
 }
 ```
- 
+## Upload attraverso file CSV
+E' possibile inserire i dati all'interno del TSDSystem attraverso l'upload di file CSV.
+
+L'endpoint da utilizzare sarà in questo caso:
+
+http://localhost/tsdws/timeseries/uploadFromFile
+
+Nel caso l'utente scelga di fare l'upload dei dati su una serie temporale già registrata, allora dovrà indicare l'identificativo della serie (`id`), altrimenti l'input della richiesta al web service dovrà contenere alcune informazioni necessarie come `schema` e `name` e/o altre facoltative (`sampling`, `public`, `with_tz`) della nuova serie da registrare, similmente a quanto visto nella sezione relativa alla registrazione delle serie temporali, **eccetto per l'input `columns`, ovvero la definizione delle colonne**, che viene automaticamente identificata utilizzando il `delimiter` passato in input.
+
+>**Nota**: i nomi delle colonne e i dati vengono automaticamente identificati tramite la specifica del `delimiter` per **minimizzare l'errore di input da parte dell'utente**.
+>
+>Nel caso in cui l'utilizzatore voglia avere un controllo sulla definizione dei nomi e dei tipi delle colonne della serie può sempre effettuare prima una registrazione attraverso un POST a http://localhost/tsdws/timeseries e successivamente fare l'upload dei dati tramite file CSV utilizzando l'`id` ritornato dalla registrazione.
+
+Il tipo di inserimento dei dati avviene nella modalità specificata dall'input `insert` che può essere di tipo:
+-  `IGNORE` (non sostituire i dati dei record che contengono lo stesso timestamp del dato in input)
+-  `UPDATE` (sovrascrive i dati dei record che contengono lo stesso timestamp del dato in input).
+
+### Struttura file CSV
+Elementi da rispettare per un corretto caricamento del file CSV:
+- Il file dovrà avere una prima riga di intestazione dove vengono elencati i nomi delle colonne.
+- I nomi delle colonne possono essere _"virgolettati"_ (apice singolo o doppio) o meno: al momento della lettura gli apici verranno ignorati.
+- Deve esistere una colonna nominata "`time`" per indicare i tempi del campionamento (`UTC`) in un formato compatibile con lo standard [ISO 8601](https://www.w3.org/TR/NOTE-datetime) (con o meno `TZD` sulla base di come è stata registrata o si registrerà la serie temporale attraverso l'utilizzo del parametro di input `with_tz`).
+- Ogni riga dovrà avere lo stesso numero di colonne indicate nella prima riga e delimitate dal carattere indicato in `delimiter`, il che equivale a dire che ogni riga dovrà contenere lo stesso numero di caratteri delimitatori.
+
+Tutti i valori _**non numerici**_ contenuti tra due caratteri delimitatori verranno considerati come valori `NULL`.
+
+Si riporta di seguito un esempio.
+
+#### Anteprima file CSV
+```
+"time","pressure_hpa","temp_c"
+2022-12-23 12:51:55.527,84.1590,25.1
+2022-12-23 12:52:55.527,,24.9
+2022-12-23 12:53:55.527,null,25.0
+2022-12-23 12:54:55.527,NaN,25.1
+2022-12-23 12:55:55.527,84.2189,25.0
+2022-12-23 12:56:55.527,84.6172,25.1
+2022-12-23 12:57:55.527,84.7179,25.1
+2022-12-23 12:58:55.527,84.8600,25.1
+...
+```
+
+### Esempio di chiamata HTTP (POST) in `cURL` di una serie già registrata:
+```
+curl -X 'POST' \
+  'http://localhost/tsdws/timeseries/uploadFromFile' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: multipart/form-data' \
+  -F 'id=02dc3fa2-0699-42f3-9ba3-31d1e31b9a21' \
+  -F 'insert=IGNORE' \
+  -F 'file=@huge.csv;type=text/csv' \
+  -F 'delimiter=,'
+```
+### Esempio di risposta con successo:
+```
+{
+  "params": {
+    "id": "02dc3fa2-0699-42f3-9ba3-31d1e31b9a21",
+    "insert": "IGNORE",
+    "delimiter": ",",
+    "file": {
+      "name": "huge.csv",
+      "full_path": "huge.csv",
+      "type": "text/csv",
+      "tmp_name": "C:\\Windows\\Temp\\phpFACC.tmp",
+      "error": 0,
+      "size": 1603890
+    },
+    "timeIdx": 0,
+    "columns": [
+      {
+        "name": "pressure_hpa",
+        "type": "double precision"
+      },
+      {
+        "name": "temp_c",
+        "type": "double precision"
+      }
+    ],
+    "colnames": [
+      "time",
+      "pressure_hpa",
+      "temp_c"
+    ],
+    "metadata": {
+      "columns": [
+        {
+          "name": "pressure_hpa",
+          "type": "double precision"
+        },
+        {
+          "name": "tempc",
+          "type": "double precision"
+        }
+      ]
+    }
+  },
+  "data": {
+    "insertion": {
+      "inserted_rows": 0,
+      "chunks": [
+        {
+          "status": true,
+          "rows": 0,
+          "updatedTimeseriesTable": true,
+          "chunk_idx": 10000,
+          "chunk_size": 10000
+        },
+        {
+          "status": true,
+          "rows": 0,
+          "updatedTimeseriesTable": true,
+          "chunk_idx": 20000,
+          "chunk_size": 10000
+        },
+        {
+          "status": true,
+          "rows": 0,
+          "updatedTimeseriesTable": true,
+          "chunk_idx": 30000,
+          "chunk_size": 10000
+        },
+        {
+          "status": true,
+          "rows": 0,
+          "updatedTimeseriesTable": true,
+          "chunk_idx": 40000,
+          "chunk_size": 10000
+        },
+        {
+          "status": true,
+          "rows": 0,
+          "updatedTimeseriesTable": true,
+          "chunk_idx": 44641,
+          "chunk_size": 4641
+        }
+      ]
+    }
+  },
+  "error": null,
+  "statusCode": 207
+}
+```
+L'informazione principale risiede nella sezione `data`, che riporta i dettagli dell'eventuale registrazione nel campo `registration`, nonché dell'inserimento (nel campo `insertion`).
+
+Per quanto riguarda l'inserimento dei dati, esso viene effettuato in spezzoni (`chunks`) di 10000 record per volta, e per ognuno di essi viene riportato il relativo esito. 
+
+# Informazioni addizionali
+Per ogni altro dettaglio sull'utilizzo del web service REST del TSDSystem, si rimanda all'interfaccia [Swagger](http://localhost/swagger/tsdsystem) predisposta dal sistema stesso all'indirizzo locale http://localhost/swagger/tsdsystem.

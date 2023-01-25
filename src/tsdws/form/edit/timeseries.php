@@ -177,6 +177,7 @@
 					editor.getEditor('root.columns').disable();
 					editor.getEditor('root.schema').disable();
 					editor.getEditor('root.name').disable();
+                    editor.getEditor('root.with_tz').disable();
 				}
             });
             

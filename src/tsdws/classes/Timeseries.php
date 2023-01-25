@@ -12,6 +12,16 @@ Class Timeseries extends QueryManager {
 		return $this->TIME_COLUMN_NAME;
 	}
 
+	public function hasTimeZone($id) {
+		$response = $this->getList(array(
+			"id" => $id
+		));
+		if ($response["status"] and count($response["data"]) > 0) {
+			return $response["data"][0]["with_tz"];
+		}
+		return null;
+	}
+
 	public function getDependencies($id, $transpose=true) {
 		// mapping dependencies from timeseries to nets
 		$query = "select
@@ -137,8 +147,11 @@ Class Timeseries extends QueryManager {
 			$stmt = $this->myConnection->prepare($next_query);
 			$stmt->execute();
 			
+			// timezone
+			$with_tz = $input["with_tz"] ? "WITH" : "WITHOUT";
+
 			// create table
-			$next_query = "CREATE TABLE IF NOT EXISTS " . $input["schema"] . "." . $input["name"] . " (" . $this->TIME_COLUMN_NAME . " TIMESTAMP WITHOUT TIME ZONE UNIQUE NOT NULL, ";
+			$next_query = "CREATE TABLE IF NOT EXISTS " . $input["schema"] . "." . $input["name"] . " (" . $this->TIME_COLUMN_NAME . " TIMESTAMP $with_tz TIME ZONE UNIQUE NOT NULL, ";
 				// make columns
 			for($i=0; $i<count($input["columns"]); $i++) {
 				$next_query .= $input["columns"][$i]["name"] . " " . $input["columns"][$i]["type"] . " NULL, ";
@@ -157,12 +170,13 @@ Class Timeseries extends QueryManager {
 			$stmt->execute();
 			
 			// insert into timeseries table
-			$next_query = "INSERT INTO " . $this->tablename . " (schema, name, sampling, metadata, public, create_user) VALUES (
+			$next_query = "INSERT INTO " . $this->tablename . " (schema, name, sampling, metadata, public, with_tz, create_user) VALUES (
 				'" . $input["schema"] . "',
 				'" . $input["name"]. "',
 				" . $input["sampling"] . ",
 				" . (isset($input["metadata"]) ? ("'" . json_encode($input["metadata"], JSON_NUMERIC_CHECK) . "'") : "NULL") . ",
 				" . ((array_key_exists("public", $input) and isset($input["public"]) and $input["public"]) ? "true" : "false") . ",
+				" . ((array_key_exists("with_tz", $input) and isset($input["with_tz"]) and $input["with_tz"]) ? "true" : "false") . ",
 				" . ((array_key_exists("create_user", $input) and isset($input["create_user"]) and is_numeric($input["create_user"])) ? strval($input["create_user"]) : "NULL") . "
 			) ON CONFLICT (LOWER(schema), LOWER(name)) DO NOTHING";
 			$stmt = $this->myConnection->prepare($next_query);
@@ -255,7 +269,7 @@ Class Timeseries extends QueryManager {
 	
 	public function getList($input) {
 		
-		$query = "SELECT t.id, t.schema, t.name, t.sampling, t.public, TO_CHAR(t.first_time, '$this->OUTPUT_PSQL_ISO8601_FORMAT') AS first_time, TO_CHAR(t.last_time, '$this->OUTPUT_PSQL_ISO8601_FORMAT') AS last_time, t.last_value, t.n_samples, t.metadata " .
+		$query = "SELECT t.id, t.schema, t.name, t.sampling, t.public, t.with_tz, TO_CHAR(t.first_time, '$this->OUTPUT_PSQL_ISO8601_FORMAT') AS first_time, TO_CHAR(t.last_time, '$this->OUTPUT_PSQL_ISO8601_FORMAT') AS last_time, t.last_value, t.n_samples, t.metadata " .
 			" FROM " . $this->tablename . " t " .
 			" LEFT JOIN tsd_main.timeseries_mapping_channels tmc ON t.id = tmc.timeseries_id " . 
 			" WHERE t.remove_time IS NULL ";

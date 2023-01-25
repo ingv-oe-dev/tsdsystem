@@ -5,8 +5,8 @@
 Class Utils {
 	
 	publiC $SECURE_DB_STRING_REGEX = '/^[a-z_]+[a-z0-9_]*$/';
-	public $OUTPUT_PSQL_ISO8601_FORMAT = 'YYYY-MM-DD"T"HH24:MI:SS.MSOF'; // compliant to ISO 8601
-	public $CORRECT_DATETIME_REGEX = '/^(\d{4})(-(0[1-9]|1[0-2])(-([12]\d|0[1-9]|3[01]))([T\s]((([01]\d|2[0-3])((:)[0-5]\d))([\:]\d+)?)?(:[0-5]\d([\.]\d+)?)?([zZ]|([\+-])([01]\d|2[0-3]):?([0-5]\d)?)?)?)$/'; // compliant to ISO 8601
+	public $OUTPUT_PSQL_ISO8601_FORMAT = 'YYYY-MM-DD"T"HH24:MI:SS.MSTZH:TZM'; // compliant to ISO 8601
+	public $CORRECT_DATETIME_REGEX = '/^(\d{4})(-(0[1-9]|1[0-2])(-([12]\d|0[1-9]|3[01]))([T\s]((([01]\d|2[0-3])((:)[0-5]\d))([\:]\d+)?)?(:[0-5]\d([\.]\d+)?)?([zZ]|(\s*[\+-])([01]\d|2[0-3]):?([0-5]\d)?)?)?)$/'; // compliant to ISO 8601
 
 	public static function getHostAddress() {
 		$protocol = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";

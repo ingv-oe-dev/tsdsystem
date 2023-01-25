@@ -16,14 +16,14 @@
         },
         "schema": {
             "title": "Schema",
-            "description": "The name of the schema where timeseries tables will be archived (only lowercase letters, numbers and underscore characters admitted)",
+            "description": "The name of the schema where timeseries tables will be archived (only lowercase letters, numbers and underscore characters admitted). **Not available for patch. It will be ignored on patch. It will be used only on new registrations**",
             "type": "string",
             "pattern": "^[a-z_]+[a-z0-9_]*$",
             "minLength": 1
         },
         "name": {
             "title": "Name",
-            "description": "Name (only lowercase letters, numbers and underscore characters admitted)",
+            "description": "Name (only lowercase letters, numbers and underscore characters admitted). **Not available for patch. It will be ignored on patch. It will be used only on new registrations**",
             "type": "string",
             "pattern": "^[a-z_]+[a-z0-9_]*$",
             "minLength": 1
@@ -40,9 +40,15 @@
             "default": true,
             "title": "Public"
         },
+        "with_tz": {
+            "title": "Timezone",
+            "description": "Specify if the timeseries timestamps are with timezone or not (if not, times are intended as UTC). **Not available for patch. It will be ignored on patch. It will be used only on new registrations**.",
+            "type": "boolean",
+            "default": false
+        },
         "columns": {
             "title": "Columns",
-            "description": "List of all the measurements of the timeseries",
+            "description": "List of all the measurements of the timeseries. **Not available for patch. It will be ignored on patch. It will be used only on new registrations**",
             "type": "array",
             "minItems": 1,
             "uniqueItems": true,

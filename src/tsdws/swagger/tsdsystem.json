@@ -776,6 +776,13 @@
                     "type": "boolean",
                     "default": true
                 }, {
+                    "name": "with_tz",
+                    "in": "formData",
+                    "description": "Specify if the timeseries timestamps are with timezone or not (if not, times are intended as UTC).\n**NOTE**: **ignored** if timeseries _id_ is defined. It will be used if uploading data set up a new timeseries registration.",
+                    "required": false,
+                    "type": "boolean",
+                    "default": false
+                }, {
                     "description": "file to upload",
                     "in": "formData",
                     "name": "file",
@@ -6131,7 +6138,14 @@
                 "public": {
                     "title": "Public",
                     "description": "If not set, list all timeseries. If true, list only public timeseries (**no authorization required**), else only non-public timeseries.",
-                    "type": "boolean"
+                    "type": "boolean",
+                    "default": true
+                },
+                "with_tz": {
+                    "title": "Timezone",
+                    "description": "Specify if the timeseries timestamps are with timezone or not (if not, times are intended as UTC)",
+                    "type": "boolean",
+                    "default": false
                 }
             }
         },

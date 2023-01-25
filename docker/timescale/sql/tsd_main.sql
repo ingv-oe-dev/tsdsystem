@@ -16,13 +16,14 @@ CREATE TABLE IF NOT EXISTS tsd_main.timeseries
     last_time timestamp without time zone,
     last_value jsonb,
     n_samples integer null,
+    with_tz boolean DEFAULT false,
+    public boolean DEFAULT true,
     create_time timestamp without time zone DEFAULT (now() AT TIME ZONE 'utc'::text),
     update_time timestamp without time zone,
     remove_time timestamp without time zone,
     create_user integer,
     update_user integer,
     remove_user integer,
-    public boolean DEFAULT true,
     CONSTRAINT timeseries_pkey PRIMARY KEY (id)
 );
 
@@ -63,14 +64,22 @@ BEGIN
         ),
 		count_info AS (
             SELECT COUNT(*) AS counter FROM ', my_schema, '.', my_name, '
-        )
+        ),
+		tz AS (
+			SELECT with_tz FROM tsd_main.timeseries WHERE schema = ', quote_literal(my_schema), ' AND name = ' , quote_literal(my_name) , '
+		)
         UPDATE tsd_main.timeseries SET
-            last_time = last_info.time,
+            last_time = (
+				CASE
+                 	WHEN tz.with_tz = TRUE THEN last_info.time at time zone ', quote_literal('utc'), '
+                	ELSE last_info.time
+              	END
+			),
             last_value = row_to_json(last_info),
 			n_samples = count_info.counter
-        from last_info, count_info
-        WHERE schema = ', quote_literal(my_schema), ' AND name = ' , quote_literal(my_name) , '
-    ');
+        from last_info, count_info, tz
+        WHERE schema = ', quote_literal(my_schema), ' AND name = ' , quote_literal(my_name) , ';
+	');
 END;
 $BODY$;
 

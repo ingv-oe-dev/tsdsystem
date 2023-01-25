@@ -86,52 +86,80 @@ Class TimeseriesFromCSVController extends TimeseriesController {
 			$input["insert"] = "IGNORE";
 		}
 		
-		// (2) $input["schema"]
-		if (array_key_exists("schema", $input) and empty($input["schema"])){
-			$this->setInputError("Uncorrect input: 'schema' [string]");
-			return false;
-		}
-		if (!$this->verifySecureDBString($input["schema"])) {
-			$this->setInputError("Uncorrect input: 'schema' [string]. Accept only lowercase letters followed by numbers and underscore. Regular expression: $this->SECURE_DB_STRING_REGEX");
-			return false;
-		}
-		// force schema to lowercase
-		$input["schema"] = strtolower($input["schema"]);
-		
-		// (3) $input["name"] 
-		if (array_key_exists("name", $input) and empty($input["name"])){
-			$this->setInputError("Uncorrect input: 'name' [string]");
-			return false;
-		}
-		if (!$this->verifySecureDBString($input["name"])) {
-			$this->setInputError("Uncorrect input: 'name' [string]. Accept only lowercase letters followed by numbers and underscore. Regular expression: $this->SECURE_DB_STRING_REGEX");
-			return false;
-		}
-		// force name to lowercase
-		$input["name"] = strtolower($input["name"]);
-		
-		// (4) $input["sampling"]
-		if (array_key_exists("sampling", $input)) {
-			if (!is_numeric($input["sampling"]) || intval($input["sampling"]) <= 0) {
-				$this->setInputError("Uncorrect input: 'sampling'[integer > 0] <in seconds>");
+		if (!array_key_exists("id", $input)) {
+			// (2) $input["schema"]
+			if (!array_key_exists("schema", $input) or empty($input["schema"])){
+				$this->setInputError("Uncorrect input: 'schema' [string]");
 				return false;
+				if (!$this->verifySecureDBString($input["schema"])) {
+					$this->setInputError("Uncorrect input: 'schema' [string]. Accept only lowercase letters followed by numbers and underscore. Regular expression: $this->SECURE_DB_STRING_REGEX");
+					return false;
+				}
+				// force schema to lowercase
+				$input["schema"] = strtolower($input["schema"]);
 			}
-			$input["sampling"] = intval($input["sampling"]);
-		} else {
-			// set default sampling value to 60 seconds
-			$input["sampling"] = 60;
-		}
-		
-		// (5) $input["public"] 
-		if (array_key_exists("public", $input)) {
-			if (!((intval($input["public"]) === 1 or $input["public"] === true or $input["public"] === "true"))) {
-				$this->setInputError("Uncorrect input: 'public' [boolean]");
+			
+			// (3) $input["name"] 
+			if (!array_key_exists("name", $input) or empty($input["name"])){
+				$this->setInputError("Uncorrect input: 'name' [string]");
 				return false;
+				if (!$this->verifySecureDBString($input["name"])) {
+					$this->setInputError("Uncorrect input: 'name' [string]. Accept only lowercase letters followed by numbers and underscore. Regular expression: $this->SECURE_DB_STRING_REGEX");
+					return false;
+				}
+				// force name to lowercase
+				$input["name"] = strtolower($input["name"]);
+			}
+			
+			// (4) $input["sampling"]
+			if (array_key_exists("sampling", $input)) {
+				if (!is_numeric($input["sampling"]) || intval($input["sampling"]) <= 0) {
+					$this->setInputError("Uncorrect input: 'sampling'[integer > 0] <in seconds>");
+					return false;
+				}
+				$input["sampling"] = intval($input["sampling"]);
 			} else {
-				$input["public"] = (intval($input["public"]) === 1 or $input["public"] === true or $input["public"] === "true");
+				// set default sampling value to 60 seconds
+				$input["sampling"] = 60;
 			}
-		} else {
-			$input["public"] = true;
+			
+			// (5) $input["public"] 
+			if (array_key_exists("public", $input)) {
+				if (!(
+					intval($input["public"]) === 1 or 
+					$input["public"] === true or 
+					$input["public"] === "true" or
+					intval($input["public"]) === 0 or 
+					$input["public"] === false or 
+					$input["public"] === "false"
+				)) {
+					$this->setInputError("Uncorrect input: 'public' [boolean]");
+					return false;
+				} else {
+					$input["public"] = (intval($input["public"]) === 1 or $input["public"] === true or $input["public"] === "true");
+				}
+			} else {
+				$input["public"] = true;
+			}
+
+			// (5) $input["with_tz"] 
+			if (array_key_exists("with_tz", $input)) {
+				if (!(
+					intval($input["with_tz"]) === 1 or 
+					$input["with_tz"] === true or 
+					$input["with_tz"] === "true" or
+					intval($input["with_tz"]) === 0 or 
+					$input["with_tz"] === false or 
+					$input["with_tz"] === "false"
+				)) {
+					$this->setInputError("Uncorrect input: 'with_tz' [boolean]");
+					return false;
+				} else {
+					$input["with_tz"] = (intval($input["with_tz"]) === 1 or $input["with_tz"] === true or $input["with_tz"] === "true");
+				}
+			} else {
+				$input["with_tz"] = false;
+			}
 		}
 		
 		// (6) Validate uploaded file
@@ -331,8 +359,6 @@ Class TimeseriesFromCSVController extends TimeseriesController {
 			$insert_result["chunk_idx"] = $offset;
 			$insert_result["chunk_size"] = $read_lines;
 			
-			$this->response["data"]["insertion"]["inserted_rows"] += $insert_result["rows"];
-
 			// evito di aggiungere l'output della query fallita per intero (solo i primi 100 caratteri)
 			unset($insert_result["failed_query"]);
 			unset($insert_result["next_queries"]);
@@ -341,6 +367,7 @@ Class TimeseriesFromCSVController extends TimeseriesController {
 
 			if ($insert_result["status"]) {
 				$this->setStatusCode(201);
+				$this->response["data"]["insertion"]["inserted_rows"] += $insert_result["rows"];
 				if (array_key_exists("updatedTimeseriesTable", $insert_result) and !$insert_result["updatedTimeseriesTable"]) {
 					// Valori inseriti ma non è stata aggiornata la tabella delle serie temporali (last_time)
 					$this->setStatusCode(202);

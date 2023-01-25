@@ -143,9 +143,15 @@ Class TimeseriesValues extends Timeseries {
 
 		$id = $input["id"];
 
-		$time_bucket = isset($input["time_bucket"]) ? 
-			("time_bucket_gapfill('" . $input["time_bucket"] . "', " . $this->getTimeColumnName() . ")") : 
-			$this->getTimeColumnName();
+		$time_bucket = $this->getTimeColumnName();
+		
+		if (isset($input["time_bucket"])) {
+			$time_bucket = ("time_bucket_gapfill('" . $input["time_bucket"] . "', " . $this->getTimeColumnName() . ")");
+			
+			if (isset($input["starttime"]) and isset($input["endtime"])){
+				$time_bucket = ("time_bucket_gapfill('" . $input["time_bucket"] . "', " . $this->getTimeColumnName() . ", '" . $input["starttime"] . "', '" . $input["endtime"] . "')");
+			}
+		}
 
 		$columns = array();
 		foreach($input["columns"] as $column) {
@@ -180,18 +186,20 @@ Class TimeseriesValues extends Timeseries {
 		$fields = "$time_bucket AS $output_column_time, " . implode($separator, $columns);
 		
 		$tablename = $this->getTablename($id);
+		$hasTimeZone = $this->hasTimeZone($id);
+		$utc_string = $hasTimeZone ? " at time zone 'utc' " : "";
 		
 		// string containing the final query
 		$query = "SELECT " . $fields . " FROM " . $tablename . " WHERE true ";
 
 		// starttime
 		if (isset($input["starttime"])){
-			$query .= " AND " . $this->getTimeColumnName() . " >= '" . $input["starttime"] . "'";
+			$query .= " AND " . $this->getTimeColumnName() . " $utc_string >= '" . $input["starttime"] . "'";
 		}
 		
 		// endtime
 		if (isset($input["endtime"])){
-			$query .= " AND " . $this->getTimeColumnName() . " <= '" . $input["endtime"] . "'";
+			$query .= " AND " . $this->getTimeColumnName() . " $utc_string <= '" . $input["endtime"] . "'";
 		}
 
 		// thresholds

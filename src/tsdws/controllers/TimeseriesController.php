@@ -221,6 +221,18 @@ Class TimeseriesController extends RESTController {
 		} else {
 			$input["public"] = true;
 		}
+
+		// $input["with_tz"] 
+		if (array_key_exists("with_tz", $input)) {
+			if (!is_bool($input["with_tz"])) {
+				$this->setInputError("Uncorrect input: 'with_tz' [boolean]");
+				return false;
+			} else {
+				$input["with_tz"] = (intval($input["with_tz"]) === 1 or $input["with_tz"] === true or $input["with_tz"] === "true");
+			}
+		} else {
+			$input["with_tz"] = false;
+		}
 		
 		$this->setParams($input);
 
