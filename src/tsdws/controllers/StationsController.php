@@ -2,10 +2,16 @@
 
 require_once("..".DIRECTORY_SEPARATOR."classes".DIRECTORY_SEPARATOR."RESTController.php");
 require_once("..".DIRECTORY_SEPARATOR."classes".DIRECTORY_SEPARATOR."PNet_Stations.php");
+require_once("..".DIRECTORY_SEPARATOR."classes".DIRECTORY_SEPARATOR."encoders".DIRECTORY_SEPARATOR."PNet_Stations_Encoder.php");
 
 // Stations Controller class
 Class StationsController extends RESTController {
 	
+	public $contentTypesArray = array(
+		"json" => "application/json",
+		"geojson" => "application/json"
+	);
+
 	public function __construct() {
 		$this->obj = new Stations();
 		$this->route();
@@ -65,6 +71,23 @@ Class StationsController extends RESTController {
 		}
 
 		$this->elaborateResponse();
+	}
+
+	// ====================================================================//
+	// ************* OVERRIDE SimpleREST->elaborateResponse() ************ //
+	// ====================================================================//
+	public function elaborateResponse() {
+		
+		// set header
+		$this->setHttpHeaders($this->response["statusCode"]);
+
+		// instantiation of Encoder class
+		$encoder = new PNet_Stations_Encoder();
+
+		// compress the response before send response
+		ob_start("ob_gzhandler"); // start compression
+		echo $encoder->encodeResponse($this->response);
+		ob_end_flush(); // end compression
 	}
 	
 	// ====================================================================//
@@ -176,6 +199,24 @@ Class StationsController extends RESTController {
 	// ****************** get  ********************//
 	// ====================================================================//
 	public function check_input_get() {
+
+		$input = $this->getParams();
+
+		// $input["format"] 
+		if (array_key_exists("format", $input)){
+			if (!in_array(strtolower($input["format"]), array_keys($this->contentTypesArray))) {
+				$this->setInputError("Uncorrect input: 'format' [available: " . implode(",", array_keys($this->contentTypesArray)) . "]. Your value: " . $input["format"]);
+				return false;
+			}
+		} else {
+			$input["format"] = "json"; // default
+		}
+
+		// if here, 'format' input is set
+		$input["contentType"] = $this->contentTypesArray[$input["format"]];
+
+		$this->setParams($input);
+
 		// check only if spatial inputs are defined and numerical
 		return $this->check_spatial_input();
 	}

@@ -7,6 +7,12 @@ Use this as a template and build upon it
 class SimpleREST extends Utils{
 	
 	private $contentType = 'application/json';
+	public $contentTypesArray = array(
+		"xml" => "application/xml",
+		"text" => "text/plain", 
+		"json" => "application/json",
+		"geojson" => "application/json"
+	);
 	private $httpVersion = "HTTP/1.1";
 	public $JWT_payload = null;
 	public $response = array(
@@ -145,7 +151,17 @@ class SimpleREST extends Utils{
 		try {
 			header($this->httpVersion. " ". $statusCode ." ". $statusMessage);		
 		} catch (Exception $e) {}
-		header("Content-Type:". $this->contentType);
+
+		if (
+			isset($this->response["params"]) and 
+			is_array($this->response["params"]) and
+			array_key_exists("contentType", $this->response["params"]) and
+			isset($this->response["params"]["contentType"])
+		) {
+			header("Content-Type:". $this->response["params"]["contentType"]);
+		} else {
+			header("Content-Type:". $this->contentType);
+		}
 
 		// CORS policy handling
 		$this->handleCORS();
