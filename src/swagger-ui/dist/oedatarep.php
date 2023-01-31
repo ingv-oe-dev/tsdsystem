@@ -1,6 +1,20 @@
 <?php
     $timeseries_id = isset($_GET["timeseries_id"]) ? $_GET["timeseries_id"] : null;
     $origin = isset($_GET["origin"]) ? $_GET["origin"] : null;
+    $token = readToken();
+
+    function readToken() {
+      $token = isset($_SERVER["HTTP_AUTHORIZATION"]) ? $_SERVER["HTTP_AUTHORIZATION"] : NULL;
+      if (!is_null($token)) {
+        // Handling use of `Bearer` token (even JWT)
+        preg_match('/(Bearer[\s]+)*(.+\..+\..+)/', $token, $matches);
+        //var_dump($matches);
+        $token = $matches[2];
+        //var_dump($token);
+        return $token;
+      }
+    }
+
 ?>
 <!-- HTML for static distribution bundle build -->
 <!DOCTYPE html>
@@ -35,7 +49,11 @@
                 plugins: [
                     SwaggerUIBundle.plugins.DownloadUrl
                 ],
-                layout: "StandaloneLayout"
+                layout: "StandaloneLayout" <?php if ($token) { ?>,
+                onComplete: function() {
+                    ui.preauthorizeApiKey("Bearer", "<?php echo $token; ?>");
+                }
+                <?php } ?>
             });
         };
     </script>

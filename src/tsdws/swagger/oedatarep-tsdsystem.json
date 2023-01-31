@@ -182,8 +182,20 @@
                     "401": {
                         "description": "Authorization not found"
                     }
-                }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
             }
+        }
+    },
+    "securityDefinitions": {
+        "Bearer": {
+            "type": "apiKey",
+            "scheme": "bearer",
+            "bearerFormat": "JWT",
+            "name": "Authorization",
+            "in": "header"
         }
     },
     "definitions": {
