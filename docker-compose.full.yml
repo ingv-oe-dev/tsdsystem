@@ -3,25 +3,9 @@ version: '3'
 
 services:
   app:
-    build:
-      context: ./docker/php/
-    image: tsdsystem-app
-    container_name: app
-    tty: true
-    depends_on:
-      - db
-    environment:
-      DB_HOST: "${DB_HOST}"
-      DB_USER: "${DB_USER}"
-      DB_PASSWORD: "${DB_PASSWORD}"
-      DB_NAME: "${DB_NAME}"
-      DB_PORT: "${DB_PORT}"
-      SERVER_KEY: "${SERVER_KEY}"
-    ports:
-      - "8000:80"
-    working_dir: /var/www/html/tsdws
-    volumes:
-      - ./src:/var/www/html
+    extends:
+      file: docker-services.yml
+      service: tsd
   db:
     extends:
       file: docker-services.yml
@@ -38,19 +22,16 @@ services:
       service: frontend
     depends_on:
       - app
-    ports:
-      - "80:80"
-      - "443:443"
-  grafana:
-    extends:
-      file: docker-services.yml
-      service: grafana
-    volumes:
-      - "grafana-storage:/var/lib/grafana"
-  renderer:
-    extends:
-      file: docker-services.yml
-      service: renderer
+#  grafana:
+#    extends:
+#      file: docker-services.yml
+#      service: grafana
+#    volumes:
+#      - "grafana-storage:/var/lib/grafana"
+#  renderer:
+#    extends:
+#      file: docker-services.yml
+#      service: renderer
 volumes:
   db_data:
-  grafana-storage:
+#  grafana-storage:

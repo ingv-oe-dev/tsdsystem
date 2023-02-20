@@ -6,6 +6,8 @@ services:
     extends:
       file: docker-services.yml
       service: tsd
+    ports:
+      - "8000:80"
   db:
     extends:
       file: docker-services.yml
