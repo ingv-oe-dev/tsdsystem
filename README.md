@@ -16,7 +16,7 @@ It will download the repository into `tsdsystem` directory.
 
 ## Environment variables
 
-Set the environment variables into file `.env`:
+Into the `tsdsystem` directory, set the environment variables into file `.env`:
 
 Database PostGreSQL:
 - `DB_HOST`=db
@@ -76,6 +76,6 @@ Init PostgreSQL database:
 
 ### Full installation notes
 
-A full installation using `docker-compose.full.yml` is recommended to expose the service on Internet. To expose on Internet, the installation server needs the certificate files into the `nginx` directory, called:
+A full installation using `docker-compose.full.yml` is recommended to expose the service on Internet and to use a local instance of [Grafana](https://grafana.com/) tool, responding on port 3000. To expose on Internet, the installation server needs the certificate files into the `nginx` directory, called:
 - server.key
 - server.crt
