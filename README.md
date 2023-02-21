@@ -24,12 +24,12 @@ Database PostGreSQL:
 - `DB_USER` (string)
 - `DB_PASSWORD` (string)
 
-Timescale DB extension (TSDSystem):
+Timescale DB extension (the engine used for timeseries storage):
 - `TSD_DB` (string)
 - `TSD_DB_USER` (string)
 - `TSD_DB_PASSWORD` (string)
 
-PGAdmin:
+PGAdmin (if you choose a [full installation](#full-installation-notes)):
 - `PGADMIN_EMAIL` (string)
 - `PGADMIN_PASSWORD` (string)
 
@@ -74,8 +74,16 @@ Run:
 Init PostgreSQL database:
 - `docker compose -f docker-compose.initdb.yml up -d`
 
+The web service will respond on port `8000`.
+
 ### Full installation notes
 
-A full installation using `docker-compose.full.yml` is recommended to expose the service on Internet and to use a local instance of [Grafana](https://grafana.com/) tool, responding on port 3000. To expose on Internet, the installation server needs the certificate files into the `nginx` directory, called:
+A full installation using `docker-compose.full.yml` is recommended to expose the service on Internet (default port `80/443` respectively for `http/https`) and to use a local instance of [Grafana](https://grafana.com/) tool, responding on port 3000. To expose on Internet, the installation server needs the certificate files into the `nginx` directory, called:
 - server.key
 - server.crt
+
+For a full installation run:
+- `docker compose -f docker-compose.full.yml up -d`
+
+Init PostgreSQL database:
+- `docker compose -f docker-compose.initdb.yml up -d`
