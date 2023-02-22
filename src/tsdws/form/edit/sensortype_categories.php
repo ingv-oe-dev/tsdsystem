@@ -46,10 +46,10 @@
             "type": "object", 
             "additionalProperties": true,
             "properties": {
-                "PZ": {"type": "numeric", "title": "PZ"}, 
-                "K": {"type": "numeric", "title": "K"}, 
-                "fn": {"type": "numeric", "title": "fn"}, 
-                "S": {"type": "numeric", "title": "S"}
+                "PZ": {"type": "number", "title": "PZ"}, 
+                "K": {"type": "number", "title": "K"}, 
+                "fn": {"type": "number", "title": "fn"}, 
+                "S": {"type": "number", "title": "S"}
             }
         };
         var editor = null;
