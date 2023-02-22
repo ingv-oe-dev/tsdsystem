@@ -7,7 +7,7 @@
                 </b-form-group>
                 <b-form-group label-align-lg="right" label-align-md="right" label-align-sm="left" label-align-xs="left" id="input-group-aggregation" label="Search timeseries by:" v-slot="{ ariaDescribedby }" label-for="input-timeseries-filter" label-size="sm" label-cols-md="3" label-cols-lg="3" label-cols-sm="3" label-cols-xs="3">
                     <b-input-group prepend="Name" size="sm">
-                        <b-form-input v-model="filterTimeseriesName" :disabled="searchbyname.disabled"></b-form-input> 
+                        <b-form-input @input="fetchFilteredTimeseries(event.target.value)" v-model="filterTimeseriesName" :disabled="searchbyname.disabled"></b-form-input> 
                         <b-form-select id="input-timeseries-filter" v-model="selectedFilteredTimeseries" size="sm" :disabled="searchbyname.disabled">
                             <option :value="resetID" disabled> {{ defaultOption.filtered_timeseries }} </option>
                             <option v-for="item in filtered_timeseries" :value="item.id">[{{ item.schema }}].{{ item.name }}</option>

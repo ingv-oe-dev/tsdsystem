@@ -368,6 +368,7 @@ Class TimeseriesFromCSVController extends TimeseriesController {
 			if ($insert_result["status"]) {
 				$this->setStatusCode(201);
 				$this->response["data"]["insertion"]["inserted_rows"] += $insert_result["rows"];
+				$this->response["data"]["insertion"]["n_chunks"] = count($this->response["data"]["insertion"]["chunks"]);
 				if (array_key_exists("updatedTimeseriesTable", $insert_result) and !$insert_result["updatedTimeseriesTable"]) {
 					// Valori inseriti ma non è stata aggiornata la tabella delle serie temporali (last_time)
 					$this->setStatusCode(202);

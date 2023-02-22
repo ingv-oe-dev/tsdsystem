@@ -93,7 +93,6 @@ const tsdformRequestComponentDefinition = {
     },
     methods: {
         initialFetch() {
-            this.filterTimeseriesName = '';
             this.fetchNets();
         },
         initForm() {
@@ -340,10 +339,10 @@ const tsdformRequestComponentDefinition = {
             },
             deep: true
         },
-        searchbyname: {
+        searchbyname_active: {
             handler: function(value) {
-                if (!value.disabled) {
-                    this.filterTimeseriesName = '' + this.filterTimeseriesName;
+                if (value) {
+                    this.fetchFilteredTimeseries(this.filterTimeseriesName);
                 }
             },
             deep: true
@@ -369,11 +368,6 @@ const tsdformRequestComponentDefinition = {
         selectedTimeseriesColumns: {
             handler: function(array) {
                 this.request.columns = array ? array : []; // avoid {"columns" : null}
-            }
-        },
-        filterTimeseriesName: {
-            handler: function(value) {
-                this.fetchFilteredTimeseries(value);
             }
         },
         filtered_timeseries: {

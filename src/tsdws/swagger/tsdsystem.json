@@ -751,7 +751,7 @@
                     "in": "formData",
                     "description": "The name of the schema where timeseries tables will be archived.\n**NOTE**: **ignored** if timeseries _id_ is defined. It will be used if uploading data set up a new timeseries registration.",
                     "minLength": 1,
-                    "default": "test",
+                    "default": "public",
                     "type": "string"
                 }, {
                     "name": "name",
@@ -6077,7 +6077,7 @@
                     "description": "The name of the schema where timeseries tables will be archived",
                     "type": "string",
                     "minLength": 1,
-                    "default": "test",
+                    "default": "public",
                     "required": true
                 },
                 "name": {
