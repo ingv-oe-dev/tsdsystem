@@ -5,7 +5,8 @@
     "type": "object",
     "required": ["name"],
     "additionalProperties": false,
-    "format": "grid",
+    "format": "categories",
+    "basicCategoryTitle": "Main",
     "properties": {
         "id": {
             "title": "ID",
@@ -19,6 +20,11 @@
             "type": "string",
             "minLength": 1
         },
+        "description": {
+            "title": "Description",
+            "description": "Description",
+            "type": "string"
+        },
         "owner_id": {
             "title": "Owner",
             "description": "Set the onwer of the net",
@@ -27,6 +33,11 @@
             "options": {
                 "enum_titles": []
             }
+        },
+        "additional_info": {
+            "title": "Additional info",
+            "type": "object",
+            "additionalProperties": true
         },
         "n_nodes": {
             "title": "# nodes",

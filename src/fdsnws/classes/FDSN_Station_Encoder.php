@@ -9,7 +9,7 @@ class FDSN_Station_Encoder extends FDSN_Station {
 	public $text_response_headers = array(
 		"network" => array(
 			"Network" => "net_name", 
-			"Description" => "net_name", 
+			"Description" => "net_description", 
 			"StartTime" => "net_startdate", 
 			"EndTime" => "net_enddate", 
 			"TotalStations" => "totalnumberstations"
@@ -348,8 +348,14 @@ class FDSN_Station_Encoder extends FDSN_Station {
 		if (isset($item["net_enddate"]))
 			$netItem->addAttribute("endDate", $item["net_enddate"]);
 		$netItem->addAttribute("restrictedStatus", "open");
-		$netItem->addChild("Description", $this->sanitize($item["net_name"]));
-		$netItem->addChild("Identifier", $this->sanitize($item["net_id"]));
+		$netItem->addChild("Description", $this->sanitize($item["net_description"]));
+
+		if (isset($item["net_additional_info"])) {
+			$addInfo = $this->object_to_array(json_decode($item["net_additional_info"])); // convert to an associative array
+			if ($this->isSetArrayVal($addInfo, "doi")) {
+				$netItem->addChild("Identifier", strval($addInfo["doi"]));
+			}
+		}
 		
 		return $netItem;
 	}
@@ -363,8 +369,8 @@ class FDSN_Station_Encoder extends FDSN_Station {
 		if (isset($item["station_enddate"]))
 			$stationItem->addAttribute("endDate", $item["station_enddate"]);
 		$stationItem->addAttribute("restrictedStatus", "open");
-		$stationItem->addChild("Description", $this->sanitize($item["station_name"]));
-		$stationItem->addChild("Identifier", $this->sanitize($item["station_id"]));
+		//$stationItem->addChild("Description", $this->sanitize($item["station_name"]));
+		//$stationItem->addChild("Identifier", $this->sanitize($item["station_id"]));
 		$stationItem->addChild("Latitude", $this->sanitize($item["station_latitude"]));
 		$stationItem->addChild("Longitude", $this->sanitize($item["station_longitude"]));
 		$stationItem->addChild("Elevation", $this->sanitize($item["station_elevation"]));
@@ -409,7 +415,7 @@ class FDSN_Station_Encoder extends FDSN_Station {
 		$instrumentSensivityItem = $responseItem->addChild("InstrumentSensitivity");
 
 		if (isset($item["response_parameters"])) {
-			$addInfo = $this->object_to_array($item["response_parameters"]); // convert to an associative array
+			$addInfo = $this->object_to_array(json_decode($item["response_parameters"])); // convert to an associative array
 			
 			if ($this->isSetArrayVal($addInfo, "K")) {
 				$instrumentSensivityItem->addChild("Value", $this->sanitize($addInfo["K"]));
@@ -429,7 +435,7 @@ class FDSN_Station_Encoder extends FDSN_Station {
 	public function append_Channel_additionalInfo(&$channelItem, $item) {
 
 		if (isset($item["channel_additional_info"])) {
-			$addInfo = $this->object_to_array($item["channel_additional_info"]); // convert to an associative array
+			$addInfo = $this->object_to_array(json_decode($item["channel_additional_info"])); // convert to an associative array
 
 			if ($this->isSetArrayVal($addInfo, "Depth")) $channelItem->addChild("Depth", strval($addInfo["Depth"]));
 			if ($this->isSetArrayVal($addInfo, "Azimuth")) $channelItem->addChild("Azimuth", strval($addInfo["Azimuth"]));

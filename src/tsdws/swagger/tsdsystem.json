@@ -6554,10 +6554,20 @@
                     "type": "string",
                     "minLength": 1
                 },
+                "description": {
+                    "title": "Description",
+                    "description": "Description",
+                    "type": "string"
+                },
                 "owner_id": {
                     "title": "Owner",
                     "description": "Set the onwer of the net",
                     "type": "integer"
+                },
+                "additional_info": {
+                    "title": "Additional info",
+                    "type": "object",
+                    "additionalProperties": true
                 }
             }
         },

@@ -29,6 +29,8 @@ $function$
 CREATE OR REPLACE VIEW public.fdsn_station_dataset
 AS SELECT n.id AS net_id,
     n.name AS net_name,
+    n.description AS net_description,
+    n.additional_info AS net_additional_info,
     n.n_nodes AS totalnumberstations,
     n.starttime AS net_startdate,
     n.endtime AS net_enddate,
@@ -63,11 +65,15 @@ AS SELECT n.id AS net_id,
     dt.dynamical_range_measure_unit
    FROM ( SELECT n_a.id,
             n_a.name,
+            n_a.description,
+            n_a.additional_info,
             n_a.n_nodes,
             n_b.starttime,
             n_b.endtime
            FROM ( SELECT n_1.id,
                     n_1.name,
+                    n_1.description,
+                    n_1.additional_info,
                     count(s_1.id) AS n_nodes
                    FROM tsd_pnet.nets n_1
                      LEFT JOIN tsd_pnet.stations s_1 ON n_1.id = s_1.net_id AND s_1.remove_time IS NULL

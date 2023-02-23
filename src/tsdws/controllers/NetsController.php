@@ -88,6 +88,11 @@ Class NetsController extends RESTController {
 			$this->setInputError("Uncorrect input: 'owner_id' [int]");
 			return false;
 		}
+		// (3) $input["additional_info"] is json
+		if (array_key_exists("additional_info", $input) and !$this->validate_json($input["additional_info"])){
+			$this->setInputError("Error on decoding 'additional_info' JSON input");
+			return false;
+		}
 		
 		return true;
 	}
@@ -121,8 +126,22 @@ Class NetsController extends RESTController {
 			$this->setInputError("Uncorrect input: 'owner_id' [int]");
 			return false;
 		}
+		// (3) $input["additional_info"] is json
+		if (array_key_exists("additional_info", $input) and !$this->validate_json($input["additional_info"])){
+			$this->setInputError("Error on decoding 'additional_info' JSON input");
+			return false;
+		}
 		
 		return true;
+	}
+
+	// ====================================================================//
+	// ****************** get -net ********************//
+	// ====================================================================//
+	public function get($jsonfields=array("additional_info")) {
+	
+		parent::get($jsonfields);
+		
 	}
 
 }

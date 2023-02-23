@@ -76,6 +76,8 @@ Class FDSN_Station extends QueryManager {
 		$query = "select 
 			fdsn_station.net_id, 
 			fdsn_station.net_name,
+			fdsn_station.net_description,
+			fdsn_station.net_additional_info,
 			fdsn_station.net_startdate,
 			fdsn_station.totalnumberstations,
 			t1.selectednumberstations, 
