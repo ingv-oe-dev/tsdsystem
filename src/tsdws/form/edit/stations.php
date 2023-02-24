@@ -23,6 +23,7 @@
             <div class='column col-md-12'>
                 <button id='check' class='btn btn-success'>Validate</button>  
                 <button id='restore' class='btn btn-secondary'>Restore to Default</button>
+                <button id='coordsFromSite' class='btn btn-info'>Get coordinates from site</button>
                 <div id='valid_indicator' class='mt-1 alert alert-danger'></div>
                 <button id='submit' class='btn btn-primary' disabled>Submit</button>  
                 <?php 
@@ -53,6 +54,7 @@
         var route = "../../stations";
         var method =  id ? "PATCH" : "POST";
         var mySchema = {};
+        var sites = null;
 
         // Set action on delete button
         $(function(){
@@ -78,6 +80,19 @@
                     });
                 }
             });  
+
+            // get coordinates form site button action
+            $("#coordsFromSite").click(function(){
+                if (editor && sites) {
+                    $.each(sites, function(index, item) {
+                        if (item.id == editor.getEditor('root.site_id').getValue()) {
+                            editor.getEditor('root.lat').setValue(item.centroid.coordinates[1]);
+                            editor.getEditor('root.lon').setValue(item.centroid.coordinates[0]);
+                            editor.getEditor('root.quote').setValue(item.quote);
+                        }
+                    })
+                }
+            });
         });
 
         // Load schema and data
@@ -96,6 +111,7 @@
                             "url": "../../sites",
                             "success": function(response) {
                                 fillEnum(response.data, "site_id");
+                                sites = response.data;
                                 // load station data if station_id is defined
                                 if (id) {
                                     $.ajax({

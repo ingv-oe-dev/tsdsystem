@@ -12,34 +12,7 @@
             "title": "ID",
             "description": "Identificator",
             "type": "integer",
-            "readOnly": true,
-            "propertyOrder": 1
-        },
-        "name": {
-            "title": "Name",
-            "description": "Name",
-            "type": "string",
-            "minLength": 1,
-            "propertyOrder": 2
-        },
-        "lat": {
-            "type": "number",
-            "title": "Latitude",
-            "minimum": -90,
-            "maximum": 90,
-            "propertyOrder": 3
-        },
-        "lon": {
-            "type": "number",
-            "title": "Longitude",
-            "minimum": -180,
-            "maximum": 180,
-            "propertyOrder": 4
-        },
-        "quote": {
-            "type": ["null", "number"],
-            "title": "Quote",
-            "propertyOrder": 5
+            "readOnly": true
         },
         "net_id": {
             "title": "Net",
@@ -48,8 +21,29 @@
             "enum": [],
             "options": {
                 "enum_titles": []
-            },
-            "propertyOrder": 6
+            }
+        },
+        "name": {
+            "title": "Name",
+            "description": "Name",
+            "type": "string",
+            "minLength": 1
+        },
+        "lat": {
+            "type": "number",
+            "title": "Latitude",
+            "minimum": -90,
+            "maximum": 90
+        },
+        "lon": {
+            "type": "number",
+            "title": "Longitude",
+            "minimum": -180,
+            "maximum": 180
+        },
+        "quote": {
+            "type": ["null", "number"],
+            "title": "Quote"
         },
         "site_id": {
             "title": "Site",
@@ -58,14 +52,12 @@
             "enum": [],
             "options": {
                 "enum_titles": []
-            },
-            "propertyOrder": 7
+            }
         },
         "additional_info": {
             "title": "Additional Info",
             "description": "Additional info",
-            "type": "object",
-            "propertyOrder": 8
+            "type": "object"
         },
         "sensortype_name": {
             "title": "Sensortype",
