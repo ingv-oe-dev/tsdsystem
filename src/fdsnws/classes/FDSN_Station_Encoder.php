@@ -415,7 +415,7 @@ class FDSN_Station_Encoder extends FDSN_Station {
 		$instrumentSensivityItem = $responseItem->addChild("InstrumentSensitivity");
 
 		if (isset($item["response_parameters"])) {
-			$addInfo = $this->object_to_array(json_decode($item["response_parameters"])); // convert to an associative array
+			$addInfo = $this->object_to_array($item["response_parameters"]); // convert to an associative array
 			
 			if ($this->isSetArrayVal($addInfo, "K")) {
 				$instrumentSensivityItem->addChild("Value", $this->sanitize($addInfo["K"]));
@@ -435,7 +435,7 @@ class FDSN_Station_Encoder extends FDSN_Station {
 	public function append_Channel_additionalInfo(&$channelItem, $item) {
 
 		if (isset($item["channel_additional_info"])) {
-			$addInfo = $this->object_to_array(json_decode($item["channel_additional_info"])); // convert to an associative array
+			$addInfo = $this->object_to_array($item["channel_additional_info"]); // convert to an associative array
 
 			if ($this->isSetArrayVal($addInfo, "Depth")) $channelItem->addChild("Depth", strval($addInfo["Depth"]));
 			if ($this->isSetArrayVal($addInfo, "Azimuth")) $channelItem->addChild("Azimuth", strval($addInfo["Azimuth"]));
