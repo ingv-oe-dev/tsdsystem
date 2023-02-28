@@ -62,7 +62,6 @@
             "description": "List of all channels related to the timeseries",
             "type": "object",
             "required": ["channel_id", "add_channel_mode", "channel_list"],
-            "format": "grid-strict",
             "properties": {
                 "channel_id": {
                     "title": "Channel IDs",
@@ -80,14 +79,14 @@
                 "add_channel_mode": {
                     "type": "boolean",
                     "default": true,
-                    "title": "Select from list",
+                    "title": "Select from 'All channels list'",
                     "description": "If 'true', selected rows from 'Channel list' will be copied into the 'Channel IDs' array.",
                     "options": {
                         "grid_columns": 2
                     }
                 },
                 "channel_list": {
-                    "title": "Channel list",
+                    "title": "All channels list",
                     "description": "Use CTRL + click on row(s) for multiple selection.",
                     "type": "array",
                     "format": "table",
