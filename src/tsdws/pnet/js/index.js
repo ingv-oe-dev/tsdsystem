@@ -39,6 +39,7 @@ var app = {
             stationConfigsList: [],
             channelsList: {},
             timeseriesList: {},
+            timeseriesColumnsList: {},
             defaultOption: {
                 nets: "--- Select ---",
                 sensortypes: "--- Select ---",
@@ -161,7 +162,11 @@ var app = {
                 //self.fetchChannels({ station_id: e.detail.station_id });
                 self.fetchTimeseries({ channel_id: e.detail.channel_id });
                 self.$refs.notifications.notify(e.detail);
-            })
+            });
+            window.document.addEventListener('mapTS2channel', function(e) {
+                //console.log(e);
+                self.mapExistingTimeseries(e.detail);
+            });
         },
         fetchNets() {
             this.defaultOption.nets = "Loading...";
@@ -503,6 +508,27 @@ var app = {
                 }
             });
         },
+        fetchTimeseriesColumns(parameters) {
+            let self = this;
+            $.ajax({
+                url: self.baseURLws + "timeseries",
+                data: Object.assign(parameters, { "listCol": true }),
+                beforeSend: function(jqXHR, settings) {
+                    jqXHR = Object.assign(jqXHR, settings, { "messageText": "Loading timeseries columns" });
+                },
+                success: function(response, textStatus, jqXHR) {
+                    self.timeseriesColumnsList[parameters.id] = response.data[0].columns;
+                    self.timeseriesColumnsList[parameters.id].hidden = parameters.hidden;
+                    let n = Object.assign(jqXHR, { "messageType": "info" });
+                    self.$refs.notifications.notify(n);
+                },
+                error: function(jqXHR) {
+                    self.timeseriesColumnsList[parameters.id] = [];
+                    let n = Object.assign(jqXHR, { "messageType": "danger" });
+                    self.$refs.notifications.notify(n);
+                }
+            });
+        },
         onMapMarkerClick(el) {
             //console.log(el);
             switch (el.marker_type) {
@@ -616,6 +642,14 @@ var app = {
                 this.fetchTimeseries({ "channel_id": channel_id });
             }
         },
+        toggleTimeseriesColumnsList(timeseries_id) {
+            ///console.log(timeseries_id);
+            if (this.timeseriesColumnsList[timeseries_id]) {
+                this.timeseriesColumnsList[timeseries_id].hidden = !this.timeseriesColumnsList[timeseries_id].hidden;
+            } else {
+                this.fetchTimeseriesColumns({ "id": timeseries_id });
+            }
+        },
         selectMapMarker(station_id) {
             //console.log(station_id);
             let marker = this.$refs.leafmap.openPopupById(station_id);
@@ -723,6 +757,15 @@ var app = {
                     iframe.setAttribute("src", link);
                     break;
 
+                    //mapTS2channel
+                case 'mapTS2channel':
+                    link += "form/edit/map_ts_to_channel.php";
+                    if (id) {
+                        link += "?channel_id=" + id;
+                    }
+                    iframe.setAttribute("src", link);
+                    break;
+
                     // default
                 default:
                     break;
@@ -739,48 +782,86 @@ var app = {
                 );
             }
 
+            function postRequest(columns) {
+                // prepare input
+                let params = {
+                    "request_id": uuidv4(),
+                    "title": t.name,
+                    "id": t.id,
+                    "columns": columns
+                };
+                // apply form
+                let form = document.createElement('form');
+                form.method = 'POST';
+                form.action = "../form/plot-response/";
+                form.target = '_blank';
+                let input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'requests';
+                input.value = JSON.stringify([params]);
+                form.appendChild(input);
+                document.body.appendChild(form);
+                form.submit();
+            }
+
             var self = this;
 
-            // retrieve columns info
-            $.ajax({
-                url: self.baseURLws + "timeseries",
-                data: {
-                    id: t.id,
-                    listCol: true
-                },
-                success: function(response, textStatus, jqXHR) {
-                    if (response.data.length > 0 && response.data[0].columns && response.data[0].columns.length > 0) {
-                        // prepare input
-                        let params = {
-                            "request_id": uuidv4(),
-                            "title": t.name,
-                            "id": t.id,
-                            "columns": response.data[0].columns
-                        };
-                        // apply form
-                        let form = document.createElement('form');
-                        form.method = 'POST';
-                        form.action = "../form/plot-response/";
-                        form.target = '_blank';
-                        let input = document.createElement('input');
-                        input.type = 'hidden';
-                        input.name = 'requests';
-                        input.value = JSON.stringify([params]);
-                        form.appendChild(input);
-                        document.body.appendChild(form);
-                        form.submit();
-                        // notify message
-                        let n = Object.assign(jqXHR, { "messageType": "info" });
-                        self.$refs.notifications.notify(n);
-                    } else {
-                        // notify error
-                        let n = Object.assign(jqXHR, { "messageType": "danger", "messageText": "No columns information available" });
+            if (columns && columns.length > 0) {
+                postRequest([columns]);
+            } else {
+                // retrieve columns info
+                $.ajax({
+                    url: self.baseURLws + "timeseries",
+                    data: {
+                        id: t.id,
+                        listCol: true
+                    },
+                    success: function(response, textStatus, jqXHR) {
+                        if (response.data.length > 0 && response.data[0].columns && response.data[0].columns.length > 0) {
+                            postRequest(response.data[0].columns);
+                            // notify message
+                            let n = Object.assign(jqXHR, { "messageType": "info" });
+                            self.$refs.notifications.notify(n);
+                        } else {
+                            // notify error
+                            let n = Object.assign(jqXHR, { "messageType": "danger", "messageText": "No columns information available" });
+                            self.$refs.notifications.notify(n);
+                        }
+                    },
+                    error: function(jqXHR) {
+                        let n = Object.assign(jqXHR, { "messageType": "danger" });
                         self.$refs.notifications.notify(n);
                     }
+                });
+            }
+
+        },
+        mapExistingTimeseries(mappingObj) {
+            var self = this;
+            $.ajax({
+                url: self.baseURLws + "timeseries",
+                method: "PATCH",
+                beforeSend: function(jqXHR) {
+                    jqXHR = Object.assign(jqXHR, mappingObj, { "messageText": "Add timeseries with id='" + mappingObj.timeseries_id + "' to channel with id=" + mappingObj.channel_id + "]" });
+                },
+                data: JSON.stringify({
+                    "id": mappingObj.timeseries_id,
+                    "mapping": {
+                        "channel_id": [mappingObj.channel_id],
+                        "force": false
+                    }
+                }),
+                success: function(response, textStatus, jqXHR) {
+                    // notify message
+                    let n = Object.assign(jqXHR, { "messageType": "info" });
+                    self.$refs.notifications.notify(n);
                 },
                 error: function(jqXHR) {
                     let n = Object.assign(jqXHR, { "messageType": "danger" });
                     self.$refs.notifications.notify(n);
+                },
+                complete: function() {
+                    self.fetchTimeseries({ channel_id: mappingObj.channel_id });
                 }
             });
         }

@@ -5,35 +5,106 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
+    <!-- Load jQuery -->
+    <script src="../js-download/jquery-3.6.0.min.js"></script>
+
+    <!-- Load Select2 -->
+    <link type="text/css" rel="stylesheet" href="../js-download/select2.min.css" />
+    <script src="../js-download/select2.min.js"></script>
+
     <!-- Load required Bootstrap and BootstrapVue CSS -->
     <link type="text/css" rel="stylesheet" href="../js-download/bootstrap.min.css" />
     <link type="text/css" rel="stylesheet" href="../js-download/bootstrap-vue.min.css" />
+
+    <script>
+        $(document).ready(function() {
+            // timeseries
+            $.ajax({
+                url: "../../timeseries",
+                data: {
+                    "sort_by": "name"
+                },
+                success: function(response) {
+                    $('#ts-select').select2({
+                        placeholder: 'Select an option',
+                        data: $.map(response.data, function(item) {
+                            return {
+                                "id": item.id,
+                                "text": item.name
+                            }
+                        })
+                    });
+                },
+                error: function(jqXHR) {
+                    $('#ts-select').select2({
+                        placeholder: 'Loading failed'
+                    });
+                }
+            });
+            // bind emit signal on change option
+            $("#confirmTS").click(function() {
+                window.open('timeseries.php?id=' + $('#ts-select').val(), '_blank');
+            });
+
+            // roles
+            $.ajax({
+                url: "../../roles",
+                data: {
+                    "sort_by": "name"
+                },
+                success: function(response) {
+                    $('#role-select').select2({
+                        placeholder: 'Select an option',
+                        data: $.map(response.data, function(item) {
+                            return {
+                                "id": item.id,
+                                "text": item.name
+                            }
+                        })
+                    });
+                },
+                error: function(jqXHR) {
+                    $('#role-select').select2({
+                        placeholder: 'Loading failed'
+                    });
+                }
+            });
+            // bind emit signal on change option
+            $("#confirmRole").click(function() {
+                window.open('roles.php?id=' + $('#role-select').val(), '_blank');
+            });
+        });
+    </script>
 </head>
 
 <body>
     <div class="container" id="app">
         <h3 class=" title mt-3">TSDSystem Resources Edit Forms</h3>
         <hr>
-        <h6 class=" title mt-3">Net manager</h6>
+        <h6 class=" title mt-3">Timeseries manager</h6>
         <ul>
-            <li><a href='channels.php' target="'_blank">Channels</a></li>
-            <li><a href='digitizers.php' target="'_blank">Digitizers</a></li>
-            <li><a href='digitizertypes.php' target="'_blank">Digitizertypes</a></li>
-            <li><a href='nets.php' target="'_blank">Nets</a></li>
-            <li><a href='owners.php' target="'_blank">Owners</a></li>
-            <li><a href='sensors.php' target="'_blank">Sensors</a></li>
-            <li><a href='sensortype_categories.php' target="'_blank">Sensortype categories</a></li>
-            <li><a href='sensortypes.php' target="'_blank">Sensortypes</a></li>
-            <li><a href='sites.php' target="'_blank">Sites</a></li>
-            <li><a href='station_configs.php' target="'_blank">Stations configurations</a></li>
-            <li><a href='stations.php' target="'_blank">Stations</a></li>
-            <li><a href='timeseries.php' target="'_blank">Timeseries</a></li>
+            <li><a href='timeseries.php' target="'_blank">Add new <b>Timeseries</b></a>&nbsp;or Choose one: <select id="ts-select" style="width: 50%"></select><button class="btn-primary border" id='confirmTS'>Edit Timeseries</button></li>
+        </ul>
+        <h6 class=" title mt-3">Net manager</h6>
+        <p class="font-italic">For the editing of net resources use the <a href="../../pnet" target="_blank">PNet manager web page</a>.</p>
+        <ul>
+            <li><a href='channels.php' target="'_blank">Add new <b>Channel</b></a></li>
+            <li><a href='digitizers.php' target="'_blank">Add new <b>Digitizer</b></a></li>
+            <li><a href='digitizertypes.php' target="'_blank">Add new <b>Digitizertype</b></a></li>
+            <li><a href='nets.php' target="'_blank">Add new <b>Net</b></a></li>
+            <li><a href='owners.php' target="'_blank">Add new <b>Owner</b></a></li>
+            <li><a href='sensors.php' target="'_blank">Add new <b>Sensor</b></a></li>
+            <li><a href='sensortype_categories.php' target="'_blank">Add new <b>Sensortype category</b></a></li>
+            <li><a href='sensortypes.php' target="'_blank">Add new <b>Sensortype</b></a></li>
+            <li><a href='sites.php' target="'_blank">Add new <b>Site</b></a></li>
+            <li><a href='station_configs.php' target="'_blank">Add new <b>Station configuration</b></a></li>
+            <li><a href='stations.php' target="'_blank">Add new <b>Station</b></a></li>
         </ul>
         <h6 class=" title mt-3">User manager</h6>
         <ul>
-            <li><a href='permissions.php' target="'_blank">Permissions</a>&nbsp;<span class="badge badge-warning">admin</span></li>
-            <li><a href='roles_mapping.php' target="'_blank">Roles mapping</a>&nbsp;<span class="badge badge-warning">admin</span></li>
-            <li><a href='roles.php' target="'_blank">Roles</a>&nbsp;<span class="badge badge-warning">admin</span></li>
+            <li><a href='permissions.php' target="'_blank">Add/Edit <b>Permissions</b></a>&nbsp;<span class="badge badge-warning">admin</span></li>
+            <li><a href='roles_mapping.php' target="'_blank">Add/Edit <b>Roles mapping</b></a>&nbsp;<span class="badge badge-warning">admin</span></li>
+            <li><a href='roles.php' target="'_blank">Add new <b>Role</b></a>&nbsp;or Choose one: <select id="role-select" style="width: 50%"></select><button class="btn-primary border" id='confirmRole'>Edit Role</button>&nbsp;<span class="badge badge-warning">admin</span></li>
         </ul>
     </div>
 </body>
