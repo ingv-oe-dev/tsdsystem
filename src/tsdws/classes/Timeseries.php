@@ -161,13 +161,22 @@ Class Timeseries extends QueryManager {
 			$stmt = $this->myConnection->prepare($next_query);
 			$stmt->execute();
 			
-			// create hypertable (TimescaleDB)
-				// calculate chunk_time_interval
-			$chunk_time_interval = $this->getChunkTimeInterval($input);
-			$chunk_time_interval_string = isset($chunk_time_interval) ? ", chunk_time_interval => $chunk_time_interval" : "";
-			$next_query = "SELECT create_hypertable('" . $input["schema"] . "." . $input["name"] . "','" . $this->TIME_COLUMN_NAME . "'" . $chunk_time_interval_string . ", if_not_exists => TRUE)";
-			$stmt = $this->myConnection->prepare($next_query);
-			$stmt->execute();
+			// select if a view <schema>.<name> already exists
+			// THE REGISTRATION OF AN EXISTING TIMESERIES IN FORM OF 
+			// MATERIALIZED VIEW (created with the same getenv('TSD_DB_USER') user) IS AVAILABLE
+			$next_query = "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema LIKE LOWER('" . $input["schema"] . "') AND table_name LIKE LOWER('" . $input["name"] . "') AND UPPER(table_type) LIKE 'VIEW'";
+			$sqlResult = $this->myConnection->query($next_query);
+			$view_exists = $sqlResult->fetchColumn();
+			
+			if ($view_exists < 1) {
+				// create hypertable (TimescaleDB)
+					// calculate chunk_time_interval
+				$chunk_time_interval = $this->getChunkTimeInterval($input);
+				$chunk_time_interval_string = isset($chunk_time_interval) ? ", chunk_time_interval => $chunk_time_interval" : "";
+				$next_query = "SELECT create_hypertable('" . $input["schema"] . "." . $input["name"] . "','" . $this->TIME_COLUMN_NAME . "'" . $chunk_time_interval_string . ", if_not_exists => TRUE)";
+				$stmt = $this->myConnection->prepare($next_query);
+				$stmt->execute();
+			}
 			
 			// insert into timeseries table
 			$next_query = "INSERT INTO " . $this->tablename . " (schema, name, sampling, metadata, public, with_tz, create_user) VALUES (
