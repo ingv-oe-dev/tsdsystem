@@ -86,7 +86,7 @@
                     }
                 },
                 "channel_list": {
-                    "title": "All channels list",
+                    "title": "All channels list (deprecated channels are not listed)",
                     "description": "Use CTRL + click on row(s) for multiple selection.",
                     "type": "array",
                     "format": "table",

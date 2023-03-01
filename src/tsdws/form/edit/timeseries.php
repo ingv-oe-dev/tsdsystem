@@ -295,6 +295,7 @@
             var custom_enum = new Array();
             var custom_enum_titles = new Array();
             for (var i=0; i<data.length; i++) {
+                if (data[i].deprecated) continue;
                 custom_enum.push(data[i].id);
                 custom_enum_titles.push("[ID: " + data[i].id + "] " + data[i].net_name + " -> " + data[i].station_name + " -> " + data[i].sensortype_name +" -> " + data[i].name + " from " + data[i].start_datetime.substr(0,10));
             }
