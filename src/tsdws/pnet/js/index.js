@@ -864,6 +864,20 @@ var app = {
                     self.fetchTimeseries({ channel_id: mappingObj.channel_id });
                 }
             });
+        },
+        getSelectedName(array, id) {
+            for (var i = 0; i < array.length; i++) {
+                if (array[i].id == id) return array[i].name;
+            }
+            return '';
+        },
+        openFDSNStationXML(params) {
+            let wsURL = "/fdsnws/station/1/query?includerestricted=true&format=xml";
+            let URL = wsURL + "&level=" + (params.level ? params.level : "station");
+            if (params.network && params.network != '') URL += "&network=" + params.network;
+            if (params.station && params.station != '') URL += "&station=" + params.station;
+            if (params.channel && params.channel != '') URL += "&channel=" + params.channel;
+            window.open(URL, target = '_blank');
         }
     },
     watch: {
@@ -971,6 +985,11 @@ var app = {
                 !this.notifications[n].messageRead && (this.notifications[n].messageType == 'danger' || this.notifications[n].messageType == 'warning') ? counter++ : null;
             }
             return counter;
+        },
+        selectedNames() {
+            return {
+                "net": this.getSelectedName(this.nets, this.filters.net_id)
+            }
         }
     }
 };
