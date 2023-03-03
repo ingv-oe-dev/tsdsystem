@@ -381,12 +381,19 @@ Class Timeseries extends QueryManager {
 				$sqlResult = $this->myConnection->query($next_query);
 				$record = $sqlResult->fetch(PDO::FETCH_ASSOC);	
 
-				// calculate chunk_time_interval
-				$chunk_time_interval = $this->getChunkTimeInterval($input);
-				$next_query = "SELECT set_chunk_time_interval('" . $record["schema"] . "." . $record["name"] . "', " . $chunk_time_interval . ");";
-				//echo $next_query;
-				$stmt = $this->myConnection->prepare($next_query);
-				$stmt->execute();
+				// check if MATERIALIZED VIEW
+				$next_query = "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema LIKE LOWER('" . $record["schema"] . "') AND table_name LIKE LOWER('" . $record["name"] . "') AND UPPER(table_type) LIKE 'VIEW'";
+				$sqlResult = $this->myConnection->query($next_query);
+				$view_exists = $sqlResult->fetchColumn();
+				
+				if ($view_exists < 1) {
+					// calculate chunk_time_interval
+					$chunk_time_interval = $this->getChunkTimeInterval($input);
+					$next_query = "SELECT set_chunk_time_interval('" . $record["schema"] . "." . $record["name"] . "', " . $chunk_time_interval . ");";
+					//echo $next_query;
+					$stmt = $this->myConnection->prepare($next_query);
+					$stmt->execute();
+				}
 			}
 
 			// insert mappings
