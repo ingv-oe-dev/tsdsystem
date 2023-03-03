@@ -59,6 +59,8 @@ const tsdformRequestComponentDefinition = {
                 selectedTimeTypeCount: null
             },
             period: {
+                firstAvailable: null,
+                lastAvailable: null,
                 start: {
                     Date: null,
                     DateSelected: null,
@@ -258,9 +260,10 @@ const tsdformRequestComponentDefinition = {
                 axios
                     .get(url)
                     .then(response => {
-                        self.filtered_timeseries = response.data.data;
-                        self.selectedFilteredTimeseries = self.resetID;
+
                         try {
+                            self.filtered_timeseries = response.data.data;
+                            self.selectedFilteredTimeseries = self.resetID;
                             self.selectedFilteredTimeseries = self.filtered_timeseries[0].id;
                         } catch (e) {
 
@@ -286,6 +289,8 @@ const tsdformRequestComponentDefinition = {
                         try {
                             self.timeseries_columns = response.data.data[0].columns;
                             self.firstMapping = response.data.data[0].firstMapping;
+                            self.period.firstAvailable = response.data.data[0].first_time ? response.data.data[0].first_time : "unknown";
+                            self.period.lastAvailable = response.data.data[0].last_time ? response.data.data[0].last_time : "unknown";
                         } catch (e) {}
                         self.selectedTimeseriesColumns = self.timeseries_columns;
                     }

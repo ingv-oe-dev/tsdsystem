@@ -33,7 +33,7 @@
                 ),
                 "marker" => array(
                     "color" => "#000000",
-                    "size" => 8
+                    "size" => 4
                 ),
             );
             if ($key > 0) {
@@ -46,14 +46,47 @@
         $chart["layout"] = array(
             "title" => $request["title"],
             "xaxis" => array(
-                "title" => "time"
+                "title" => "time"/*,
+                "rangeslider" => array(),
+                "rangeselector" => array(
+                    "buttons" => array(
+                        array(
+                            "step" => 'day',
+                            "stepmode" => 'backward',
+                            "count" => 1,
+                            "label" => '1d'
+                        ),
+                        array(
+                            "step" => 'day',
+                            "stepmode" => 'backward',
+                            "count" => 7,
+                            "label" => '1w'
+                        ),
+                        array(
+                            "step" => 'month',
+                            "stepmode" => 'backward',
+                            "count" => 1,
+                            "label" => '1m'
+                        ),
+                        array(
+                            "step" => 'year',
+                            "stepmode" => 'backward',
+                            "count" => 1,
+                            "label" => '1y'
+                        ),
+                        array(
+                            "step" => 'all'
+                        )
+                    )
+                )*/
             ),
             "legend" => array(
                 "showLegend" => true,
                 "orientation" => "h",
                 "x" => 0,
                 "y" => -0.3
-            )
+            ),
+            "shapes" => array()
         );
         if (count($request["columns"]) > 0) {
             $diff = count($request["columns"])%2==0 ? [3, 3] : [2, 3];

@@ -30,7 +30,7 @@
                         data: $.map(response.data, function(item) {
                             return {
                                 "id": item.id,
-                                "text": item.name
+                                "text": item.schema + '.' + item.name
                             }
                         })
                     });
