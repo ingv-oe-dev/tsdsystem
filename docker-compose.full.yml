@@ -22,16 +22,22 @@ services:
       service: frontend
     depends_on:
       - app
-#  grafana:
-#    extends:
-#      file: docker-services.yml
-#      service: grafana
-#    volumes:
-#      - "grafana-storage:/var/lib/grafana"
-#  renderer:
-#    extends:
-#      file: docker-services.yml
-#      service: renderer
+  grafana:
+    extends:
+      file: docker-services.yml
+      service: grafana
+    volumes:
+      - "grafana-storage:/var/lib/grafana"
+    secrets:
+      - grafana_admin_password
+  renderer:
+    extends:
+      file: docker-services.yml
+      service: renderer
 volumes:
   db_data:
-#  grafana-storage:
+  grafana-storage:
+
+secrets:
+  grafana_admin_password:
+    file: .grafana_admin_password
