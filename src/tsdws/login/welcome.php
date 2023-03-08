@@ -38,13 +38,18 @@
             </div>
           </div>
           <div class="row justify-content-center">
-            <div class="col-xl-5 col-md-8">
+            <div class="col-xl-4 col-md-8">
+              <p class='mt-4 text-light'>Links</p>
               <p class='mt-4'><a href='../../swagger/tsdsystem' target='_blank'>Swagger UI</a></p>
-              <p class='mt-4'><a href='../pnet'>PNet web app</a></p>
+              <p class='mt-3'><a href='../pnet'>PNet web app</a></p>
               <?php if ($email != '') { ?>  
-                <p class='mt-4'><a href='../form' target='_blank'>Demo Timeseries request</a></p>
+                <p class='mt-3'><a href='../form' target='_blank'>Timeseries request</a> <span class='badge text-success text-italic'>[demo]</span></p>
               <?php } ?>
-              <p class='mt-4'><a href='../form/edit' target='_blank'>Resources edit forms</a></p>
+            </div>
+            <div class="col-xl-4 col-md-8">
+              <p class='mt-4 text-light'>Tools <span class='badge text-info text-italic'>[Full installation only]</span></p>
+              <p class='mt-4'><a href='../../grafana' target='_blank'>Grafana</a></p>
+              <p class='mt-3'><a href='../../pgadmin4' target='_blank'>PGAdmin</a></p>
             </div>
           </div>
         </div>
