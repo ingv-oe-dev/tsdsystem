@@ -44,6 +44,7 @@
               <p class='mt-3'><a href='../pnet'>PNet web app</a></p>
               <?php if ($email != '') { ?>  
                 <p class='mt-3'><a href='../form' target='_blank'>Timeseries request</a> <span class='badge text-success text-italic'>[demo]</span></p>
+                <p class='mt-3'><a href='../form/edit' target='_blank'>Resources edit forms</a></p>
               <?php } ?>
             </div>
             <div class="col-xl-4 col-md-8">
