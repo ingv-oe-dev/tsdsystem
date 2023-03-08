@@ -56,6 +56,10 @@ PGAdmin (if you choose a [full installation](#full-installation-notes)):
 - `PGADMIN_EMAIL` (string)
 - `PGADMIN_PASSWORD` (string)
 
+Public URL  
+*[if you choose a [full installation](#full-installation-notes) - it actually indicates to Grafana service the URL where to render the snapshots of the dashboards]*:
+- `PUBLIC_URL` (string)
+
 To control debug level:
 - `ENV` ('*development*' or '*production*')
 
@@ -75,8 +79,6 @@ SMTP settings (for emails sending, e.g. on users registration):
 Regexp pattern for users' email registration:
 - `REG_PATTERN` (PCRE2 [PHP >=7.3] - if not set, it allows any string)
 
-Public URL:
-- `PUBLIC_URL`
 
 ## TSDSystem installation
 
@@ -116,13 +118,27 @@ A full installation using `docker-compose.full.yml` is recommended to expose the
 For a full installation run:
 - `docker compose -f docker-compose.full.yml up -d`
 
->**Note:** It will install a local instance of [PGAdmin](https://www.pgadmin.org/) tool, responding on port `5050/5051` respectively for `http/https` protocols.
+**Note**: The full installation will also install:
+- a local instance of [PGAdmin](https://www.pgadmin.org/) tool, whose interface will respond at url: `https://<server_name>/pgadmin4`;
+- a local instance of [Grafana](https://grafana.com/) tool, whose interface will respond at url: `https://<server_name>/grafana`;
 
->**Hint:** It is also available the installation of a local instance of [Grafana](https://grafana.com/) tool, responding on port `3000`, by uncommenting lines in files:
->- `docker-compose.full.yml` (`services:grafana` and `volumes:grafana-storage` sections);
->- `docker-services.yml` (`services:grafana` and `services:renderer` sections).
+>**Notice**
+>  
+> For security reasons, if you choose a full installation, the 
+"compose" of the Grafana service will require a prior creation under `tsdsystem` folder of the file `.grafana_admin_password` containing the password used by the Grafana `admin` user. This action negate the use of default password `admin` indicated from [official documentation](https://grafana.com/docs/grafana/latest/setup-grafana/sign-in-to-grafana/) to access in the Grafana interface.
+>
 
 ## Database PostgreSQL initialization
 
 Regardless the choice of a [Basic](#basic) or [Full](#full) installation, the correct start up of the service requires the initialization of the PostgreSQL database structure by running the command:
 - `docker compose -f docker-compose.initdb.yml up -d`
+
+# Update software with future commits
+Run the following commands:
+```
+git pull https://github.com/ingv-oe-dev/tsdsystem.git
+
+docker compose -f docker-compose.full.yml build --no-cache frontend
+
+docker compose -f docker-compose.full.yml up -d
+```
