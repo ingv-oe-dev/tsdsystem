@@ -6,7 +6,8 @@ $response = array();
 $sl = new SecureLogin();
 
 $email = $_GET['email'];
-$pattern = '/[.]*@[ct\.]*ingv\.it/i'; // solo ingv
+//$pattern = '/[.]*@[ct\.]*ingv\.it/i'; // solo ingv
+$pattern = getenv("REG_PATTERN") ? getenv("REG_PATTERN") : "/.*/i"; // tutti altrimenti
 
 if(preg_match($pattern, $email)) {
 

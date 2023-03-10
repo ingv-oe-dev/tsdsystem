@@ -71,8 +71,8 @@ Class Mailer {
                         )
                     );
                 }
-                $mail->From='TSDSystem.ingvoe@ct.ingv.it';
-                $mail->FromName = "TSDSystem";
+                $mail->From = getenv("SMTP_FROM_ADDRESS") ? getenv("SMTP_FROM_ADDRESS") : "admin.tsdystem@ct.ingv.it";
+                $mail->FromName = getenv("SMTP_FROM_NAME") ? getenv("SMTP_FROM_NAME") : "TSDSystem";
                 $mail->AddAddress($addresses[$i]["email"], $addresses[$i]["email"]);
                 $mail->Subject = $subject;
                 $mail->Body = $body;

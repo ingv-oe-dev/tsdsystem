@@ -19,6 +19,17 @@ services:
       ADMIN_ID: "${ADMIN_ID}"
       ADMIN_PASSWORD: "${ADMIN_PASSWORD}"
       ADMIN_EMAIL: "${ADMIN_EMAIL}"
+      ENV: "${ENV}"
+      EPSG_DEGREE: "${EPSG_DEGREE}"
+      EPSG_M: "${EPSG_M}"
+      SMTP_HOST: "${SMTP_HOST}"
+      SMTP_USERNAME: "${SMTP_USERNAME}"
+      SMTP_PASSWORD: "${SMTP_PASSWORD}"
+      SMTP_AUTH: "${SMTP_AUTH}"
+      SMTP_SECURE: "${SMTP_SECURE}"
+      SMTP_FROM_ADDRESS: "${SMTP_FROM_ADDRESS}"
+      SMTP_FROM_NAME: "${SMTP_FROM_NAME}"
+      REG_PATTERN: "${REG_PATTERN}"
     working_dir: /var/www/html/tsdws
     volumes:
       - ./src:/var/www/html

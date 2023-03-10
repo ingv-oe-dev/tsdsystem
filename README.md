@@ -61,7 +61,7 @@ Public URL
 - `PUBLIC_URL` (string)
 
 To control debug level:
-- `ENV` ('*development*' or '*production*')
+- `ENV` (`development` or `production`)
 
 ### Optional variables
 
@@ -71,10 +71,13 @@ Spatial information:
 
 SMTP settings (for emails sending, e.g. on users registration):
 - `SMTP_HOST`
-- `SMTP_USERNAME`
-- `SMTP_PASSWORD`
-- `SMTP_AUTH`
-- `SMTP_SECURE`
+- If SMTP server requires credentials set `SMTP_AUTH = 1` and:
+  - `SMTP_USERNAME`
+  - `SMTP_PASSWORD`
+  - `SMTP_SECURE` (if you want to use STARTTLS, try `tls` or `ssl` if you want to use SMTPS -SSL)
+- To customize FROM ADDRESS and FRM ADDRESS NAME:
+  - `SMTP_FROM_ADDRESS`
+  - `SMTP_FROM_NAME`
 
 Regexp pattern for users' email registration:
 - `REG_PATTERN` (PCRE2 [PHP >=7.3] - if not set, it allows any string)
