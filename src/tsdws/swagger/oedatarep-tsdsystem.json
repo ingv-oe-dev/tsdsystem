@@ -19,8 +19,8 @@
         "description": "End-point for timeseries stored into the TSDSystem instance of OEDataRep"
     }],
     "schemes": [
-        "http",
-        "https"
+        "https",
+        "http"
     ],
     "paths": {
         "/timeseries/{id}/values": {

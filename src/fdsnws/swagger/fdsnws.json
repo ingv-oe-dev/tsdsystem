@@ -15,6 +15,7 @@
     },
     "basePath": "/fdsnws/station/1",
     "schemes": [
+        "https",
         "http"
     ],
     "paths": {

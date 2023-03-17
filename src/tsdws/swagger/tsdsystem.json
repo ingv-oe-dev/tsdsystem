@@ -64,8 +64,8 @@
         "description": "Get information about the web service"
     }],
     "schemes": [
-        "http",
-        "https"
+        "https",
+        "http"
     ],
     "paths": {
         "/token": {
