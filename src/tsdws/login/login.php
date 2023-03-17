@@ -22,7 +22,7 @@ if ($result["status"]) {
 	require_once('..'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'Users.php');
 	$user = new Users($result["user_id"]);
 	$adminPermissions = $user->getAdminPermissions();
-	$isAdmin = (isset($adminPermissions["admin"]) and $adminPermissions["admin"]) or ($_SESSION["userId"] == getenv("ADMIN_ID"));
+	$isAdmin = (isset($adminPermissions["admin"]) and $adminPermissions["admin"]) || ($_SESSION["userId"] == getenv("ADMIN_ID"));
 	$_SESSION["isAdmin"] = $isAdmin;
 }
 
