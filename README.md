@@ -80,7 +80,7 @@ SMTP settings (for emails sending, e.g. on users registration):
   - `SMTP_FROM_NAME`
 
 Regexp pattern for users' email registration:
-- `REG_PATTERN` (PCRE2 [PHP >=7.3] - if not set, it allows any string)
+- `REG_PATTERN` (PCRE2 [PHP >=7.3] - if not set, it allows any string) [*for example, to allow only INGV emails use the following regular expression*: `/[.]*@ingv\.it/i`]
 
 
 ## TSDSystem installation
@@ -136,7 +136,7 @@ For a full installation run:
 Regardless the choice of a [Basic](#basic) or [Full](#full) installation, the correct start up of the service requires the initialization of the PostgreSQL database structure by running the command:
 - `docker compose -f docker-compose.initdb.yml up -d`
 
-# Update software with future commits
+## Update software with future commits
 Run the following commands:
 ```
 git pull https://github.com/ingv-oe-dev/tsdsystem.git

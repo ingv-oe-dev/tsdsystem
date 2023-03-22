@@ -21,7 +21,7 @@ const plotlyChartComponentDefinition = {
         vueself._chart_config = {
             responsive: true,
             //staticPlot: true,
-            editable: true,
+            //editable: true, // removed to avoid shapes editing
             /*toImageButtonOptions: {
             	format: 'svg', // one of png, svg, jpeg, webp
             	filename: 'custom_image',
@@ -76,7 +76,7 @@ const plotlyChartComponentDefinition = {
         loadData: function(element, index) {
             let vueself = this;
             let wsURL = 'proxy-request.php';
-            wsURL = "/tsdws/timeseries/" + element.request.id + "/values";
+            wsURL = "/github/tsdsystem/src/tsdws/timeseries/" + element.request.id + "/values";
 
             $.ajax({
                 url: wsURL,
@@ -124,12 +124,10 @@ const plotlyChartComponentDefinition = {
                                 }
 
                                 // thresholds
+                                yrange = vueself.chart.layout[label].type == "log" ? [-Math.inf, Math.inf] : [-(Math.min.apply(null, element.y)), Math.max.apply(null, element.y)]
                                 vueself.plotThresholds(
                                     thresholds = columns_info[i].thresholds,
-                                    range = {
-                                        x: [element.x[0], element.x[element.x.length - 1]],
-                                        y: [-(Math.min.apply(null, element.y)), Math.max.apply(null, element.y)]
-                                    },
+                                    yrange = yrange,
                                     hide = !element.request.showThresholds
                                 );
                             }
@@ -145,78 +143,88 @@ const plotlyChartComponentDefinition = {
             });
 
         },
-        plotThresholds: function(thresholds, range, hide) {
-            console.log(thresholds, range);
+        plotThresholds: function(thresholds, yrange, hide) {
+            //console.log(thresholds, yrange);
             if (thresholds && Array.isArray(thresholds)) {
+
+                this.chart.layout.shapes = [];
+
                 for (let i = 0; i < thresholds.length; i++) {
+
                     if (thresholds[i].from_t) {
                         this.chart.layout.shapes.push({
                             type: 'line',
-                            x0: range.x[0],
+                            xref: 'paper',
+                            x0: 0,
                             y0: thresholds[i].from_t,
-                            x1: range.x[1],
+                            x1: 1,
                             y1: thresholds[i].from_t,
                             line: {
                                 //color: '#000',
                                 width: 0,
                                 //dash: 'dot'
                             },
-                            layer: 'below',
-                            editable: false
+                            layer: 'below'
                         });
                     }
+
                     if (thresholds[i].from_t && thresholds[i].to_t) {
                         this.chart.layout.shapes.push({
                             type: 'rect',
-                            x0: range.x[0],
+                            xref: 'paper',
+                            x0: 0,
                             y0: thresholds[i].from_t,
-                            x1: range.x[1],
+                            x1: 1,
                             y1: thresholds[i].to_t,
                             fillcolor: thresholds[i].color,
                             opacity: 0.2,
                             line: {
                                 width: 0
                             },
-                            layer: 'below',
-                            editable: false
+                            layer: 'below'
                         });
                     }
+
                     if (!thresholds[i].from_t && thresholds[i].to_t) {
                         this.chart.layout.shapes.push({
                             type: 'rect',
-                            x0: range.x[0],
-                            y0: range.y[0],
-                            x1: range.x[1],
+                            xref: 'paper',
+                            x0: 0,
+                            y0: yrange[0],
+                            x1: 1,
                             y1: thresholds[i].to_t,
                             fillcolor: thresholds[i].color,
                             opacity: 0.2,
                             line: {
                                 width: 0
                             },
-                            layer: 'below',
-                            editable: false
+                            layer: 'below'
                         });
                     }
+
                     if (thresholds[i].from_t && !thresholds[i].to_t) {
                         this.chart.layout.shapes.push({
                             type: 'rect',
-                            x0: range.x[0],
+                            xref: 'paper',
+                            x0: 0,
                             y0: thresholds[i].from_t,
-                            x1: range.x[1],
-                            y1: range.y[1],
+                            x1: 1,
+                            y1: yrange[1],
                             fillcolor: thresholds[i].color,
                             opacity: 0.2,
                             line: {
                                 width: 0
                             },
-                            layer: 'below',
-                            editable: false
+                            layer: 'below'
                         });
                     }
                 }
-            }
-            if (hide) {
-                this.showThresholds = false;
+
+                this.relayout();
+
+                if (hide) {
+                    this.showThresholds = false;
+                }
             }
         },
         newRandomData: function() {

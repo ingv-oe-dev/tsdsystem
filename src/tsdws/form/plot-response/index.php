@@ -24,7 +24,7 @@
 
     <!-- Latest compiled and minified plotly.js JavaScript -->
     <script src="../js-download/plotly-latest.min.js"></script>
-    <!--<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>-->
+    <!--<script src="https://cdn.plot.ly/plotly-2.18.2.min.js"></script>-->
 
     <script>
         var charts = JSON.parse('<?php echo json_encode($charts); ?>');
