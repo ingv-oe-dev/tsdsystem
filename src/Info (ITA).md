@@ -1,13 +1,11 @@
-# Come utilizzare il web service del TSDSystem (*test per amministratori*)
+# Come utilizzare il web service del TSDSystem (*guida per gli amministratori*)
 
-## Operazioni iniziali
-Unica variabile d'ambiente da settare **necessariamente**  è `SERVER_KEY`.  
-Il resto si può provare ad ignorare; in tal caso testare se tutto funziona ugualmente. Sicuramente non verranno inviate email all'utente che registrerete.  
-> Ricordo a tal proposito che nell'ultimo commit ho previsto l'inserimento di una variabile d'ambiente `REG_PATTERN`, utilizzata dallo script che gestisce la registrazione dell'utente, come pattern per l'email accettate dal sistema.  
-> Quindi, dato che non la valorizzerete, il sistema accetterà qualsiasi nome vogliate utilizzare al momento (*finora era stato utilizzato un pattern che accettasse solo indirizzi email INGV*)
+Le operazioni di seguito riportate puntano all'host `localhost` ipotizzando l'esecuzione delle richieste sulla stessa macchina dove viene installato il servizio.
 
 ## Registrazione utente
-Vi sarà possibile registrare l'utente direttamente tramite richiesta HTTP, senza passare dall'interfaccia web, chiamando il seguente URL:
+Il sistema inizialmente riconoscerà un solo utente identificato dalle variabili d'ambiente `ADMIN_EMAIL` e `ADMIN_PASSWORD` impostate nel file `.env` di tipo *super-admin* al quale viene concesso qualsiasi tipo di operazione.
+
+**Fermo restando la possibilità di utilizzare tale utente per le operazioni iniziali**, vi sarà possibile registrare un utente direttamente tramite richiesta HTTP, senza passare dall'interfaccia web, chiamando il seguente URL:
 
 http://localhost/tsdws/login/registration.php  
 
@@ -29,6 +27,8 @@ Oltre al messaggio di conferma ritornata dal POST, potrete controllare l'avvenut
 
 
 > Per fare in modo che l'utente venga **effettivamente abilitato** ad eseguire richieste al web service,valorizzare nel record di pertinenza dell'utente, il campo `confirmed` (simulando la conferma da parte dell'amministratore quando riceve l'email). Per fare ciò potrete tranquillamente copiare il valore che trovate in `registered`.
+>
+>**Nota**: qualora sia stata correttamente impostata la configurazione SMTP all'interno del file `.env`, il sistema invierà un'email di registrazione all'utente che abbia voluto registrarsi tramite interfaccia e un'email contenente un link per confermare la registrazione all'amministratore (all'indirizzo indicato in `ADMIN_EMAIL` nel file `.env`).
 
 ## Autorizzare l'utente a manipolare la risorsa Timeseries
 Per fare in modo che l'utente possa registrare una nuova serie temporale, inserire valori e leggerne il contenuto, è necessario configurare i relativi permessi. La strada più veloce per fare ciò è inserire un nuovo record nella tabella:  
@@ -52,6 +52,7 @@ dove, al campo `member_id` si inserirà il relativo `id` del record dell'utente 
     }
 }
 ``` 
+Lo stesso tipo di operazione può essere effettuata tramite interfaccia web alla pagina https://localhost/tsdws/form/edit/, alla voce "*Add/Edit Permissions*".
 
 ## I token JWT (JSON Web Tokens)
 Qualora le richieste al web service vengano fatte dall'interfaccia web predisposta, le autorizzazioni e i permessi assegnati agli utenti vengono riconosciuti tramite le informazioni contenute in sessione (valorizzata in fase di login nell'interfaccia).
@@ -74,8 +75,10 @@ email=carmelocassisi%40gmail.com&password=mypassword
 ```
 {"error":null,"statusCode":201,"token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOjI0LCJuYmYiOjE2NTcxOTM0MDAsImV4cCI6MTY1OTc4NTQwMH0.yZP7bsgLYgn_4Ys4fQiuvL2Y5mPF4PpyP3YQ1CGAF74"}
 ```
-L'esempio mostrato ritornerà un token in cui vengono inserite (nel payload), l'`id` dell'utente ed eventualmente tutti i permessi assegnati all'utente, o per lo specifico *scope*.
-Nel caso in cui, ad esempio, si voglia ottenere un token specifico per leggere serie temporali, allora è possibile specificare lo *scope* `timeseries-read` o `timeseries-edit` per uno specifico per la scrittura. **Esempio**:
+Questo richiesto è il tipo di token più generico. In risposta a questa richiesta, il servizio ritornerà un token in cui verrà inserito l'`id` dell'utente nel payload, per permettere al web service di fare gli opportuni controlli sui diritti dell'utente. 
+>Per visualizzare in chiaro il contenuto del payload è possibile utilizzare la pagina predisposta dal sito di [JWT](https://jwt.io/). Basta incollare il token nell'area di testo intitolata "*Encoded*" per leggere il contenuto decodificato nell'area di testo intitolata "*Decoded*".
+
+E' possibile anche generare token più "specifici", che incorporeranno direttamente i permessi assegnati all'utente all'interno del payload, passando alla richiesta lo *scope* del token (per i dettagli si veda l'interfaccia [Swagger](https://localhost/swagger-ui/dist/tsdsystem.php#/token/post_token) predisposta). Nel caso in cui, ad esempio, si voglia ottenere un token specifico per leggere serie temporali, allora è possibile specificare lo *scope* `timeseries-read` o `timeseries-edit` per uno specifico per la scrittura. **Esempio**:
 
 ```
 POST /tsdws/token HTTP/1.1
@@ -101,9 +104,9 @@ Authorization: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOjI0LCJuYmYiOjE2
 Content-Type: application/json
 Content-Length: 496
 {
-    "schema": "oedatarep",
+    "schema": "test",
     "name": "weather_metrics",
-    "sampling": 600,
+    "sampling": 60,
     "columns": [
         {
             "name":"temp_c",
@@ -124,12 +127,12 @@ Content-Length: 496
     ]
 }
 ```
-L'esempio mostrato indica che la serie con nome "*weather_metrics*" deve essere salvata in uno schema specifico "*oedatarep*" (se non esiste lo crea), ed ha un campionamento a 600 secondi (vedi campo `sampling` - *serve al database TimescaleDB per capire che tipologia di split utilizzare per le tabelle che ne conterranno i valori*).  
+L'esempio mostrato indica che la serie con nome (`name`) "*weather_metrics*" deve essere salvata in uno `schema` specifico "*test*" (se non esiste lo crea), ed ha un campionamento a 60 secondi (vedi campo `sampling` - *serve al database TimescaleDB per capire che tipologia di partizionamento utilizzare per le tabelle che ne conterranno i valori*).  
 
-Il campo `columns` elenca le metriche relative alla serie temporale (es. per serie temporale multiparametriche). E' un array di coppie (`name`, `type`), dove per `name` va bene qualsiasi stringa (di lunghezza < 255 caratteri) e per `type` (*string*) viene indicato qualsiasi formato numerico accettato da PostGreSQL (es. *smallint* | *integer* | *double precision*). **Nel caso più comune è un array di lunghezza = 1** (serie univariata).
+Il campo `columns` elenca le metriche relative alla serie temporale (es. nel caso di serie multiparametriche). Viene rappresentato da un array di coppie (`name`, `type`), dove per `name` (*string* di lunghezza < 255 caratteri) sono ammesse solo lettere minuscole, numeri e caratteri di sottolineatura, e per `type` (*string*) viene indicato qualsiasi formato numerico accettato da PostGreSQL (es. *smallint* | *integer* | *double precision*). **Nel caso più comune è un array di lunghezza = 1** (serie univariata).
 > **Non è necessario indicare la colonna relativa al tempo** (creata di default con nome `time`). 
 
-Nel caso in cui non viene specificato il campo `columns`, il web service utilizzerà un valore default, del tipo (serie univariata):
+Nel caso in cui non venga specificato il campo `columns`, il web service utilizzerà `value` come colonna di default (supponendo essere una serie univariata), del tipo:
 ```
 "columns": [
     {
@@ -145,7 +148,7 @@ La risposta con successo alla suddetta richiesta sarà un JSON come il seguente:
     "params": {
         "schema": "oedatarep",
         "name": "weather_metrics",
-        "sampling": 600,
+        "sampling": 60,
         "columns": [
             {
                 "name": "temp_c",
@@ -198,6 +201,7 @@ La risposta con successo alla suddetta richiesta sarà un JSON come il seguente:
 }
 ```
 L'informazione principale risiede nel campo `data`, che indica l'`id` della nuova serie temporale registrata.
+>**Nota**: Qualora esista già una serie temporale con stesso `schema` e `name`, allora la richiesta rispondera con `"statusCode":207`, codice che indica che nessun record è stato registrato. Il campo `data` della risposta infatti indicherà `"rows":0` e come `id` l'identificativo della serie già registrata con gli stessi `schema` e `name`.
 
 ### Lista delle Timeseries registrate
 Lo stesso endpoint:
@@ -213,15 +217,15 @@ Content-Type: application/json
 ```
 
 ## Inserire i valori su una Timeseries registrata
-La registrazione di una nuova serie temporale può essere effettuata tramite l'endpoint:
+L'inserimento dei valori di una serie temporale può essere effettuata tramite una richiesta HTTP di tipo `POST` all'URL composto come segue:
 
-http://localhost/tsdws/timeseries/values
+http://localhost/tsdws/timeseries/{id}/values?insert=[IGNORE|UPDATE]
 
-passando un JSON come da esempio mostrato sotto.
+passando come `{id}` l'identificativo della serie temporale, e nel body della richiesta un JSON come da esempio mostrato sotto.
 
 ### Esempio di chiamata HTTP (POST):
 ```
-POST /tsdws/timeseries/values HTTP/1.1
+POST /tsdws/timeseries/985dc570-7298-4ae6-b4f9-1546d51b879a/values?insert=IGNORE HTTP/1.1
 Host: localhost
 Authorization: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOjE2LCJuYmYiOjE2NTcxOTM2NDUsImV4cCI6MTY1OTc4NTY0NX0.dwqyDfFLH7MDnXi2bOJWuGsYf8kNcwEcIg2IUBecOyU
 Content-Type: application/json
@@ -229,8 +233,6 @@ Cookie: PHPSESSID=cdqjpd1o6vijtbb6qmb1mk5a9i
 Content-Length: 286
 
 {
-    "id": "985dc570-7298-4ae6-b4f9-1546d51b879a",
-    "insert": "ignore",
     "columns": ["time","temp_c","pressure_hpa"],
     "data": [
         ["2022-01-04 15:26:00",100,70],
@@ -252,13 +254,14 @@ Content-Length: 286
     "statusCode": 201
 }
 ```
-L'informazione principale risiede nel campo `data`, che indica il numero di record correttamente inseriti (campo `rows`).
+> Come è possibile notare dalla richiesta in esempio, è possibile aggiungere nella querystring dell'URL il parametro `insert`, il quale indica al server cosa fare qualora il database presenti già dei record registrati con lo stesso timestamp. Come valori del parametro `insert` si può utilizzare `IGNORE` o `UPDATE`. Utilizzando `IGNORE` il sistema non sovrascriverà i record dove troverà una collisione di timestamp, utilizzando `UPDATE` sì. Di default, se non indicato il tipo di inserimento è di tipo `IGNORE`.
 
+L'informazione principale risiede nel campo `data`, che indica il numero di record correttamente inseriti (campo `rows`). 
 > **_NOTA IMPORTANTE:_**
 > 
 > Fino al commit [41940d9e](https://github.com/ingv-oe-dev/tsdsystem/tree/41940d9e8bbfd072777b2450feaa13d98afcf9f0) [tag: `LAST_NO_TZD`] della versione del branch `master` del repositori GitHub, il formato data che include il Time Zone Designator [(TZD)](https://www.w3.org/TR/NOTE-datetime) viene accettato ma non gestito, nel senso che accetta la data passata, ma non considera la parte TZD, perché le tabelle vengono create con colonna "`time`" di tipo `TIMESTAMP WITHOUT TIME ZONE`. 
 > 
-> A partire dalle versioni successive il TZD viene gestito ma l'utente che registra la serie temporale deve aver cura di indicare al sistema che nei tempi dei valori immessi viene specificato lo TZD.
+> A partire dalle versioni successive (inclusa la versione corrente) il TZD viene gestito, ma l'utente che registra la serie temporale deve aver cura di indicare al sistema che nei tempi dei valori immessi viene specificato lo TZD.
 >
 > Per indicare ciò si deve utilizzare il campo `with_tz` (booleano = `TRUE`) in fase di registrazione della serie temporale. In tal caso la tabella PostGreSQL verrà creata con colonna "`time`" di tipo `TIMESTAMP WITH TIME ZONE` e i valori ritornati durante le richieste dei dati saranno restituiti con il TZD utilizzato.
 > 
@@ -267,22 +270,17 @@ L'informazione principale risiede nel campo `data`, che indica il numero di reco
 ## Leggere i valori di una Timeseries registrata
 Per leggere i valori inseriti si utilizza sempre lo stesso endpoint:
 
-http://localhost/tsdws/timeseries/values
+http://localhost/tsdws/timeseries/{id}/values
 
-ma la richiesta HTTP è di tipo **GET**.  
-Unico parametro richiesto nella querystring è `request`, una stringa JSON che incorpora tutti i parametri che caratterizzano la richiesta della serie temporale.
+ma la richiesta HTTP è di tipo `GET`.  
+Nella parte *querystring* dell'URL è possibile passare una serie di parametri per specificare ad esempio il periodo desiderato, il campionamento, il tipo di funzione di aggregazione etc. Per i dettagli si veda l'interfaccia [Swagger](https://localhost/swagger-ui/dist/tsdsystem.php#/timeseries/get_timeseries__id__values) predisposta.
 
 ### Esempio di chiamata HTTP (GET):
 ```
-GET /tsdws/timeseries/values?request={"id":"985dc570-7298-4ae6-b4f9-1546d51b879a","starttime":"2022-01-04%2014:00:00","endtime":"2022-01-04%2016:00:00","columns":["temp_c","pressure_hpa"],"time_bucket":"1%20hour","aggregate":"AVG"} HTTP/1.1
+GET tsdws/timeseries/985dc570-7298-4ae6-b4f9-1546d51b879a/values?starttime=2022-01-04%2014%3A00%3A00&endtime=2022-01-04%2016%3A00%3A00&time_bucket=1%20hour&aggregate=AVG&timeformat=ISO8601&transpose=false HTTP/1.1
 Host: localhost
 Authorization: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOjE2LCJuYmYiOjE2NTcxOTM2NDUsImV4cCI6MTY1OTc4NTY0NX0.dwqyDfFLH7MDnXi2bOJWuGsYf8kNcwEcIg2IUBecOyU
-```
-> - Unico campo che è necessario specificare dentro `request` è `id`.  
-> - Se `time_bucket` e `aggregate` non vengono specificate, il web server ritornerà tutti i record con `time` compreso tra `starttime` e `endtime`, senza applicare nessuna funzione di aggregazione (o sottocampionamento).  
-> - Se neanche `starttime` e `endtime` vengono indicati, il periodo di default selezionato saranno le ultime 24 ore.  
-> - Se non viene specificato l'array `columns`, il web service ritornerà i valori di tutte le metriche (colonne).
-> 
+``` 
 ### Risposta con successo:
 ```
 {
@@ -300,13 +298,14 @@ Authorization: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOjE2LCJuYmYiOjE2
         ],
         "time_bucket": "1 hour",
         "aggregate": "AVG",
+        "timeformat": "ISO8601",
         "transpose": false
     },
     "data": {
         "timestamp": [
-            "2022-01-04 14:00:00",
-            "2022-01-04 15:00:00",
-            "2022-01-04 16:00:00"
+            "2022-01-04T14:00:00.000+00:00",
+            "2022-01-04T15:00:00.000+00:00",
+            "2022-01-04T16:00:00.000+00:00"
         ],
         "temp_c": [
             null,
@@ -333,11 +332,11 @@ Anche in questo caso, l'informazione principale risiede nel campo `data`, compos
     }
 }
 ```
-Il campo `params` riassume il tipo di richiesta nel formato JSON. Da notare che dentro questo campo vengono specificati parametri che non necessariamente vengono esplicitati dall'utente, ma prendono un valore di default, come `transpose` (di default `false`). In particolare, riguardo a quest'ultimo parametro, se viene valorizzato a `true`, la risposta alla richiesta sarà come la seguente, ovvero con il campo `data` "trasposto":
+Il campo `params` della risposta riassume il tipo di richiesta nel formato JSON. Da notare che dentro questo campo vengono specificati parametri che non necessariamente vengono esplicitati dall'utente, ma prendono un valore di default, come `transpose` (di default `false`). In particolare, riguardo a quest'ultimo parametro, se viene valorizzato a `true`, la risposta alla richiesta sarà come la seguente, ovvero con il campo `data` "trasposto":
 ```
 {
     "params": {
-        "id": "b0c77d19-5b6e-4162-9aa0-1073c48b9de0",
+        "id": "985dc570-7298-4ae6-b4f9-1546d51b879a",
         "starttime": "2022-01-04 14:00:00",
         "endtime": "2022-01-04 16:00:00",
         "columns": [
@@ -348,29 +347,39 @@ Il campo `params` riassume il tipo di richiesta nel formato JSON. Da notare che 
                 "name": "pressure_hpa"
             }
         ],
+        "time_bucket": "1 hour",
+        "aggregate": "AVG",
+        "timeformat": "ISO8601",
         "transpose": true
     },
     "data": [
         {
-            "timestamp": "2022-01-04 15:26:00",
-            "temp_c": 100,
-            "pressure_hpa": 70
-        },
-        {
-            "timestamp": "2022-01-04 15:27:00",
-            "temp_c": 10,
-            "pressure_hpa": 55
-        },
-        {
-            "timestamp": "2022-01-04 15:28:00",
+            "timestamp": "2022-01-04T14:00:00.000+00:00",
             "temp_c": null,
-            "pressure_hpa": 155
+            "pressure_hpa": null
+        },
+        {
+            "timestamp": "2022-01-04T15:00:00.000+00:00",
+            "temp_c": 55,
+            "pressure_hpa": 93.33333333333333
+        },
+        {
+            "timestamp": "2022-01-04T16:00:00.000+00:00",
+            "temp_c": null,
+            "pressure_hpa": null
         }
     ],
     "error": null,
     "statusCode": 200
 }
 ```
+> Parametri della querystring di default (se non specificati):  
+> - Se `time_bucket` e `aggregate` non vengono specificate, il web server ritornerà tutti i record con `time` compreso tra `starttime` e `endtime`, senza applicare nessuna funzione di aggregazione (o sottocampionamento).  
+> - Se neanche `starttime` e `endtime` vengono indicati, il periodo di default selezionato saranno le ultime 24 ore.  
+> - Se non viene specificato l'array `columns`, il web service ritornerà i valori di tutte le metriche (colonne).
+> - Se `timeformat` non viene specificato, il formato della data seguirà lo standard [ISO 8601](https://www.w3.org/TR/NOTE-datetime).
+> - `transpose` = false. Per fare in modo che la risposta abbia una dimensione in byte più piccola possibile, i dati verranno presentati per colonna all'interno della sezione `data`: un array per il tempo (`timestamp`), uno per la colonna 1, uno per la colonna 2, etc. fino alla colonna N (tutti della stessa lunghezza). Altrimenti i dati verranno restituiti in un unico array contenente tanti record del tipo `{"time": "YYYY-MM-DDThh:mm:ss.000+00:00", "colname1": "val1", "colname2": "val2", ..., "colnameN": "valN"}` (fare una prova con `transpose=true` per notare la differenza).
+>
 ## Upload attraverso file CSV
 E' possibile inserire i dati all'interno del TSDSystem attraverso l'upload di file CSV.
 
@@ -514,9 +523,9 @@ curl -X 'POST' \
   "statusCode": 207
 }
 ```
-L'informazione principale risiede nella sezione `data`, che riporta i dettagli dell'eventuale registrazione nel campo `registration`, nonché dell'inserimento (nel campo `insertion`).
+L'informazione principale della risposta risiederà sempre nella sezione `data`, che riporta i dettagli dell'inserimento all'interno del campo `insertion`, e dell'eventuale registrazione in un campo denominato `registration`.
 
-Per quanto riguarda l'inserimento dei dati, esso viene effettuato in spezzoni (`chunks`) di 10000 record per volta, e per ognuno di essi viene riportato il relativo esito. 
+Come si può vedere dall'esempio, per quanto riguarda l'inserimento dei dati, esso viene effettuato *a pezzi* (`chunks`) di 10000 record per volta, e per ognuno di essi viene riportato il relativo esito. 
 
 # Informazioni addizionali
 Per ogni altro dettaglio sull'utilizzo del web service REST del TSDSystem, si rimanda all'interfaccia [Swagger](http://localhost/swagger/tsdsystem) predisposta dal sistema stesso all'indirizzo locale http://localhost/swagger/tsdsystem.
