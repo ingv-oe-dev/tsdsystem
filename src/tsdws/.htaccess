@@ -6,6 +6,7 @@ RewriteRule ^token(/)?$ routes/generateToken.php [NC]
 
 RewriteRule ^users(/)?$ routes/getUsers.php [NC]
 RewriteRule ^users/([0-9]+)(/)?$ routes/getUsers.php?id=$1 [NC,QSA]
+RewriteRule ^users/([0-9]+)/confirm(/)?$ routes/getUsers.php?id=$1 [NC,QSA]
 RewriteRule ^users/([0-9]+)/permissions(/)?$ permissions/member/$1 [NC,QSA]
 RewriteRule ^users/([0-9]+)/roles(/)?$ roles/mapping/?member_id=$1 [NC,QSA]
 RewriteRule ^users/([0-9]+)/roles/([0-9]+)(/)?$ roles/mapping/?member_id=$1&role_id=$2 [NC,QSA]

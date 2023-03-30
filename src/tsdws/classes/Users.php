@@ -121,5 +121,13 @@ Class Users extends QueryManager {
 		
 		//echo $query;
 		return $this->getRecordSet($query);
-    }	
+    }
+    
+    public function update($input) {
+
+		$sql = "UPDATE tsd_users.members SET confirmed = timezone('utc'::text, now()) WHERE id = " . $input["id"];
+
+        return $this->executeSQLCommand($sql)[0];
+
+	}
 }
