@@ -8,6 +8,8 @@ Class Tokens extends QueryManager {
 	
     private $serverKey;
    
+    protected $tablename = "tsd_users.tokens";
+
     public $input;
     public $userId;
     public $permissions;
@@ -15,13 +17,19 @@ Class Tokens extends QueryManager {
     public $exp;
 
     //CONSTRUCTOR
-	function __construct($input) {
+	function __construct($input=null) {
         
         parent::__construct();
         
         $this->input = $input;
         
-        if (!array_key_exists("validity_days", $input)) $this->input["validity_days"] = 1;
+        if (
+            isset($input) and 
+            is_array($input) and 
+            !array_key_exists("validity_days", $input)
+        ) {
+            $this->input["validity_days"] = 1;
+        }
 	}
 
     public function generate() {
@@ -144,9 +152,52 @@ Class Tokens extends QueryManager {
 
     public function saveTokenIntoDB($token) {
         if (is_string($token)) {
-            $query = "INSERT INTO tsd_users.tokens (token, remote_addr) VALUES ('" . $token . "','" . $_SERVER["REMOTE_ADDR"] . "')";
+            $query = "INSERT INTO " . $this->tablename . " (token, remote_addr) VALUES ('" . $token . "','" . $_SERVER["REMOTE_ADDR"] . "')";
             $this->executeSQLCommand($query);
         }
     }
+
+    public function flushInvalidTokens() {
+       
+        // Array containing ID of token records to delete
+        $to_flush = array();
+
+		// Get tokens
+        $result = $this->getList();
+        
+        if ($result["status"]) {
+			$rows = $result["data"];
+            
+            // Check for invalid tokens (to delete)
+            foreach($rows as $row) {
+                
+                try { 
+                    JWT::decode($row["token"], getenv("SERVER_KEY"), array('HS256')); 
+                }
+                catch(Exception $e) { 
+                    array_push($to_flush, $row["id"]);
+                }
+            }
+		}
+
+        if (count($to_flush) > 0) {
+            // Prepare delete sql
+            $sql = "DELETE FROM " . $this->tablename . " WHERE id IN (" . implode(",", $to_flush) . ")";
+            //echo $sql;
+            return $this->executeSQLCommand($sql);
+        } else {
+            return array(
+                "status" => true,
+				"rows" => 0
+            );
+        }
+    }
 	
+    public function getList() {
+		
+		$query = "SELECT * FROM " . $this->tablename;
+		//echo $query;
+
+		return $this->getRecordSet($query);
+	}
 }

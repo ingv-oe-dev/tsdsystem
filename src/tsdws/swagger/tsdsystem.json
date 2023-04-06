@@ -168,6 +168,39 @@
                         "description": "Unauthorized"
                     }
                 }
+            },
+            "delete": {
+                "tags": [
+                    "token"
+                ],
+                "summary": "Flush invalid tokens from DB (**only admin**)",
+                "description": "**Action granted only to administrators**",
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "207": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
             }
         },
         "/timeseries": {

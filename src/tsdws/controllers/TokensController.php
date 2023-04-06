@@ -17,8 +17,15 @@ Class TokensController extends RESTController {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $this->setParams($_POST);
 			$this->get();
+            $this->elaborateResponse();
 		}
-        $this->elaborateResponse();
+        if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
+            $this->authorizedAction(array(
+                "scope"=>"admin"
+            ));
+			$this->flush();
+            parent::elaborateResponse();
+		}
     }
 
     /**
@@ -112,5 +119,25 @@ Class TokensController extends RESTController {
         unset($this->response["data"]);
         parent::elaborateResponse();
     }
-	
+
+    public function flush() {
+        
+        $this->obj = new Tokens();
+
+        $result = $this->obj->flushInvalidTokens();
+
+        if ($result["status"]) {
+			unset($result["query"]);
+            $this->setData($result);
+			if(isset($result["rows"]) and $result["rows"] > 0) {
+				$this->setStatusCode(202);
+			} else {
+				$this->setStatusCode(207);
+			}
+		} else {
+			$this->setStatusCode(409);
+			$this->setError($result);
+		}
+    }
+
 }
