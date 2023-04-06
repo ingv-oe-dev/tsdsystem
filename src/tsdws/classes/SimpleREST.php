@@ -139,11 +139,15 @@ class SimpleREST extends Utils{
 	}
 	
 	public function elaborateResponse() {
-		$this->setHttpHeaders($this->response["statusCode"]);
-		// compress the response before send
-		ob_start("ob_gzhandler"); // start compression
-		echo json_encode($this->response, JSON_NUMERIC_CHECK);
-		ob_end_flush(); // end compression
+		if (getenv("ENV") == 'development') {
+			echo json_encode($this->response, JSON_NUMERIC_CHECK);
+		} else {
+			$this->setHttpHeaders($this->response["statusCode"]);
+			// compress the response before send
+			ob_start("ob_gzhandler"); // start compression
+			echo json_encode($this->response, JSON_NUMERIC_CHECK);
+			ob_end_flush(); // end compression
+		}
 	}
 	
 	public function setHttpHeaders($statusCode){
@@ -201,7 +205,7 @@ class SimpleREST extends Utils{
 	 */
 	protected function _setJWT_payload() {
 		
-		$token = isset($_SERVER["HTTP_AUTHORIZATION"]) ? $_SERVER["HTTP_AUTHORIZATION"] : NULL;
+		$token = (isset($_SERVER["HTTP_AUTHORIZATION"]) and !empty($_SERVER["HTTP_AUTHORIZATION"])) ? $_SERVER["HTTP_AUTHORIZATION"] : NULL;
 
 		if (!is_null($token)) {
 
