@@ -219,7 +219,11 @@ class SimpleREST extends Utils{
 			try { 
 				$this->JWT_payload = $this->object_to_array(JWT::decode($token, $serverKey, array('HS256'))); 
 			}
-			catch(Exception $e) { /* do nothing */ }	
+			catch(Exception $e) { 
+				$this->JWT_payload = array(
+					"error" => $e->getMessage()
+				);	
+			}	
 		}
 	}
 

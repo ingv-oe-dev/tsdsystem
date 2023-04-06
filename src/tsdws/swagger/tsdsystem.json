@@ -92,6 +92,7 @@
                         "name": "password",
                         "in": "formData",
                         "description": "Password",
+                        "format": "password",
                         "type": "string",
                         "required": true
                     },

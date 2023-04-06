@@ -254,8 +254,19 @@ Class RESTController extends SimpleREST {
 	protected function authorizedAction($auth_params=array()) {
 		//var_dump($auth_params)
 
-		// Check for a valid token in the header authorization and set into class variable JWT_payload
+		// Retrieve authorization token from http request header and set into class variable JWT_payload
 		$this->_setJWT_payload();
+
+		// Check for a valid token
+		if (
+			isset($this->JWT_payload) and 
+			array_key_exists("error", $this->JWT_payload) 
+		) {
+            $this->setStatusCode(401);
+			$this->setError("Authorization token error: " . $this->JWT_payload["error"]);
+			$this->elaborateResponse();
+			exit();
+		}
 		
 		// CHECK IF IS AN ADMIM TOKEN
         if (
