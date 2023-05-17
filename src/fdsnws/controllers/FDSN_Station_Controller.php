@@ -125,7 +125,7 @@ Class FDSN_Station_Controller extends RESTController {
 		return $this->check_spatial_input();
 	}
 	
-	public function get($jsonfields=array("station_geojson_coords", "response_parameters", "channel_additional_info")) {
+	public function get($jsonfields=array("station_geojson_coords", "response_parameters", "channel_additional_info", "additional_responsexml")) {
 		parent::get($jsonfields);
 	}
 }

@@ -294,10 +294,8 @@ class FDSN_Station_Encoder extends FDSN_Station {
 							// retrieve Response section
 							$responseItem = $channelItem->children()->Response;
 							
-							// to do
-							$responseItem->addChild("todo"); // for testing
-							// ...
-							// ...
+							// ADDITIONAL
+							$this->append_additional_responsexml($responseItem, $item);
 						}
 					}
 				}
@@ -417,17 +415,40 @@ class FDSN_Station_Encoder extends FDSN_Station {
 		if (isset($item["response_parameters"])) {
 			$addInfo = $this->object_to_array($item["response_parameters"]); // convert to an associative array
 			
-			if ($this->isSetArrayVal($addInfo, "K")) {
-				$instrumentSensivityItem->addChild("Value", $this->sanitize($addInfo["K"]));
+			// If the config is sensor+digitizer then instrument-sensitivity = (S) of sensor * (sensitivity) of digitizer 
+			// and the measure unit will be [in:m/s -> out:count]
+			if (
+				isset($item["sensor_id"]) and 
+				$this->isSetArrayVal($addInfo, "S") and
+				isset($item["digitizer_id"]) and 
+				isset($item["sensitivity"])
+			) {
+				$sensor_s = floatval($this->sanitize($addInfo["S"]));
+				$digitizer_s = floatval($this->sanitize($item["sensitivity"]));
+				$instrumentSensivityItem->addChild("Value", $this->sanitize($sensor_s*$digitizer_s));
+				$instrumentSensivityItem->addChild("InputUnits")->addChild("Name", "m/s");
+				$instrumentSensivityItem->addChild("OutputUnits")->addChild("Name", "COUNT");
 			}
-			if ($this->isSetArrayVal($addInfo, "S")) {
-				$instrumentSensivityItem->addChild("Frequency", $this->sanitize($addInfo["S"]));
+			
+			// If the config is only sensor then instrument-sensitivity = (S) of sensor
+			// and the measure unit will be [in:m/s -> out:count]
+			if (
+				isset($item["sensor_id"]) and 
+				$this->isSetArrayVal($addInfo, "S")
+			) {
+				$sensor_s = floatval($this->sanitize($addInfo["S"]));
+				$digitizer_s = floatval($this->sanitize($item["sensitivity"]));
+				$instrumentSensivityItem->addChild("Value", $this->sanitize($sensor_s*$digitizer_s));
+				$instrumentSensivityItem->addChild("InputUnits")->addChild("Name", "m/s");
+				$instrumentSensivityItem->addChild("OutputUnits")->addChild("Name", "V");
 			}
-			if ($this->isSetArrayVal($addInfo, "PZ")) {
-				$instrumentSensivityItem->addChild("InputUnits")->addChild("Name", $this->sanitize($addInfo["PZ"]));
-			}
+
 			if ($this->isSetArrayVal($addInfo, "fn")) {
-				$instrumentSensivityItem->addChild("OutputUnits")->addChild("Name", $this->sanitize($addInfo["fn"]));
+				$instrumentSensivityItem->addChild("Frequency", $this->sanitize($addInfo["fn"]));
+			}
+			
+			if ($this->isSetArrayVal($addInfo, "PZ")) {
+				$this->append_poleszeros($responseItem, $addInfo);
 			}
 		}
 	}
@@ -442,6 +463,74 @@ class FDSN_Station_Encoder extends FDSN_Station {
 			if ($this->isSetArrayVal($addInfo, "Dip")) $channelItem->addChild("Dip", strval($addInfo["Dip"]));
 			if ($this->isSetArrayVal($addInfo, "SampleRate")) $channelItem->addChild("SampleRate", strval($addInfo["SampleRate"]));
 			if ($this->isSetArrayVal($addInfo, "ClockDrift")) $channelItem->addChild("ClockDrift", strval($addInfo["ClockDrift"]));
+		}
+	}
+
+	public function append_poleszeros(&$responseItem, $item) {
+		$pz_data = $this->object_to_array($item["PZ"]); // convert to an associative array
+		$poles = array();
+		$zeroes = array();
+		if ($this->isSetArrayVal($pz_data, "Poles")) {
+			$poles = explode(";", $pz_data["Poles"]);
+		}
+		if ($this->isSetArrayVal($pz_data, "Zeroes")) {
+			$zeroes = explode(";", $pz_data["Zeroes"]);
+		}
+		$stage1 = $responseItem->addChild("Stage");
+		$stage1->addAttribute("number", "1");
+		$pz = $stage1->addChild("PolesZeros");
+		$pz->addChild("InputUnits")->addChild("Name", "m/s");
+		$pz->addChild("OutputUnits")->addChild("Name", "V");
+		//$pz->addChild("PzTransferFunctionType", "LAPLACE (RADIANS/SECOND)");
+		if ($this->isSetArrayVal($item, "K")) {
+			$pz->addChild("NormalizationFactor", $this->sanitize($item["K"]));
+		}
+		if ($this->isSetArrayVal($item, "fn")) {
+			$pz->addChild("NormalizationFrequency", $this->sanitize($item["fn"]));
+		}
+		$pattern = '/([-|\+]?[\d]+(\.[\d]+)?[i]?)/';
+		for($i=0; $i<count($poles); $i++) {
+			$poles[$i] = trim($poles[$i]);
+			$pItem = $pz->addChild("Pole");
+			$pItem->addAttribute("number", $i+1);
+			preg_match_all($pattern, $poles[$i], $matches);
+			if(is_array($matches[0]) and count($matches[0]) == 2) {
+				$pItem->addChild("Real", $this->sanitize($matches[0][0]));
+				$pItem->addChild("Imaginary", $this->sanitize(substr($matches[0][1],0,-1)));
+			}
+		}
+		for($j=0; $j<count($zeroes); $j++) {
+			$zeroes[$j] = trim($zeroes[$j]);
+			$zItem = $pz->addChild("Zero");
+			$zItem->addAttribute("number", $j+$i+1);
+			preg_match_all($pattern, $zeroes[$j], $matches);
+			if(is_array($matches[0]) and count($matches[0]) == 1) {
+				$zItem->addChild("Real", $this->sanitize($matches[0][0]));
+				$zItem->addChild("Imaginary", "0");
+			}
+		}
+	}
+
+	public function append_additional_responsexml(&$responseItem, $item) {
+		if (isset($item["additional_responsexml"])) {
+			$obj = $this->object_to_array($item["additional_responsexml"]);
+			if ($this->isSetArrayVal($obj, "responseXML")) {
+				$additional_responsexml = simplexml_load_string("<document>".$obj["responseXML"]."</document>");
+				$this->append_simplexml($responseItem, $additional_responsexml);
+			}
+		}
+	}
+
+	public function append_simplexml(&$simplexml_to, &$simplexml_from) {
+		foreach ($simplexml_from->children() as $simplexml_child)
+		{
+			$simplexml_temp = $simplexml_to->addChild($simplexml_child->getName(), (string) $simplexml_child);
+			foreach ($simplexml_child->attributes() as $attr_key => $attr_value)
+			{
+				$simplexml_temp->addAttribute($attr_key, $attr_value);
+			}
+		
+			$this->append_simplexml($simplexml_temp, $simplexml_child);
 		}
 	}
 }

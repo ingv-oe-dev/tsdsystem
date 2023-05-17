@@ -3906,7 +3906,7 @@
                 "parameters": [{
                     "in": "body",
                     "name": "body",
-                    "description": "JSON object that needs to be passed as input",
+                    "description": "JSON object that needs to be passed as input. **Insert coordinates in this order: [lon, lat]**",
                     "required": true,
                     "schema": {
                         "$ref": "../json-schemas/sites.json"
@@ -6600,6 +6600,11 @@
                 "additional_info": {
                     "title": "Additional info",
                     "type": "object",
+                    "properties": {
+                        "responseXML": {
+                            "type": "string"
+                        }
+                    },
                     "additionalProperties": true
                 },
                 "start_datetime": {

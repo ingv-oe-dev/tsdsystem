@@ -26,6 +26,8 @@ $function$
 --------------------------------------------------------------------------------------
 -- FDSN
 
+-- public.fdsn_station_dataset source
+
 CREATE OR REPLACE VIEW public.fdsn_station_dataset
 AS SELECT n.id AS net_id,
     n.name AS net_name,
@@ -48,11 +50,14 @@ AS SELECT n.id AS net_id,
     c.additional_info AS channel_additional_info,
     sc.start_datetime AS channel_startdate,
     sc.end_datetime AS channel_enddate,
+    sc.additional_info AS additional_responsexml,
+    sensors.id as sensor_id,
     sensors.name AS sensor_name,
     sensors.serial_number AS sensor_serial_number,
     st.name AS sensortype_name,
     st.model AS sensortype_model,
     st.response_parameters,
+    d.id as digitizer_id,
     d.name AS digitizer_name,
     d.serial_number AS digitizer_serial_number,
     dt.name AS digitizertype_name,

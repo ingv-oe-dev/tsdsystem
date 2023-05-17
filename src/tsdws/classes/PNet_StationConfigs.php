@@ -164,7 +164,8 @@ Class StationConfigs extends QueryManager {
 			"start_datetime" => array("quoted" => true),
 			"end_datetime" => array("quoted" => true),
 			"update_time" => array("quoted" => false),
-			"update_user" => array("quoted" => false)
+			"update_user" => array("quoted" => false),
+			"additional_info" => array("json" => true)
 		);
 
 		$whereStmt = " WHERE remove_time IS NULL AND id = " . $input["id"];
