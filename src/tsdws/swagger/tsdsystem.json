@@ -6422,6 +6422,11 @@
                 "additional_info": {
                     "title": "Additional Info",
                     "description": "Additional info",
+                    "properties": {
+                        "responseXML": {
+                            "type": "string"
+                        }
+                    },
                     "type": "object",
                     "propertyOrder": 8
                 }
@@ -6600,11 +6605,6 @@
                 "additional_info": {
                     "title": "Additional info",
                     "type": "object",
-                    "properties": {
-                        "responseXML": {
-                            "type": "string"
-                        }
-                    },
                     "additionalProperties": true
                 },
                 "start_datetime": {

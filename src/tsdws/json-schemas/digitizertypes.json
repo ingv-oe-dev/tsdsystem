@@ -54,6 +54,11 @@
         "additional_info": {
             "title": "Additional Info",
             "description": "Additional info",
+            "properties": {
+                "responseXML": {
+                    "type": "string"
+                }
+            },
             "type": "object",
             "propertyOrder": 8
         }

@@ -396,8 +396,8 @@ class FDSN_Station_Encoder extends FDSN_Station {
 		$channelItem->addChild("Elevation", $this->sanitize($item["station_elevation"]));
 
 		// append sensor and digitizer info
-		$channelItem->addChild("DataLogger")->addChild("Description", $item["digitizertype_model"]);
-		$channelItem->addChild("Sensor")->addChild("Description", $item["sensortype_model"]);
+		$channelItem->addChild("DataLogger")->addChild("Description", $item["digitizertype_name"]);
+		$channelItem->addChild("Sensor")->addChild("Description", $item["sensortype_name"]);
 
 		// append other properties
 		$this->append_Channel_additionalInfo($channelItem, $item); // additional info
@@ -426,21 +426,39 @@ class FDSN_Station_Encoder extends FDSN_Station {
 				$sensor_s = floatval($this->sanitize($addInfo["S"]));
 				$digitizer_s = floatval($this->sanitize($item["sensitivity"]));
 				$instrumentSensivityItem->addChild("Value", $this->sanitize($sensor_s*$digitizer_s));
-				$instrumentSensivityItem->addChild("InputUnits")->addChild("Name", "m/s");
-				$instrumentSensivityItem->addChild("OutputUnits")->addChild("Name", "COUNT");
+				if (isset($addInfo["InputUnits"])) {
+					$instrumentSensivityItem->addChild("InputUnits")->addChild("Name", $addInfo["InputUnits"]);
+				} else {
+					$instrumentSensivityItem->addChild("InputUnits")->addChild("Name", "m/s");
+				}
+				if (isset($item["final_sample_rate_measure_unit"])) {
+					$instrumentSensivityItem->addChild("OutputUnits")->addChild("Name", $item["final_sample_rate_measure_unit"]);
+				} else {
+					$instrumentSensivityItem->addChild("OutputUnits")->addChild("Name", "COUNT");
+				}
+				
 			}
 			
 			// If the config is only sensor then instrument-sensitivity = (S) of sensor
 			// and the measure unit will be [in:m/s -> out:count]
 			if (
 				isset($item["sensor_id"]) and 
-				$this->isSetArrayVal($addInfo, "S")
+				$this->isSetArrayVal($addInfo, "S") and
+				!isset($item["digitizer_id"])
 			) {
 				$sensor_s = floatval($this->sanitize($addInfo["S"]));
 				$digitizer_s = floatval($this->sanitize($item["sensitivity"]));
 				$instrumentSensivityItem->addChild("Value", $this->sanitize($sensor_s*$digitizer_s));
-				$instrumentSensivityItem->addChild("InputUnits")->addChild("Name", "m/s");
-				$instrumentSensivityItem->addChild("OutputUnits")->addChild("Name", "V");
+				if (isset($addInfo["InputUnits"])) {
+					$instrumentSensivityItem->addChild("InputUnits")->addChild("Name", $addInfo["InputUnits"]);
+				} else {
+					$instrumentSensivityItem->addChild("InputUnits")->addChild("Name", "m/s");
+				}
+				if (isset($addInfo["OutputUnits"])) {
+					$instrumentSensivityItem->addChild("OutputUnits")->addChild("Name", $addInfo["OutputUnits"]);
+				} else {
+					$instrumentSensivityItem->addChild("OutputUnits")->addChild("Name", "V");
+				}
 			}
 
 			if ($this->isSetArrayVal($addInfo, "fn")) {
@@ -448,7 +466,7 @@ class FDSN_Station_Encoder extends FDSN_Station {
 			}
 			
 			if ($this->isSetArrayVal($addInfo, "PZ")) {
-				$this->append_poleszeros($responseItem, $addInfo);
+				$this->append_stage1_poleszeros($responseItem, $addInfo);
 			}
 		}
 	}
@@ -466,7 +484,7 @@ class FDSN_Station_Encoder extends FDSN_Station {
 		}
 	}
 
-	public function append_poleszeros(&$responseItem, $item) {
+	public function append_stage1_poleszeros(&$responseItem, $item) {
 		$pz_data = $this->object_to_array($item["PZ"]); // convert to an associative array
 		$poles = array();
 		$zeroes = array();
@@ -479,8 +497,16 @@ class FDSN_Station_Encoder extends FDSN_Station {
 		$stage1 = $responseItem->addChild("Stage");
 		$stage1->addAttribute("number", "1");
 		$pz = $stage1->addChild("PolesZeros");
-		$pz->addChild("InputUnits")->addChild("Name", "m/s");
-		$pz->addChild("OutputUnits")->addChild("Name", "V");
+		if (isset($item["InputUnits"])) {
+			$pz->addChild("InputUnits")->addChild("Name", $item["InputUnits"]);
+		} else {
+			$pz->addChild("InputUnits")->addChild("Name", "m/s");
+		}
+		if (isset($item["OutputUnits"])) {
+			$pz->addChild("OutputUnits")->addChild("Name", $item["OutputUnits"]);
+		} else {
+			$pz->addChild("OutputUnits")->addChild("Name", "V");
+		}
 		//$pz->addChild("PzTransferFunctionType", "LAPLACE (RADIANS/SECOND)");
 		if ($this->isSetArrayVal($item, "K")) {
 			$pz->addChild("NormalizationFactor", $this->sanitize($item["K"]));
@@ -509,15 +535,19 @@ class FDSN_Station_Encoder extends FDSN_Station {
 				$zItem->addChild("Imaginary", "0");
 			}
 		}
+		$sg = $stage1->addChild("StageGain");
+		if ($this->isSetArrayVal($item, "S")) {
+			$sg->addChild("Value", $this->sanitize($item["S"]));
+		}
+		if ($this->isSetArrayVal($item, "fn")) {
+			$sg->addChild("Frequency", $this->sanitize($item["fn"]));
+		}
 	}
 
 	public function append_additional_responsexml(&$responseItem, $item) {
 		if (isset($item["additional_responsexml"])) {
-			$obj = $this->object_to_array($item["additional_responsexml"]);
-			if ($this->isSetArrayVal($obj, "responseXML")) {
-				$additional_responsexml = simplexml_load_string("<document>".$obj["responseXML"]."</document>");
-				$this->append_simplexml($responseItem, $additional_responsexml);
-			}
+			$additional_responsexml = simplexml_load_string("<document>".$this->sanitize($item["additional_responsexml"])."</document>");
+			$this->append_simplexml($responseItem, $additional_responsexml);
 		}
 	}
 

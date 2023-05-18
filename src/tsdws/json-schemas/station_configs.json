@@ -47,11 +47,6 @@
         "additional_info": {
             "title": "Additional info",
             "type": "object",
-            "properties": {
-                "responseXML": {
-                    "type": "string"
-                }
-            },
             "additionalProperties": true
         },
         "start_datetime": {
