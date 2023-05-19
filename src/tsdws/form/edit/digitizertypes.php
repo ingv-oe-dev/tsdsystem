@@ -13,6 +13,56 @@
     <link type="text/css" rel="stylesheet" href="../js-download/bootstrap-vue.min.css" />
     <script src="../js-download/jquery-3.6.0.min.js"></script>
     <script src="../js-download/jsoneditor-2.8.0.min.js"></script>
+    <style>
+        /* The Modal (background) */
+        .mymodal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1; /* Sit on top */
+            padding-top: 100px; /* Location of the box */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgb(0,0,0); /* Fallback color */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+        }
+
+        /* Modal Content */
+        .mymodal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            font-size:0.8em;
+        }
+
+        /* The Close Button */
+        span.close {
+            color: #aaaaaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        span.close:hover,
+        span.close:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        
+        /* prettify xml */
+		.xtb { display: table; font-family: monospace; }
+		.xtc { display: table-cell; }
+		.xmt { color: #0000CC!important; display: inline; }
+		.xel { color: #990000!important; display: inline; }
+		.xdt { color: #000000!important; display: inline; }
+		.xat { color: #FF0000!important; display: inline; }
+    </style>
 </head>
 <body>
     <div class='container-flex'>
@@ -256,6 +306,70 @@
                 console.log(e);
             }
         }
+
+        // prettify xml
+        function formatXml(xml,colorize,indent) { 
+            function esc(s){return s.replace(/[-\/&<> ]/g,function(c){         // Escape special chars
+                return c==' '?'&nbsp;':'&#'+c.charCodeAt(0)+';';});}            
+            var sm='<div class="xmt">',se='<div class="xel">',sd='<div class="xdt">',
+                sa='<div class="xat">',tb='<div class="xtb">',tc='<div class="xtc">',
+                ind=indent||'  ',sz='</div>',tz='</div>',re='',is='',ib,ob,at,i;
+            if (!colorize) sm=se=sd=sa=sz='';   
+            xml.match(/(?<=<).*(?=>)|$/s)[0].split(/>\s*</).forEach(function(nd){
+                ob=('<'+nd+'>').match(/^(<[!?\/]?)(.*?)([?\/]?>)$/s);             // Split outer brackets
+                ib=ob[2].match(/^(.*?)>(.*)<\/(.*)$/s)||['',ob[2],''];            // Split inner brackets 
+                at=ib[1].match(/^--.*--$|=|('|").*?\1|[^\t\n\f \/>"'=]+/g)||['']; // Split attributes
+                if (ob[1]=='</') is=is.substring(ind.length);                     // Decrease indent
+                re+=tb+tc+esc(is)+tz+tc+sm+esc(ob[1])+sz+se+esc(at[0])+sz;
+                for (i=1;i<at.length;i++) re+=(at[i]=="="?sm+"="+sz+sd+esc(at[++i]):sa+' '+at[i])+sz;
+                re+=ib[2]?sm+esc('>')+sz+sd+esc(ib[2])+sz+sm+esc('</')+sz+se+ib[3]+sz:'';
+                re+=sm+esc(ob[3])+sz+tz+tz;
+                if (ob[1]+ob[3]+ib[2]=='<>') is+=ind;                             // Increase indent
+            });
+            return re;
+        }
+
+        JSONEditor.defaults.callbacks = {
+            "button" : {
+                "prettifyXML" : function (jseditor, e) {
+                    editorValue = editor.getValue();
+                    console.log(editorValue);
+
+                    // Get the modal
+                    var modal = document.getElementById("prettyXML");
+                    
+                    // Get the <span> element that closes the modal
+                    var span = document.getElementsByClassName("close")[0];
+
+                    // Get content container
+                    var content = document.getElementById("prettyXMLContent");
+                    content.innerHTML = formatXml(editorValue["additional_info"]["responseXML"], true);
+
+                    // When the user clicks the button, open the modal 
+                    modal.style.display = "block";
+
+                    // When the user clicks on <span> (x), close the modal
+                    $("span.close").on("click", function() {
+                        modal.style.display = "none";
+                    });
+
+                    // When the user clicks anywhere outside of the modal, close it
+                    window.onclick = function(event) {
+                        if (event.target == modal) {
+                            modal.style.display = "none";
+                        }
+                    }
+                }
+            }
+        }
     </script>
+    <!-- The Modal -->
+    <div id="prettyXML" class="mymodal">
+        <!-- Modal content -->
+        <div class="mymodal-content">
+            <span class="close">&times;</span>
+            <p id="prettyXMLContent"></p>
+        </div>
+    </div>
 </body>
 </html>

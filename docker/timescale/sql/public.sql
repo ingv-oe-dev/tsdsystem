@@ -67,7 +67,7 @@ AS SELECT n.id AS net_id,
     dt.sensitivity_measure_unit,
     dt.dynamical_range,
     dt.dynamical_range_measure_unit,
-    dt.additional_info->>'responseXML' AS additional_responsexml
+    dt.additional_info->>'responseXML'::text AS additional_responsexml
    FROM ( SELECT n_a.id,
             n_a.name,
             n_a.description,

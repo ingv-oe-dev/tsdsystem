@@ -68,7 +68,8 @@ var app = {
             showSettings: true,
             seeOldChannels: true,
             toast: [],
-            toastDelay: 2000
+            toastDelay: 2000,
+            showSites: false
         }
     },
     methods: {
@@ -236,7 +237,7 @@ var app = {
                 success: function(response, textStatus, jqXHR) {
                     self.sites = response.data;
                     self.defaultOption.sites = "--- Select ---";
-                    self.$refs.leafmap.plotSites(self.sites, { "group_id": "sites", "append": false });
+                    self.$refs.leafmap.plotSites(self.sites, { "group_id": "sites", "append": false, "show": self.showSites });
                     let n = Object.assign(jqXHR, { "messageType": "info" });
                     self.$refs.notifications.notify(n);
                 },
@@ -966,6 +967,9 @@ var app = {
         },
         seeOldChannels(val) {
             val ? $(".old_station-marker").show() : $(".old_station-marker").hide();
+        },
+        showSites(val) {
+            val ? this.$refs.leafmap.map.addLayer(this.$refs.leafmap.overlayMaps["sites"]) : this.$refs.leafmap.map.removeLayer(this.$refs.leafmap.overlayMaps["sites"]);
         }
     },
     computed: {

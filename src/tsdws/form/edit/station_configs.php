@@ -338,7 +338,17 @@
             custom_enum_titles.push("--- Select one ---");
             for (var i=0; i<data.length; i++) {
                 custom_enum.push(data[i].id);
-                custom_enum_titles.push(data[i].name + (data[i].sensortype_components ? new String(" (" + data[i].sensortype_components.length) + " comp.)" : "") + (data[i].sensortype_model ? new String(" - Model: " + data[i].sensortype_model) : "") + (data[i].serial_number ? new String(" - SN: " + data[i].serial_number) : ""));
+                switch (propertyKey) {
+                    case "sensor_id":
+                        custom_enum_titles.push(data[i].name + (data[i].sensortype_components ? new String(" (" + data[i].sensortype_components.length) + " comp.)" : "") + (data[i].sensortype_model ? new String(" - Model: " + data[i].sensortype_model) : "") + (data[i].serial_number ? new String(" - SN: " + data[i].serial_number) : ""));
+                        break;
+                    case "digitizer_id":
+                        custom_enum_titles.push(data[i].name + (data[i].digitizertype_name ? new String(" (" + data[i].digitizertype_name) + " )" : "") + (data[i].serial_number ? new String(" - SN: " + data[i].serial_number) : ""));
+                        break;
+                    default:
+                        custom_enum_titles.push(data[i].name);
+                        break;
+                }
             }
             mySchema.properties[propertyKey].enum = custom_enum;
             mySchema.properties[propertyKey].options.enum_titles = custom_enum_titles;

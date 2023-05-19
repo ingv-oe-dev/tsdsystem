@@ -396,9 +396,9 @@ class FDSN_Station_Encoder extends FDSN_Station {
 		$channelItem->addChild("Elevation", $this->sanitize($item["station_elevation"]));
 
 		// append sensor and digitizer info
-		$channelItem->addChild("DataLogger")->addChild("Description", $item["digitizertype_name"]);
 		$channelItem->addChild("Sensor")->addChild("Description", $item["sensortype_name"]);
-
+		$channelItem->addChild("DataLogger")->addChild("Description", $item["digitizertype_name"]);
+		
 		// append other properties
 		$this->append_Channel_additionalInfo($channelItem, $item); // additional info
 		

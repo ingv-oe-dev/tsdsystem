@@ -57,7 +57,17 @@
             "properties": {
                 "responseXML": {
                     "type": "string"
-                }
+                },
+                "prettifyXML": {
+                    "type": "button",
+                    "title": "Show pretty XML",
+                    "options": {
+                        "button": {
+                            "action": "prettifyXML",
+                            "validated": true
+                        }
+                    }
+                  }
             },
             "type": "object",
             "propertyOrder": 8

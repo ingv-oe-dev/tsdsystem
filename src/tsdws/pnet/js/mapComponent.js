@@ -179,6 +179,8 @@ const mapComponentDefinition = {
             try {
                 // aggiungo il layer corrente dei marker alla mappa
                 this.overlayMaps[options.group_id].addTo(this.map);
+                // nascondo il layer se utilizzo l'opzione 'show' = false
+                if (!options.show) this.map.removeLayer(this.overlayMaps[options.group_id]);
                 //this.fitBounds();
             } catch (e) {
                 console.log(e);
