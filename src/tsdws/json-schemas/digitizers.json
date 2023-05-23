@@ -28,7 +28,8 @@
             "type": "string"
         },
         "digitizertype_id": {
-            "title": "Digitizertype",
+            "title": "Digitizertype (load from library)",
+            "description": "Select an item from the pre-configured digitizers library",
             "type": ["integer", "null"],
             "enum": [],
             "options": {

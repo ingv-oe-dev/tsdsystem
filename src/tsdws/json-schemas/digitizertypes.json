@@ -1,7 +1,7 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "title": "Digitizertype",
-    "description": "Set the properties of the digitizertype",
+    "title": "Digitizers library",
+    "description": "Set the properties of the pre-configured digitizer",
     "type": "object",
     "required": ["name"],
     "additionalProperties": false,
