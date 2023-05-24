@@ -397,7 +397,8 @@ class FDSN_Station_Encoder extends FDSN_Station {
 
 		// append sensor and digitizer info
 		$channelItem->addChild("Sensor")->addChild("Description", $item["sensortype_name"]);
-		$channelItem->addChild("DataLogger")->addChild("Description", $item["digitizertype_name"]);
+		//$channelItem->addChild("DataLogger")->addChild("Description", $item["digitizertype_name"]);
+		$channelItem->addChild("DataLogger")->addChild("Description", $item["digitizertype_model"]);
 		
 		// append other properties
 		$this->append_Channel_additionalInfo($channelItem, $item); // additional info
@@ -507,7 +508,7 @@ class FDSN_Station_Encoder extends FDSN_Station {
 		} else {
 			$pz->addChild("OutputUnits")->addChild("Name", "V");
 		}
-		//$pz->addChild("PzTransferFunctionType", "LAPLACE (RADIANS/SECOND)");
+		$pz->addChild("PzTransferFunctionType", "LAPLACE (RADIANS/SECOND)"); // sempre così se ci sono poli e zeri
 		if ($this->isSetArrayVal($item, "K")) {
 			$pz->addChild("NormalizationFactor", $this->sanitize($item["K"]));
 		}
@@ -515,24 +516,24 @@ class FDSN_Station_Encoder extends FDSN_Station {
 			$pz->addChild("NormalizationFrequency", $this->sanitize($item["fn"]));
 		}
 		$pattern = '/([-|\+]?[\d]+(\.[\d]+)?[i]?)/';
-		for($i=0; $i<count($poles); $i++) {
-			$poles[$i] = trim($poles[$i]);
-			$pItem = $pz->addChild("Pole");
-			$pItem->addAttribute("number", $i+1);
-			preg_match_all($pattern, $poles[$i], $matches);
-			if(is_array($matches[0]) and count($matches[0]) == 2) {
-				$pItem->addChild("Real", $this->sanitize($matches[0][0]));
-				$pItem->addChild("Imaginary", $this->sanitize(substr($matches[0][1],0,-1)));
-			}
-		}
 		for($j=0; $j<count($zeroes); $j++) {
 			$zeroes[$j] = trim($zeroes[$j]);
 			$zItem = $pz->addChild("Zero");
-			$zItem->addAttribute("number", $j+$i+1);
+			$zItem->addAttribute("number", $j+1);
 			preg_match_all($pattern, $zeroes[$j], $matches);
 			if(is_array($matches[0]) and count($matches[0]) == 1) {
 				$zItem->addChild("Real", $this->sanitize($matches[0][0]));
 				$zItem->addChild("Imaginary", "0");
+			}
+		}
+		for($i=0; $i<count($poles); $i++) {
+			$poles[$i] = trim($poles[$i]);
+			$pItem = $pz->addChild("Pole");
+			$pItem->addAttribute("number", $i+$j+1);
+			preg_match_all($pattern, $poles[$i], $matches);
+			if(is_array($matches[0]) and count($matches[0]) == 2) {
+				$pItem->addChild("Real", $this->sanitize($matches[0][0]));
+				$pItem->addChild("Imaginary", $this->sanitize(substr($matches[0][1],0,-1)));
 			}
 		}
 		$sg = $stage1->addChild("StageGain");

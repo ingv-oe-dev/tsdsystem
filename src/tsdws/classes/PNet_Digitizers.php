@@ -53,7 +53,7 @@ Class Digitizers extends QueryManager {
 	
 	public function getList($input) {
 
-		$query = "SELECT d.id, d.name, d.serial_number, d.digitizertype_id, d.additional_info, dt.name AS digitizertype_name FROM " . $this->tablename . " d left join tsd_pnet.digitizertypes dt on d.digitizertype_id = dt.id WHERE d.remove_time IS NULL";
+		$query = "SELECT d.id, d.name, d.serial_number, d.digitizertype_id, d.additional_info, dt.name AS digitizertype_name, dt.model AS digitizertype_model FROM " . $this->tablename . " d left join tsd_pnet.digitizertypes dt on d.digitizertype_id = dt.id WHERE d.remove_time IS NULL";
 		
 		if (isset($input) and is_array($input)) { 
 			$query .= $this->composeWhereFilter($input, array(
@@ -62,6 +62,7 @@ Class Digitizers extends QueryManager {
 				"serial_number" => array("alias" => "d.serial_number", "quoted" => true),
 				"digitizertype_id" => array("alias" => "d.digitizertype_id", "quoted" => false),
 				"digitizertype_name" => array("alias" => "dt.name", "quoted" => true),
+				"digitizertype_model" => array("alias" => "dt.model", "quoted" => true),
 				"additional_info" => array("quoted" => true, "alias" => "d.additional_info")
 			));
 		}

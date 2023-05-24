@@ -343,7 +343,7 @@
                         custom_enum_titles.push(data[i].name + (data[i].sensortype_components ? new String(" (" + data[i].sensortype_components.length) + " comp.)" : "") + (data[i].sensortype_model ? new String(" - Model: " + data[i].sensortype_model) : "") + (data[i].serial_number ? new String(" - SN: " + data[i].serial_number) : ""));
                         break;
                     case "digitizer_id":
-                        custom_enum_titles.push(data[i].name + (data[i].digitizertype_name ? new String(" (" + data[i].digitizertype_name) + " )" : "") + (data[i].serial_number ? new String(" - SN: " + data[i].serial_number) : ""));
+                        custom_enum_titles.push(data[i].name + (data[i].digitizertype_model ? new String(" (" + data[i].digitizertype_model) + " )" : "") + (data[i].serial_number ? new String(" - SN: " + data[i].serial_number) : ""));
                         break;
                     default:
                         custom_enum_titles.push(data[i].name);

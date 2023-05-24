@@ -29,7 +29,7 @@
         },
         "final_sample_rate": {
             "title": "Final sample rate",
-            "type": "number"
+            "type": ["null","number"]
         },
         "final_sample_rate_measure_unit": {
             "title": "Final sample rate measure unit",
@@ -37,7 +37,7 @@
         },
         "sensitivity": {
             "title": "Sensitivity",
-            "type": "number"
+            "type": ["null","number"]
         },
         "sensitivity_measure_unit": {
             "title": "Sensitivity measure unit",
@@ -45,7 +45,7 @@
         },
         "dynamical_range": {
             "title": "Dynamical range (Vpp)",
-            "type": "number"
+            "type": ["null","number"]
         },
         "dynamical_range_measure_unit": {
             "title": "Dynamical range measure unit",
