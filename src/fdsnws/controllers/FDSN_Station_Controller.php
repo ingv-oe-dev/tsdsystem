@@ -114,7 +114,7 @@ Class FDSN_Station_Controller extends RESTController {
 
 		// $input["includerestricted"]
 		if(!array_key_exists("includerestricted", $input)) {
-			$input["includerestricted"] = false;
+			$input["includerestricted"] = true;
 		} else {
 			$input["includerestricted"] = (intval($input["includerestricted"]) === 1 or $input["includerestricted"] === true or $input["includerestricted"] === "true");
 		}
@@ -125,7 +125,7 @@ Class FDSN_Station_Controller extends RESTController {
 		return $this->check_spatial_input();
 	}
 	
-	public function get($jsonfields=array("station_geojson_coords", "response_parameters", "channel_additional_info")) {
+	public function get($jsonfields=array("station_geojson_coords", "response_parameters", "channel_additional_info", "station_additional_info", "net_additional_info")) {
 		parent::get($jsonfields);
 	}
 }

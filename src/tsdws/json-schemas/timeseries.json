@@ -179,12 +179,12 @@
                     "pattern": "^[a-z_]+[a-z0-9_]*$",
                     "title": "Name",
                     "minLength": 1,
-                    "description": "Table column name (only lowercase letters, numbers and underscore characters admitted)",
+                    "description": "*Readonly* - Table column name (only lowercase letters, numbers and underscore characters admitted)",
                     "readOnly": true
                 },
                 "type": {
                     "title": "Field type",
-                    "description": "Table column type",
+                    "description": "*Readonly* - Table column type",
                     "type": "string",
                     "minLength": 1,
                     "default": "double precision",

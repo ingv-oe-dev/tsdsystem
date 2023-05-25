@@ -69,6 +69,10 @@ Class FDSN_Station extends QueryManager {
 					$filter_query .= " AND UPPER(fdsn_station.station_sitename) = '" . $input["location"][0] . "'";
 				}
 			}
+			// includerestricted
+			if (array_key_exists("includerestricted", $input) and !$input["includerestricted"]) {
+				$filter_query .= " AND (fdsn_station.net_restrictedstatus IS NULL OR fdsn_station.net_restrictedstatus <> 'closed') AND (fdsn_station.station_restrictedstatus IS NULL OR fdsn_station.station_restrictedstatus <> 'closed') AND (fdsn_station.channel_restrictedstatus IS NULL OR fdsn_station.channel_restrictedstatus = 'open')";
+			}
 			// Spatial query
 			$filter_query .= $this->extendSpatialQuery($input, "fdsn_station.station_coords");
 		}
@@ -79,6 +83,7 @@ Class FDSN_Station extends QueryManager {
 			fdsn_station.net_description,
 			fdsn_station.net_additional_info,
 			fdsn_station.net_startdate,
+			fdsn_station.net_restrictedstatus,
 			fdsn_station.totalnumberstations,
 			t1.selectednumberstations, 
 			fdsn_station.station_id,
@@ -91,6 +96,8 @@ Class FDSN_Station extends QueryManager {
 			fdsn_station.station_sitename,
 			fdsn_station.station_startdate,
 			fdsn_station.station_enddate,
+			fdsn_station.station_additional_info,
+			fdsn_station.station_restrictedstatus,
 			fdsn_station.totalnumberchannels,
 			t2.selectednumberchannels,
 			fdsn_station.channel_id,
@@ -98,6 +105,7 @@ Class FDSN_Station extends QueryManager {
 			fdsn_station.channel_startdate,
 			fdsn_station.channel_enddate,
 			fdsn_station.channel_additional_info,
+			fdsn_station.channel_restrictedstatus,
 			fdsn_station.sensor_id,
 			fdsn_station.sensor_name,
 			fdsn_station.sensor_serial_number,
@@ -132,7 +140,9 @@ Class FDSN_Station extends QueryManager {
 			where true $filter_query
 			group by station_id
 		) t2 on fdsn_station.station_id = t2.station_id
-		where true $filter_query";
+		where true 
+		$filter_query
+		";
 
 		$query .= " ORDER BY fdsn_station.net_name, fdsn_station.station_name, fdsn_station.channel_startdate, fdsn_station.channel_name";
 

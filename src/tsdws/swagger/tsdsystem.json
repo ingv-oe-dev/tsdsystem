@@ -6348,7 +6348,47 @@
                 "additional_info": {
                     "title": "Additional info",
                     "type": "object",
-                    "additionalProperties": true
+                    "additionalProperties": true,
+                    "properties": {
+                        "Depth": {
+                            "title": "Depth",
+                            "description": "Depth property also used in FDSN Station XML. The depth of the sensor relative to the local ground surface level, in meters",
+                            "type": ["null", "number"],
+                            "default": 0
+                        },
+                        "Azimuth": {
+                            "title": "Azimuth",
+                            "description": "Azimuth property also used in FDSN Station XML. Azimuth of the component in degrees clockwise from geographic (true) north.",
+                            "type": ["null", "number"],
+                            "minimum": 0,
+                            "maximum": 360
+                        },
+                        "Dip": {
+                            "title": "Dip",
+                            "description": "Dip property also used in FDSN Station XML. Dip of the component in degrees, positive is down from horizontal. For horizontal dip=0, for vertical upwards dip=-90 and for vertical downwards dip=+90.",
+                            "type": ["null", "number"],
+                            "minimum": -90,
+                            "maximum": 90
+                        },
+                        "SampleRate": {
+                            "title": "SampleRate",
+                            "description": "SampleRate property also used in FDSN Station XML. Sample rate in samples per second. If not specified, the sample rate of the digitizer will be used on FDSN Station XML.",
+                            "type": ["null", "number"]
+                        },
+                        "ClockDrift": {
+                            "title": "ClockDrift",
+                            "description": "ClockDrift property also used in FDSN Station XML. Tolerance value, measured in seconds per sample, used as a threshold for time error detection in data from the channel.",
+                            "type": ["null", "number"],
+                            "minimum": 0
+                        },
+                        "restrictedStatus": {
+                            "title": "restrictedStatus",
+                            "description": "restrictedStatus property also used in FDSN Station XML.",
+                            "type": "string",
+                            "enum": ["open", "closed", "partial"],
+                            "default": "open"
+                        }
+                    }
                 }
             }
         },
@@ -6397,11 +6437,13 @@
                 },
                 "final_sample_rate": {
                     "title": "Final sample rate",
+                    "description": "Sample rate in samples per second",
                     "type": "number"
                 },
                 "final_sample_rate_measure_unit": {
                     "title": "Final sample rate measure unit",
-                    "type": "string"
+                    "type": "string",
+                    "default": "Hz"
                 },
                 "sensitivity": {
                     "title": "Sensitivity",
@@ -6564,7 +6606,16 @@
                 "additional_info": {
                     "title": "Additional properties",
                     "description": "Additional properties",
-                    "type": "object"
+                    "type": "object",
+                    "properties": {
+                        "restrictedStatus": {
+                            "title": "restrictedStatus",
+                            "description": "restrictedStatus property also used in FDSN Station XML.",
+                            "type": "string",
+                            "enum": ["open", "closed", "partial"],
+                            "default": "open"
+                        }
+                    }
                 }
             }
         },
@@ -6644,7 +6695,27 @@
                 "additional_info": {
                     "title": "Additional info",
                     "type": "object",
-                    "additionalProperties": true
+                    "additionalProperties": true,
+                    "properties": {
+                        "startDate": {
+                            "title": "startDate",
+                            "description": "startDate property also used in FDSN Station XML. Start date of network. Standard ISO8601 datetime UTC",
+                            "type": "string",
+                            "format": "date-time"
+                        },
+                        "doi": {
+                            "title": "DOI",
+                            "description": "A type to document persistent identifiers. Identifier values should be specified without a URI scheme (prefix), instead the identifier type is documented as an attribute.",
+                            "type": "string"
+                        },
+                        "restrictedStatus": {
+                            "title": "restrictedStatus",
+                            "description": "restrictedStatus property also used in FDSN Station XML.",
+                            "type": "string",
+                            "enum": ["open", "closed", "partial"],
+                            "default": "open"
+                        }
+                    }
                 }
             }
         },

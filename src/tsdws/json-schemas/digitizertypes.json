@@ -29,11 +29,13 @@
         },
         "final_sample_rate": {
             "title": "Final sample rate",
+            "description": "Sample rate in samples per second",
             "type": ["null","number"]
         },
         "final_sample_rate_measure_unit": {
             "title": "Final sample rate measure unit",
-            "type": "string"
+            "type": "string",
+            "default": "Hz"
         },
         "sensitivity": {
             "title": "Sensitivity",
@@ -56,7 +58,8 @@
             "description": "Additional info",
             "properties": {
                 "responseXML": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "From Stage 2 in FDSN Station XML"
                 },
                 "prettifyXML": {
                     "type": "button",

@@ -307,8 +307,8 @@ class FDSN_Station_Encoder extends FDSN_Station {
 	
 	public function FDSN_Station_XML_Header() {
 		return '
-		<FDSNStationXML xmlns="http://www.fdsn.org/xml/station/1" schemaVersion="1.0" xsi:schemaLocation="http://www.fdsn.org/xml/station/1 http://www.fdsn.org/xml/station/fdsn-station-1.0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"> 
-			<Source>SeisNet-mysql</Source>
+		<FDSNStationXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.fdsn.org/xml/station/1" schemaVersion="1.2" xsi:schemaLocation="http://www.fdsn.org/xml/station/1 http://www.fdsn.org/xml/station/fdsn-station-1.2.xsd">
+			<Source>INGV-OE UFSO-IT StnDB</Source>
 			<Sender>INGV-OE</Sender>
 			<Module>INGV-OE WEB SERVICE: fdsnws-station | version: 1.0.0</Module>
 			<ModuleURI>' . htmlspecialchars($this->getURI()) . '</ModuleURI>
@@ -345,14 +345,28 @@ class FDSN_Station_Encoder extends FDSN_Station {
 		$netItem->addAttribute("startDate", $this->sanitize($item["net_startdate"]));
 		if (isset($item["net_enddate"]))
 			$netItem->addAttribute("endDate", $item["net_enddate"]);
-		$netItem->addAttribute("restrictedStatus", "open");
 		$netItem->addChild("Description", $this->sanitize($item["net_description"]));
 
 		if (isset($item["net_additional_info"])) {
-			$addInfo = $this->object_to_array(json_decode($item["net_additional_info"])); // convert to an associative array
+			$addInfo = $this->object_to_array($item["net_additional_info"]); // convert to an associative array
 			if ($this->isSetArrayVal($addInfo, "doi")) {
 				$netItem->addChild("Identifier", strval($addInfo["doi"]));
 			}
+			if ($this->isSetArrayVal($addInfo, "startDate")) {
+				$netItem->addAttribute("startDate", strval($addInfo["startDate"]));
+			} else {
+				$netItem->addAttribute("startDate", $this->sanitize($item["net_startdate"]));
+			}
+			if (
+				$this->isSetArrayVal($addInfo, "restrictedStatus") and 
+				in_array(strtolower($addInfo["restrictedStatus"]), array("open","closed","partial"))
+			) {
+				$netItem->addAttribute("restrictedStatus", strtolower($addInfo["restrictedStatus"]));
+			} else {
+				$netItem->addAttribute("restrictedStatus", "open");
+			}
+		} else {
+			$netItem->addAttribute("restrictedStatus", "open");
 		}
 		
 		return $netItem;
@@ -364,11 +378,25 @@ class FDSN_Station_Encoder extends FDSN_Station {
 		$stationItem->addAttribute("code", $item["station_name"] );
 		$stationItem->addAttribute("alternateCode", $item["station_id"] );
 		$stationItem->addAttribute("startDate", $this->sanitize($item["station_startdate"]));
-		if (isset($item["station_enddate"]))
+		if (isset($item["station_enddate"])) {
 			$stationItem->addAttribute("endDate", $item["station_enddate"]);
-		$stationItem->addAttribute("restrictedStatus", "open");
+		}
+		if (isset($item["station_additional_info"])) {
+			$addInfo = $this->object_to_array($item["station_additional_info"]); // convert to an associative array
+			if (
+				$this->isSetArrayVal($addInfo, "restrictedStatus") and 
+				in_array(strtolower($addInfo["restrictedStatus"]), array("open","closed","partial"))
+			) {
+				$stationItem->addAttribute("restrictedStatus", strtolower($addInfo["restrictedStatus"]));
+			} else {
+				$stationItem->addAttribute("restrictedStatus", "open");
+			}
+		} else {
+			$stationItem->addAttribute("restrictedStatus", "open");
+		}
 		//$stationItem->addChild("Description", $this->sanitize($item["station_name"]));
 		//$stationItem->addChild("Identifier", $this->sanitize($item["station_id"]));
+		$stationItem->addChild("CreationDate", $this->sanitize($item["station_startdate"]));
 		$stationItem->addChild("Latitude", $this->sanitize($item["station_latitude"]));
 		$stationItem->addChild("Longitude", $this->sanitize($item["station_longitude"]));
 		$stationItem->addChild("Elevation", $this->sanitize($item["station_elevation"]));
@@ -387,21 +415,19 @@ class FDSN_Station_Encoder extends FDSN_Station {
 		$channelItem->addAttribute("startDate", $this->sanitize($item["channel_startdate"]));
 		if (isset($item["channel_enddate"]))
 			$channelItem->addAttribute("endDate", $item["channel_enddate"]);
-		$channelItem->addAttribute("restrictedStatus", "open");
 		$channelItem->addAttribute("locationCode", "");
 		$channelItem->addChild("Description", $this->sanitize($item["channel_name"]));
 		$channelItem->addChild("Identifier", $this->sanitize($item["channel_id"]));
 		$channelItem->addChild("Latitude", $this->sanitize($item["station_latitude"]));
 		$channelItem->addChild("Longitude", $this->sanitize($item["station_longitude"]));
 		$channelItem->addChild("Elevation", $this->sanitize($item["station_elevation"]));
+		// append other properties
+		$this->append_Channel_additionalInfo($channelItem, $item); // additional info
 
 		// append sensor and digitizer info
 		$channelItem->addChild("Sensor")->addChild("Description", $item["sensortype_name"]);
 		//$channelItem->addChild("DataLogger")->addChild("Description", $item["digitizertype_name"]);
 		$channelItem->addChild("DataLogger")->addChild("Description", $item["digitizertype_model"]);
-		
-		// append other properties
-		$this->append_Channel_additionalInfo($channelItem, $item); // additional info
 		
 		$this->create_Response_XML_section($channelItem, $item); // response section
 
@@ -482,6 +508,15 @@ class FDSN_Station_Encoder extends FDSN_Station {
 			if ($this->isSetArrayVal($addInfo, "Dip")) $channelItem->addChild("Dip", strval($addInfo["Dip"]));
 			if ($this->isSetArrayVal($addInfo, "SampleRate")) $channelItem->addChild("SampleRate", strval($addInfo["SampleRate"]));
 			if ($this->isSetArrayVal($addInfo, "ClockDrift")) $channelItem->addChild("ClockDrift", strval($addInfo["ClockDrift"]));
+
+			if (
+				$this->isSetArrayVal($addInfo, "restrictedStatus") and 
+				in_array(strtolower($addInfo["restrictedStatus"]), array("open","closed","partial"))
+			) {
+				$channelItem->addAttribute("restrictedStatus", strtolower($addInfo["restrictedStatus"]));
+			} else {
+				$channelItem->addAttribute("restrictedStatus", "open");
+			}
 		}
 	}
 

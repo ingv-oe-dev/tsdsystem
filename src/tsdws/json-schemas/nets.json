@@ -37,11 +37,36 @@
         "additional_info": {
             "title": "Additional info",
             "type": "object",
-            "additionalProperties": true
+            "additionalProperties": true,
+            "properties": {
+                "startDate": {
+                    "title": "startDate",
+                    "description": "startDate property also used in FDSN Station XML. Start date of network. Standard ISO8601 datetime UTC",
+                    "type": "string",
+                    "format": "date-time",
+                    "options": {
+                        "inputAttributes": {
+                            "placeholder": "YYYY-MM-DD HH:MM:SS"
+                        }
+                    }
+                },
+                "doi": {
+                    "title": "DOI",
+                    "description": "A type to document persistent identifiers. Identifier values should be specified without a URI scheme (prefix), instead the identifier type is documented as an attribute.",
+                    "type": "string"
+                },
+                "restrictedStatus": {
+                    "title": "restrictedStatus",
+                    "description": "restrictedStatus property also used in FDSN Station XML.",
+                    "type": "string",
+                    "enum": ["open", "closed", "partial"],
+                    "default": "open"
+                }
+            }
         },
         "n_nodes": {
             "title": "# nodes",
-            "description": "Nodes (sensors) belonging to this net",
+            "description": "*Readonly* - Nodes (sensors) belonging to this net",
             "type": "integer",
             "readOnly": true
         }

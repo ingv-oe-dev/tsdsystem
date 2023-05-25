@@ -57,29 +57,38 @@
         "additional_info": {
             "title": "Additional Info",
             "description": "Additional info",
-            "type": "object"
+            "type": "object",
+            "properties": {
+                "restrictedStatus": {
+                    "title": "restrictedStatus",
+                    "description": "restrictedStatus property also used in FDSN Station XML.",
+                    "type": "string",
+                    "enum": ["open", "closed", "partial"],
+                    "default": "open"
+                }
+            }
         },
         "sensortype_name": {
             "title": "Sensortype",
-            "description": "The current sensortype name",
+            "description": "*Readonly* - The current sensortype name",
             "type": "string",
             "readOnly": true
         },
         "n_channels": {
             "title": "N. channels",
-            "description": "Total umber of channels belonging to this node",
+            "description": "*Readonly* - Total umber of channels belonging to this node",
             "type": "integer",
             "readOnly": true
         },
         "start_datetime": {
             "title": "Start time",
-            "description": "Node start time",
+            "description": "*Readonly* - Node start time",
             "type": "string",
             "readOnly": true
         },
         "end_datetime": {
             "title": "End time",
-            "description": "Node end time",
+            "description": "*Readonly* - Node end time",
             "type": "string",
             "readOnly": true
         }
