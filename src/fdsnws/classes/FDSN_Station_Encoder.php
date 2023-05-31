@@ -500,13 +500,17 @@ class FDSN_Station_Encoder extends FDSN_Station {
 
 	public function append_Channel_additionalInfo(&$channelItem, $item) {
 
+		if (isset($item["final_sample_rate"])) {
+			$channelItem->addChild("SampleRate", strval($item["final_sample_rate"]));
+		}
+
 		if (isset($item["channel_additional_info"])) {
 			$addInfo = $this->object_to_array($item["channel_additional_info"]); // convert to an associative array
 
 			if ($this->isSetArrayVal($addInfo, "Depth")) $channelItem->addChild("Depth", strval($addInfo["Depth"]));
 			if ($this->isSetArrayVal($addInfo, "Azimuth")) $channelItem->addChild("Azimuth", strval($addInfo["Azimuth"]));
 			if ($this->isSetArrayVal($addInfo, "Dip")) $channelItem->addChild("Dip", strval($addInfo["Dip"]));
-			if ($this->isSetArrayVal($addInfo, "SampleRate")) $channelItem->addChild("SampleRate", strval($addInfo["SampleRate"]));
+			//if ($this->isSetArrayVal($addInfo, "SampleRate")) $channelItem->addChild("SampleRate", strval($addInfo["SampleRate"]));
 			if ($this->isSetArrayVal($addInfo, "ClockDrift")) $channelItem->addChild("ClockDrift", strval($addInfo["ClockDrift"]));
 
 			if (
