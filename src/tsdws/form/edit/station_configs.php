@@ -91,16 +91,25 @@
                 // get list of stations
                 $.ajax({
                     "url": "../../stations",
+                    "data": {
+                        "sort_by": "name"
+                    },
                     "success": function(response) {
                         fillEnum(response.data, "station_id");
                         // get list of sensors
                         $.ajax({
                             "url": "../../sensors",
+                            "data": {
+                                "sort_by": "name"
+                            },
                             "success": function(response) {
                                 fillEnum(response.data, "sensor_id");
                                 // get list of digitizers
                                 $.ajax({
                                     "url": "../../digitizers",
+                                    "data": {
+                                        "sort_by": "name"
+                                    },
                                     "success": function(response) {
                                         fillEnum(response.data, "digitizer_id");
                                         // load station config data if id is defined

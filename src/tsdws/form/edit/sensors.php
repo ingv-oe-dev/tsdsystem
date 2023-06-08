@@ -89,6 +89,9 @@
                 // get list of sensortypes
                 $.ajax({
                     "url": "../../sensortypes",
+                    "data": {
+                        "sort_by": "name"
+                    },
                     "success": function(response) {
                         fillEnum(response.data, "sensortype_id");
                         // load sensor data if sensor_id is defined

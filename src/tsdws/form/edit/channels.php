@@ -93,6 +93,9 @@
                 handleInputID();
                 $.ajax({
                     "url": "../../stations/configs",
+                    "data": {
+                        "sort_by": "station_name,start_datetime"
+                    },
                     "success": function(response) {
                         fillEnum(response.data, "station_config_id");
                         // load sensor data if station_config_id is defined

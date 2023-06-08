@@ -79,6 +79,9 @@
 
             $.ajax({
                 "url": (default_starting_value.role_type == 'role' ? "../../roles" : "../../users"),
+                "data": {
+                    "sort_by": "name"
+                },
                 "success": function(response) {
                     fillEnum(response.data, "role_id");
                     if (default_starting_value.role_id) {

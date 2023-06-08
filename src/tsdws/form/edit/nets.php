@@ -89,6 +89,9 @@
                 handleInputID();
                 $.ajax({
                     "url": "../../owners",
+                    "data": {
+                        "sort_by": "name"
+                    },
                     "success": function(response) {
                         fillEnum(response.data, "owner_id");
                         startEditor();

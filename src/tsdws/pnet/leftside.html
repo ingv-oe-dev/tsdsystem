@@ -42,7 +42,7 @@
                             <button title="Reload digitizertypes" class="btn-light border" type="button" id="button-reload-digitizertype" @click="fetchDigitizertypes()"><i class='fa fa-sm fa-rotate-right'></i></button>
                             <select class="form-select" id="input-digitizertype" v-model="filters.digitizertype_id" size="sm">
                                 <option :value="resetID"> {{ defaultOption.digitizertypes }} </option>
-                                <option v-for="item in digitizertypes" :value="item.id">{{ item.name }} {{ item.model ? '- ' + item.model : ''}}</option>
+                                <option v-for="item in digitizertypes" :value="item.id">{{ item.name }} {{ item.model ? '- ' + item.model : ''}} {{ item.dynamical_range ? '- ' + item.dynamical_range + '-VPP': ''}} {{ item.final_sample_rate ? '- ' + item.final_sample_rate : ''}}{{ item.final_sample_rate_measure_unit ? item.final_sample_rate_measure_unit : ''}}</option>
                             <select>
                             <button v-if="filters.digitizertype_id!=0" title="Edit digitizertypes settings" class="btn-light border" type="button" id="button-settings-digitizertype" @click="openEdit('digitizertype', filters.digitizertype_id)"><i class='fa fa-sm fa-gear'></i></button>
                             <button v-if="filters.digitizertype_id==0" title="Add new digitizertype" class="btn-light border" type="button" id="button-add-digitizertype" @click="openEdit('digitizertype')"><i class='fa fa-sm fa-plus'></i></button>

@@ -104,11 +104,17 @@
                 // get list of nets
                 $.ajax({
                     "url": "../../nets",
+                    "data": {
+                        "sort_by": "name"
+                    },
                     "success": function(response) {
                         fillEnum(response.data, "net_id");
                         // get list of sites
                         $.ajax({
                             "url": "../../sites",
+                            "data": {
+                                "sort_by": "name"
+                            },
                             "success": function(response) {
                                 fillEnum(response.data, "site_id");
                                 sites = response.data;

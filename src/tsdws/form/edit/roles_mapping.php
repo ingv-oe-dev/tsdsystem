@@ -75,10 +75,16 @@
                 mySchema = data;
                 $.ajax({
                     "url": "../../roles",
+                    "data": {
+                        "sort_by": "name"
+                    },
                     "success": function(response) {
                         fillEnum(response.data, "role_id");
                         $.ajax({
                             "url": "../../users",
+                            "data": {
+                                "sort_by": "name"
+                            },
                             "success": function(response) {
                                 fillEnum(response.data, "member_id");
                                 startEditor();

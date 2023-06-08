@@ -92,6 +92,9 @@
                 // get list of sensortype categories
                 $.ajax({
                     "url": "../../sensortype_categories",
+                    "data": {
+                        "sort_by": "name"
+                    },
                     "success": function(response) {
                         fillEnum(response.data, "sensortype_category_id");
                         // save schemas for each sensortype category
