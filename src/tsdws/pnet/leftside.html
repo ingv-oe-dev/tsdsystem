@@ -28,7 +28,7 @@
                             <button title="Reload digitizers" class="btn-light border" type="button" id="button-reload-digitizer" @click="fetchDigitizers()"><i class='fa fa-sm fa-rotate-right'></i></button>
                             <select class="form-select" id="input-digitizer" v-model="filters.digitizer_id" size="sm">
                                 <option :value="resetID"> {{ defaultOption.digitizers }} </option>
-                                <option v-for="item in digitizers" :value="item.id">{{ item.name }} - Model: {{ item.digitizertype_model}} (SN: {{ item.serial_number }})</option>
+                                <option v-for="item in digitizers" :value="item.id">{{ item.name }} - Model: {{ item.digitizertype_model}} {{ item.dynamical_range ? '- ' + item.dynamical_range + '-VPP': ''}} {{ item.final_sample_rate ? '- ' + item.final_sample_rate : ''}}{{ item.final_sample_rate_measure_unit ? item.final_sample_rate_measure_unit : ''}} (SN: {{ item.serial_number }})</option>
                             <select>
                             <button v-if="filters.digitizer_id!=0" title="Edit digitizers settings" class="btn-light border" type="button" id="button-settings-digitizer" @click="openEdit('digitizer', filters.digitizer_id)"><i class='fa fa-sm fa-gear'></i></button>
                             <button v-if="filters.digitizer_id==0" title="Add new digitizer" class="btn-light border" type="button" id="button-add-digitizer" @click="openEdit('digitizer')"><i class='fa fa-sm fa-plus'></i></button>

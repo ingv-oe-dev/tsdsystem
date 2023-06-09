@@ -53,7 +53,7 @@ Class Digitizers extends QueryManager {
 	
 	public function getList($input) {
 
-		$query = "SELECT d.id, d.name, d.serial_number, d.digitizertype_id, d.additional_info, dt.name AS digitizertype_name, dt.model AS digitizertype_model FROM " . $this->tablename . " d left join tsd_pnet.digitizertypes dt on d.digitizertype_id = dt.id WHERE d.remove_time IS NULL";
+		$query = "SELECT d.id, d.name, d.serial_number, d.digitizertype_id, d.additional_info, dt.name AS digitizertype_name, dt.model AS digitizertype_model, dt.final_sample_rate AS final_sample_rate, dt.final_sample_rate_measure_unit AS final_sample_rate_measure_unit, dt.dynamical_range AS dynamical_range FROM " . $this->tablename . " d left join tsd_pnet.digitizertypes dt on d.digitizertype_id = dt.id WHERE d.remove_time IS NULL";
 		
 		if (isset($input) and is_array($input)) { 
 			$query .= $this->composeWhereFilter($input, array(
