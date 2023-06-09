@@ -18,8 +18,8 @@ Class Digitizers extends QueryManager {
 			$this->myConnection->beginTransaction();
 
 			$next_query = "INSERT INTO " . $this->tablename . " (name, serial_number, digitizertype_id, additional_info, create_user) VALUES (".
-				"'" . $input["name"] . "', " . 
-				(isset($input["serial_number"]) ? ("'" .$input["serial_number"] . "'") : "NULL") . ", " .
+				"'" . pg_escape_string($input["name"]) . "', " . 
+				(isset($input["serial_number"]) ? ("'" .pg_escape_string($input["serial_number"]) . "'") : "NULL") . ", " .
 				(isset($input["digitizertype_id"]) ? $input["digitizertype_id"] : "NULL") . ", " .
 				(isset($input["additional_info"]) ? ("'" . json_encode((object)$input["additional_info"], JSON_NUMERIC_CHECK) . "'") : "NULL") . ",
 				" . ((array_key_exists("create_user", $input) and isset($input["create_user"]) and is_int($input["create_user"])) ? $input["create_user"] : "NULL") . " 

@@ -18,8 +18,8 @@ Class Roles extends QueryManager {
 			$this->myConnection->beginTransaction();
 
 			$next_query = "INSERT INTO " . $this->tablename . " (name, description) VALUES (
-				'" . $input["name"] . "', " . 
-				(isset($input["description"]) ? ("'" . $input["description"] . "'") : "NULL") . "
+				'" . pg_escape_string($input["name"]) . "', " . 
+				(isset($input["description"]) ? ("'" . pg_escape_string($input["description"]) . "'") : "NULL") . "
 			)";
 			$stmt = $this->myConnection->prepare($next_query);
 			$stmt->execute();

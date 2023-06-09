@@ -18,7 +18,7 @@ Class Owners extends QueryManager {
 			$this->myConnection->beginTransaction();
 
 			$next_query = "INSERT INTO " . $this->tablename . " (name, create_user) VALUES (
-				'" . $input["name"] . "',
+				'" . pg_escape_string($input["name"]) . "',
 				" . ((array_key_exists("create_user", $input) and isset($input["create_user"]) and is_int($input["create_user"])) ? $input["create_user"] : "NULL") . "
 			)";
 			$stmt = $this->myConnection->prepare($next_query);

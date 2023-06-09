@@ -18,7 +18,7 @@ Class SensortypeCategories extends QueryManager {
 			$this->myConnection->beginTransaction();
 
 			$next_query = "INSERT INTO " . $this->tablename . " (name, json_schema, create_user) VALUES ('" . 
-				$input["name"] . "', " .
+			pg_escape_string($input["name"]) . "', " .
 				(isset($input["json_schema"]) ? ("'" . json_encode((object) $input["json_schema"], JSON_NUMERIC_CHECK) . "'") : "NULL") . ",
 				" . ((array_key_exists("create_user", $input) and isset($input["create_user"]) and is_int($input["create_user"])) ? $input["create_user"] : "NULL") . "  
 				)";

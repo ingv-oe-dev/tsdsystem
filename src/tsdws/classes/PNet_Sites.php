@@ -18,7 +18,7 @@ Class Sites extends QueryManager {
 			$this->myConnection->beginTransaction();
 
 			$next_query = "INSERT INTO " . $this->tablename . " (name, coords, quote, additional_info, create_user) VALUES (".
-				"'" . $input["name"] . "', " . 
+				"'" . pg_escape_string($input["name"]) . "', " . 
 				(isset($input["coords"]) ? ("ST_GeomFromGeoJSON('" . json_encode((object) $input["coords"], JSON_NUMERIC_CHECK) . "')") : "NULL") . ", " .
 				(isset($input["quote"]) ? $input["quote"] : "NULL") . ", " .
 				(isset($input["additional_info"]) ? ("'" . json_encode((object) $input["additional_info"], JSON_NUMERIC_CHECK) . "'") : "NULL") . ",

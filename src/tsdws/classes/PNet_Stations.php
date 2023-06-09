@@ -18,7 +18,7 @@ Class Stations extends QueryManager {
 			$this->myConnection->beginTransaction();
 
 			$next_query = "INSERT INTO " . $this->tablename . " (name, coords, quote, net_id, site_id, additional_info, create_user) VALUES (".
-				"'" . $input["name"] . "', " . 
+				"'" . pg_escape_string($input["name"]) . "', " . 
 				((isset($input["lon"]) and isset($input["lat"])) ? ("'POINT(" . $input["lon"] . " " . $input["lat"] . ")'::geometry") : "NULL") . ", " .
 				(isset($input["quote"]) ? $input["quote"] : "NULL") . ", " .
 				(isset($input["net_id"]) ? $input["net_id"] : "NULL") . ", " .

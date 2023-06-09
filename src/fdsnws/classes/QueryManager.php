@@ -306,13 +306,13 @@ Class QueryManager extends Utils {
 		$str = " AND ";
 		if ($params["exact_match"]) {
 			if ($params["quoted"]) {
-				$str .= $params["fieldname"] . " = '" . $params["value"] . "'";
+				$str .= $params["fieldname"] . " = '" . pg_escape_string($params["value"]) . "'";
 			} else {
 				$str .= $params["fieldname"] . " = " . $params["value"];
 			}
 		} else {
 			if ($params["quoted"]) {
-				$str .=  "(" . $params["fieldname"] . ")::text ILIKE ('%" . $params["value"] . "%')";
+				$str .=  "(" . $params["fieldname"] . ")::text ILIKE ('%" . pg_escape_string($params["value"]) . "%')";
 			} else {
 				$str .= $params["fieldname"] . " = " . $params["value"];
 			}
@@ -327,7 +327,7 @@ Class QueryManager extends Utils {
 				if (array_key_exists("json", $value) and $value["json"]) {
 					$updStmt .= $key . " = '" . json_encode($input[$key]) . "', ";
 				} else {
-					$updStmt .= "$key = " . ((array_key_exists("quoted", $value) and $value["quoted"]) ? "'$input[$key]'" : "$input[$key]") . ", ";
+					$updStmt .= "$key = " . ((array_key_exists("quoted", $value) and $value["quoted"]) ? "'".pg_escape_string($input[$key])."'" : "$input[$key]") . ", ";
 				}
 			}
 		}
@@ -340,9 +340,13 @@ Class QueryManager extends Utils {
 			if (array_key_exists($key, $input)){
 				if (isset($input[$key])) {
 					if (array_key_exists("json", $value) and $value["json"]) {
-						$updStmt .= $key . " = '" . json_encode((object) $input[$key]) . "', ";
+						if (array_key_exists("associative", $value) and !$value["associative"]) {
+							$updStmt .= $key . " = '" . json_encode($input[$key]) . "', ";
+						} else {
+							$updStmt .= $key . " = '" . json_encode((object) $input[$key]) . "', ";
+						}
 					} else {
-						$updStmt .= "$key = " . ((array_key_exists("quoted", $value) and $value["quoted"]) ? "'$input[$key]'" : "$input[$key]") . ", ";
+						$updStmt .= "$key = " . ((array_key_exists("quoted", $value) and $value["quoted"]) ? "'".pg_escape_string($input[$key])."'" : "$input[$key]") . ", ";
 					}
 				} else {
 					$updStmt .= $key . " = NULL, ";

@@ -18,8 +18,8 @@ Class Sensortypes extends QueryManager {
 			$this->myConnection->beginTransaction();
 
 			$next_query = "INSERT INTO " . $this->tablename . " (name, model, components, sensortype_category_id, response_parameters, additional_info, create_user) VALUES (" . 
-				"'" .$input["name"] . "', " .
-				(isset($input["model"]) ? ("'" .$input["model"] . "'") : "NULL") . ", " .
+				"'" .pg_escape_string($input["name"]) . "', " .
+				(isset($input["model"]) ? ("'" .pg_escape_string($input["model"]) . "'") : "NULL") . ", " .
 				(isset($input["components"]) ? ("'" . json_encode($input["components"], JSON_NUMERIC_CHECK) . "'") : "NULL") . ", " .
 				(isset($input["sensortype_category_id"]) ? $input["sensortype_category_id"] : "NULL") . ", " .
 				(isset($input["response_parameters"]) ? ("'" . json_encode((object) $input["response_parameters"], JSON_NUMERIC_CHECK) . "'") : "NULL") . ", " .

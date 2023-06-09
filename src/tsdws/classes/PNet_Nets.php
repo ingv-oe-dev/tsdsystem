@@ -18,8 +18,8 @@ Class Nets extends QueryManager {
 			$this->myConnection->beginTransaction();
 
 			$next_query = "INSERT INTO " . $this->tablename . " (name, description, owner_id, additional_info, create_user) VALUES (
-				'" . $input["name"] . "', " .
-				(isset($input["description"]) ? ("'" . $input["description"] ."'") : "NULL") . ", " .  
+				'" . pg_escape_string($input["name"]) . "', " .
+				(isset($input["description"]) ? ("'" . pg_escape_string($input["description"]) ."'") : "NULL") . ", " .  
 				(isset($input["owner_id"]) ? $input["owner_id"] : "NULL") . ", " .
 				(isset($input["additional_info"]) ? ("'" . json_encode($input["additional_info"], JSON_NUMERIC_CHECK) . "'") : "NULL") . ", 
 				" . ((array_key_exists("create_user", $input) and isset($input["create_user"]) and is_int($input["create_user"])) ? $input["create_user"] : "NULL") . "

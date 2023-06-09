@@ -18,14 +18,14 @@ Class Digitizertypes extends QueryManager {
 			$this->myConnection->beginTransaction();
 
 			$next_query = "INSERT INTO " . $this->tablename . " (name, model, final_sample_rate, final_sample_rate_measure_unit, sensitivity, sensitivity_measure_unit, dynamical_range, dynamical_range_measure_unit, additional_info, create_user) VALUES (" . 
-				"'" .$input["name"] . "', " .
-				(isset($input["model"]) ? ("'" .$input["model"] . "'") : "NULL") . ", " .
+				"'" .pg_escape_string($input["name"]) . "', " .
+				(isset($input["model"]) ? ("'" .pg_escape_string($input["model"]) . "'") : "NULL") . ", " .
 				(isset($input["final_sample_rate"]) ? $input["final_sample_rate"] : "NULL") . ", " .
-				(isset($input["final_sample_rate_measure_unit"]) ? ("'" .$input["final_sample_rate_measure_unit"] . "'") : "NULL") . ", " .
+				(isset($input["final_sample_rate_measure_unit"]) ? ("'" .pg_escape_string($input["final_sample_rate_measure_unit"]) . "'") : "NULL") . ", " .
 				(isset($input["sensitivity"]) ? $input["sensitivity"] : "NULL") . ", " .
-				(isset($input["sensitivity_measure_unit"]) ? ("'" .$input["sensitivity_measure_unit"] . "'") : "NULL") . ", " .
+				(isset($input["sensitivity_measure_unit"]) ? ("'" .pg_escape_string($input["sensitivity_measure_unit"]) . "'") : "NULL") . ", " .
 				(isset($input["dynamical_range"]) ? $input["dynamical_range"] : "NULL") . ", " .
-				(isset($input["dynamical_range_measure_unit"]) ? ("'" .$input["dynamical_range_measure_unit"] . "'") : "NULL") . ", " .
+				(isset($input["dynamical_range_measure_unit"]) ? ("'" .pg_escape_string($input["dynamical_range_measure_unit"]) . "'") : "NULL") . ", " .
 				(isset($input["additional_info"]) ? ("'" . json_encode((object) $input["additional_info"], JSON_NUMERIC_CHECK) . "'") : "NULL") . ", " .
 				((array_key_exists("create_user", $input) and isset($input["create_user"]) and is_int($input["create_user"])) ? $input["create_user"] : "NULL") . 
 			")";
