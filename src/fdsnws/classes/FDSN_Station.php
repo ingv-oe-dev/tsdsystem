@@ -118,6 +118,7 @@ Class FDSN_Station extends QueryManager {
 			fdsn_station.digitizer_serial_number,
 			fdsn_station.digitizertype_name,
 			fdsn_station.digitizertype_model,
+			fdsn_station.datalogger_final_name,
 			fdsn_station.final_sample_rate,
 			fdsn_station.final_sample_rate_measure_unit,
 			fdsn_station.sensitivity,
