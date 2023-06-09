@@ -1,4 +1,4 @@
-FROM php:8.1.4-apache-bullseye
+FROM php:8.2.7-apache-bullseye
 
 LABEL Maintainer="Mario Torrisi <mario.torrisi@ingv.it>, Fabrizio Pistagna <fabrizio.pistagna@ingv.it>"
 
@@ -10,7 +10,7 @@ COPY php.ini "$PHP_INI_DIR/conf.d/php.ini"
 RUN apt-get update \
 	&& apt-get install -qy pkg-config libpq-dev curl libcurl4-openssl-dev openssl
 
-RUN docker-php-ext-install pdo pdo_pgsql
+RUN docker-php-ext-install pdo pdo_pgsql pgsql
 
 # ENABLE mod rewrite 
 RUN a2enmod rewrite
