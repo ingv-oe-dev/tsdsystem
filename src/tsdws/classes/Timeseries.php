@@ -183,7 +183,7 @@ Class Timeseries extends QueryManager {
 				'" . $input["schema"] . "',
 				'" . $input["name"]. "',
 				" . $input["sampling"] . ",
-				" . (isset($input["metadata"]) ? ("'" . json_encode($input["metadata"], JSON_NUMERIC_CHECK) . "'") : "NULL") . ",
+				" . (isset($input["metadata"]) ? ("'" . pg_escape_string(json_encode($input["metadata"], JSON_NUMERIC_CHECK)) . "'") : "NULL") . ",
 				" . ((array_key_exists("public", $input) and isset($input["public"]) and $input["public"]) ? "true" : "false") . ",
 				" . ((array_key_exists("with_tz", $input) and isset($input["with_tz"]) and $input["with_tz"]) ? "true" : "false") . ",
 				" . ((array_key_exists("create_user", $input) and isset($input["create_user"]) and is_numeric($input["create_user"])) ? strval($input["create_user"]) : "NULL") . "
@@ -344,7 +344,7 @@ Class Timeseries extends QueryManager {
 			// update into timeseries table
 			$next_query = "UPDATE " . $this->tablename . " SET ";
 			if (isset($input["metadata"])) {
-				$next_query .= " metadata = '" . json_encode($input["metadata"], JSON_NUMERIC_CHECK) . "', ";
+				$next_query .= " metadata = '" . pg_escape_string(json_encode($input["metadata"], JSON_NUMERIC_CHECK)) . "', ";
 			}
 			if (isset($input["public"])) {
 				$next_query .= " public = " . ($input["public"] ? "true" : "false") . ", ";

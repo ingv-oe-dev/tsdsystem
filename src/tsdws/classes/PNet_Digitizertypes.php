@@ -26,7 +26,7 @@ Class Digitizertypes extends QueryManager {
 				(isset($input["sensitivity_measure_unit"]) ? ("'" .pg_escape_string($input["sensitivity_measure_unit"]) . "'") : "NULL") . ", " .
 				(isset($input["dynamical_range"]) ? $input["dynamical_range"] : "NULL") . ", " .
 				(isset($input["dynamical_range_measure_unit"]) ? ("'" .pg_escape_string($input["dynamical_range_measure_unit"]) . "'") : "NULL") . ", " .
-				(isset($input["additional_info"]) ? ("'" . json_encode((object) $input["additional_info"], JSON_NUMERIC_CHECK) . "'") : "NULL") . ", " .
+				(isset($input["additional_info"]) ? ("'" . pg_escape_string(json_encode((object) $input["additional_info"], JSON_NUMERIC_CHECK)) . "'") : "NULL") . ", " .
 				((array_key_exists("create_user", $input) and isset($input["create_user"]) and is_int($input["create_user"])) ? $input["create_user"] : "NULL") . 
 			")";
 			$stmt = $this->myConnection->prepare($next_query);

@@ -20,7 +20,7 @@ Class Channels extends QueryManager {
 			$next_query = "INSERT INTO " . $this->tablename . " (name, station_config_id, additional_info, create_user) VALUES (
 				'" . pg_escape_string($input["name"]) . "',
 				" . $input["station_config_id"]. ", " .
-				(isset($input["additional_info"]) ? ("'" . json_encode($input["additional_info"], JSON_NUMERIC_CHECK) . "'") : "NULL") . ", 
+				(isset($input["additional_info"]) ? ("'" . pg_escape_string(json_encode($input["additional_info"], JSON_NUMERIC_CHECK)) . "'") : "NULL") . ", 
 				" . ((array_key_exists("create_user", $input) and isset($input["create_user"]) and is_int($input["create_user"])) ? $input["create_user"] : "NULL") . " 
 				)";
 			$stmt = $this->myConnection->prepare($next_query);

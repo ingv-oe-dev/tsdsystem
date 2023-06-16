@@ -20,10 +20,10 @@ Class Sensortypes extends QueryManager {
 			$next_query = "INSERT INTO " . $this->tablename . " (name, model, components, sensortype_category_id, response_parameters, additional_info, create_user) VALUES (" . 
 				"'" .pg_escape_string($input["name"]) . "', " .
 				(isset($input["model"]) ? ("'" .pg_escape_string($input["model"]) . "'") : "NULL") . ", " .
-				(isset($input["components"]) ? ("'" . json_encode($input["components"], JSON_NUMERIC_CHECK) . "'") : "NULL") . ", " .
+				(isset($input["components"]) ? ("'" . pg_escape_string(json_encode($input["components"], JSON_NUMERIC_CHECK)) . "'") : "NULL") . ", " .
 				(isset($input["sensortype_category_id"]) ? $input["sensortype_category_id"] : "NULL") . ", " .
-				(isset($input["response_parameters"]) ? ("'" . json_encode((object) $input["response_parameters"], JSON_NUMERIC_CHECK) . "'") : "NULL") . ", " .
-				(isset($input["additional_info"]) ? ("'" . json_encode((object) $input["additional_info"], JSON_NUMERIC_CHECK) . "'") : "NULL") . ", " .
+				(isset($input["response_parameters"]) ? ("'" . pg_escape_string(json_encode((object) $input["response_parameters"], JSON_NUMERIC_CHECK)) . "'") : "NULL") . ", " .
+				(isset($input["additional_info"]) ? ("'" . pg_escape_string(json_encode((object) $input["additional_info"], JSON_NUMERIC_CHECK)) . "'") : "NULL") . ", " .
 				((array_key_exists("create_user", $input) and isset($input["create_user"]) and is_int($input["create_user"])) ? $input["create_user"] : "NULL") . 
 			")";
 			$stmt = $this->myConnection->prepare($next_query);

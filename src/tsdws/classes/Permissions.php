@@ -43,7 +43,7 @@ Class Permissions extends QueryManager {
 
 			$next_query = "INSERT INTO " . $this->tablename . " (" . $this->id_fieldname . ", settings, active) VALUES (
 				'" . $input["role_id"] . "', " . 
-				(isset($input["settings"]) ? ("'" . json_encode($input["settings"], JSON_NUMERIC_CHECK) . "'") : "NULL") . ",
+				(isset($input["settings"]) ? ("'" . pg_escape_string(json_encode($input["settings"], JSON_NUMERIC_CHECK)) . "'") : "NULL") . ",
 				" . ((array_key_exists("active", $input) and isset($input["active"]) and $input["active"]) ? "true" : "false") . "
 			)";
 			$stmt = $this->myConnection->prepare($next_query);

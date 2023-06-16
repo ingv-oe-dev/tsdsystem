@@ -23,7 +23,7 @@ Class Stations extends QueryManager {
 				(isset($input["quote"]) ? $input["quote"] : "NULL") . ", " .
 				(isset($input["net_id"]) ? $input["net_id"] : "NULL") . ", " .
 				(isset($input["site_id"]) ? $input["site_id"] : "NULL") . ", " .
-				(isset($input["additional_info"]) ? ("'" . json_encode((object)$input["additional_info"], JSON_NUMERIC_CHECK) . "'") : "NULL") . ",
+				(isset($input["additional_info"]) ? ("'" . pg_escape_string(json_encode((object)$input["additional_info"], JSON_NUMERIC_CHECK)) . "'") : "NULL") . ",
 				" . ((array_key_exists("create_user", $input) and isset($input["create_user"]) and is_int($input["create_user"])) ? $input["create_user"] : "NULL") . " 
 			)";
 

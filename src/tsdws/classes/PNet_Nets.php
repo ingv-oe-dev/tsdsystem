@@ -21,7 +21,7 @@ Class Nets extends QueryManager {
 				'" . pg_escape_string($input["name"]) . "', " .
 				(isset($input["description"]) ? ("'" . pg_escape_string($input["description"]) ."'") : "NULL") . ", " .  
 				(isset($input["owner_id"]) ? $input["owner_id"] : "NULL") . ", " .
-				(isset($input["additional_info"]) ? ("'" . json_encode($input["additional_info"], JSON_NUMERIC_CHECK) . "'") : "NULL") . ", 
+				(isset($input["additional_info"]) ? ("'" . pg_escape_string(json_encode($input["additional_info"], JSON_NUMERIC_CHECK)) . "'") : "NULL") . ", 
 				" . ((array_key_exists("create_user", $input) and isset($input["create_user"]) and is_int($input["create_user"])) ? $input["create_user"] : "NULL") . "
 			)";
 			$stmt = $this->myConnection->prepare($next_query);

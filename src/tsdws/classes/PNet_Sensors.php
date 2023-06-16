@@ -21,7 +21,7 @@ Class Sensors extends QueryManager {
 				"'" . pg_escape_string($input["name"]) . "', " . 
 				(isset($input["serial_number"]) ? ("'" .pg_escape_string($input["serial_number"]) . "'") : "NULL") . ", " .
 				(isset($input["sensortype_id"]) ? $input["sensortype_id"] : "NULL") . ", " .
-				(isset($input["additional_info"]) ? ("'" . json_encode((object)$input["additional_info"], JSON_NUMERIC_CHECK) . "'") : "NULL") . ",
+				(isset($input["additional_info"]) ? ("'" . pg_escape_string(json_encode((object)$input["additional_info"], JSON_NUMERIC_CHECK)) . "'") : "NULL") . ",
 				" . ((array_key_exists("create_user", $input) and isset($input["create_user"]) and is_int($input["create_user"])) ? $input["create_user"] : "NULL") . " 
 			)";
 

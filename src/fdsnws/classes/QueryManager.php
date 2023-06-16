@@ -325,7 +325,7 @@ Class QueryManager extends Utils {
 		foreach($updateFields as $key => $value) {
 			if (array_key_exists($key, $input) and isset($input[$key])){
 				if (array_key_exists("json", $value) and $value["json"]) {
-					$updStmt .= $key . " = '" . json_encode($input[$key]) . "', ";
+					$updStmt .= $key . " = '" . pg_escape_string(json_encode($input[$key])) . "', ";
 				} else {
 					$updStmt .= "$key = " . ((array_key_exists("quoted", $value) and $value["quoted"]) ? "'".pg_escape_string($input[$key])."'" : "$input[$key]") . ", ";
 				}
@@ -341,9 +341,9 @@ Class QueryManager extends Utils {
 				if (isset($input[$key])) {
 					if (array_key_exists("json", $value) and $value["json"]) {
 						if (array_key_exists("associative", $value) and !$value["associative"]) {
-							$updStmt .= $key . " = '" . json_encode($input[$key]) . "', ";
+							$updStmt .= $key . " = '" . pg_escape_string(json_encode($input[$key])) . "', ";
 						} else {
-							$updStmt .= $key . " = '" . json_encode((object) $input[$key]) . "', ";
+							$updStmt .= $key . " = '" . pg_escape_string(json_encode((object) $input[$key])) . "', ";
 						}
 					} else {
 						$updStmt .= "$key = " . ((array_key_exists("quoted", $value) and $value["quoted"]) ? "'".pg_escape_string($input[$key])."'" : "$input[$key]") . ", ";

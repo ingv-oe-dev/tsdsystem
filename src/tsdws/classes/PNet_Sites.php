@@ -19,9 +19,9 @@ Class Sites extends QueryManager {
 
 			$next_query = "INSERT INTO " . $this->tablename . " (name, coords, quote, additional_info, create_user) VALUES (".
 				"'" . pg_escape_string($input["name"]) . "', " . 
-				(isset($input["coords"]) ? ("ST_GeomFromGeoJSON('" . json_encode((object) $input["coords"], JSON_NUMERIC_CHECK) . "')") : "NULL") . ", " .
+				(isset($input["coords"]) ? ("ST_GeomFromGeoJSON('" . pg_escape_string(json_encode((object) $input["coords"], JSON_NUMERIC_CHECK)) . "')") : "NULL") . ", " .
 				(isset($input["quote"]) ? $input["quote"] : "NULL") . ", " .
-				(isset($input["additional_info"]) ? ("'" . json_encode((object) $input["additional_info"], JSON_NUMERIC_CHECK) . "'") : "NULL") . ",
+				(isset($input["additional_info"]) ? ("'" . pg_escape_string(json_encode((object) $input["additional_info"], JSON_NUMERIC_CHECK)) . "'") : "NULL") . ",
 				" . ((array_key_exists("create_user", $input) and isset($input["create_user"]) and is_int($input["create_user"])) ? $input["create_user"] : "NULL") . " 
 			)";
 
@@ -87,7 +87,7 @@ Class Sites extends QueryManager {
 			"update_user" => array("quoted" => false)
 		);
 
-		$input["coords"] = isset($input["coords"]) ? ("ST_GeomFromGeoJSON('" . json_encode((object) $input["coords"], JSON_NUMERIC_CHECK) . "')") : "NULL";
+		$input["coords"] = isset($input["coords"]) ? ("ST_GeomFromGeoJSON('" . pg_escape_string(json_encode((object) $input["coords"], JSON_NUMERIC_CHECK)) . "')") : "NULL";
 		if ($input["coords"] != "NULL") {
 			$updateFields["coords"] = array("quoted" => false);
 		}
