@@ -349,10 +349,10 @@
                 custom_enum.push(data[i].id);
                 switch (propertyKey) {
                     case "sensor_id":
-                        custom_enum_titles.push(data[i].name + (data[i].sensortype_components ? new String(" (" + data[i].sensortype_components.length) + " comp.)" : "") + (data[i].sensortype_model ? new String(" - Model: " + data[i].sensortype_model) : "") + (data[i].serial_number ? new String(" - SN: " + data[i].serial_number) : ""));
+                        custom_enum_titles.push(data[i].name + (data[i].sensortype_components ? " (" + data[i].sensortype_components.length + " comp.)" : "") + " (" + data[i].sensortype_name + (data[i].sensortype_model ? "-" + data[i].sensortype_model : "") + ")" + (data[i].serial_number ? " [SN: " + data[i].serial_number + "]": ""));
                         break;
                     case "digitizer_id":
-                        custom_enum_titles.push(data[i].name + (data[i].digitizertype_model ? new String(" (" + data[i].digitizertype_model) + (data[i].dynamical_range ? (" - " + data[i].dynamical_range + "-VPP") : "") + (data[i].final_sample_rate ? (" - " + data[i].final_sample_rate) : "") + (data[i].final_sample_rate_measure_unit ? data[i].final_sample_rate_measure_unit : "") + " )" : "") + (data[i].serial_number ? new String(" - SN: " + data[i].serial_number) : ""));
+                        custom_enum_titles.push(data[i].name + " (" + data[i].digitizertype_name + (data[i].digitizertype_model ? "-" + data[i].digitizertype_model + (data[i].dynamical_range ? ("-" + data[i].dynamical_range + "-VPP") : "") + (data[i].final_sample_rate ? ("-" + data[i].final_sample_rate) : "") + (data[i].final_sample_rate_measure_unit ? data[i].final_sample_rate_measure_unit : "") : "") +")" + (data[i].serial_number ? " [SN: " + data[i].serial_number + "]": ""));
                         break;
                     default:
                         custom_enum_titles.push(data[i].name);

@@ -288,7 +288,7 @@
             custom_enum_titles.push("--- Select one ---");
             for (var i=0; i<data.length; i++) {
                 custom_enum.push(data[i].id);
-                custom_enum_titles.push(data[i].name + (data[i].model ? (" - " + data[i].model) : ""));
+                custom_enum_titles.push(data[i].name + (data[i].model ? ("-" + data[i].model) : ""));
             }
             mySchema.properties[propertyKey].enum = custom_enum;
             mySchema.properties[propertyKey].options.enum_titles = custom_enum_titles;

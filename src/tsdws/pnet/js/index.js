@@ -555,7 +555,7 @@ var app = {
                 let check_condition = true;
                 if (filters.name && filters.name != "") check_condition = check_condition && item.name.toLowerCase().includes(filters.name.toLowerCase());
                 if (filters.net_id) check_condition = check_condition && item.net_id == filters.net_id;
-                if (filters.sensortype_id) check_condition = check_condition && item.sensortype_id == filters.sensortype_id;
+                //if (filters.sensortype_id) check_condition = check_condition && item.sensortype_id == filters.sensortype_id;
                 if (filters.site_id) check_condition = check_condition && item.site_id == filters.site_id;
                 //console.log(filters, item, check_condition);
                 return check_condition;
