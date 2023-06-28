@@ -68,6 +68,7 @@ Class Stations extends QueryManager {
 			TO_CHAR(stc.end_datetime,'$this->OUTPUT_PSQL_ISO8601_FORMAT') as end_datetime, 
 			s.sensortype_id, 
 			st.name AS sensortype_name, 
+			st.model AS sensortype_model, 
 			n.name AS net_name, 
 			ss.name AS site_name, 
 			NULLIF(n.remove_time, NULL) AS deprecated,
@@ -115,7 +116,7 @@ Class Stations extends QueryManager {
 			$query .= $this->extendSpatialQuery($input, $this->tablename . ".coords");
 		}
 
-		$query .= " group by " . $this->tablename . ".id, st.name, n.name, ss.name, n.remove_time, stc.start_datetime, stc.end_datetime, s.sensortype_id  ";
+		$query .= " group by " . $this->tablename . ".id, st.name, st.model, n.name, ss.name, n.remove_time, stc.start_datetime, stc.end_datetime, s.sensortype_id  ";
 
 		if (isset($input) and is_array($input)) { 
 			if (isset($input["sort_by"])) {

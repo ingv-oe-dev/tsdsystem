@@ -99,6 +99,7 @@ Class StationConfigs extends QueryManager {
 			s.name as sensor_name,
 			st.id as sensortype_id,
 			st.name as sensortype_name,
+			st.model as sensortype_model,
 			d.name as digitizer_name,
 			NULLIF(stat.remove_time, NULL) AS deprecated,
 			(NOT " . $this->tablename . ".end_datetime IS NULL AND " . $this->tablename . ".end_datetime < now() at time zone 'utc') AS old_config,
@@ -131,7 +132,7 @@ Class StationConfigs extends QueryManager {
 			}
 		}
 
-		$query .= " group by " . $this->tablename . ".id, stat.name, s.name, st.id, st.name, d.name, stat.remove_time";
+		$query .= " group by " . $this->tablename . ".id, stat.name, s.name, st.id, st.name, st.model, d.name, stat.remove_time";
 
 		if (isset($input) and is_array($input)) { 
 			if (isset($input["sort_by"])) {
