@@ -46,6 +46,34 @@
                 window.open('timeseries.php?id=' + $('#ts-select').val(), '_blank');
             });
 
+            // sensortype categories
+            $.ajax({
+                url: "../../sensortype_categories",
+                data: {
+                    "sort_by": "name"
+                },
+                success: function(response) {
+                    $('#stc-select').select2({
+                        placeholder: 'Select an option',
+                        data: $.map(response.data, function(item) {
+                            return {
+                                "id": item.id,
+                                "text": item.name
+                            }
+                        })
+                    });
+                },
+                error: function(jqXHR) {
+                    $('#stc-select').select2({
+                        placeholder: 'Loading failed'
+                    });
+                }
+            });
+            // bind emit signal on change option
+            $("#confirmSTC").click(function() {
+                window.open('sensortype_categories.php?id=' + $('#stc-select').val(), '_blank');
+            });
+
             // roles
             $.ajax({
                 url: "../../roles",
@@ -83,7 +111,7 @@
         <hr>
         <h6 class=" title mt-3">Timeseries manager</h6>
         <ul>
-            <li><a href='timeseries.php' target="'_blank">Add new <b>Timeseries</b></a>&nbsp;or Choose one: <select id="ts-select" style="width: 50%"></select><button class="btn-primary border" id='confirmTS'>Edit Timeseries</button></li>
+            <li><a href='timeseries.php' target="'_blank">Add new <b>Timeseries</b></a>&nbsp;<small>or Choose one: <select id="ts-select" style="width: 50%"></select><button class="btn-primary border" id='confirmTS'>Edit Timeseries</button></small></li>
         </ul>
         <h6 class=" title mt-3">Net manager</h6>
         <div class="alert alert-info font-italic" role="alert">For a user-friendly editing of net resources use the <a href="../../pnet" target="_blank">PNet manager web page</a>.</div>
@@ -94,7 +122,7 @@
             <li><a href='nets.php' target="'_blank">Add new <b>Net</b></a></li>
             <li><a href='owners.php' target="'_blank">Add new <b>Owner</b></a></li>
             <li><a href='sensors.php' target="'_blank">Add new <b>Sensor</b></a></li>
-            <li><a href='sensortype_categories.php' target="'_blank">Add new <b>Sensortype category</b></a></li>
+            <li><a href='sensortype_categories.php' target="'_blank">Add new <b>Sensortype category</b></a>&nbsp;<small>or Choose one: <select id="stc-select" style="width: 50%"></select><button class="btn-primary border" id='confirmSTC'>Edit Sensortype category</button></small><br><span class="badge badge-info">skill</span>&nbsp;<small><b>This action is not enabled into the PNet manager web page</b>. In this context, using a JSON editor form, the administrator will define the <a href="https://json-schema.org/">JSON Schema</a> describing the sensortype category that users have to compile in the creation/editing of the sensortype instances</small></li>
             <li><a href='sensortypes.php' target="'_blank">Add new <b>Sensortype</b></a></li>
             <li><a href='sites.php' target="'_blank">Add new <b>Site</b></a></li>
             <li><a href='station_configs.php' target="'_blank">Add new <b>Station configuration</b></a></li>
@@ -104,7 +132,7 @@
         <ul>
             <li><a href='permissions.php' target="'_blank">Add/Edit <b>Permissions</b></a>&nbsp;<span class="badge badge-warning">admin</span></li>
             <li><a href='roles_mapping.php' target="'_blank">Add/Edit <b>Roles mapping</b></a>&nbsp;<span class="badge badge-warning">admin</span></li>
-            <li><a href='roles.php' target="'_blank">Add new <b>Role</b></a>&nbsp;or Choose one: <select id="role-select" style="width: 50%"></select><button class="btn-primary border" id='confirmRole'>Edit Role</button>&nbsp;<span class="badge badge-warning">admin</span></li>
+            <li><a href='roles.php' target="'_blank">Add new <b>Role</b></a>&nbsp;<span class="badge badge-warning">admin</span>&nbsp;<small>or Choose one: <select id="role-select" style="width: 50%"></select><button class="btn-primary border" id='confirmRole'>Edit Role</button></small></li>
         </ul>
     </div>
 </body>

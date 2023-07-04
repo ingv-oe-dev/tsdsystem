@@ -311,7 +311,7 @@ class FDSN_Station_Encoder extends FDSN_Station {
 			<Source>INGV-OE UFSO-IT StnDB</Source>
 			<Sender>INGV-OE</Sender>
 			<Module>INGV-OE WEB SERVICE: fdsnws-station | version: 1.0.0</Module>
-			<ModuleURI>' . htmlspecialchars($this->getURI()) . '</ModuleURI>
+			<ModuleURI>' . htmlspecialchars($_SERVER['REQUEST_URI']) . '</ModuleURI>
 			<Created>' . gmdate('Y-m-d\TH:i:s') . '</Created>
 		</FDSNStationXML>';
 	}
@@ -342,7 +342,6 @@ class FDSN_Station_Encoder extends FDSN_Station {
 		$netItem = $xml->addChild("Network");
 		$netItem->addAttribute("code", $item["net_name"]);
 		$netItem->addAttribute("alternateCode", $item["net_id"]);
-		$netItem->addAttribute("startDate", $this->sanitize($item["net_startdate"]));
 		if (isset($item["net_enddate"]))
 			$netItem->addAttribute("endDate", $item["net_enddate"]);
 		$netItem->addChild("Description", $this->sanitize($item["net_description"]));
