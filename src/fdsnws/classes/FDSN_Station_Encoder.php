@@ -458,12 +458,14 @@ class FDSN_Station_Encoder extends FDSN_Station {
 				} else {
 					$instrumentSensivityItem->addChild("InputUnits")->addChild("Name", "m/s");
 				}
+				/*
 				if (isset($item["final_sample_rate_measure_unit"])) {
 					$instrumentSensivityItem->addChild("OutputUnits")->addChild("Name", $item["final_sample_rate_measure_unit"]);
 				} else {
 					$instrumentSensivityItem->addChild("OutputUnits")->addChild("Name", "COUNT");
 				}
-				
+				*/
+				$instrumentSensivityItem->addChild("OutputUnits")->addChild("Name", "COUNT");
 			}
 			
 			// If the config is only sensor then instrument-sensitivity = (S) of sensor
