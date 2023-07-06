@@ -6,3 +6,5 @@ RewriteRule ^station/1/query$ routes/fdsn_station.php [NC,QSA]
 RewriteRule ^station/1/version$ version.txt [NC,QSA]
 RewriteRule ^station/1/application.wadl$ application.xml [NC,QSA]
 RewriteRule ^station/1/swagger.json$ swagger/fdsnws.json [NC,QSA]
+
+AddType application/xml .xml
