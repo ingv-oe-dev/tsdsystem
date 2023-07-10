@@ -349,7 +349,8 @@ class FDSN_Station_Encoder extends FDSN_Station {
 		if (isset($item["net_additional_info"])) {
 			$addInfo = $this->object_to_array($item["net_additional_info"]); // convert to an associative array
 			if ($this->isSetArrayVal($addInfo, "doi")) {
-				$netItem->addChild("Identifier", strval($addInfo["doi"]));
+				$doiItem = $netItem->addChild("Identifier", strval($addInfo["doi"]));
+				$doiItem->addAttribute("type", "DOI");
 			}
 			if ($this->isSetArrayVal($addInfo, "startDate")) {
 				$netItem->addAttribute("startDate", strval($addInfo["startDate"]));
