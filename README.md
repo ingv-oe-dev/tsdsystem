@@ -89,14 +89,14 @@ The repository contains two building files:
 - `docker-compose.yml`
 - `docker-compose.full.yml`
 
-Respectively for the [Basic](#basic) and the [Full](#full) installation.
+Respectively for the [Basic](#basic-installation) and the [Full](#full-installation) installation.
 
 
 ### Basic installation
 The basic installation build up all you need to create a TSDSystem instance. For a basic installation run the following command:
 - `docker compose up -d`
 
-The web service will respond on port `8000`.
+The web service will respond on default port `80`.
 
 ### Full installation
 
@@ -133,7 +133,7 @@ For a full installation run:
 
 ## Database PostgreSQL initialization
 
-Regardless the choice of a [Basic](#basic) or [Full](#full) installation, the correct start up of the service requires the initialization of the PostgreSQL database structure by running the command:
+Regardless the choice of a [Basic](#basic-installation) or [Full](#full-installation) installation, the correct start up of the service requires the initialization of the PostgreSQL database structure by running the command:
 - `docker compose -f docker-compose.initdb.yml up -d`
 
 ## Update software with future commits
