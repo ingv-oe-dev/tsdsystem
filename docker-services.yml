@@ -7,7 +7,8 @@ services:
     container_name: app
     tty: true
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       DB_HOST: "${DB_HOST}"
       DB_USER: "${TSD_DB_USER}"
@@ -30,19 +31,35 @@ services:
       SMTP_FROM_ADDRESS: "${SMTP_FROM_ADDRESS}"
       SMTP_FROM_NAME: "${SMTP_FROM_NAME}"
       REG_PATTERN: "${REG_PATTERN}"
+    healthcheck:
+      test:
+        ["CMD", "curl", "--fail", "http://localhost/tsdws/version"]
+      start_period: 5s
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
     working_dir: /var/www/html/tsdws
     volumes:
       - ./src:/var/www/html
   db:
     image: timescale/timescaledb-ha:pg14.2-ts2.6.0-oss-latest
     container_name: db
-    restart: always
+    restart: unless-stopped
     environment:
       - "POSTGRES_USER=${DB_USER}"
       - "POSTGRES_PASSWORD=${DB_PASSWORD}"
       - "POSTGRES_DB=${DB_USER}"
     ports:
       - "5432:5432"
+    healthcheck:
+      test:
+        # ['CMD', 'psql', '-h', 'localhost', '-U', '${POSTGRES_USER}', '-c', 'SELECT 1']
+        ["CMD", "pg_isready", "-h", "localhost", "-U", "${POSTGRES_USER}"]
+      start_period: 5s
+      interval: 5s
+      timeout: 5s
+      retries: 10
   frontend:
     build: ./docker/nginx/
     restart: "unless-stopped"
@@ -58,6 +75,17 @@ services:
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+    healthcheck:
+      test:
+        # ["CMD", "curl", "--fail", "http://localhost:5050/pgadmin4"]
+        ["CMD", "wget", "-O", "/tmp/ping", "http://localhost:80/misc/ping"]
+      start_period: 5s
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    depends_on:
+      db:
+        condition: service_healthy
     volumes:
       - ./docker/timescale/servers.json:/pgadmin4/servers.json
   grafana:
@@ -74,7 +102,20 @@ services:
       GF_SERVER_ROOT_URL: ${PUBLIC_URL}/grafana/
       GF_SERVER_SERVE_FROM_SUB_PATH: true
       GF_SECURITY_ADMIN_PASSWORD__FILE: /run/secrets/grafana_admin_password
+    healthcheck:
+      test:
+        ["CMD", "wget", "http://localhost:3000/healthz", "-O", "/dev/null"]
+      start_period: 5s
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    depends_on:
+      db:
+        condition: service_healthy
   renderer:
     image: grafana/grafana-image-renderer:3.5.0
     ports:
     - 8081
+    depends_on:
+      db:
+        condition: service_healthy
