@@ -154,14 +154,23 @@
                       <b-form-text>Last available time for the selected timeseries: <b>{{period.lastAvailable}}</b></b-form-text>
                 </b-form-group>
                 <b-form-group label-align-lg="right" label-align-md="right" label-align-sm="left" label-align-xs="left" id="input-group-aggregation" label="Group by:" label-for="input-aggregation" label-size="sm" label-cols-md="3" label-cols-lg="3" label-cols-sm="3" label-cols-xs="3">
-                    <b-input-group append="Compute" size="sm">
-                        <b-form-input type="number" min="1" v-model="aggregation.selectedTimeTypeCount"></b-form-input>
-                        <b-form-select id="time-type" v-model="aggregation.selectedTimeType" size="sm">
+                    <b-input-group size="sm">
+                        <b-form-input type="number" min="1" v-model="aggregation.selectedTimeTypeCount" :disabled="aggregation.disabled"></b-form-input>
+                        <b-form-select id="time-type" v-model="aggregation.selectedTimeType" size="sm" :disabled="aggregation.disabled">
                             <option v-for="item in aggregation.timeTypes" :value="item">{{ item }}</option>
                         </b-form-select>
-                        <b-form-select id="input-group-aggregation-function" v-model="aggregation.selectedFunction" size="sm">
+                        <b-form-select id="input-group-aggregation-function" v-model="aggregation.selectedFunction" size="sm" :disabled="aggregation.disabled">
                             <option v-for="item in aggregation.functions" :value="item">{{ item }}</option>
                         </b-form-select>
+                        <b-form-radio-group
+                            id="btn-radios-aggregation"
+                            v-model="aggregation.disabled"
+                            :options="aggregation.options"
+                            name="radios-btn-default"
+                            button-variant="outline-secondary"
+                            size="sm"
+                            buttons
+                        ></b-form-radio-group>
                     </b-input-group>
                 </b-form-group>
                 <b-form-group label-align-lg="right" label-align-md="right" label-align-sm="left" label-align-xs="left" id="input-group-aggregation" label="" label-size="sm" label-cols-md="3" label-cols-lg="3" label-cols-sm="3" label-cols-xs="3">

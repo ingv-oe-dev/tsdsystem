@@ -52,6 +52,11 @@ const tsdformRequestComponentDefinition = {
                 filtered_timeseries: "--- Filtered timeseries ---"
             },
             aggregation: {
+                disabled: false,
+                options: [
+                    { text: 'ON', value: false },
+                    { text: 'OFF', value: true },
+                ],
                 functions: ["AVG", "MEDIAN", "COUNT", "MAX", "MIN", "SUM"],
                 selectedFunction: null,
                 timeTypes: ["second", "minute", "hour", "day", "hour", "year"],
@@ -387,6 +392,10 @@ const tsdformRequestComponentDefinition = {
                 }
                 this.request.aggregate = v.selectedFunction;
                 this.request.time_bucket = v.selectedTimeTypeCount + " " + v.selectedTimeType + (v.selectedTimeTypeCount > 1 ? "s" : "");
+                if (this.aggregation.disabled) {
+                    delete this.request.aggregate;
+                    delete this.request.time_bucket;
+                }
             },
             deep: true
         },
