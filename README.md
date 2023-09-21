@@ -61,13 +61,13 @@ Public URL
 - `PUBLIC_URL` (string)
 
 To control debug level:
-- `ENV` (`development` or `production`)
+- `ENV` (use `development` only for tests, `production` otherwhise)
 
 ### Optional variables
 
 Spatial information:
-- `EPSG_DEGREE` default projection using degrees - if not specified it will use WGS84 (SRID)
-- `EPSG_M` default projection using meters - if not specified it will use UTM zone 32N (SRID)
+- `EPSG_DEGREE` default projection using degrees - if not specified it will use `4326` corresponding to the WGS84 SRID
+- `EPSG_M` default projection using meters - if not specified it will use `32632` corresponding to the UTM zone 32N SRID
 
 SMTP settings (for emails sending, e.g. on users registration):
 - `SMTP_HOST`
@@ -100,6 +100,15 @@ The web service will respond on default port `80`.
 
 ### Full installation
 
+The full installation will also install:
+- a local instance of [PGAdmin](https://www.pgadmin.org/) tool, whose interface will respond at url: `https://<server_name>/pgadmin4`;
+- a local instance of [Grafana](https://grafana.com/) tool, whose interface will respond at url: `https://<server_name>/grafana`;
+
+>**Notice**
+>  
+> For security reasons, if you choose a full installation, the "compose" of the Grafana service will require a prior creation under `tsdsystem` folder of the file `.grafana_admin_password` containing the password used by the Grafana `admin` user. This action negate the use of default password `admin` indicated from [official documentation](https://grafana.com/docs/grafana/latest/setup-grafana/sign-in-to-grafana/) to access in the Grafana interface.
+>
+
 A full installation using `docker-compose.full.yml` is recommended to expose the service on Internet (default port `80/443` respectively for `http/https`). To expose on Internet, the installation server needs the certificate files into the `tsdsystem/docker/nginx` directory, called:
 - `server.key`
 - `server.crt`
@@ -120,16 +129,6 @@ A full installation using `docker-compose.full.yml` is recommended to expose the
 
 For a full installation run:
 - `docker compose -f docker-compose.full.yml up -d`
-
-**Note**: The full installation will also install:
-- a local instance of [PGAdmin](https://www.pgadmin.org/) tool, whose interface will respond at url: `https://<server_name>/pgadmin4`;
-- a local instance of [Grafana](https://grafana.com/) tool, whose interface will respond at url: `https://<server_name>/grafana`;
-
->**Notice**
->  
-> For security reasons, if you choose a full installation, the 
-"compose" of the Grafana service will require a prior creation under `tsdsystem` folder of the file `.grafana_admin_password` containing the password used by the Grafana `admin` user. This action negate the use of default password `admin` indicated from [official documentation](https://grafana.com/docs/grafana/latest/setup-grafana/sign-in-to-grafana/) to access in the Grafana interface.
->
 
 ## Database PostgreSQL initialization
 
