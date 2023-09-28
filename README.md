@@ -28,7 +28,7 @@ It will download the repository into `tsdsystem` directory.
 
 ## Setting environment variables
 
-Into the `tsdsystem` directory, set the environment variables into file `.env`:
+Into the `tsdsystem` directory, set the environment variables into file `.env` (start from a copy of the  `.env_template` file):
 
 Database PostGreSQL:
 - `DB_HOST`=db
@@ -37,7 +37,7 @@ Database PostGreSQL:
 - `DB_PASSWORD` (string)
 
 Timescale DB extension (the engine used for timeseries storage):
-- `TSD_DB` (string)
+- `TSD_DB` (string - for example: _tsdystem_)
 - `TSD_DB_USER` (string)
 - `TSD_DB_PASSWORD` (string)
 
