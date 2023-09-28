@@ -119,8 +119,8 @@ Class Timeseries extends QueryManager {
 			"id" => $id
 		));
 		if ($response["status"] and count($response["data"]) > 0) {
-			unset($response["data"][0]["schema"]);
-			unset($response["data"][0]["name"]);
+			//unset($response["data"][0]["schema"]);
+			//unset($response["data"][0]["name"]);
 			return $response["data"][0];
 		}
 		return null;
