@@ -156,7 +156,7 @@ const tsdformRequestComponentDefinition = {
 
             let self = this;
             axios
-                .get("../stations/?net_id=" + self.selected.net_id)
+                .get("../stations/?sort_by=name&net_id=" + self.selected.net_id)
                 .then(response => {
                     self.stations = response.data.data;
                     self.defaultOption.stations = "--- Select station ---";
@@ -205,7 +205,7 @@ const tsdformRequestComponentDefinition = {
 
             let self = this;
             axios
-                .get("../channels/?station_config_id=" + self.selected.station_config_id)
+                .get("../channels/?sort_by=name&station_config_id=" + self.selected.station_config_id)
                 .then(response => {
                     self.channels = response.data.data;
                     self.defaultOption.channels = "--- Select channel ---";
@@ -226,7 +226,7 @@ const tsdformRequestComponentDefinition = {
         fetchTimeseries() {
             this.defaultOption.timeseries = "Loading...";
             this.timeseries = [];
-            let url = "../timeseries/?channel_id=" + this.selected.channel_id;
+            let url = "../timeseries/?sort_by=schema,name&channel_id=" + this.selected.channel_id;
 
             let self = this;
             axios
