@@ -53,9 +53,9 @@
             <?php if ($email != '') { ?>
             <div class="col-xl-3 col-md-8">
               <p class='mt-4 text-light'>Web GUI</p>  
-              <p class='mt-3'><a href='../form' target='_blank'>Timeseries request</a> <span class='badge text-success text-italic'>[demo]</span></p>
+              <p class='mt-3'><a href='../form' target='_blank'>Timeseries request</a> <span class='badge text-success text-italic'></span></p>
+              <p class='mt-3'><a href='../pnet'>PNet web app</a> <span class='badge text-warning text-italic'></span></p>
               <?php if($isAdmin) { ?>
-                <p class='mt-3'><a href='../pnet'>PNet web app</a> <span class='badge text-warning text-italic'>[admin]</span></p>
                 <p class='mt-3'><a href='../form/edit' target='_blank'>Resources edit forms</a> <span class='badge text-warning text-italic'>[admin]</span></p>
               <?php } ?>
             </div>
