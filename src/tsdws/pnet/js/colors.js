@@ -79,23 +79,23 @@ const colors = {
             "color": "#000000!important"
         },
         {
-            "backgroundColor": "#DE6833",
+            "backgroundColor": "#9a26ff",
             "color": "#FFFFFF!important"
         },
         {
-            "backgroundColor": "#7986D6",
+            "backgroundColor": "#0c5a90",
             "color": "#FFFFFF!important"
         },
         {
-            "backgroundColor": "#706E80",
+            "backgroundColor": "#32ffff",
             "color": "#FFFFFF!important"
         },
         {
-            "backgroundColor": "#3556FD",
+            "backgroundColor": "#ff00ff",
             "color": "#FFFFFF!important"
         },
         {
-            "backgroundColor": "#B88DC2",
+            "backgroundColor": "#0000FF",
             "color": "#FFFFFF!important"
         },
         {
@@ -107,14 +107,6 @@ const colors = {
             "color": "#FFFFFF!important"
         },
         {
-            "backgroundColor": "#3FEBF4",
-            "color": "#FFFFFF!important"
-        },
-        {
-            "backgroundColor": "#264F9A",
-            "color": "#FFFFFF!important"
-        },
-        {
             "backgroundColor": "#B31C8F",
             "color": "#FFFFFF!important"
         },
@@ -123,27 +115,27 @@ const colors = {
             "color": "#FFFFFF!important"
         },
         {
-            "backgroundColor": "#EB97F8",
+            "backgroundColor": "#e6e6fa",
             "color": "#000000!important"
         },
         {
-            "backgroundColor": "#5A3C74",
+            "backgroundColor": "#40e0d0",
             "color": "#FFFFFF!important"
         },
         {
-            "backgroundColor": "#84479F",
+            "backgroundColor": "#bada55",
             "color": "#FFFFFF!important"
         },
         {
-            "backgroundColor": "#86AD9B",
+            "backgroundColor": "#ffc3a0",
             "color": "#FFFFFF!important"
         },
         {
-            "backgroundColor": "#1DBC9A",
+            "backgroundColor": "#794044",
             "color": "#FFFFFF!important"
         },
         {
-            "backgroundColor": "#897B90",
+            "backgroundColor": "#3399ff",
             "color": "#FFFFFF!important"
         },
         {
@@ -4060,6 +4052,14 @@ const colors = {
         },
         {
             "backgroundColor": "#35A9AB",
+            "color": "#FFFFFF!important"
+        },
+        {
+            "backgroundColor": "#3FEBF4",
+            "color": "#FFFFFF!important"
+        },
+        {
+            "backgroundColor": "#264F9A",
             "color": "#FFFFFF!important"
         }
     ],
