@@ -115,7 +115,7 @@ AS SELECT n.id AS net_id,
                     ELSE NULL::timestamp without time zone
                 END AS endtime
            FROM tsd_pnet.stations s_1
-             LEFT JOIN tsd_pnet.station_configs sc_1 ON sc_1.station_id = s_1.id
+             LEFT JOIN tsd_pnet.station_configs sc_1 ON sc_1.station_id = s_1.id AND sc_1.remove_time IS NULL
              LEFT JOIN tsd_pnet.channels c_1 ON sc_1.id = c_1.station_config_id AND c_1.remove_time IS NULL
              LEFT JOIN tsd_pnet.sites ss ON ss.id = s_1.site_id
           WHERE s_1.remove_time IS NULL
