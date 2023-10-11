@@ -557,25 +557,29 @@ class FDSN_Station_Encoder extends FDSN_Station {
 		if ($this->isSetArrayVal($item, "fn")) {
 			$pz->addChild("NormalizationFrequency", $this->sanitize($item["fn"]));
 		}
-		$pattern = '/([-|\+]?[\d]+(\.[\d]+)?[i]?)/';
+		$pattern = '/([-|\+]?[\d]+[\.[\d]+]?)([-|\+]?[\d]+[\.[\d]+]?[i])?/';
 		for($j=0; $j<count($zeroes); $j++) {
 			$zeroes[$j] = trim($zeroes[$j]);
 			$zItem = $pz->addChild("Zero");
 			$zItem->addAttribute("number", $j+1);
 			preg_match_all($pattern, $zeroes[$j], $matches);
-			if(is_array($matches[0]) and count($matches[0]) == 1) {
-				$zItem->addChild("Real", $this->sanitize($matches[0][0]));
-				$zItem->addChild("Imaginary", "0");
+			if($matches) {
+				$real = empty($matches[1][0]) ? "0" : $matches[1][0];
+				$imaginary = empty($matches[2][0]) ? "0": substr($matches[2][0],0,-1);
+				$zItem->addChild("Real", $this->sanitize($real));
+				$zItem->addChild("Imaginary", $this->sanitize($imaginary));
 			}
 		}
 		for($i=0; $i<count($poles); $i++) {
 			$poles[$i] = trim($poles[$i]);
 			$pItem = $pz->addChild("Pole");
-			$pItem->addAttribute("number", $i+$j+1);
+			$pItem->addAttribute("number", $i+1);
 			preg_match_all($pattern, $poles[$i], $matches);
-			if(is_array($matches[0]) and count($matches[0]) == 2) {
-				$pItem->addChild("Real", $this->sanitize($matches[0][0]));
-				$pItem->addChild("Imaginary", $this->sanitize(substr($matches[0][1],0,-1)));
+			if($matches) {
+				$real = empty($matches[1][0]) ? "0" : $matches[1][0];
+				$imaginary = empty($matches[2][0]) ? "0": substr($matches[2][0],0,-1);
+				$pItem->addChild("Real", $this->sanitize($real));
+				$pItem->addChild("Imaginary", $this->sanitize($imaginary));
 			}
 		}
 		$sg = $stage1->addChild("StageGain");
