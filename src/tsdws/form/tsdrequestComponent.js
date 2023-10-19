@@ -260,7 +260,7 @@ const tsdformRequestComponentDefinition = {
 
             this.searchbyname.typingTimer = setTimeout(function() {
                 this.filtered_timeseries = [];
-                let url = "../timeseries/?name=" + name;
+                let url = "../timeseries/?sort_by=name&name=" + name;
 
                 axios
                     .get(url)
