@@ -90,7 +90,7 @@
                             <button title="Reload nets" class="btn-light border" type="button" id="button-reload-net" @click="fetchNets()"><i class='fa fa-sm fa-rotate-right'></i></button>
                             <select class="form-select" id="input-net" v-model="filters.net_id" size="sm">
                                 <option :value="resetID"> {{ defaultOption.nets }} </option>
-                                <option v-for="item in nets" :value="item.id">{{ item.name }}</option>
+                                <option v-for="item in nets" :value="item.id">{{ item.name }} - {{ item.description }}</option>
                             <select>
                             <button v-if="filters.net_id!=0" title="Edit net settings" class="btn-light border" type="button" id="button-settings-net" @click="openEdit('net', filters.net_id)"><i class='fa fa-sm fa-gear'></i></button>
                             <button v-if="filters.net_id==0" title="Add new net" class="btn-light border" type="button" id="button-add-net" @click="openEdit('net')"><i class='fa fa-sm fa-plus'></i></button>
