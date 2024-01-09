@@ -42,16 +42,28 @@ const plotlyChartComponentDefinition = {
                 icon: Plotly.Icons.disk,
                 direction: 'up',
                 click: function(gd) {
-                    console.log(gd);
-                    var text = '';
+                    // console.log(gd);
+                    // prepare time array
+                    var x_array = [];
+                    if (gd.data.length > 0) {
+                        for (var k = 0; k < gd.data[0].x.length; k++) {
+                            x_array.push(gd.data[0].x[k]);
+                        }
+                    }
+                    // prepare headers
+                    var text = gd.layout.xaxis.title.text;
                     for (var i = 0; i < gd.data.length; i++) {
-                        text += gd.data[i].name + '\n';
-                        text += gd.layout.xaxis.title.text + "," + gd.layout.yaxis.title.text + '\n';
-                        for (var j = 0; j < gd.data[i].x.length; j++) {
-                            text += gd.data[i].x[j] + "," + gd.data[i].y[j] + '\n';
+                        text += "," + gd.layout["yaxis" + (i==0?"":(i+1))].title.text;
+                    };
+                    text += '\n';
+                    // compile body
+                    for (var k = 0; k < x_array.length; k++) {
+                        text += x_array[k];
+                        for (var i = 0; i < gd.data.length; i++) {
+                            text += "," + gd.data[i].y[k];
                         }
                         text += '\n';
-                    };
+                    }
                     var blob = new Blob([text], { type: 'text/plain' });
                     var a = document.createElement('a');
                     const object_URL = URL.createObjectURL(blob);
