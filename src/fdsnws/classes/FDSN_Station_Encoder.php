@@ -341,7 +341,7 @@ class FDSN_Station_Encoder extends FDSN_Station {
 
 		$netItem = $xml->addChild("Network");
 		$netItem->addAttribute("code", $item["net_name"]);
-		$netItem->addAttribute("alternateCode", $item["net_id"]);
+		//$netItem->addAttribute("alternateCode", $item["net_id"]);
 		if (isset($item["net_enddate"]))
 			$netItem->addAttribute("endDate", $item["net_enddate"]);
 		$netItem->addChild("Description", $this->sanitize($item["net_description"]));
@@ -376,7 +376,7 @@ class FDSN_Station_Encoder extends FDSN_Station {
 
 		$stationItem = $netItem->addChild("Station");
 		$stationItem->addAttribute("code", $item["station_name"] );
-		$stationItem->addAttribute("alternateCode", $item["station_id"] );
+		//$stationItem->addAttribute("alternateCode", $item["station_id"] );
 		$stationItem->addAttribute("startDate", $this->sanitize($item["station_startdate"]));
 		if (isset($item["station_enddate"])) {
 			$stationItem->addAttribute("endDate", $item["station_enddate"]);
@@ -411,7 +411,7 @@ class FDSN_Station_Encoder extends FDSN_Station {
 
 		$channelItem = $stationItem->addChild("Channel");
 		$channelItem->addAttribute("code", $item["channel_name"] );
-		$channelItem->addAttribute("alternateCode", $item["channel_id"] );
+		//$channelItem->addAttribute("alternateCode", $item["channel_id"] );
 		$channelItem->addAttribute("startDate", $this->sanitize($item["channel_startdate"]));
 		if (isset($item["channel_enddate"]))
 			$channelItem->addAttribute("endDate", $item["channel_enddate"]);
