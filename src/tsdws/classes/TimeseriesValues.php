@@ -185,8 +185,10 @@ Class TimeseriesValues extends Timeseries {
 		$separator=", ";
 		$fields = "$time_bucket AS $output_column_time, " . implode($separator, $columns);
 		
-		$tablename = $this->getTablename($id);
-		$hasTimeZone = $this->hasTimeZone($id);
+		// get ts info()
+		$ts_info = $this->getInfo($id);
+		$tablename = $ts_info["schema"] . "." . $ts_info["name"];
+		$hasTimeZone = $ts_info["with_tz"];
 		$utc_string = $hasTimeZone ? " at time zone 'utc' " : "";
 		
 		// string containing the final query
