@@ -124,11 +124,22 @@ Class StationConfigs extends QueryManager {
 				"digitizer_name" => array("alias" => "d.name", "quoted" => true),
 				"additional_info" => array("quoted" => true, "alias" => $this->tablename . ".additional_info")
 			));
-			if (array_key_exists("start_datetime", $input) and isset($input["start_datetime"])){
-				$query .= " AND start_datetime >= '" . $input["start_datetime"] . "'";
+			// both start_datetime and end_datetime set
+			if (
+				array_key_exists("start_datetime", $input) and 
+				isset($input["start_datetime"]) and 
+				array_key_exists("end_datetime", $input) and 
+				isset($input["end_datetime"])
+			){
+				$query .= " AND ((start_datetime BETWEEN '" . $input["start_datetime"] . "' AND '" . $input["end_datetime"] . "') OR (end_datetime BETWEEN '" . $input["start_datetime"] . "' AND '" . $input["end_datetime"] . "') OR (start_datetime <= '" . $input["start_datetime"] . "' AND end_datetime IS NULL) OR (end_datetime >= '" . $input["end_datetime"] . "' AND start_datetime IS NULL) OR (start_datetime IS NULL AND end_datetime IS NULL))";
 			}
-			if (array_key_exists("end_datetime", $input) and isset($input["end_datetime"])){
-				$query .= " AND end_datetime <= '" . $input["end_datetime"] . "'";
+			// only start_datetime set
+			else if (array_key_exists("start_datetime", $input) and isset($input["start_datetime"])){
+				$query .= " AND (end_datetime >= '" . $input["start_datetime"] . "' OR end_datetime IS NULL)";
+			}
+			// only end_datetime set
+			else if (array_key_exists("end_datetime", $input) and isset($input["end_datetime"])){
+				$query .= " AND (start_datetime <= '" . $input["end_datetime"] . "' OR start_datetime IS NULL)";
 			}
 		}
 

@@ -936,14 +936,14 @@
                     {
                         "name": "start_datetime",
                         "in": "query",
-                        "description": "Acquisition start datetime. Standard ISO8601 datetime UTC",
+                        "description": "Limit search on instances that are active on or after the specified start datetime. Standard ISO8601 datetime UTC",
                         "type": "string",
                         "format": "date-time"
                     },
                     {
                         "name": "end_datetime",
                         "in": "query",
-                        "description": "Acquisition end datetime. Standard ISO8601 datetime UTC",
+                        "description": "Limit search on instances that are active on or before the specified end datetime. Standard ISO8601 datetime UTC",
                         "type": "string",
                         "format": "date-time"
                     },
@@ -2742,13 +2742,13 @@
                 }, {
                     "name": "start_datetime",
                     "in": "query",
-                    "description": "Current instance start datetime. Standard ISO8601 datetime UTC",
+                    "description": "Limit search on instances that are active on or after the specified start datetime. Standard ISO8601 datetime UTC",
                     "type": "string",
                     "format": "date-time"
                 }, {
                     "name": "end_datetime",
                     "in": "query",
-                    "description": "Current instance end datetime. Standard ISO8601 datetime UTC",
+                    "description": "Limit search on instances that are active on or before the specified end datetime. Standard ISO8601 datetime UTC",
                     "type": "string",
                     "format": "date-time"
                 }, {
@@ -3195,13 +3195,13 @@
                 }, {
                     "name": "start_datetime",
                     "in": "query",
-                    "description": "Station configuration start datetime. Standard ISO8601 datetime UTC",
+                    "description": "Limit search on instances that are active on or after the specified start datetime. Standard ISO8601 datetime UTC",
                     "type": "string",
                     "format": "date-time"
                 }, {
                     "name": "end_datetime",
                     "in": "query",
-                    "description": "Station configuration end datetime. Standard ISO8601 datetime UTC",
+                    "description": "Limit search on instances that are active on or before the specified end datetime. Standard ISO8601 datetime UTC",
                     "type": "string",
                     "format": "date-time"
                 }, {

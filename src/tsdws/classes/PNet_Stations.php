@@ -79,11 +79,22 @@ Class Stations extends QueryManager {
 			FROM tsd_pnet.station_configs 
 			WHERE remove_time is null ";
 			if (isset($input) and is_array($input)) { 
-				if (array_key_exists("start_datetime", $input) and isset($input["start_datetime"])){
-					$query .= " AND start_datetime >= '" . $input["start_datetime"] . "'";
+				// both start_datetime and end_datetime set
+				if (
+					array_key_exists("start_datetime", $input) and 
+					isset($input["start_datetime"]) and 
+					array_key_exists("end_datetime", $input) and 
+					isset($input["end_datetime"])
+				){
+					$query .= "AND ((start_datetime BETWEEN '" . $input["start_datetime"] . "' AND '" . $input["end_datetime"] . "') OR (end_datetime BETWEEN '" . $input["start_datetime"] . "' AND '" . $input["end_datetime"] . "') OR (start_datetime <= '" . $input["start_datetime"] . "' AND end_datetime IS NULL) OR (end_datetime >= '" . $input["end_datetime"] . "' AND start_datetime IS NULL) OR (start_datetime IS NULL AND end_datetime IS NULL))";
 				}
-				if (array_key_exists("end_datetime", $input) and isset($input["end_datetime"])){
-					$query .= " AND end_datetime <= '" . $input["end_datetime"] . "'";
+				// only start_datetime set
+				else if (array_key_exists("start_datetime", $input) and isset($input["start_datetime"])){
+					$query .= " AND (end_datetime >= '" . $input["start_datetime"] . "' OR end_datetime IS NULL)";
+				}
+				// only end_datetime set
+				else if (array_key_exists("end_datetime", $input) and isset($input["end_datetime"])){
+					$query .= " AND (start_datetime <= '" . $input["end_datetime"] . "' OR start_datetime IS NULL)";
 				}
 			}	
 		$query .= " ORDER BY station_id, start_datetime DESC
@@ -107,11 +118,22 @@ Class Stations extends QueryManager {
 				"site_name" => array("alias" => "ss.name", "quoted" => true),
 				"additional_info" => array("quoted" => true, "alias" => $this->tablename . ".additional_info")
 			));
-			if (array_key_exists("start_datetime", $input) and isset($input["start_datetime"])){
-				$query .= " AND stc.start_datetime >= '" . $input["start_datetime"] . "'";
+			// both startstart_datetime and end_datetime set
+			if (
+				array_key_exists("start_datetime", $input) and 
+				isset($input["start_datetime"]) and 
+				array_key_exists("end_datetime", $input) and 
+				isset($input["end_datetime"])
+			){
+				$query .= " AND ((stc.start_datetime BETWEEN '" . $input["start_datetime"] . "' AND '" . $input["end_datetime"] . "') OR (stc.end_datetime BETWEEN '" . $input["start_datetime"] . "' AND '" . $input["end_datetime"] . "') OR (stc.start_datetime <= '" . $input["start_datetime"] . "' AND stc.end_datetime IS NULL) OR (stc.end_datetime >= '" . $input["end_datetime"] . "' AND stc.start_datetime IS NULL) OR (stc.start_datetime IS NULL AND stc.end_datetime IS NULL))";
 			}
-			if (array_key_exists("end_datetime", $input) and isset($input["end_datetime"])){
-				$query .= " AND stc.end_datetime <= '" . $input["end_datetime"] . "'";
+			// only start_datetime set
+			else if (array_key_exists("start_datetime", $input) and isset($input["start_datetime"])){
+				$query .= " AND (stc.end_datetime >= '" . $input["start_datetime"] . "' OR stc.end_datetime IS NULL)";
+			}
+			// only end_datetime set
+			else if (array_key_exists("end_datetime", $input) and isset($input["end_datetime"])){
+				$query .= " AND (stc.start_datetime <= '" . $input["end_datetime"] . "' OR stc.start_datetime IS NULL)";
 			}
 			$query .= $this->extendSpatialQuery($input, $this->tablename . ".coords");
 		}
