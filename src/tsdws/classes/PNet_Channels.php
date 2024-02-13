@@ -113,7 +113,7 @@ Class Channels extends QueryManager {
 				array_key_exists("end_datetime", $input) and 
 				isset($input["end_datetime"])
 			){
-				$query .= " AND ((sc.start_datetime BETWEEN '" . $input["start_datetime"] . "' AND '" . $input["end_datetime"] . "') OR (sc.end_datetime BETWEEN '" . $input["start_datetime"] . "' AND '" . $input["end_datetime"] . "') OR (sc.start_datetime <= '" . $input["start_datetime"] . "' AND sc.end_datetime IS NULL) OR (sc.end_datetime >= '" . $input["end_datetime"] . "' AND sc.start_datetime IS NULL) OR (sc.start_datetime IS NULL AND sc.end_datetime IS NULL))";
+				$query .= " AND ((sc.start_datetime BETWEEN '" . $input["start_datetime"] . "' AND '" . $input["end_datetime"] . "') OR (sc.end_datetime BETWEEN '" . $input["start_datetime"] . "' AND '" . $input["end_datetime"] . "') OR (sc.start_datetime <= '" . $input["start_datetime"] . "' AND sc.end_datetime IS NULL) OR (sc.end_datetime >= '" . $input["end_datetime"] . "' AND sc.start_datetime IS NULL) OR (sc.start_datetime IS NULL AND sc.end_datetime IS NULL) OR (sc.start_datetime <= '" . $input["start_datetime"] . "' AND sc.end_datetime >= '" . $input["end_datetime"] . "'))";
 			}
 			// only start_datetime set
 			else if (array_key_exists("start_datetime", $input) and isset($input["start_datetime"])){
