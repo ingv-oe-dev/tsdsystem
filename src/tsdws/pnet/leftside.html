@@ -21,19 +21,6 @@
                             <button v-if="filters.sensor_id==0" title="Add new sensor" class="btn-light border" type="button" id="button-add-sensor" @click="openEdit('sensor')"><i class='fa fa-sm fa-plus'></i></button>
                         </div>
                     </div>
-                    <!-- Sensortypes -->
-                    <div class="col-12 m-1">
-                        <div class="input-group input-group-sm">
-                            <div class="input-group-text">Sensortype</div>
-                            <button title="Reload sensortypes" class="btn-light border" type="button" id="button-reload-net" @click="fetchSensortypes()"><i class='fa fa-sm fa-rotate-right'></i></button>
-                            <select class="form-select" id="input-sensortype" v-model="filters.sensortype_id" size="sm">
-                                <option :value="resetID"> {{ defaultOption.sensortypes }} </option>
-                                <option v-for="item in sensortypes" :value="item.id">{{ item.name }}{{item.model ? '-' + item.model : ''}}</option>
-                            <select>
-                            <button v-if="filters.sensortype_id!=0" title="Edit sensortypes settings" class="btn-light border" type="button" id="button-settings-sensortype" @click="openEdit('sensortype', filters.sensortype_id)"><i class='fa fa-sm fa-gear'></i></button>
-                            <button v-if="filters.sensortype_id==0" title="Add new sensortype" class="btn-light border" type="button" id="button-add-sensortype" @click="openEdit('sensortype')"><i class='fa fa-sm fa-plus'></i></button>
-                        </div>
-                    </div>
                     <!-- Digitizers -->
                     <div class="col-12 m-1">
                         <div class="input-group input-group-sm">
@@ -47,7 +34,22 @@
                             <button v-if="filters.digitizer_id==0" title="Add new digitizer" class="btn-light border" type="button" id="button-add-digitizer" @click="openEdit('digitizer')"><i class='fa fa-sm fa-plus'></i></button>
                         </div>
                     </div>
-
+                    <div class="col-12 m-1">
+                        <hr>
+                    </div>
+                    <!-- Sensortypes -->
+                    <div class="col-12 m-1">
+                        <div class="input-group input-group-sm">
+                            <div class="input-group-text">Sensors library</div>
+                            <button title="Reload sensortypes" class="btn-light border" type="button" id="button-reload-net" @click="fetchSensortypes()"><i class='fa fa-sm fa-rotate-right'></i></button>
+                            <select class="form-select" id="input-sensortype" v-model="filters.sensortype_id" size="sm">
+                                <option :value="resetID"> {{ defaultOption.sensortypes }} </option>
+                                <option v-for="item in sensortypes" :value="item.id">{{ item.name }}{{item.model ? '-' + item.model : ''}}</option>
+                            <select>
+                            <button v-if="filters.sensortype_id!=0" title="Edit sensortypes settings" class="btn-light border" type="button" id="button-settings-sensortype" @click="openEdit('sensortype', filters.sensortype_id)"><i class='fa fa-sm fa-gear'></i></button>
+                            <button v-if="filters.sensortype_id==0" title="Add new sensortype" class="btn-light border" type="button" id="button-add-sensortype" @click="openEdit('sensortype')"><i class='fa fa-sm fa-plus'></i></button>
+                        </div>
+                    </div>
                     <!-- Digitizertypes -->
                     <div class="col-12 m-1">
                         <div class="input-group input-group-sm">
@@ -61,6 +63,7 @@
                             <button v-if="filters.digitizertype_id==0" title="Add new digitizertype" class="btn-light border" type="button" id="button-add-digitizertype" @click="openEdit('digitizertype')"><i class='fa fa-sm fa-plus'></i></button>
                         </div>
                     </div>
+                </div>
             </div>
         </div>
     </div>
