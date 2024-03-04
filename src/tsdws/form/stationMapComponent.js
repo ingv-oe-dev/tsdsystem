@@ -8,7 +8,7 @@ const stationMapComponentDefinition = {
     data() {
         return {
             zoom_bounds: null,
-            circle_marker_radius: 8, // raggio in px del marker circolare
+            circle_marker_radius: 6, // raggio in px del marker circolare
             mymap: null,
             markerArray: []
         }
@@ -38,6 +38,7 @@ const stationMapComponentDefinition = {
         plotOnMap(data) {
 
             let self = this;
+            self.resetMarkers();
 
             for (var i = 0; i < data.length; i++) {
                 // assegno alla variabile item l'ennesimo record in data
@@ -50,7 +51,7 @@ const stationMapComponentDefinition = {
                             color: "#000",
                             weight: 1,
                             opacity: 1,
-                            fillColor: "#999", // prendo il colore dal valore ritornato dal db
+                            fillColor: "#333", // prendo il colore dal valore ritornato dal db
                             fillOpacity: 1,
                             customProp: item, // aggiungi le info dell'item come proprietÃ  custom ('customProp' Ã¨ una key scelta arbitrariamente)
                         }) // le prossime tre funzioni in basso sono concatenate
@@ -77,13 +78,16 @@ const stationMapComponentDefinition = {
                         }); // per test => per vedere nella console, sul click del marker, i valori custom assegnati  
 
                     // crea la label per il marker sfruttando L.marker e L.divIcon (il testo della label Ã¨ nell'attributo 'html' di divIcon)
-                    L.marker(L.latLng(item.coords.coordinates[1], item.coords.coordinates[0]), {
+                    let label_marker = L.marker(L.latLng(item.coords.coordinates[1], item.coords.coordinates[0]), {
                         icon: L.divIcon({
                             html: item.name,
                             iconAnchor: [this.circle_marker_radius * 2, -this.circle_marker_radius],
                             className: 'circle-marker-label', // con la classe definisco anche lo stile del testo (style css della classe 'circle-marker-label' definito nella pagina html)
                         })
-                    }).addTo(this.mymap);
+                    });
+                    this.markerArray.push(label_marker);
+                    label_marker.addTo(this.mymap);
+
                 } catch (e) {
                     // do nothing
                 }
@@ -95,6 +99,16 @@ const stationMapComponentDefinition = {
                 this.mymap.fitBounds(group.getBounds());
             } catch (e) {}
 
+        },
+        resetMarkers() {
+            try {
+                this.markerArray.forEach(element => {
+                    this.mymap.removeLayer(element);
+                });
+                this.markerArray = [];
+            } catch(e) {
+                console.log(e);
+            }
         },
         // funzione di creazione del testo html da inserire nel popup, tramite le info dell'item
         makePopup(item) {
