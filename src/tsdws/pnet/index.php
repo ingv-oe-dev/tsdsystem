@@ -1,3 +1,51 @@
+<?php
+    // Set GUEST user permissions
+    session_start();
+    $_SESSION["guest_permissions"] = array(
+        "resources" => array (
+            "nets" => array(
+                "read" => array(
+                    "enabled" => true
+                )
+            ),
+            "stations" => array(
+                "read" => array(
+                    "enabled" => true
+                )
+            ),
+            "sensortypes" => array(
+                "read" => array(
+                    "enabled" => true
+                )
+            ),
+            "sensors" => array(
+                "read" => array(
+                    "enabled" => true
+                )
+            ),
+            "sites" => array(
+                "read" => array(
+                    "enabled" => true
+                )
+            ),
+            "channels" => array(
+                "read" => array(
+                    "enabled" => true
+                )
+            ),
+            "digitizers" => array(
+                "read" => array(
+                    "enabled" => true
+                )
+            ),
+            "digitizertypes" => array(
+                "read" => array(
+                    "enabled" => true
+                )
+            )
+        )
+    );
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -35,7 +83,7 @@
             <a class="btn btn-rounded text-light ps-0 pe-3" href=".">PNet <span v-if="!isSmallWidth" class="text-info fst-italic">manager</span></a>
             <button class="btn btn-rounded" @click="openSettings(true)" title="App settings"><i class="text-light fa-solid fa-gear"></i></button>
             <?php
-                session_start();
+                //session_start();
                 $user_link_icon = isset($_SESSION ['email']) ? '<button class="btn btn-rounded" title="'.$_SESSION ['email'].'"><i class="text-info fa-solid fa-user"></i> <small v-if="!isSmallWidth" class="text-info" style="font-size:0.7em">'.$_SESSION ['email'].'</small></button>' : '<a class="btn btn-rounded" href="../login" role="button" title="No user identified. Please login"><i class="text-danger fa-solid fa-user-slash"></i></a>';
                 echo $user_link_icon;
             ?>

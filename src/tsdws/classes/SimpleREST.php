@@ -248,6 +248,13 @@ class SimpleREST extends Utils{
 				'userId' => $_SESSION['userId']
 			);
 		}
+		// Check if guest permissions are set
+		if (isset($_SESSION["guest_permissions"])) {
+			return array(
+				'userId' => time() + rand(0, time()),
+				'rights' => $_SESSION['guest_permissions']
+			);
+		}
 		return null;
     }
 
