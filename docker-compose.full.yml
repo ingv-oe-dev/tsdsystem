@@ -52,11 +52,8 @@ services:
       - "POSTGRES_USER=${DB_USER}"
       - "POSTGRES_PASSWORD=${DB_PASSWORD}"
       - "POSTGRES_DB=${DB_USER}"
-    ports:
-      - "5432:5432"
     healthcheck:
       test:
-        # ['CMD', 'psql', '-h', 'localhost', '-U', '${POSTGRES_USER}', '-c', 'SELECT 1']
         ["CMD", "pg_isready", "-h", "localhost", "-U", "${POSTGRES_USER}"]
       start_period: 15s
       interval: 15s
@@ -73,15 +70,11 @@ services:
   pgadmin:
     image: dpage/pgadmin4:6.8
     restart: unless-stopped
-    ports:
-      - 5050:80
-      - 5051:443
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
     healthcheck:
       test:
-        # ["CMD", "curl", "--fail", "http://localhost:5050/pgadmin4"]
         ["CMD", "wget", "-O", "/tmp/ping", "http://localhost:80/misc/ping"]
       start_period: 5s
       interval: 5s
@@ -95,8 +88,6 @@ services:
   grafana:
     image: grafana/grafana-oss:8.4.5
     restart: unless-stopped
-    ports:
-    - 3000:3000
     environment:
       PUBLIC_URL: ${PUBLIC_URL}
       GF_RENDERING_SERVER_URL: http://renderer:8081/render
@@ -124,8 +115,6 @@ services:
   renderer:
     image: grafana/grafana-image-renderer:3.5.0
     restart: unless-stopped
-    ports:
-    - 8081
     depends_on:
       db:
         condition: service_healthy
