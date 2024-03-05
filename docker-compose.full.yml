@@ -2,38 +2,133 @@
 version: '3'
 
 services:
-  app:
-    extends:
-      file: docker-services.yml
-      service: tsd
+  tsd:
+    build:
+      context: ./docker/php/
+    image: tsdsystem-app
+    container_name: app
+    tty: true
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: "${DB_HOST}"
+      DB_USER: "${TSD_DB_USER}"
+      DB_PASSWORD: "${TSD_DB_PASSWORD}"
+      DB_NAME: "${TSD_DB}"
+      DB_PORT: "${DB_PORT}"
+      SERVER_KEY: "${SERVER_KEY}"
+      APP_ALLOWED_HOSTS: "${APP_ALLOWED_HOSTS}"
+      ADMIN_ID: "${ADMIN_ID}"
+      ADMIN_PASSWORD: "${ADMIN_PASSWORD}"
+      ADMIN_EMAIL: "${ADMIN_EMAIL}"
+      ENV: "${ENV}"
+      EPSG_DEGREE: "${EPSG_DEGREE}"
+      EPSG_M: "${EPSG_M}"
+      SMTP_HOST: "${SMTP_HOST}"
+      SMTP_USERNAME: "${SMTP_USERNAME}"
+      SMTP_PASSWORD: "${SMTP_PASSWORD}"
+      SMTP_AUTH: "${SMTP_AUTH}"
+      SMTP_SECURE: "${SMTP_SECURE}"
+      SMTP_FROM_ADDRESS: "${SMTP_FROM_ADDRESS}"
+      SMTP_FROM_NAME: "${SMTP_FROM_NAME}"
+      REG_PATTERN: "${REG_PATTERN}"
+    healthcheck:
+      test:
+        ["CMD", "curl", "--fail", "http://localhost/tsdws/version"]
+      start_period: 5s
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+    working_dir: /var/www/html/tsdws
+    volumes:
+      - ./src:/var/www/html
   db:
-    extends:
-      file: docker-services.yml
-      service: db
+    image: timescale/timescaledb-ha:pg14.2-ts2.6.0-oss-latest
+    container_name: db
+    restart: unless-stopped
+    environment:
+      - "POSTGRES_USER=${DB_USER}"
+      - "POSTGRES_PASSWORD=${DB_PASSWORD}"
+      - "POSTGRES_DB=${DB_USER}"
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test:
+        # ['CMD', 'psql', '-h', 'localhost', '-U', '${POSTGRES_USER}', '-c', 'SELECT 1']
+        ["CMD", "pg_isready", "-h", "localhost", "-U", "${POSTGRES_USER}"]
+      start_period: 15s
+      interval: 15s
+      timeout: 15s
+      retries: 10
     volumes:
       - "db_data:/home/postgres/pgdata/data"
-  pgadmin:
-    extends:
-      file: docker-services.yml
-      service: pgadmin
   frontend:
-    extends:
-      file: docker-services.yml
-      service: frontend
+    build: ./docker/nginx/
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+  pgadmin:
+    image: dpage/pgadmin4:6.8
+    restart: unless-stopped
+    ports:
+      - 5050:80
+      - 5051:443
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+    healthcheck:
+      test:
+        # ["CMD", "curl", "--fail", "http://localhost:5050/pgadmin4"]
+        ["CMD", "wget", "-O", "/tmp/ping", "http://localhost:80/misc/ping"]
+      start_period: 5s
+      interval: 5s
+      timeout: 5s
+      retries: 10
     depends_on:
-      - app
+      db:
+        condition: service_healthy
+    volumes:
+      - ./docker/timescale/servers.json:/pgadmin4/servers.json
   grafana:
-    extends:
-      file: docker-services.yml
-      service: grafana
+    image: grafana/grafana-oss:8.4.5
+    restart: unless-stopped
+    ports:
+    - 3000:3000
+    environment:
+      PUBLIC_URL: ${PUBLIC_URL}
+      GF_RENDERING_SERVER_URL: http://renderer:8081/render
+      GF_RENDERING_CALLBACK_URL: http://grafana:3000/
+      GF_LOG_FILTERS: rendering:debug
+      # GF_USERS_ALLOW_SIGN_UP: false
+      GF_SERVER_DOMAIN: grafana:3000
+      GF_SERVER_ROOT_URL: ${PUBLIC_URL}/grafana/
+      GF_SERVER_SERVE_FROM_SUB_PATH: true
+      GF_SECURITY_ADMIN_PASSWORD__FILE: /run/secrets/grafana_admin_password
+    healthcheck:
+      test:
+        ["CMD", "wget", "http://localhost:3000/healthz", "-O", "/dev/null"]
+      start_period: 5s
+      interval: 5s
+      timeout: 5s
+      retries: 10
     volumes:
       - "grafana-storage:/var/lib/grafana"
     secrets:
       - grafana_admin_password
+    depends_on:
+      db:
+        condition: service_healthy
   renderer:
-    extends:
-      file: docker-services.yml
-      service: renderer
+    image: grafana/grafana-image-renderer:3.5.0
+    restart: unless-stopped
+    ports:
+    - 8081
+    depends_on:
+      db:
+        condition: service_healthy
 volumes:
   db_data:
   grafana-storage:
