@@ -66,13 +66,13 @@ services:
       - "db_data:/home/postgres/pgdata/data"
   frontend:
     build: ./docker/nginx/
-    restart: "unless-stopped"
+    restart: unless-stopped
     ports:
       - "80:80"
       - "443:443"
   pgadmin:
     image: dpage/pgadmin4:6.8
-    restart: "unless-stopped"
+    restart: unless-stopped
     ports:
       - 5050:80
       - 5051:443
@@ -94,6 +94,7 @@ services:
       - ./docker/timescale/servers.json:/pgadmin4/servers.json
   grafana:
     image: grafana/grafana-oss:8.4.5
+    restart: unless-stopped
     ports:
     - 3000:3000
     environment:
@@ -122,6 +123,7 @@ services:
         condition: service_healthy
   renderer:
     image: grafana/grafana-image-renderer:3.5.0
+    restart: unless-stopped
     ports:
     - 8081
     depends_on:
