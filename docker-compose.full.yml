@@ -52,6 +52,8 @@ services:
       - "POSTGRES_USER=${DB_USER}"
       - "POSTGRES_PASSWORD=${DB_PASSWORD}"
       - "POSTGRES_DB=${DB_USER}"
+    ports:
+      - 5432:5432
     healthcheck:
       test:
         ["CMD", "pg_isready", "-h", "localhost", "-U", "${POSTGRES_USER}"]
