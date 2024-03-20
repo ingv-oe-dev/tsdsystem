@@ -325,6 +325,7 @@ Class TimeseriesValuesController extends RESTController {
 		
 		// go to select the permission 
 		// ($selected_permission will be set in any case by $this->default_permission)
+		// if $selected_permission is null, then $p["settings"] was not defined and it can be seen as all permissions
 		$selected_permission = $this->getSelectedPermission($auth_params, $rights["permissions"]);
 
 		// check time interval rights 
@@ -368,7 +369,8 @@ Class TimeseriesValuesController extends RESTController {
 				) {
 					//echo "timeseries";
 					//var_dump($p["settings"]);
-					return $p["settings"];
+					if(isset($p["settings"])) return $p["settings"];
+					return null; // all permissions
 				} 
 			}
 		}
@@ -395,7 +397,8 @@ Class TimeseriesValuesController extends RESTController {
 				) {
 					//echo "channels";
 					//var_dump($p["settings"]);
-					return $p["settings"];
+					if(isset($p["settings"])) return $p["settings"];
+					return null; // all permissions
 				}	
 			}
 		}
@@ -411,7 +414,8 @@ Class TimeseriesValuesController extends RESTController {
 				) {
 					//echo "sensors";
 					//var_dump($p["settings"]);
-					return $p["settings"];
+					if(isset($p["settings"])) return $p["settings"];
+					return null; // all permissions
 				}	
 			}
 		}
@@ -427,20 +431,24 @@ Class TimeseriesValuesController extends RESTController {
 				) {
 					//echo "nets";
 					//var_dump($p["settings"]);
-					return $p["settings"];
+					if(isset($p["settings"])) return $p["settings"];
+					return null; // all permissions
 				}	
 			}
 		}
 
 		// If here, view if there is an 'all' section
-		foreach ($permission_groups["all"] as $p) {
-			if (
-				strcasecmp($p["target"],"all") == 0
-			) {
-				//echo "all";
-				//var_dump($p["settings"]);
-				return $p["settings"];
-			}	
+		if (array_key_exists("all", $permission_groups)) {
+			foreach ($permission_groups["all"] as $p) {
+				if (
+					strcasecmp($p["target"],"all") == 0
+				) {
+					//echo "all";
+					//var_dump($p["settings"]);
+					if(isset($p["settings"])) return $p["settings"];
+					return null; // all permissions
+				}	
+			}
 		}
 
 		// If here, return default permissions
@@ -456,6 +464,7 @@ Class TimeseriesValuesController extends RESTController {
 	 */
 	public function checkTimeIntervalRights($permission) {
 		
+		if (is_null($permission)) return;
 		//var_dump($permission);
 
 		// get requested period
