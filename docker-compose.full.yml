@@ -100,6 +100,13 @@ services:
       GF_SERVER_ROOT_URL: ${PUBLIC_URL}/grafana/
       GF_SERVER_SERVE_FROM_SUB_PATH: true
       GF_SECURITY_ADMIN_PASSWORD__FILE: /run/secrets/grafana_admin_password
+      GF_SMTP_ENABLED: true
+      GF_SMTP_HOST: ${SMTP_HOST}
+      GF_SMTP_USER: ${SMTP_USERNAME}
+      GF_SMTP_PASSWORD: ${SMTP_PASSWORD}
+      GF_SMTP_FROM_ADDRESS: ${SMTP_FROM_ADDRESS}
+      GF_SMTP_FROM_NAME: ${SMTP_FROM_NAME}
+      GF_SMTP_SKIP_VERIFY: ${SMTP_SKIP_VERIFY}
     healthcheck:
       test:
         ["CMD", "wget", "http://localhost:3000/healthz", "-O", "/dev/null"]
