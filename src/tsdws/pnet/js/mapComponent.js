@@ -42,6 +42,9 @@ const mapComponentDefinition = {
 
             // aggiungo il zoomControl personalizzato
             new L.Control.Zoom({ position: 'topright' }).addTo(this.map);
+
+            // aggiungo la scale bar
+            new L.control.scale({position: 'bottomright'}).addTo(this.map);
         },
         // funzione per il plotting dei nodi
         plotStationsOnMap(data, options) {
@@ -66,7 +69,7 @@ const mapComponentDefinition = {
                             className: (item.old_station ? 'old_station-marker' : '')
                         }) // le prossime tre funzioni in basso sono concatenate
 
-                    marker.bindPopup(this.makePopup(item)) // aggiungi popup al marker (testo per il popup ritornato dalla funzione makePopup(item))
+                    marker.bindPopup(this.makePopup(item), {closeOnClick: false, autoClose: false}) // aggiungi popup al marker (testo per il popup ritornato dalla funzione makePopup(item))
                         .on('click', function() {
                             let selected = this.options.customProp;
                             selected.marker_type = 'station';
@@ -118,7 +121,7 @@ const mapComponentDefinition = {
             } else {
                 this.overlayMaps[options.group_id] = new L.FeatureGroup();
                 // aggiorno anche il layer switch control
-                this.layerSwitch.addOverlay(this.overlayMaps[options.group_id], "<img src='img/pin.png' style='height:1em'></span> " + options.group_id);
+                this.layerSwitch.addOverlay(this.overlayMaps[options.group_id], "<img src='img/flag.png' style='height:1em'></span> " + options.group_id);
             }
 
             for (var i = 0; i < data.length; i++) {
@@ -140,17 +143,36 @@ const mapComponentDefinition = {
                     // crea il marker circolare passando lat e lon tramite la funzione di riproiezione L.latLng
                     let marker = L.marker(L.latLng(item.centroid.coordinates[1], item.centroid.coordinates[0]), {
                         icon: L.icon({
-                            iconUrl: 'img/pin.png',
+                            iconUrl: 'img/flag.png',
                             iconSize: [32, 32],
                             additionalInfo: item
                         })
                     });
 
-                    marker.bindPopup(this.makePopupSite(item)) // aggiungi popup al marker (testo per il popup ritornato dalla funzione makePopup(item)) 
+                    marker.bindPopup(this.makePopupSite(item), {closeOnClick: false, autoClose: false}) // aggiungi popup al marker (testo per il popup ritornato dalla funzione makePopup(item)) 
                         .on('click', function() {
                             let selected = this.options.icon.options.additionalInfo;
                             selected.marker_type = 'site';
                             self.$emit('clicked-marker', selected);
+                            selected_marker = this;
+                            // list stations belonging to the selected site
+                            $.ajax({
+                                url: options.baseURLws + "stations",
+                                data: { "site_id": selected.id },
+                                beforeSend: function(jqXHR, settings) {
+                                    jqXHR = Object.assign(jqXHR, settings, { "messageText": "Loading stations for site (id=" + item.id + ")" });
+                                    $("#site"+selected.id+"_marker_popup_station_list").html("Loading stations...");
+                                },
+                                success: function(response, textStatus, jqXHR) {
+                                    selected_marker.setPopupContent(self.updatePopupSite(response.data, selected.id));
+                                    let n = Object.assign(jqXHR, { "messageType": "info" });
+                                    self.$emit('loading-from-map', n);
+                                },
+                                error: function(jqXHR) {
+                                    let n = Object.assign(jqXHR, { "messageType": "danger" });
+                                    self.$emit('loading-from-map', n);
+                                }
+                            });
                         }); // per test => per vedere nella console, sul click del marker, i valori custom assegnati  
 
                     // aggiungo il marker nel layer corrente
@@ -200,7 +222,7 @@ const mapComponentDefinition = {
         },
         // funzione di creazione del testo html da inserire nel popup, tramite le info dell'item
         makePopup(item) {
-            var html = "<h6>" + item.name + "</h6>";
+            var html = "<h6>STATION: <b>" + item.name + "</b> ("+item.net_name+")</h6>";
             html += "<div><b>Coordinates</b> (WGS84):</div>" +
                 "<div><i>Lat:</i> " + item.coords.coordinates[1] + "&deg; N</div>" +
                 "<div><i>Lon:</i> " + item.coords.coordinates[0] + "&deg; E</div>" +
@@ -208,14 +230,29 @@ const mapComponentDefinition = {
             return html;
         },
         makePopupSite(item) {
-            var html = "<h6>" + item.name + "</h6>";
+            var html = "<h6>SITE: <b>" + item.name + "</b></h6>";
             html += "<div><b>Coordinates (of centroid for polygons)</b> (WGS84):</div>" +
                 "<div><i>Lat:</i> " + item.centroid.coordinates[1] + "&deg; N</div>" +
                 "<div><i>Lon:</i> " + item.centroid.coordinates[0] + "&deg; E</div>" +
                 "<div><i>Quote:</i> " + item.quote + " m</div><br>";
             html += "<div><b>GeoJSON</b> (WGS84 coordinates):</div>" +
                 "<div>" + JSON.stringify(item.coords) + "</div>";
+            html += "<br/><div id='site"+item.id+"_marker_popup_station_list'></div>";
             return html;
+        },
+        updatePopupSite(data, site_id) {
+            var self = this;
+            var html = "<b>Stations in site:</b><ul>";
+            $.each(data, function(index, item) {
+                html += "<li><b>"+item.name+"</b> ("+item.net_name+") <span id='site"+site_id+"_marker_popup_station"+item.id+"' style='cursor:pointer'>[<u>filter in station list</u>]</span></li>";
+            });
+            html += "</ul>";
+            $("#site"+site_id+"_marker_popup_station_list").html(html);
+            $.each(data, function(index, item) {
+                $("span#site"+site_id+"_marker_popup_station"+item.id).on("click", function() {
+                    self.$emit('clicked-marker', {marker_type: "station", name: item.name});
+                });
+            });
         },
         openPopupById(id) {
             let layer_name_list = Object.keys(this.overlayMaps);

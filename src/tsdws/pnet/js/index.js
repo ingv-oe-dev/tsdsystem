@@ -141,19 +141,19 @@ var app = {
             }, false);
             window.document.addEventListener('stationEdit', function(e) {
                 //console.log(e);
-                self.fetchStations();
+                self.fetchStations({filters:{net_id:0, site_id:0, name:''}});
                 self.$refs.notifications.notify(e.detail);
             }, false);
             window.document.addEventListener('stationConfigEdit', function(e) {
                 //console.log(e);
-                self.fetchStations();
+                self.fetchStations({filters:{net_id:0, site_id:0, name:''}});
                 self.fetchStationConfigs({ station_id: e.detail.station_id });
                 self.fetchChannels({ station_config_id: e.detail.id });
                 self.$refs.notifications.notify(e.detail);
             }, false);
             window.document.addEventListener('channelEdit', function(e) {
                 //console.log(e);
-                self.fetchStations();
+                self.fetchStations({filters:{net_id:0, site_id:0, name:''}});
                 self.fetchStationConfigs({ station_id: e.detail.station_id });
                 self.fetchChannels({ station_config_id: e.detail.station_config_id });
                 self.$refs.notifications.notify(e.detail);
@@ -237,7 +237,7 @@ var app = {
                 success: function(response, textStatus, jqXHR) {
                     self.sites = response.data;
                     self.defaultOption.sites = "--- Select ---";
-                    self.$refs.leafmap.plotSites(self.sites, { "group_id": "sites", "append": false, "show": self.showSites });
+                    self.$refs.leafmap.plotSites(self.sites, { "group_id": "sites", "append": false, "show": self.showSites, "baseURLws": self.baseURLws });
                     let n = Object.assign(jqXHR, { "messageType": "info" });
                     self.$refs.notifications.notify(n);
                 },
@@ -328,7 +328,9 @@ var app = {
         },
         fetchStations(parameters = {}) {
             this.stations = [];
-
+            if (parameters.filters) {
+                Object.assign(this.filters, parameters.filters);
+            }
             let self = this;
             $.ajax({
                 url: self.baseURLws + "stations",
@@ -362,7 +364,7 @@ var app = {
                     },
                     success: function(response, textStatus, jqXHR) {
                         console.log(response);
-                        self.fetchStations();
+                        self.fetchStations({filters:{net_id:0, site_id:0, name:''}});
                         let n = Object.assign(jqXHR, { "messageType": "success" });
                         self.$refs.notifications.notify(n);
                     },
@@ -404,7 +406,7 @@ var app = {
                     },
                     success: function(response, textStatus, jqXHR) {
                         console.log(response);
-                        self.fetchStations();
+                        self.fetchStations({filters:{net_id:0, site_id:0, name:''}});
                         self.fetchStationConfigs({ station_id: station_id });
                         self.fetchChannels({ station_config_id: id });
                         let n = Object.assign(jqXHR, { "messageType": "success" });
@@ -428,7 +430,7 @@ var app = {
                     },
                     success: function(response, textStatus, jqXHR) {
                         console.log(response);
-                        self.fetchStations();
+                        self.fetchStations({filters:{net_id:0, site_id:0, name:''}});
                         self.fetchStationConfigs({ station_id: station_id });
                         self.fetchChannels({ station_config_id: id });
                         let n = Object.assign(jqXHR, { "messageType": "success" });
@@ -475,7 +477,7 @@ var app = {
                     },
                     success: function(response, textStatus, jqXHR) {
                         console.log(response);
-                        self.fetchStations();
+                        self.fetchStations({filters:{net_id:0, site_id:0, name:''}});
                         self.fetchStationConfigs({ station_id: station_id });
                         self.fetchChannels({ station_config_id: station_config_id });
                         let n = Object.assign(jqXHR, { "messageType": "success" });
@@ -542,7 +544,10 @@ var app = {
                 default:
                     break;
             }
-
+        },
+        onMapLoadingData(response) {
+            //console.log(response);
+            this.$refs.notifications.notify(response);
         },
         applyFilters(filters = {}) {
             //console.log(filters);

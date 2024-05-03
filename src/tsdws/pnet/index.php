@@ -107,7 +107,7 @@
             </div>
         </div>
         <div id='sideL' class="p-0 overflow-auto"></div>
-        <leafmap id='map' ref="leafmap" @clicked-marker="onMapMarkerClick"></leafmap>
+        <leafmap id='map' ref="leafmap" @clicked-marker="onMapMarkerClick" @loading-from-map="onMapLoadingData"></leafmap>
         <div id='sideR' class="p-0 overflow-auto">Sidebar Right</div>
         <div id='sideN' class="p-0 overflow-auto bg-dark">
             <notifications ref="notifications"></notifications>
