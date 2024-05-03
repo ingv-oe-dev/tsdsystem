@@ -250,7 +250,7 @@ const mapComponentDefinition = {
             $("#site"+site_id+"_marker_popup_station_list").html(html);
             $.each(data, function(index, item) {
                 $("span#site"+site_id+"_marker_popup_station"+item.id).on("click", function() {
-                    self.$emit('clicked-marker', {marker_type: "station", name: item.name});
+                    self.$emit('clicked-marker', {marker_type: "station", name: item.name, net_id: item.net_id});
                 });
             });
         },
