@@ -537,6 +537,7 @@ var app = {
             switch (el.marker_type) {
                 case 'station':
                     this.filters.name = el.name;
+                    this.filters.net_id = el.net_id;
                     break;
                 case 'site':
                     //this.filters.site_id = el.id;
