@@ -130,3 +130,17 @@ CREATE TABLE IF NOT EXISTS tsd_users.temp_reset_keys
 )
 
 TABLESPACE pg_default;
+
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+-- INSERT predefined roles+permissions
+
+INSERT INTO tsd_users.roles (id, name, description) VALUES
+(1, 'Admin user', 'Has administration privileges on all resources'),
+(2, 'Network reader', 'Can read all information about sensor network data'),
+(3, 'Timeseries editor', 'Read e write timeseries');
+
+INSERT INTO tsd_users.roles_permissions (role_id, settings, active) VALUES
+(1, '{"admin": true, "resources": []}', true),
+(2, '{"resources": {"nets": {"read": {"enabled": true}}, "sites": {"read": {"enabled": true}}, "owners": {"read": {"enabled": true}}, "sensors": {"read": {"enabled": true}}, "channels": {"read": {"enabled": true}}, "stations": {"read": {"enabled": true}}, "digitizers": {"read": {"enabled": true}}, "sensortypes": {"read": {"enabled": true}}, "digitizertypes": {"read": {"enabled": true}}}}', true),
+(3, '{"resources": {"timeseries": {"edit": {"enabled": true}, "read": {"enabled": true}}}}', true);
