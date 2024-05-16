@@ -88,7 +88,7 @@ const plotlyChartComponentDefinition = {
         loadData: function(element, index) {
             let vueself = this;
             let wsURL = 'proxy-request.php';
-            wsURL = "/github/tsdsystem/src/tsdws/timeseries/" + element.request.id + "/values";
+            wsURL = "/tsdws/timeseries/" + element.request.id + "/values";
 
             $.ajax({
                 url: wsURL,

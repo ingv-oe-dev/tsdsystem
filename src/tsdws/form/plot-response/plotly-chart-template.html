@@ -71,14 +71,6 @@
                         <b-form-input type='color' v-model="chart.traces[selectedTraceIndex].marker.color" style="width:50px"></b-form-input>
                     </b-input-group>
                 </b-form>
-				<b-form inline class="mt-3">
-                    <b-input-group prepend="Bar mode" size="sm" v-show="isBarTypeTrace" class="mr-1">
-                        <b-form-select v-model="chart.layout.barmode" size="sm">
-                            <option value="stack">stack</option>
-                            <option value="group">group</option>
-                        </b-form-select>
-                    </b-input-group>
-                </b-form>
                 <b-form>
                     <b-input-group size="sm" class="mt-3">
                         <b-form-checkbox v-model="showThresholds">

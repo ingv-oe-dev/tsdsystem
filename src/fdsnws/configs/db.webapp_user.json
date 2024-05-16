@@ -1,7 +1,0 @@
-{
-    "host": "hpctsd-docker",
-    "user": "sismodev",
-    "pwd": "development",
-    "db": "tsdsystem",
-    "port": "5432"
-}
