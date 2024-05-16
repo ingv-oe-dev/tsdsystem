@@ -24,7 +24,7 @@ var app = {
                 "R": false, // Right side panel
                 "N": false // Notifications panel
             },
-            baseURLws: "/tsdws/",
+            baseURLws: "/github/tsdsystem/src/tsdws/",
             windowWidth: window.innerWidth,
             resetID: 0,
             nets: [],
@@ -879,7 +879,7 @@ var app = {
             return '';
         },
         openFDSNStationXML(params) {
-            let wsURL = "/fdsnws/station/1/query?includerestricted=true&format=xml";
+            let wsURL = "/github/tsdsystem/src/fdsnws/station/1/query?includerestricted=true&format=xml";
             let URL = wsURL + "&level=" + (params.level ? params.level : "station");
             if (params.network && params.network != '') URL += "&network=" + params.network;
             if (params.station && params.station != '') URL += "&station=" + params.station;
