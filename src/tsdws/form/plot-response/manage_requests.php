@@ -85,7 +85,8 @@
                 "orientation" => "h",
                 "x" => 0,
                 "y" => -0.3
-            )
+            ),
+			"barmode" => "stack"
         );
         if (count($request["columns"]) > 0) {
             $diff = count($request["columns"])%2==0 ? [3, 3] : [2, 3];
