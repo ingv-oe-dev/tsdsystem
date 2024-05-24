@@ -396,13 +396,13 @@ class FDSN_Station_Encoder extends FDSN_Station {
 		}
 		//$stationItem->addChild("Description", $this->sanitize($item["station_name"]));
 		//$stationItem->addChild("Identifier", $this->sanitize($item["station_id"]));
-		$stationItem->addChild("CreationDate", $this->sanitize($item["station_startdate"]));
 		$stationItem->addChild("Latitude", $this->sanitize($item["station_latitude"]));
 		$stationItem->addChild("Longitude", $this->sanitize($item["station_longitude"]));
 		$stationItem->addChild("Elevation", $this->sanitize($item["station_elevation"]));
 		$siteItem = $stationItem->addChild("Site");
-		$siteItem->addAttribute("id", $this->sanitize($item["station_site_id"]));
+		//$siteItem->addAttribute("id", $this->sanitize($item["station_site_id"]));
 		$siteItem->addChild("Name", $this->sanitize($item["station_sitename"]));
+		$stationItem->addChild("CreationDate", $this->sanitize($item["station_startdate"]));
 		
 		return $stationItem;
 	}
@@ -454,6 +454,9 @@ class FDSN_Station_Encoder extends FDSN_Station {
 				$sensor_s = floatval($this->sanitize($addInfo["S"]));
 				$digitizer_s = floatval($this->sanitize($item["sensitivity"]));
 				$instrumentSensivityItem->addChild("Value", $this->sanitize($sensor_s*$digitizer_s));
+				if ($this->isSetArrayVal($addInfo, "fn")) {
+					$instrumentSensivityItem->addChild("Frequency", $this->sanitize($addInfo["fn"]));
+				}
 				if (isset($addInfo["InputUnits"])) {
 					$instrumentSensivityItem->addChild("InputUnits")->addChild("Name", $addInfo["InputUnits"]);
 				} else {
@@ -490,10 +493,6 @@ class FDSN_Station_Encoder extends FDSN_Station {
 					$instrumentSensivityItem->addChild("OutputUnits")->addChild("Name", "V");
 				}
 			}
-
-			if ($this->isSetArrayVal($addInfo, "fn")) {
-				$instrumentSensivityItem->addChild("Frequency", $this->sanitize($addInfo["fn"]));
-			}
 			
 			if ($this->isSetArrayVal($addInfo, "PZ")) {
 				$this->append_stage1_poleszeros($responseItem, $addInfo);
@@ -503,16 +502,17 @@ class FDSN_Station_Encoder extends FDSN_Station {
 
 	public function append_Channel_additionalInfo(&$channelItem, $item) {
 
-		if (isset($item["final_sample_rate"])) {
-			$channelItem->addChild("SampleRate", strval($item["final_sample_rate"]));
-		}
-
 		if (isset($item["channel_additional_info"])) {
 			$addInfo = $this->object_to_array($item["channel_additional_info"]); // convert to an associative array
 
 			if ($this->isSetArrayVal($addInfo, "Depth")) $channelItem->addChild("Depth", strval($addInfo["Depth"]));
 			if ($this->isSetArrayVal($addInfo, "Azimuth")) $channelItem->addChild("Azimuth", strval($addInfo["Azimuth"]));
 			if ($this->isSetArrayVal($addInfo, "Dip")) $channelItem->addChild("Dip", strval($addInfo["Dip"]));
+		}
+		if (isset($item["final_sample_rate"])) {
+			$channelItem->addChild("SampleRate", strval($item["final_sample_rate"]));
+		}
+		if (isset($item["channel_additional_info"])) {
 			//if ($this->isSetArrayVal($addInfo, "SampleRate")) $channelItem->addChild("SampleRate", strval($addInfo["SampleRate"]));
 			if ($this->isSetArrayVal($addInfo, "ClockDrift")) $channelItem->addChild("ClockDrift", strval($addInfo["ClockDrift"]));
 
