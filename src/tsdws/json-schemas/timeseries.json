@@ -109,6 +109,11 @@
             "description": "Metadata for the timeseries",
             "type": "object",
             "properties": {
+                "label": {
+                    "title": "Extended name",
+                    "description": "The extended name of the timeseries (used as label)",
+                    "type": "string"
+                },
                 "columns": {
                     "title": "Columns",
                     "description": "List of all the measurements of the timeseries",
