@@ -20,6 +20,7 @@
             "type": "string",
             "pattern": "^[a-z_]+[a-z0-9_]*$",
             "minLength": 1,
+            "maxLength": 63,
             "default": "public"
         },
         "name": {
@@ -27,7 +28,8 @@
             "description": "Name (only lowercase letters, numbers and underscore characters admitted). **Not available for patch. It will be ignored on patch. It will be used only on new registrations**",
             "type": "string",
             "pattern": "^[a-z_]+[a-z0-9_]*$",
-            "minLength": 1
+            "minLength": 1,
+            "maxLength": 63
         },
         "sampling": {
             "title": "Sampling",

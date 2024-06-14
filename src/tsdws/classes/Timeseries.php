@@ -363,8 +363,6 @@ Class Timeseries extends QueryManager {
 			$next_query .= " WHERE id = '" . $input["id"] . "'";
 			$stmt = $this->myConnection->prepare($next_query);
 			$stmt->execute();	
-				$stmt->execute();	
-			$stmt->execute();	
 			$response["rows"] = $stmt->rowCount();
 
 			if (isset($input["sampling"])) {
@@ -376,20 +374,15 @@ Class Timeseries extends QueryManager {
 				$stmt->execute();	
 				$response["rows"] = isset($response["rows"]) ? ($response["rows"] + $stmt->rowCount()) : $stmt->rowCount();
 
-				// select schema and name from timeseries id
-				$next_query = "SELECT schema, name FROM " . $this->tablename . " WHERE id = '" . $input["id"] . "'";
-				$sqlResult = $this->myConnection->query($next_query);
-				$record = $sqlResult->fetch(PDO::FETCH_ASSOC);	
-
 				// check if MATERIALIZED VIEW
-				$next_query = "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema LIKE LOWER('" . $record["schema"] . "') AND table_name LIKE LOWER('" . $record["name"] . "') AND UPPER(table_type) LIKE 'VIEW'";
+				$next_query = "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema LIKE LOWER('" . $requested["data"][0]["schema"] . "') AND table_name LIKE LOWER('" . $requested["data"][0]["name"] . "') AND UPPER(table_type) LIKE 'VIEW'";
 				$sqlResult = $this->myConnection->query($next_query);
 				$view_exists = $sqlResult->fetchColumn();
 				
 				if ($view_exists < 1) {
 					// calculate chunk_time_interval
 					$chunk_time_interval = $this->getChunkTimeInterval($input);
-					$next_query = "SELECT set_chunk_time_interval('" . $record["schema"] . "." . $record["name"] . "', " . $chunk_time_interval . ");";
+					$next_query = "SELECT set_chunk_time_interval('" . $requested["data"][0]["schema"] . "." . $requested["data"][0]["name"] . "', " . $chunk_time_interval . ");";
 					//echo $next_query;
 					$stmt = $this->myConnection->prepare($next_query);
 					$stmt->execute();
@@ -422,5 +415,85 @@ Class Timeseries extends QueryManager {
 	}
 	// update json metadata example
 	// -- update public.timeseries set metadata = jsonb_set(metadata, '{columns,0,unit}', '"C"') WHERE id = '7c82e5bb-37c7-4195-9a64-cb389140f795';
+
+	// ====================================================================//
+	// *********************** TIMESERIES DELETE **************************//
+	// ====================================================================//
+	public function delete($input) {
+
+		$next_query = "";
+		$response = array(
+			"status" => false,
+			"rows" => null
+		);
+
+		try {
+
+			// check if timeseries with input id exists
+			$requested = $this->getList(array(
+				"id" => $input["id"]
+			));
+			if (!$requested["status"] or count($requested["data"]) == 0) {
+				$response["status"] = false;
+				$response["rows"] = 0;
+				return $response;
+			}
+
+			// start transaction
+			$this->myConnection->beginTransaction();
+
+			// update into timeseries table
+			$original_name = $requested["data"][0]["schema"] . "." . $requested["data"][0]["name"];
+
+			$next_query = "UPDATE " . $this->tablename . " SET 
+				metadata = jsonb_set(metadata, '{_original_name}', '\"" . $original_name . "\"'::jsonb, true), 
+				name = LEFT(CONCAT('_rem',to_char(timezone('utc'::text, now()), 'YYYYMMDDHH24MISS'),'_',name),63), 
+				remove_user = " . strval($input["remove_user"]) . ", 
+				remove_time = " . strval($input["remove_time"]) . "";
+
+			$next_query .= " WHERE id = '" . $input["id"] . "'";
+			$stmt = $this->myConnection->prepare($next_query);
+			$stmt->execute();		
+			$response["rows"] = $stmt->rowCount();
+
+			if ($response["rows"] > 0) {
+
+				// check if MATERIALIZED VIEW
+				$next_query = "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema LIKE LOWER('" . $requested["data"][0]["schema"] . "') AND table_name LIKE LOWER('" . $requested["data"][0]["name"] . "') AND UPPER(table_type) LIKE 'VIEW'";
+				$sqlResult = $this->myConnection->query($next_query);
+				$view_exists = $sqlResult->fetchColumn();
+				
+				if ($view_exists < 1) {
+					// delete table and its chunks
+					$next_query = "DROP TABLE " . $original_name . " CASCADE";
+				} else {
+					$next_query = "DROP VIEW " . $original_name;
+				}
+
+				$stmt = $this->myConnection->prepare($next_query);
+				$stmt->execute();	
+				$response["rows"] = isset($response["rows"]) ? ($response["rows"] + $stmt->rowCount()) : $stmt->rowCount();
+			}
+
+			// commit
+			$this->myConnection->commit();
+
+			$response["status"] = true;
+
+			// return result
+			return $response;
+		}
+		catch (Exception $e){
+			
+			// rollback
+			$this->myConnection->rollback();
+
+			return array(
+				"status" => false,
+				"failed_query" => $next_query,
+				"error" => $e->getMessage()
+			);
+		}
+	}
 }
 ?>

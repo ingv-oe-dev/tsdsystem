@@ -468,6 +468,45 @@
                 "security": [{
                     "Bearer": []
                 }]
+            },
+            "delete": {
+                "tags": [
+                    "timeseries"
+                ],
+                "summary": "Delete a timeseries by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "path",
+                    "description": "Timeseries ID",
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+                }],
+                "responses": {
+                    "202": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "409": {
+                        "description": "Conflict - Error"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
             }
         },
         "/timeseries/{id}/update_first_time": {

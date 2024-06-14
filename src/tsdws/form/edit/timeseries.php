@@ -27,6 +27,11 @@
                 <button id='restore' class='btn btn-secondary'>Restore to Default</button>
                 <div id='valid_indicator' class='mt-1 alert alert-danger'></div>
                 <button id='submit' class='btn btn-primary' disabled>Submit</button>  
+                <?php 
+                    if ($id) {
+                        echo "<button id='delete' class='btn btn-danger'>Delete item [id=" . $id . "]</button>";
+                    } 
+                ?>
             </div>
         </div>
         <div class='columns p-3 mt-0'>
@@ -54,6 +59,33 @@
         var method =  id ? "PATCH" : "POST";
         var mySchema = {};
         var selectedChannelIDs4Mapping = [];
+
+        // Set action on delete button
+        $(function(){
+            $("button#delete").on("click", function(){
+                if (confirm("This action will remove record with id=" + id + ". Continue?") == true) {
+                    $.ajax({
+                        "url": "../../timeseries?id=" + id,
+                        "method": "DELETE",
+                        "beforeSend": function(jqXHR, settings) {
+                            jqXHR = Object.assign(jqXHR, {"messageText":"Remove timeseries [id=" + id + "]"}, settings);
+                        },
+                        "success": function(response, textStatus, jqXHR) {
+                            emitSignal(Object.assign(jqXHR, {"messageType":"success"}));
+
+                            alert("Record with id=" + id + " removed successfully!");
+                            let new_location = window.location.href.split('?')[0];
+                            window.location.href = new_location;
+                        },
+                        "error": function(jqXHR) {
+                            emitSignal(Object.assign(jqXHR, {"messageType":"danger"}));
+                            $('#server_response span.mymessage').html(jqXHR.responseJSON.error);
+                            $('#server_response').addClass("alert-danger show");
+                        }
+                    });
+                }
+            });  
+        });
 
         // Load schema
         $.ajax({
