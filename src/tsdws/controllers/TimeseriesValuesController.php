@@ -90,6 +90,25 @@ Class TimeseriesValuesController extends RESTController {
 
 				break;
 			
+			// DELETE method
+			case 'DELETE':				
+				// read input
+				$this->getInput();
+
+				// check if correct input
+				if (!$this->check_input_delete()) break;
+					
+				// check if authorized action
+				$this->authorizedAction(array(
+					"scope"=>"timeseries-edit",
+					"resource_id" => $this->getParams()["id"]
+				));
+
+				// delete action
+				$this->delete();
+
+				break;
+			
 			// default action
 			default:
 				break;		
@@ -717,7 +736,6 @@ Class TimeseriesValuesController extends RESTController {
 		return true;
 	}
 
-
 	public function checkColumnSettings(&$input) {
 		
 		// prefix for columns relative parameters in querystring
@@ -805,6 +823,77 @@ Class TimeseriesValuesController extends RESTController {
 		$input["columns"] = $column_struct;
 
 		//var_dump($input["columns"]);
+		return true;
+	}
+
+	// ====================================================================//
+	// ******************* delete - timeseries values ***********************//
+	// ====================================================================//
+	/**
+	 * OVERRIDE RESTController 'delete' function
+	 */
+	public function delete() {
+		
+		$input = $this->getParams();
+		$auth_data = $this->_get_auth_data();
+		
+		$result = $this->obj->delete_values($input);
+		
+		if ($result["status"]) {
+			$this->setData($result);
+			if(isset($result["rows"]) and $result["rows"] > 0) {
+				if (
+					isset($result["drop_chunks"]) and 
+					$result["drop_chunks"]["status"] and 
+					array_key_exists("updatedTimeseriesTable", $result) and 
+					$result["updatedTimeseriesTable"]["status"]
+				) {
+					$this->setStatusCode(202);
+				} else {
+					$this->setStatusCode(206);
+				}
+			} else {
+				$this->setStatusCode(207);
+			}
+		} else {
+			$this->setError($result["error"]);
+			$this->setStatusCode(409);
+		}
+	}
+	
+	public function check_input_delete() {
+		
+		if ($this->isEmptyInput()) {
+			$this->setInputError("Empty input or malformed JSON");
+			return false;
+		}
+		
+		$input = $this->getParams();
+		
+		// id
+		if(!array_key_exists("id", $input)) {
+			$this->setInputError("This required input is missing: 'id' [string]");
+			return false;
+		}
+		
+		// newer_than
+		if(array_key_exists("newer_than", $input)) {
+			if (!$this->verifyDate($input["newer_than"])) {
+				$this->setInputError("This input is incorrect: 'newer_than' [string] <format ISO 8601>. Your value = " . strval($input["newer_than"]));
+				return false;
+			}
+		}
+		
+		// older_than
+		if(array_key_exists("older_than", $input)) {
+			if (!$this->verifyDate($input["older_than"])) {
+				$this->setInputError("This input is incorrect: 'older_than' [string] <format ISO 8601>. Your value = " . strval($input["older_than"]));
+				return false;
+			}
+		}
+
+		$this->setParams($input);
+		
 		return true;
 	}
 }

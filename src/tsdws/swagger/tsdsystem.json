@@ -796,6 +796,70 @@
                 "security": [{
                     "Bearer": []
                 }]
+            },
+            "delete": {
+                "tags": [
+                    "timeseries"
+                ],
+                "summary": "Delete timeseries values by ID using a specified range time",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "id",
+                    "in": "path",
+                    "description": "Timeseries ID",
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+                },{
+                    "name": "newer_than",
+                    "in": "query",
+                    "description": "Delete all values that are newer than this date. Standard ISO8601 datetime UTC",
+                    "type": "string",
+                    "format": "date-time"
+                },
+                {
+                    "name": "older_than",
+                    "in": "query",
+                    "description": "Delete all values that are older than this date. Standard ISO8601 datetime UTC",
+                    "type": "string",
+                    "format": "date-time"
+                }],
+                "responses": {
+                    "202": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "206": {
+                        "description": "Partial content",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "207": {
+                        "description": "No Rows inserted",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "409": {
+                        "description": "Conflict - Error"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
             }
         },
         "/timeseries/uploadFromFile": {

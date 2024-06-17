@@ -250,7 +250,107 @@ Class TimeseriesValues extends Timeseries {
 		return $query;
 	}
 	
-	
-	
+	// ====================================================================//
+	// ******************* delete - timeseries values *********************//
+	// ====================================================================//
+	public function delete_values($input) {
+
+		$next_query = "";
+		$response = array(
+			"status" => false,
+			"rows" => null
+		);
+
+		try {
+
+			// get ts info()
+			$ts_info = $this->getInfo($input["id"]);
+			$tablename = $ts_info["schema"] . "." . $ts_info["name"];
+			$hasTimeZone = $ts_info["with_tz"];
+			$utc_string = $hasTimeZone ? " at time zone 'utc' " : "";
+
+			// start transaction
+			$this->myConnection->beginTransaction();
+
+			$next_query = "DELETE FROM $tablename WHERE true ";
+
+			// newer_than (starttime)
+			if (isset($input["newer_than"])){
+				$next_query .= " AND " . $this->getTimeColumnName() . " $utc_string >= '" . $input["newer_than"] . "'";
+			}
+			
+			// older_than (endtime)
+			if (isset($input["older_than"])){
+				$next_query .= " AND " . $this->getTimeColumnName() . " $utc_string <= '" . $input["older_than"] . "'";
+			}
+			
+			$stmt = $this->myConnection->prepare($next_query);
+			$stmt->execute();		
+			$response["rows"] = $stmt->rowCount();
+
+			// update timeseries stats
+			$next_query = "CALL tsd_main.\"updateTimeseriesLastTime\"('".$ts_info["schema"]."','".$ts_info["name"]."')";
+			$stmt = $this->myConnection->prepare($next_query);
+			$stmt->execute();
+
+			$response["updatedTimeseriesTable"] = array(
+				"status" => true,
+				"query" => $next_query,
+				"rows" => $stmt->rowCount()
+			);
+
+			// drop chunks
+			$next_query = "SELECT drop_chunks('".$tablename."'";
+				
+			// older_than
+			if (isset($input["older_than"])){
+				$next_query .= ", older_than => '".$input["older_than"]."'";
+			}
+
+			// newer_than
+			if (isset($input["newer_than"])){
+				$next_query .= ", newer_than => '".$input["newer_than"]."'";
+			}
+
+			$next_query .= ")";
+
+			// delete all rows
+			if (!isset($input["older_than"]) and !isset($input["newer_than"])){
+				$next_query = "SELECT drop_chunks('".$tablename."', interval '0 milliseconds')";
+
+				// update timeseries stats
+				$update_stats_query = "UPDATE tsd_main.timeseries SET last_time = NULL, last_value = NULL, n_samples = 0 WHERE schema = '".$ts_info["schema"]."' AND name = '".$ts_info["name"]."'";
+				$stmt = $this->myConnection->prepare($update_stats_query);
+				$stmt->execute();
+
+				$response["updatedTimeseriesTable"] = array(
+					"status" => true,
+					"query" => $update_stats_query,
+					"rows" => $stmt->rowCount()
+				);
+			}
+
+			$response["drop_chunks"] = $this->getRecordSet($next_query);
+
+			// commit
+			$this->myConnection->commit();
+
+			$response["status"] = true;
+
+			// return result
+			return $response;
+		}
+		catch (Exception $e){
+			
+			// rollback
+			$this->myConnection->rollback();
+
+			return array(
+				"status" => false,
+				"failed_query" => $next_query,
+				"error" => $e->getMessage()
+			);
+		}
+	}
 }
 ?>
