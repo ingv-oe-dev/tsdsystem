@@ -268,6 +268,7 @@ Class Timeseries extends QueryManager {
 		if ($sampling > 1) $chunk_time_interval = "INTERVAL '1 week'";
 		if ($sampling > 60) $chunk_time_interval = "INTERVAL '1 month'";
 		if ($sampling > 300) $chunk_time_interval = "INTERVAL '1 year'";
+		if ($sampling >= 86400) $chunk_time_interval = "INTERVAL '20 years'";
 		
 		return $chunk_time_interval;
 	}
