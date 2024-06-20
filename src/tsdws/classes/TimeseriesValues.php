@@ -299,6 +299,17 @@ Class TimeseriesValues extends Timeseries {
 				"rows" => $stmt->rowCount()
 			);
 
+			if (isset($input["newer_than"]) and isset($input["older_than"]) and ($input["older_than"] == $input["newer_than"])){
+				// commit
+				$this->myConnection->commit();
+
+				$response["status"] = true;
+
+				// return result
+				return $response;
+			}
+
+			/* If here, it is not a punctual request */
 			// drop chunks
 			$next_query = "SELECT drop_chunks('".$tablename."'";
 				
