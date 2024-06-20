@@ -1,4 +1,7 @@
 <?php
+ini_set('memory_limit', '512M');
+// Set the maximum execution time to 600 seconds (10 minutes)
+ini_set('max_execution_time', '600');
 
 require_once("..".DIRECTORY_SEPARATOR."controllers".DIRECTORY_SEPARATOR."TimeseriesController.php");
 require_once("..".DIRECTORY_SEPARATOR."classes".DIRECTORY_SEPARATOR."TimeseriesValues.php");
