@@ -73,9 +73,7 @@ Class TimeseriesController extends RESTController {
 					}
 					$this->get();
 					break;
-				}
-				
-				
+				}				
 
 			case 'PATCH':
 				$this->readInput();
@@ -89,13 +87,14 @@ Class TimeseriesController extends RESTController {
 				break;
 
 			case 'DELETE':
-				/* DO NOT IMPLEMENT IF UNNECESSARY!
-				* Update of 'remove_time' field for a timeseries records have to be followed by
-				* a schema+table(s - partitions) deleting, which can be dangerous operations.
-				* If we allow only the update of the remove_time for a record of timeseries table,
-				* the database will refuse all the following POST requests for timeseries having
-				* the same name of deleted ones, whose names can be not visible to normal users.
-				*/
+				$this->getInput();
+				if (!$this->check_input_delete()) break;
+				// check if authorized action
+				$this->authorizedAction(array(
+					"scope"=>"timeseries-edit",
+					"resource_id"=>$this->getParams()["id"]
+				));
+				$this->delete();
 				break;
 
 			default:
@@ -439,6 +438,35 @@ Class TimeseriesController extends RESTController {
 		$input["update_time"] = "timezone('utc'::text, now())";
 
 		$result = $this->obj->update($input);
+		
+		if ($result["status"]) {
+			$this->setData($result);
+			if(isset($result["rows"]) and $result["rows"] > 0) {
+				$this->setStatusCode(202);
+			} else {
+				$this->setStatusCode(207);
+			}
+		} else {
+			if ($result["rows"] == 0) {
+				$this->setStatusCode(404);
+			} else {
+				$this->setStatusCode(409);
+			}
+			$this->setError($result);
+		}
+	}
+
+	// ====================================================================//
+	// ****************** delete - timeseries instance **********************//
+	// ====================================================================//
+	public function delete() {
+
+		$input = $this->getParams();
+		$auth_data = $this->_get_auth_data();
+		$input["remove_user"] = isset($auth_data) ? $auth_data["userId"] : NULL;
+		$input["remove_time"] = "timezone('utc'::text, now())";
+
+		$result = $this->obj->delete($input);
 		
 		if ($result["status"]) {
 			$this->setData($result);

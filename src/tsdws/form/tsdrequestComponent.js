@@ -260,7 +260,7 @@ const tsdformRequestComponentDefinition = {
 
             this.searchbyname.typingTimer = setTimeout(function() {
                 this.filtered_timeseries = [];
-                let url = "../timeseries/?sort_by=name&name=" + name;
+                let url = "../timeseries/?sort_by=schema,name&name=" + name;
 
                 axios
                     .get(url)
@@ -296,6 +296,11 @@ const tsdformRequestComponentDefinition = {
                             self.firstMapping = response.data.data[0].firstMapping;
                             self.period.firstAvailable = response.data.data[0].first_time ? response.data.data[0].first_time : "unknown";
                             self.period.lastAvailable = response.data.data[0].last_time ? response.data.data[0].last_time : "unknown";
+                            if (response.data.data[0].metadata.label != undefined && response.data.data[0].metadata.label != null) {
+                                self.request.title = response.data.data[0].metadata.label;
+                            } else {
+                                self.request.title = response.data.data[0].schema + "." + response.data.data[0].name; //" Untitled request - " + (self.request.request_counter);
+                            }
                         } catch (e) {}
                         self.selectedTimeseriesColumns = self.timeseries_columns;
                     }

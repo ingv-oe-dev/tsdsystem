@@ -60,7 +60,7 @@
                         </b-form-select>
                     </b-form-group>
                 </div>
-                <b-form-group label-align-lg="right" label-align-md="right" label-align-sm="left" label-align-xs="left" id="input-group-timeseries-field" label="Column:" label-for="input-timeseries-field" label-size="sm" label-cols-md="3" label-cols-lg="3" label-cols-sm="3" label-cols-xs="3">
+                <b-form-group label-align-lg="right" label-align-md="right" label-align-sm="left" label-align-xs="left" id="input-group-timeseries-field" label="Variable:" label-for="input-timeseries-field" label-size="sm" label-cols-md="3" label-cols-lg="3" label-cols-sm="3" label-cols-xs="3">
                     <b-form-select id="input-timeseries-field" v-model="selectedTimeseriesColumns" size="sm" multiple :select-size="5">
                         <option v-for="item in timeseries_columns" :value="item" :selected="true">{{ item }}</option>
                     </b-form-select>

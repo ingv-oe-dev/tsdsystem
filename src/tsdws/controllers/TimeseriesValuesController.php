@@ -1,4 +1,7 @@
 <?php
+ini_set('memory_limit', '512M');
+// Set the maximum execution time to 600 seconds (10 minutes)
+ini_set('max_execution_time', '600');
 
 require_once("..".DIRECTORY_SEPARATOR."classes".DIRECTORY_SEPARATOR."RESTController.php");
 require_once("..".DIRECTORY_SEPARATOR."classes".DIRECTORY_SEPARATOR."TimeseriesValues.php");
@@ -14,6 +17,7 @@ Class TimeseriesValuesController extends RESTController {
 		"last_days" => true,
 		"number_of_days" => 1
 	);
+	public $chunk_size = 10000;
 
 	public function __construct() {
 		
@@ -45,7 +49,12 @@ Class TimeseriesValuesController extends RESTController {
 				));
 
 				// post action
-				$this->post();
+				$input = $this->getParams();
+				if(array_key_exists("chunked", $input) and (intval($input["chunked"]) === 0 or $input["chunked"] === false or $input["chunked"] === "false")) {
+					$this->post();
+				} else {
+					$this->chunked_post();
+				}
 
 				break;
 			
@@ -87,6 +96,25 @@ Class TimeseriesValuesController extends RESTController {
 
 				// get action
 				$this->get();
+
+				break;
+			
+			// DELETE method
+			case 'DELETE':				
+				// read input
+				$this->getInput();
+
+				// check if correct input
+				if (!$this->check_input_delete()) break;
+					
+				// check if authorized action
+				$this->authorizedAction(array(
+					"scope"=>"timeseries-edit",
+					"resource_id" => $this->getParams()["id"]
+				));
+
+				// delete action
+				$this->delete();
 
 				break;
 			
@@ -524,7 +552,8 @@ Class TimeseriesValuesController extends RESTController {
 
 	public function post() {
 
-		$result = $this->obj->insert_values($this->getParams());
+		$input = $this->getParams();
+		$result = $this->obj->insert_values($input);
 		
 		// evito di aggiungere l'input inviato nella risposta (in questi casi potrebbe essere molto grande)
 		$this->setParamValue("data", "not included to avoid heavy response for big insertions"); 
@@ -549,9 +578,84 @@ Class TimeseriesValuesController extends RESTController {
 			}
 		}
 	}
+
+	public function chunked_post() {
+
+		$input = $this->getParams();
+
+		// prepare response
+		$this->response["data"] = array(
+			"status" => true,
+			"rows" => 0,
+			"updatedTimeseriesTable" => true,
+			"chunks" => array()
+		);
+
+		// Data Insertion
+		$offset = 0;
+		$total_samples = count($input["data"]);
+		while ($offset <= $total_samples) {
+			
+			$post_input = array(
+				"id" => $input["id"],
+				"columns" => $input["columns"], 
+				"insert" => $input["insert"]
+			);
+
+			// insert data by chunks
+			$post_input["data"] = array_slice($input["data"], $offset, $this->chunk_size);
+			$insert_result = $this->obj->insert_values($post_input);
+			$insert_result["chunk_idx"] = $offset;
+			$insert_result["chunk_size"] = count($post_input["data"]);
+			
+			// evito di aggiungere l'output della query fallita per intero (solo i primi 100 caratteri)
+			unset($insert_result["failed_query"]);
+			unset($insert_result["next_queries"]);
+
+			array_push($this->response["data"]["chunks"], $insert_result);
+
+			if ($insert_result["status"]) {
+				$this->setStatusCode(201);
+				$this->response["data"]["rows"] += $insert_result["rows"];
+				$this->response["data"]["n_chunks"] = count($this->response["data"]["chunks"]);
+				if (array_key_exists("updatedTimeseriesTable", $insert_result) and !$insert_result["updatedTimeseriesTable"]) {
+					$this->response["updateTimeseriesTable"] = false;
+					// Valori inseriti ma non è stata aggiornata la tabella delle serie temporali (last_time)
+					$this->setStatusCode(202);
+				}
+				if ($this->response["data"]["rows"] == 0) {
+					$this->setStatusCode(207);
+				}
+			} else {
+				$this->response["status"] = false;
+				if (array_key_exists("make_sql_error", $insert_result) and $insert_result["make_sql_error"]) {
+					$this->setError($insert_result["error"]);
+					$this->setStatusCode(400);
+				} else {
+					$this->setError($insert_result["error"]);
+					$this->setStatusCode(500);
+				}
+				return;
+			}
+
+			$offset += $this->chunk_size;
+		}
+
+		// evito di aggiungere l'input inviato nella risposta (in questi casi potrebbe essere molto grande)
+		$this->setParamValue("data", "not included to avoid heavy response for big insertions"); 
+	}
 	
 	public function check_input_post() {
 		
+		$max_size = $this->parse_size(ini_get('post_max_size'));
+		if ($_SERVER['CONTENT_LENGTH'] > $max_size) {
+			// evito di aggiungere l'input inviato nella risposta (in questi casi potrebbe essere molto grande)
+			$this->setParamValue("data", "not included to avoid heavy response for big insertions"); 
+			$this->setInputError("POST data (" . $_SERVER['CONTENT_LENGTH'] . " bytes) exceeded the 'post_max_size' limit (" . strval($max_size) . " bytes)");
+			$this->setStatusCode(413);
+			return false;
+		}
+
 		if ($this->isEmptyInput()) {
 			$this->setInputError("Empty input or malformed JSON");
 			return false;
@@ -717,7 +821,6 @@ Class TimeseriesValuesController extends RESTController {
 		return true;
 	}
 
-
 	public function checkColumnSettings(&$input) {
 		
 		// prefix for columns relative parameters in querystring
@@ -805,6 +908,77 @@ Class TimeseriesValuesController extends RESTController {
 		$input["columns"] = $column_struct;
 
 		//var_dump($input["columns"]);
+		return true;
+	}
+
+	// ====================================================================//
+	// ******************* delete - timeseries values ***********************//
+	// ====================================================================//
+	/**
+	 * OVERRIDE RESTController 'delete' function
+	 */
+	public function delete() {
+		
+		$input = $this->getParams();
+		$auth_data = $this->_get_auth_data();
+		
+		$result = $this->obj->delete_values($input);
+		
+		if ($result["status"]) {
+			$this->setData($result);
+			if(isset($result["rows"]) and $result["rows"] > 0) {
+				if (
+					isset($result["drop_chunks"]) and 
+					$result["drop_chunks"]["status"] and 
+					array_key_exists("updatedTimeseriesTable", $result) and 
+					$result["updatedTimeseriesTable"]["status"]
+				) {
+					$this->setStatusCode(202);
+				} else {
+					$this->setStatusCode(206);
+				}
+			} else {
+				$this->setStatusCode(207);
+			}
+		} else {
+			$this->setError($result["error"]);
+			$this->setStatusCode(409);
+		}
+	}
+	
+	public function check_input_delete() {
+		
+		if ($this->isEmptyInput()) {
+			$this->setInputError("Empty input or malformed JSON");
+			return false;
+		}
+		
+		$input = $this->getParams();
+		
+		// id
+		if(!array_key_exists("id", $input)) {
+			$this->setInputError("This required input is missing: 'id' [string]");
+			return false;
+		}
+		
+		// newer_than
+		if(array_key_exists("newer_than", $input)) {
+			if (!$this->verifyDate($input["newer_than"])) {
+				$this->setInputError("This input is incorrect: 'newer_than' [string] <format ISO 8601>. Your value = " . strval($input["newer_than"]));
+				return false;
+			}
+		}
+		
+		// older_than
+		if(array_key_exists("older_than", $input)) {
+			if (!$this->verifyDate($input["older_than"])) {
+				$this->setInputError("This input is incorrect: 'older_than' [string] <format ISO 8601>. Your value = " . strval($input["older_than"]));
+				return false;
+			}
+		}
+
+		$this->setParams($input);
+		
 		return true;
 	}
 }
