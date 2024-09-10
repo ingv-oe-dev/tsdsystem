@@ -141,25 +141,6 @@ Class Timeseries extends QueryManager {
 		try {
 			// start transaction
 			$this->myConnection->beginTransaction();
-
-			// create schema
-			$next_query = "CREATE SCHEMA IF NOT EXISTS " . $input["schema"];
-			$stmt = $this->myConnection->prepare($next_query);
-			$stmt->execute();
-			
-			// timezone
-			$with_tz = $input["with_tz"] ? "WITH" : "WITHOUT";
-
-			// create table
-			$next_query = "CREATE TABLE IF NOT EXISTS " . $input["schema"] . "." . $input["name"] . " (" . $this->TIME_COLUMN_NAME . " TIMESTAMP $with_tz TIME ZONE UNIQUE NOT NULL, ";
-				// make columns
-			for($i=0; $i<count($input["columns"]); $i++) {
-				$next_query .= $input["columns"][$i]["name"] . " " . $input["columns"][$i]["type"] . " NULL, ";
-			}
-			$next_query = rtrim($next_query, ", ");
-			$next_query .= ");";
-			$stmt = $this->myConnection->prepare($next_query);
-			$stmt->execute();
 			
 			// select if a view <schema>.<name> already exists
 			// THE REGISTRATION OF AN EXISTING TIMESERIES IN FORM OF 
@@ -169,6 +150,26 @@ Class Timeseries extends QueryManager {
 			$view_exists = $sqlResult->fetchColumn();
 			
 			if ($view_exists < 1) {
+				
+				// create schema
+				$next_query = "CREATE SCHEMA IF NOT EXISTS " . $input["schema"];
+				$stmt = $this->myConnection->prepare($next_query);
+				$stmt->execute();
+				
+				// timezone
+				$with_tz = $input["with_tz"] ? "WITH" : "WITHOUT";
+
+				// create table
+				$next_query = "CREATE TABLE IF NOT EXISTS " . $input["schema"] . "." . $input["name"] . " (" . $this->TIME_COLUMN_NAME . " TIMESTAMP $with_tz TIME ZONE UNIQUE NOT NULL, ";
+					// make columns
+				for($i=0; $i<count($input["columns"]); $i++) {
+					$next_query .= $input["columns"][$i]["name"] . " " . $input["columns"][$i]["type"] . " NULL, ";
+				}
+				$next_query = rtrim($next_query, ", ");
+				$next_query .= ");";
+				$stmt = $this->myConnection->prepare($next_query);
+				$stmt->execute();
+
 				// create hypertable (TimescaleDB)
 					// calculate chunk_time_interval
 				$chunk_time_interval = $this->getChunkTimeInterval($input);
