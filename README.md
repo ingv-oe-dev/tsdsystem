@@ -1,8 +1,15 @@
 # TSDSystem
 
-This manual is intended for self complete installation + initialization using Docker.
+## Abstract
+TSDSystem is a framework designed to collect, archive, and share time series data coming from sensor networks at Istituto Nazionale di Geofisica e Vulcanologia, Osservatorio Etneo (Italy). The framework proposes a flexible database model for the standardization of sensor networks data and implements an optimized technology for storage and retrieval of acquired time series data. It is designed for the implementation of multiparametric databases and then suitable for development in volcanological observatories worldwide. The proposed framework provides a web service to perform writing and reading data via a standard web communication protocol, which easily enables interaction with other instruments or automatic systems. A web GUI (graphical user interface) is provided to test and document the web service. Additionally, basic built-in web applications are supplied with the web GUI to perform joint and synchronized time series data visualization as well as representation of stations on a geographical map. The web GUI also offers administration tools for data access policy management, creation of monitoring dashboards and data publication through web pages. The framework implements an authorization system that can be used to restrict both writing or reading operations.
+
+**Please reference this work as**:
+
+*Cassisi, C., Aliotta, M., Cannata, A. et al. TSDSystem: a framework to collect, archive and share time series data at volcanological observatories. Bull Volcanol 86, 70 (2024). https://doi.org/10.1007/s00445-024-01757-1*
 
 ## Docker installation
+
+The following manual is intended for self complete installation + initialization using Docker.
 
 Use the following guides (to run for example on a Debian) to install `docker` + `docker compose`:
 - https://docs.docker.com/engine/install/debian/
