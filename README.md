@@ -5,7 +5,7 @@ TSDSystem is a framework designed to collect, archive, and share time series dat
 
 **Please reference this work as**:
 
-*Cassisi, C., Aliotta, M., Cannata, A. et al. TSDSystem: a framework to collect, archive and share time series data at volcanological observatories. Bull Volcanol 86, 70 (2024). https://doi.org/10.1007/s00445-024-01757-1*
+*Cassisi, C., Aliotta, M., Cannata, A., Pistagna, F., Prestifilippo, M., Torrisi, M., Montalto, P. (2024). TSDSystem: a framework to collect, archive and share time series data at volcanological observatories. Bull Volcanol 86, 70. https://doi.org/10.1007/s00445-024-01757-1*
 
 ## Docker installation
 
