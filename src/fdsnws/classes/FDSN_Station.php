@@ -15,15 +15,15 @@ Class FDSN_Station extends QueryManager {
 			
 			// Limit to channels that are active on or after the specified start time.
 			if (array_key_exists("starttime", $input) and isset($input["starttime"])){
-				$filter_query .= " AND fdsn_station.channel_startdate >= '" . $input["starttime"] . "'";
+				$filter_query .= " AND (fdsn_station.channel_enddate >= '" . $input["starttime"] . "' OR fdsn_station.channel_enddate IS NULL)";
 			}
 			// Limit to channels that are active on or before the specified end time.
 			if (array_key_exists("endtime", $input) and isset($input["endtime"])){
-				$filter_query .= " AND fdsn_station.channel_startdate <= '" . $input["endtime"] . "'";
+				$filter_query .= " AND (fdsn_station.channel_startdate <= '" . $input["endtime"] . "' OR fdsn_station.channel_startdate IS NULL)";
 			}
 			// Limit to stations starting before the specified time.
 			if (array_key_exists("startbefore", $input) and isset($input["startbefore"])){
-				$filter_query .= " AND fdsn_station.station_startdate <= '" . $input["startbefore"] . "'";
+				$filter_query .= " AND (fdsn_station.station_startdate <= '" . $input["startbefore"] . "' OR fdsn_station.station_startdate IS NULL)";
 			}
 			// Limit to stations starting after the specified time.
 			if (array_key_exists("startafter", $input) and isset($input["startafter"])){
@@ -35,7 +35,7 @@ Class FDSN_Station extends QueryManager {
 			}
 			// Limit to stations ending after the specified time.
 			if (array_key_exists("endafter", $input) and isset($input["endafter"])){
-				$filter_query .= " AND fdsn_station.station_enddate >= '" . $input["endafter"] . "'";
+				$filter_query .= " AND (fdsn_station.station_enddate >= '" . $input["endafter"] . "' OR fdsn_station.station_enddate IS NULL)";
 			}
 			// Select one or more network or virtual network codes. Lists and wildcards are accepted.
 			if (array_key_exists("network", $input) and is_array($input["network"]) and count($input["network"]) > 0) {
