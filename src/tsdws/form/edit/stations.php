@@ -108,7 +108,7 @@
                         "sort_by": "name"
                     },
                     "success": function(response) {
-                        fillEnum(response.data, "net_id");
+                        fillEnumNet(response.data, "net_id");
                         // get list of sites
                         $.ajax({
                             "url": "../../sites",
@@ -339,6 +339,20 @@
             for (var i=0; i<data.length; i++) {
                 custom_enum.push(data[i].id);
                 custom_enum_titles.push(data[i].name);
+            }
+            mySchema.properties[propertyKey].enum = custom_enum;
+            mySchema.properties[propertyKey].options.enum_titles = custom_enum_titles;
+        }
+
+        function fillEnumNet(data, propertyKey) {
+           // console.log(data);
+            var custom_enum = new Array();
+            var custom_enum_titles = new Array();
+            custom_enum.push(null);
+            custom_enum_titles.push("--- Select one ---");
+            for (var i=0; i<data.length; i++) {
+                custom_enum.push(data[i].id);
+                custom_enum_titles.push(data[i].name + (data[i].description ? (" - " + data[i].description) : ""));
             }
             mySchema.properties[propertyKey].enum = custom_enum;
             mySchema.properties[propertyKey].options.enum_titles = custom_enum_titles;

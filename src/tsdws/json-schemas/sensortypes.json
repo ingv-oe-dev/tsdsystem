@@ -36,7 +36,7 @@
         },
         "sensortype_category_id": {
             "title": "Sensortype category",
-            "type": "integer",
+            "type":  ["integer", "null"],
             "enum": [],
             "options": {
                 "enum_titles": []

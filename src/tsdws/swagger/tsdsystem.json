@@ -2270,7 +2270,7 @@
                     "description": "JSON object that needs to be passed as input",
                     "required": true,
                     "schema": {
-                        "$ref": "#/definitions/SensortypeCaterogy"
+                        "$ref": "#/definitions/SensortypeCategory"
                     }
                 }],
                 "responses": {
