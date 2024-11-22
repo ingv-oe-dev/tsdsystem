@@ -376,6 +376,8 @@ Class TimeseriesValuesController extends RESTController {
 		
 		// order by priority (in case of repeated couple [target, id], will be selected the one with the highest priority [DESCENDING ORDER])
 		function comparePriority($a, $b) {
+			if (!array_key_exists("priority", $a) or !isset($a["priority"])) $a["priority"] = 0;
+			if (!array_key_exists("priority", $b) or !isset($b["priority"])) $b["priority"] = 0;
 			if ($a["priority"] == $b["priority"]) {
         		return 0;
 			}
