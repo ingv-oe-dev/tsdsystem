@@ -340,12 +340,15 @@ Class TimeseriesController extends RESTController {
 			$result = $this->obj->getListByStationID($params);
 			if ($result["status"]) {
 				// prepare response
-				$response = array();
+				$response = array("station" => array());
 				for($i=0; $i<count($result["data"]); $i++) {
+					$response["station"]["name"] = $result["data"][$i]["station_name"];
+					$response["station"]["timeseries"] = array();
 					$item = array_merge([], $result["data"][$i]);
 					unset($result["data"][$i]["timeseries_id"]);
-					if (!array_key_exists("timeseries_id", $response)) $response[$item["timeseries_id"]] = array();
-					array_push($response[$item["timeseries_id"]], $result["data"][$i]);
+					unset($result["data"][$i]["station_name"]);
+					if (!array_key_exists("timeseries_id", $response["station"]["timeseries"])) $response["station"]["timeseries"][$item["timeseries_id"]] = array();
+					array_push($response["station"]["timeseries"][$item["timeseries_id"]], $result["data"][$i]);
 				}
 				$this->setData($response);
 			} else {
