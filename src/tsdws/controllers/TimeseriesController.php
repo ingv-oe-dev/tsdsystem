@@ -320,6 +320,11 @@ Class TimeseriesController extends RESTController {
 			$input["public"] = (intval($input["public"]) === 1 or $input["public"] === true or $input["public"] === "true");
 		}
 
+		// station_id
+		if (array_key_exists("station_id", $input)) {
+			$input["station_id"] = intval($input["station_id"]);
+		}
+
 		$this->setParams($input);
 		
 		return true;
@@ -329,6 +334,28 @@ Class TimeseriesController extends RESTController {
 	
 		$params = $this->getParams();
 
+		// Result by station_id
+		if(array_key_exists("station_id", $params)) {
+
+			$result = $this->obj->getListByStationID($params);
+			if ($result["status"]) {
+				// prepare response
+				$response = array();
+				for($i=0; $i<count($result["data"]); $i++) {
+					$item = array_merge([], $result["data"][$i]);
+					unset($result["data"][$i]["timeseries_id"]);
+					if (!array_key_exists("timeseries_id", $response)) $response[$item["timeseries_id"]] = array();
+					array_push($response[$item["timeseries_id"]], $result["data"][$i]);
+				}
+				$this->setData($response);
+			} else {
+				$this->setStatusCode(404);
+				$this->setError($result);
+			}
+			return;
+		}
+
+		// Default result
 		$result = $this->obj->getList($params);
 
 		if ($result["status"]) {

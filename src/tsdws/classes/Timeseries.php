@@ -315,6 +315,21 @@ Class Timeseries extends QueryManager {
 		//echo $query;
 		return $this->getRecordSet($query);
 	}
+
+	public function getListByStationID($input) {
+		
+		$query = "SELECT t.id as timeseries_id, c.id as channel_id, c.name as channel_name, s.name as station_name " .
+			" FROM (SELECT id, name FROM tsd_pnet.stations s WHERE s.id = " . $input["station_id"] . ") s " .
+			" INNER JOIN tsd_pnet.station_configs sc ON sc.station_id = s.id " .
+			" INNER JOIN tsd_pnet.channels c ON sc.id = c.station_config_id " . 
+			" INNER JOIN tsd_main.timeseries_mapping_channels tmc ON c.id = tmc.channel_id " .			
+			" INNER JOIN tsd_main.timeseries t ON tmc.timeseries_id = t.id " .
+			" WHERE t.remove_time IS NULL " . 
+			" ORDER BY t.id, c.id";
+		
+		//echo $query;
+		return $this->getRecordSet($query);
+	}
 	
 	// ====================================================================//
 	// *********************** TIMESERIES UPDATE **************************//

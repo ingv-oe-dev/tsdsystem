@@ -287,6 +287,12 @@
                         "in": "query",
                         "description": "If not set, list all timeseries. If true, list only public timeseries (**no authorization required**), else only non-public timeseries.",
                         "type": "boolean"
+                    },
+                    {
+                        "name": "station_id",
+                        "in": "query",
+                        "description": "If set, it returns a key list of timeseries_id linked to the station identified by this value. For each timeseries_id the list of channels mapping info is provided.",
+                        "type": "integer"
                     }
                 ],
                 "responses": {
