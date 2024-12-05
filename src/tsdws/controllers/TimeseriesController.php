@@ -339,16 +339,35 @@ Class TimeseriesController extends RESTController {
 
 			$result = $this->obj->getListByStationID($params);
 			if ($result["status"]) {
-				// prepare response
+				// prepare response like the following:
+				/*
+				"channels": [{
+						"channel_id": 934,
+						"channel_name": "Body Temperature (K)",
+						"timeseries": ["ffbb6271-4531-4ebd-ac78-7dda8f687b9d", ...]
+				}]
+				*/
 				$response = array("station" => array());
+				if (count($result["data"]) >= 0) {
+					$response["station"]["name"] = $result["data"][0]["station_name"];
+					$response["station"]["channels"] = array();
+				}
+				$current_channel_id = -1;
+				$current_array_index = 0;
 				for($i=0; $i<count($result["data"]); $i++) {
-					$response["station"]["name"] = $result["data"][$i]["station_name"];
-					$response["station"]["timeseries"] = array();
 					$item = array_merge([], $result["data"][$i]);
-					unset($result["data"][$i]["timeseries_id"]);
-					unset($result["data"][$i]["station_name"]);
-					if (!array_key_exists("timeseries_id", $response["station"]["timeseries"])) $response["station"]["timeseries"][$item["timeseries_id"]] = array();
-					array_push($response["station"]["timeseries"][$item["timeseries_id"]], $result["data"][$i]);
+					unset($item["station_name"]);
+					if ($item["channel_id"] != $current_channel_id) {
+						$item["timeseries"] = array(array("id" => $item["timeseries_id"], "schema" => $item["timeseries_schema"], "name" => $item["timeseries_name"], "metadata" => isset($item["timeseries_metadata"]) ? json_decode($item["timeseries_metadata"]) : NULL));
+						unset($item["timeseries_id"]);
+						unset($item["timeseries_schema"]);
+						unset($item["timeseries_name"]);
+						unset($item["timeseries_metadata"]);
+						$current_array_index = array_push($response["station"]["channels"], $item);
+						$current_channel_id = $item["channel_id"];
+					} else {
+						array_push($response["station"]["channels"][$current_array_index-1]["timeseries"], array(array("id" => $item["timeseries_id"], "schema" => $item["timeseries_schema"], "name" => $item["timeseries_name"], "metadata" => isset($item["timeseries_metadata"]) ? json_decode($item["timeseries_metadata"]) : NULL)));
+					}
 				}
 				$this->setData($response);
 			} else {
