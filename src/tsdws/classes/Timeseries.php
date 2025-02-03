@@ -318,7 +318,7 @@ Class Timeseries extends QueryManager {
 
 	public function getListByStationID($input) {
 		
-		$query = "SELECT t.id as timeseries_id, t.\"schema\" as timeseries_schema, t.\"name\" as timeseries_name, t.metadata as timeseries_metadata, c.id as channel_id, c.name as channel_name, s.name as station_name " .
+		$query = "SELECT t.id as timeseries_id, t.\"schema\" as timeseries_schema, t.\"name\" as timeseries_name, t.metadata as timeseries_metadata, c.id as channel_id, c.name as channel_name, sc.id as station_config_id, s.name as station_name " .
 			" FROM (SELECT id, name FROM tsd_pnet.stations s WHERE s.id = " . $input["station_id"] . ") s " .
 			" INNER JOIN tsd_pnet.station_configs sc ON sc.station_id = s.id " .
 			" INNER JOIN tsd_pnet.channels c ON sc.id = c.station_config_id " . 
