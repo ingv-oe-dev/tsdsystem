@@ -770,6 +770,8 @@ var app = {
                     if (id) {
                         link += "?channel_id=" + id;
                     }
+                    if (additionalInfo.channel_name !== undefined) link += "&channel_name=" + additionalInfo.channel_name;
+                    if (additionalInfo.station_name !== undefined) link += "&station_name=" + additionalInfo.station_name;
                     iframe.setAttribute("src", link);
                     break;
 

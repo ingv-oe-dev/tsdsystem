@@ -1,5 +1,7 @@
 <?php
     $channel_id = isset($_GET["channel_id"]) ? $_GET["channel_id"] : null;
+    $channel_name = isset($_GET["channel_name"]) ? $_GET["channel_name"] : null;
+    $station_name = isset($_GET["station_name"]) ? $_GET["station_name"] : null;
 ?>
 <!DOCTYPE html>
 
@@ -63,6 +65,8 @@
 
 <body>
     <div class="container" id="app">
+        <div>&nbsp;</div>
+        <h6>Map timeseries to channel <i><?php echo "$channel_name (#$channel_id) - $station_name"; ?></i></h6>
         <h3 class="mt-3">Select timeseries</h3>
         <div class="input-group input-group-sm mt-3">
             <select id="ts-select" style="width: 50%"></select>
