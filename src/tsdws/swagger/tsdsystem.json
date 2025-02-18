@@ -3546,7 +3546,7 @@
                 "parameters": [{
                     "name": "id",
                     "in": "path",
-                    "description": "Sensor ID",
+                    "description": "Station Configuration ID",
                     "type": "integer",
                     "format": "int64"
                 }],
