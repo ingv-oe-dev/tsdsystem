@@ -70,14 +70,26 @@ BEGIN
 		)
         UPDATE tsd_main.timeseries SET
             last_time = (
-				CASE
-                 	WHEN tz.with_tz = TRUE THEN last_info.time at time zone ', quote_literal('utc'), '
-                	ELSE last_info.time
-              	END
-			),
-            last_value = row_to_json(last_info),
+                CASE
+                    WHEN count_info.counter < 1 THEN NULL
+                    ELSE (
+                        CASE
+                            WHEN tz.with_tz = TRUE THEN last_info.time at time zone ', quote_literal('utc'), '
+                            ELSE last_info.time
+                        END
+                    )
+                END
+            ),
+            last_value = (
+                CASE
+                    WHEN count_info.counter < 1 THEN NULL
+                    ELSE row_to_json(last_info)
+                END
+            ),
 			n_samples = count_info.counter
-        from last_info, count_info, tz
+        from count_info
+        LEFT JOIN tz ON true
+        LEFT JOIN last_info ON true
         WHERE schema = ', quote_literal(my_schema), ' AND name = ' , quote_literal(my_name) , ';
 	');
 END;
