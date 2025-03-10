@@ -336,19 +336,21 @@ Class TimeseriesValues extends Timeseries {
 				// execute drop_chunks
 				$response["drop_chunks"] = $this->getRecordSet($next_query);
 			}
-			
+
 			// commit
 			$this->myConnection->commit();
-			
+
 			// update timeseries stats
-			$stmt = $this->myConnection->prepare($update_stats_query);
-			$stmt->execute();
-			$response["updatedTimeseriesTable"] = array(
-				"status" => true,
-				"query" => $update_stats_query,
-				"rows" => $stmt->rowCount()
-			);
-			
+			if (array_key_exists("update_last_time", $input) and $input["update_last_time"] === true) {
+				$stmt = $this->myConnection->prepare($update_stats_query);
+				$stmt->execute();
+				$response["updatedTimeseriesTable"] = array(
+					"status" => true,
+					"query" => $update_stats_query,
+					"rows" => $stmt->rowCount()
+				);
+			}
+
 			$response["status"] = true;
 
 			// return result

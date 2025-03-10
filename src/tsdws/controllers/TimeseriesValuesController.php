@@ -994,6 +994,13 @@ Class TimeseriesValuesController extends RESTController {
 			}
 		}
 
+		// update_last_time
+		if (array_key_exists("update_last_time", $input) and ($input["update_last_time"] === "false" or $input["update_last_time"] === false or $input["update_last_time"] == "0")) {
+			$input["update_last_time"] = false;
+		} else {
+			$input["update_last_time"] = true;
+		}
+
 		$this->setParams($input);
 		
 		return true;
