@@ -372,9 +372,10 @@ Class Timeseries extends QueryManager {
 			if (array_key_exists("update_time", $input) and isset($input["update_time"])) {
 				$next_query .= " update_time = " . strval($input["update_time"]) . ", ";
 			}
-			// (hidden for user interface) $input["update_first_time"]
-			if (array_key_exists("update_first_time", $input)) {
+			// (hidden for user interface) $input["update_time_range"]
+			if (array_key_exists("update_time_range", $input)) {
 				$next_query .= " first_time = (SELECT time FROM " . strval($requested["data"][0]["schema"]) . "." . strval($requested["data"][0]["name"]) . " ORDER BY time LIMIT 1), ";
+				$next_query .= " last_time = (SELECT time FROM " . strval($requested["data"][0]["schema"]) . "." . strval($requested["data"][0]["name"]) . " ORDER BY time DESC LIMIT 1), ";
 			}
 			$next_query = rtrim($next_query, ", ");
 			$next_query .= " WHERE id = '" . $input["id"] . "'";

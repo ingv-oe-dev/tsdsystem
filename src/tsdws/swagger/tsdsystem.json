@@ -515,13 +515,13 @@
                 }]
             }
         },
-        "/timeseries/{id}/update_first_time": {
+        "/timeseries/{id}/update_time_range": {
             "patch": {
                 "tags": [
                     "timeseries"
                 ],
-                "summary": "Update timeseries 'first_time' by ID",
-                "description": "Automatically retrieve first time from values stored for the timeseries defined by ID and update the field 'first_time' of its the record",
+                "summary": "Update timeseries 'first_time' and 'last_time' by ID",
+                "description": "Automatically retrieve first and last time from values stored for the timeseries defined by ID and update the relative fields record",
                 "consumes": [
                     "application/json"
                 ],
@@ -758,6 +758,18 @@
                     "type": "string",
                     "enum": ["IGNORE", "UPDATE"],
                     "default": "IGNORE"
+                }, {
+                    "name": "update_last_time",
+                    "in": "query",
+                    "description": "If TRUE: update timeseries 'last_time' info. FALSE recommended for historical data ingestion (recovery)",
+                    "type": "boolean",
+                    "default": true
+                }, {
+                    "name": "chunked",
+                    "in": "query",
+                    "description": "If TRUE: records will be ingested into the database in several chunks (default 10000 records per chunk)",
+                    "type": "boolean",
+                    "default": true
                 }, {
                     "in": "body",
                     "name": "body",
@@ -6388,7 +6400,7 @@
                         },
                         "force": {
                             "title": "Force update",
-                            "description": "Delete old mapping list and replace with the channel_id list",
+                            "description": "[If true] Delete old mapping list and replace with the channel_id list",
                             "type": "boolean",
                             "default": false
                         }

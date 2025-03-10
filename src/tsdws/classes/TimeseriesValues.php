@@ -32,8 +32,13 @@ Class TimeseriesValues extends Timeseries {
 			$response = end($sql_response);
 			if ($response["status"]) {
 				$input_params = explode(".", $insert_sql["tablename"]);
-				$output = $this->executeSQLCommand("CALL tsd_main.\"updateTimeseriesLastTime\"('".$input_params[0]."','".$input_params[1]."')");
-				$response["updatedTimeseriesTable"] = end($output)["status"];
+				if (array_key_exists("update_last_time", $input) and $input["update_last_time"] === true) {
+					$output = $this->executeSQLCommand("CALL tsd_main.\"updateTimeseriesLastTime\"('".$input_params[0]."','".$input_params[1]."')");
+					$response["updatedTimeseriesTable"] = end($output)["status"];
+				} else {
+					$output = $this->executeSQLCommand("UPDATE tsd_main.timeseries SET n_samples = (SELECT COUNT(time) FROM ".$input_params[0].".".$input_params[1].")");
+					$response["updatedTimeseriesStats"] = end($output)["status"];
+				}
 			}
 			// hide sql query into response
 			unset($response["query"]);

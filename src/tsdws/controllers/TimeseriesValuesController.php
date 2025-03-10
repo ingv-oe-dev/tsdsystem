@@ -50,10 +50,12 @@ Class TimeseriesValuesController extends RESTController {
 
 				// post action
 				$input = $this->getParams();
-				if(array_key_exists("chunked", $input) and (intval($input["chunked"]) === 0 or $input["chunked"] === false or $input["chunked"] === "false")) {
-					$this->post();
-				} else {
+
+				// Default chunked = true for a better management of massive insertions. Record will be ingested into the database in several chunks
+				if($input["chunked"] === true) {
 					$this->chunked_post();
+				} else {
+					$this->post();
 				}
 
 				break;
@@ -582,9 +584,9 @@ Class TimeseriesValuesController extends RESTController {
 	}
 
 	public function chunked_post() {
-
+		
 		$input = $this->getParams();
-
+		
 		// prepare response
 		$this->response["data"] = array(
 			"status" => true,
@@ -601,7 +603,8 @@ Class TimeseriesValuesController extends RESTController {
 			$post_input = array(
 				"id" => $input["id"],
 				"columns" => $input["columns"], 
-				"insert" => $input["insert"]
+				"insert" => $input["insert"],
+				"update_last_time" => $input["update_last_time"]
 			);
 
 			// insert data by chunks
@@ -621,7 +624,7 @@ Class TimeseriesValuesController extends RESTController {
 				$this->response["data"]["rows"] += $insert_result["rows"];
 				$this->response["data"]["n_chunks"] = count($this->response["data"]["chunks"]);
 				if (array_key_exists("updatedTimeseriesTable", $insert_result) and !$insert_result["updatedTimeseriesTable"]) {
-					$this->response["updateTimeseriesTable"] = false;
+					$this->response["updatedTimeseriesTable"] = false;
 					// Valori inseriti ma non è stata aggiornata la tabella delle serie temporali (last_time)
 					$this->setStatusCode(202);
 				}
@@ -693,6 +696,18 @@ Class TimeseriesValuesController extends RESTController {
 			}
 		} else {
 			$input["insert"] = "IGNORE";
+		}
+		// (5) $input["update_last_time"] 
+		if (array_key_exists("update_last_time", $input) and ($input["update_last_time"] === "false" or $input["update_last_time"] === false or $input["update_last_time"] == "0")) {
+			$input["update_last_time"] = false;
+		} else {
+			$input["update_last_time"] = true;
+		}
+		// (6) $input["chunked"] 
+		if (array_key_exists("chunked", $input) and ($input["chunked"] == "0" or $input["chunked"] === false or $input["chunked"] === "false")) {
+			$input["chunked"] = false;
+		} else {
+			$input["chunked"] = true;
 		}
 
 		$this->setParams($input);
