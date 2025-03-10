@@ -263,22 +263,22 @@ Class TimeseriesValues extends Timeseries {
 		$next_query = "";
 		$response = array(
 			"status" => false,
+			"query" => array(),
 			"rows" => null
 		);
 
-		try {
-
+		try {		
 			// get ts info()
 			$ts_info = $this->getInfo($input["id"]);
 			$tablename = $ts_info["schema"] . "." . $ts_info["name"];
 			$hasTimeZone = $ts_info["with_tz"];
 			$utc_string = $hasTimeZone ? " at time zone 'utc' " : "";
-
+			
 			// start transaction
 			$this->myConnection->beginTransaction();
-
+			
 			$next_query = "DELETE FROM $tablename WHERE true ";
-
+			
 			// newer_than (starttime)
 			if (isset($input["newer_than"])){
 				$next_query .= " AND " . $this->getTimeColumnName() . " $utc_string >= '" . $input["newer_than"] . "'";
@@ -289,68 +289,66 @@ Class TimeseriesValues extends Timeseries {
 				$next_query .= " AND " . $this->getTimeColumnName() . " $utc_string <= '" . $input["older_than"] . "'";
 			}
 			
+			array_push($response["query"], $next_query);
 			$stmt = $this->myConnection->prepare($next_query);
 			$stmt->execute();		
 			$response["rows"] = $stmt->rowCount();
-
-			// update timeseries stats
-			$next_query = "CALL tsd_main.\"updateTimeseriesLastTime\"('".$ts_info["schema"]."','".$ts_info["name"]."')";
-			$stmt = $this->myConnection->prepare($next_query);
-			$stmt->execute();
-
-			$response["updatedTimeseriesTable"] = array(
-				"status" => true,
-				"query" => $next_query,
-				"rows" => $stmt->rowCount()
-			);
-
-			if (isset($input["newer_than"]) and isset($input["older_than"]) and ($input["older_than"] == $input["newer_than"])){
-				// commit
-				$this->myConnection->commit();
-
-				$response["status"] = true;
-
-				// return result
-				return $response;
-			}
-
-			/* If here, it is not a punctual request */
-			// drop chunks
-			$next_query = "SELECT drop_chunks('".$tablename."'";
-				
-			// older_than
-			if (isset($input["older_than"])){
-				$next_query .= ", older_than => '".$input["older_than"]."'";
-			}
-
-			// newer_than
-			if (isset($input["newer_than"])){
-				$next_query .= ", newer_than => '".$input["newer_than"]."'";
-			}
-
-			$next_query .= ")";
-
+			
+			// define update stats query
+			$update_stats_query = "CALL tsd_main.\"updateTimeseriesLastTime\"('".$ts_info["schema"]."','".$ts_info["name"]."')";
+			
 			// delete all rows
 			if (!isset($input["older_than"]) and !isset($input["newer_than"])){
+				// drop all chunks
 				$next_query = "SELECT drop_chunks('".$tablename."', interval '0 milliseconds')";
 
 				// update timeseries stats
 				$update_stats_query = "UPDATE tsd_main.timeseries SET last_time = NULL, last_value = NULL, n_samples = 0 WHERE schema = '".$ts_info["schema"]."' AND name = '".$ts_info["name"]."'";
-				$stmt = $this->myConnection->prepare($update_stats_query);
-				$stmt->execute();
-
-				$response["updatedTimeseriesTable"] = array(
-					"status" => true,
-					"query" => $update_stats_query,
-					"rows" => $stmt->rowCount()
-				);
 			}
+			/* Handle a single record delete */
+			else if (isset($input["newer_than"]) and isset($input["older_than"]) and ($input["older_than"] == $input["newer_than"])){
 
-			$response["drop_chunks"] = $this->getRecordSet($next_query);
+				// do nothing else
+				$next_query = null; 
+			} 
+			else {
+				// drop chunks
+				$next_query = "SELECT drop_chunks('".$tablename."'";
 
+				// older_than
+				if (isset($input["older_than"])){
+					$next_query .= ", older_than => '".$input["older_than"]."'";
+				}
+
+				// newer_than
+				if (isset($input["newer_than"])){
+					$next_query .= ", newer_than => '".$input["newer_than"]."'";
+				}
+
+				$next_query .= ")";
+			}
+			
+			// check if $next_query is NOT null
+			if (isset($next_query)) {
+				
+				array_push($response["query"], $next_query);
+
+				// execute drop_chunks
+				$response["drop_chunks"] = $this->getRecordSet($next_query);
+			}
+			
 			// commit
 			$this->myConnection->commit();
-
+			
+			// update timeseries stats
+			$stmt = $this->myConnection->prepare($update_stats_query);
+			$stmt->execute();
+			$response["updatedTimeseriesTable"] = array(
+				"status" => true,
+				"query" => $update_stats_query,
+				"rows" => $stmt->rowCount()
+			);
+			
 			$response["status"] = true;
 
 			// return result
