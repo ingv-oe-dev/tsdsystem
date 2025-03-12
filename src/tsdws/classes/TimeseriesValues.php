@@ -36,7 +36,15 @@ Class TimeseriesValues extends Timeseries {
 					$output = $this->executeSQLCommand("CALL tsd_main.\"updateTimeseriesLastTime\"('".$input_params[0]."','".$input_params[1]."')");
 					$response["updatedTimeseriesTable"] = end($output)["status"];
 				} else {
-					$output = $this->executeSQLCommand("UPDATE tsd_main.timeseries SET n_samples = (SELECT COUNT(time) FROM ".$input_params[0].".".$input_params[1].")");
+					$output = $this->executeSQLCommand("UPDATE tsd_main.timeseries SET n_samples = (
+						SELECT SUM(reltuples)::bigint 
+						FROM pg_class 
+						WHERE relname IN (
+							SELECT chunk_name
+    						FROM timescaledb_information.chunks
+    						WHERE hypertable_schema =  '".$input_params[0]."' AND hypertable_name = '".$input_params[1]."'
+						) 
+					) WHERE schema = '".$input_params[0]."' AND name = '".$input_params[1]."'");
 					$response["updatedTimeseriesStats"] = end($output)["status"];
 				}
 			}

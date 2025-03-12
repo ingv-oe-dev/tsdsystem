@@ -515,7 +515,7 @@
                 }]
             }
         },
-        "/timeseries/{id}/update_time_range": {
+        "/timeseries/{id}/update_stats": {
             "patch": {
                 "tags": [
                     "timeseries"
@@ -842,6 +842,12 @@
                     "description": "Delete all values that are older than this date. Standard ISO8601 datetime UTC",
                     "type": "string",
                     "format": "date-time"
+                }, {
+                    "name": "update_last_time",
+                    "in": "query",
+                    "description": "If TRUE: update timeseries 'last_time' info. FALSE recommended for historical data ingestion (recovery)",
+                    "type": "boolean",
+                    "default": true
                 }],
                 "responses": {
                     "202": {

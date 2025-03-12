@@ -68,7 +68,7 @@ RewriteRule ^timeseries/values(/)?$ routes/ts_routes.php [NC]
 RewriteRule ^timeseries/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/values(/)?$ routes/ts_routes.php?id=$1 [NC,QSA]
 RewriteRule ^timeseries(/)?$ routes/ts_routes.php [NC]
 RewriteRule ^timeseries/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})(/)?$ routes/ts_routes.php?id=$1 [NC,QSA]
-RewriteRule ^timeseries/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/(update_time_range)(/)?$ routes/ts_routes.php?id=$1&$2 [NC,QSA]
+RewriteRule ^timeseries/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/(update_stats)(/)?$ routes/ts_routes.php?id=$1&$2 [NC,QSA]
 RewriteRule ^timeseries/uploadFromFile(/)?$ routes/ts_routes.php [NC]
 
 RewriteRule ^swagger.json$ swagger/tsdsystem.json [NC]

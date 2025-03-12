@@ -63,7 +63,13 @@ BEGIN
             SELECT * FROM ', my_schema, '.', my_name, ' ORDER BY time DESC LIMIT 1
         ),
 		count_info AS (
-            SELECT COUNT(*) AS counter FROM ', my_schema, '.', my_name, '
+            SELECT SUM(reltuples)::bigint as counter
+			FROM pg_class 
+			WHERE relname IN (
+				SELECT chunk_name
+				FROM timescaledb_information.chunks
+				WHERE hypertable_schema = ', quote_literal(my_schema), ' AND hypertable_name = ', quote_literal(my_name), '
+			)
         ),
 		tz AS (
 			SELECT with_tz FROM tsd_main.timeseries WHERE schema = ', quote_literal(my_schema), ' AND name = ' , quote_literal(my_name) , '
