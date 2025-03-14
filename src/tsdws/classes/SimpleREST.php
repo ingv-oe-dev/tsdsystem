@@ -97,9 +97,30 @@ class SimpleREST extends Utils{
 	}
 	
 	public function readInput() {
+		
+		$input = null;
+
 		// ======= Get input - Handle also Postman TEST!!!!! ========
 		try {
-			$input = json_decode(file_get_contents('php://input'), true);
+			// Check if the input is compressed with gzip
+			if (!empty($_SERVER['HTTP_CONTENT_ENCODING']) && strtolower($_SERVER['HTTP_CONTENT_ENCODING']) === 'gzip') {
+				// Get the compressed data
+				$compressedData = file_get_contents('php://input');
+				// Decompress the data
+				$decompressed_input = gzdecode($compressedData);
+				
+				if ($decompressed_input === false) {
+					$this->setInputError("Error on decompressing input");
+					return;
+				}
+
+				// decode the JSON input
+				$input = json_decode($decompressed_input, true);
+
+			} else {
+				// decode the JSON input
+				$input = json_decode(file_get_contents('php://input'), true);
+			}
 			
 			// merge 'body' input with 'query' input
 			if (isset($input) and is_array($input)) {
@@ -147,6 +168,10 @@ class SimpleREST extends Utils{
 			ob_start("ob_gzhandler"); // start compression
 			echo json_encode($this->response, JSON_NUMERIC_CHECK);
 			ob_end_flush(); // end compression
+
+			/* alternatively, you can use the following to compress the response */
+			// header('Content-Encoding: gzip'); // tell the browser that the content is compressed
+			// echo gzencode(json_encode($this->response, JSON_NUMERIC_CHECK), 9); // 9 is the highest compression level
 		}
 	}
 	
