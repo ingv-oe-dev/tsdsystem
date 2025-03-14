@@ -248,7 +248,7 @@ Content-Length: 286
     "data": {
         "status": true,
         "rows": 3,
-        "updatedTimeseriesTable": true
+        "updateTimeseriesLastTime": true
     },
     "error": null,
     "statusCode": 201
@@ -484,35 +484,30 @@ curl -X 'POST' \
         {
           "status": true,
           "rows": 0,
-          "updatedTimeseriesTable": true,
           "chunk_idx": 10000,
           "chunk_size": 10000
         },
         {
           "status": true,
           "rows": 0,
-          "updatedTimeseriesTable": true,
           "chunk_idx": 20000,
           "chunk_size": 10000
         },
         {
           "status": true,
           "rows": 0,
-          "updatedTimeseriesTable": true,
           "chunk_idx": 30000,
           "chunk_size": 10000
         },
         {
           "status": true,
           "rows": 0,
-          "updatedTimeseriesTable": true,
           "chunk_idx": 40000,
           "chunk_size": 10000
         },
         {
           "status": true,
           "rows": 0,
-          "updatedTimeseriesTable": true,
           "chunk_idx": 44641,
           "chunk_size": 4641
         }

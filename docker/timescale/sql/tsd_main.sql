@@ -62,40 +62,18 @@ BEGIN
         WITH last_info AS (
             SELECT * FROM ', my_schema, '.', my_name, ' ORDER BY time DESC LIMIT 1
         ),
-		count_info AS (
-            SELECT SUM(reltuples)::bigint as counter
-			FROM pg_class 
-			WHERE relname IN (
-				SELECT chunk_name
-				FROM timescaledb_information.chunks
-				WHERE hypertable_schema = ', quote_literal(my_schema), ' AND hypertable_name = ', quote_literal(my_name), '
-			)
-        ),
 		tz AS (
 			SELECT with_tz FROM tsd_main.timeseries WHERE schema = ', quote_literal(my_schema), ' AND name = ' , quote_literal(my_name) , '
 		)
         UPDATE tsd_main.timeseries SET
             last_time = (
                 CASE
-                    WHEN count_info.counter < 1 THEN NULL
-                    ELSE (
-                        CASE
-                            WHEN tz.with_tz = TRUE THEN last_info.time at time zone ', quote_literal('utc'), '
-                            ELSE last_info.time
-                        END
-                    )
+                    WHEN tz.with_tz = TRUE THEN last_info.time at time zone ', quote_literal('utc'), '
+                    ELSE last_info.time
                 END
             ),
-            last_value = (
-                CASE
-                    WHEN count_info.counter < 1 THEN NULL
-                    ELSE row_to_json(last_info)
-                END
-            ),
-			n_samples = count_info.counter
-        from count_info
-        LEFT JOIN tz ON true
-        LEFT JOIN last_info ON true
+            last_value = row_to_json(last_info)
+        from last_info, tz
         WHERE schema = ', quote_literal(my_schema), ' AND name = ' , quote_literal(my_name) , ';
 	');
 END;

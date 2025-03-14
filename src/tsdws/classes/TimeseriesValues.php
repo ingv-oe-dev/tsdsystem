@@ -34,18 +34,9 @@ Class TimeseriesValues extends Timeseries {
 				$input_params = explode(".", $insert_sql["tablename"]);
 				if (array_key_exists("update_last_time", $input) and $input["update_last_time"] === true) {
 					$output = $this->executeSQLCommand("CALL tsd_main.\"updateTimeseriesLastTime\"('".$input_params[0]."','".$input_params[1]."')");
-					$response["updatedTimeseriesTable"] = end($output)["status"];
-				} else {
-					$output = $this->executeSQLCommand("UPDATE tsd_main.timeseries SET n_samples = (
-						SELECT SUM(reltuples)::bigint 
-						FROM pg_class 
-						WHERE relname IN (
-							SELECT chunk_name
-    						FROM timescaledb_information.chunks
-    						WHERE hypertable_schema =  '".$input_params[0]."' AND hypertable_name = '".$input_params[1]."'
-						) 
-					) WHERE schema = '".$input_params[0]."' AND name = '".$input_params[1]."'");
-					$response["updatedTimeseriesStats"] = end($output)["status"];
+					// hide sql query into response
+					unset($output[0]["query"]);
+					$response["updateTimeseriesLastTime"] = end($output);
 				}
 			}
 			// hide sql query into response
@@ -350,13 +341,10 @@ Class TimeseriesValues extends Timeseries {
 
 			// update timeseries stats
 			if (array_key_exists("update_last_time", $input) and $input["update_last_time"] === true) {
-				$stmt = $this->myConnection->prepare($update_stats_query);
-				$stmt->execute();
-				$response["updatedTimeseriesTable"] = array(
-					"status" => true,
-					"query" => $update_stats_query,
-					"rows" => $stmt->rowCount()
-				);
+				$output = $this->executeSQLCommand($update_stats_query);
+				// hide sql query into response
+				unset($output[0]["query"]);
+				$response["updateTimeseriesLastTime"] = end($output);
 			}
 
 			$response["status"] = true;

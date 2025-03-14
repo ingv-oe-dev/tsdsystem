@@ -520,8 +520,8 @@
                 "tags": [
                     "timeseries"
                 ],
-                "summary": "Update timeseries 'first_time' and 'last_time' by ID",
-                "description": "Automatically retrieve first and last time from values stored for the timeseries defined by ID and update the relative fields record",
+                "summary": "Update timeseries 'first_time', 'last_time', 'n_samples' by ID",
+                "description": "Automatically retrieve min() and max() time from values stored for the timeseries defined by ID and update the relative fields record.<br>The updated number of samples is ESTIMATED, NOT EXACT.",
                 "consumes": [
                     "application/json"
                 ],
@@ -891,7 +891,7 @@
                 "consumes": [
                     "multipart/form-data"
                 ],
-                "description": "",
+                "description": "This end-point allows to upload a CSV file containing timeseries values.<br>Follow instructions at https://github.com/ingv-oe-dev/tsdsystem/wiki/4.-How-to-start#csv-file-structure.<br><b>IMPORTANT</b>: no 'update_last_time' is performed by this end-point. To force the update of timeseries statistics after loading data, use the specific end-point '/timeseries/{id}/update_stats'.",
                 "operationId": "uploadFile",
                 "parameters": [{
                     "name": "id",

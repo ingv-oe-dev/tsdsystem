@@ -372,9 +372,18 @@ Class Timeseries extends QueryManager {
 			if (array_key_exists("update_time", $input) and isset($input["update_time"])) {
 				$next_query .= " update_time = " . strval($input["update_time"]) . ", ";
 			}
-			// (hidden for user interface) $input["update_stats"] -> update n_samples with the effective number of samples (MAY BE SLOW)
+			// (hidden for user interface) $input["update_stats"] -> update n_samples with an estimated number (COUNT(*) MAY BE TOO SLOW)
 			if (array_key_exists("update_stats", $input)) {
-				$next_query .= " (first_time, last_time, n_samples) = (SELECT MIN(time), MAX(time), COUNT(time) FROM " . strval($requested["data"][0]["schema"]) . "." . strval($requested["data"][0]["name"]) . "), ";
+				$next_query .= " (first_time, last_time) = (SELECT MIN(time), MAX(time) FROM " . strval($requested["data"][0]["schema"]) . "." . strval($requested["data"][0]["name"]) . "), ";
+				$next_query .= " n_samples = (
+						SELECT SUM(reltuples)::bigint 
+						FROM pg_class 
+						WHERE relname IN (
+							SELECT chunk_name
+    						FROM timescaledb_information.chunks
+    						WHERE hypertable_schema =  '".$requested["data"][0]["schema"]."' AND hypertable_name = '".$requested["data"][0]["name"]."'
+						)
+					), ";
 			}
 			$next_query = rtrim($next_query, ", ");
 			$next_query .= " WHERE id = '" . $input["id"] . "'";

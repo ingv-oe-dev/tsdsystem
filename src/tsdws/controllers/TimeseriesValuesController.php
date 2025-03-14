@@ -565,8 +565,8 @@ Class TimeseriesValuesController extends RESTController {
 		if ($result["status"]) {
 			$this->setData($result);
 			$this->setStatusCode(201);
-			if (array_key_exists("updatedTimeseriesTable", $result) and !$result["updatedTimeseriesTable"]) {
-				// Valori inseriti ma non è stata aggiornata la tabella delle serie temporali (last_time)
+			if (array_key_exists("updateTimeseriesLastTime", $result) and array_key_exists("status", $result["updateTimeseriesLastTime"]) and !$result["updateTimeseriesLastTime"]["status"]) {
+				// Non sono state aggiornate le statistiche sulla serie temporale
 				$this->setStatusCode(202);
 			}
 			if (is_array($this->response["data"]) and array_key_exists("rows", $this->response["data"]) and ($this->response["data"]["rows"] == 0)) {
@@ -591,10 +591,9 @@ Class TimeseriesValuesController extends RESTController {
 		$this->response["data"] = array(
 			"status" => true,
 			"rows" => 0,
-			"updatedTimeseriesTable" => true,
 			"chunks" => array()
 		);
-
+		
 		// Data Insertion
 		$offset = 0;
 		$total_samples = count($input["data"]);
@@ -604,7 +603,7 @@ Class TimeseriesValuesController extends RESTController {
 				"id" => $input["id"],
 				"columns" => $input["columns"], 
 				"insert" => $input["insert"],
-				"update_last_time" => $input["update_last_time"]
+				"update_last_time" => ($input["update_last_time"] and (($offset + $this->chunk_size) >= $total_samples)) // update last time only at the end of the insertion
 			);
 
 			// insert data by chunks
@@ -623,10 +622,8 @@ Class TimeseriesValuesController extends RESTController {
 				$this->setStatusCode(201);
 				$this->response["data"]["rows"] += $insert_result["rows"];
 				$this->response["data"]["n_chunks"] = count($this->response["data"]["chunks"]);
-				if (array_key_exists("updatedTimeseriesTable", $insert_result) and !$insert_result["updatedTimeseriesTable"]) {
-					$this->response["updatedTimeseriesTable"] = false;
-					// Valori inseriti ma non è stata aggiornata la tabella delle serie temporali (last_time)
-					$this->setStatusCode(202);
+				if (array_key_exists("updateTimeseriesLastTime", $insert_result) and array_key_exists("status", $insert_result["updateTimeseriesLastTime"])) {
+					$this->response["data"]["updateTimeseriesLastTime"] = $insert_result["updateTimeseriesLastTime"]["status"]; // updateTimeseriesLastTime is set only once and therefore it is not overwritten
 				}
 				if ($this->response["data"]["rows"] == 0) {
 					$this->setStatusCode(207);
@@ -644,6 +641,11 @@ Class TimeseriesValuesController extends RESTController {
 			}
 
 			$offset += $this->chunk_size;
+		}
+
+		if (array_key_exists("updateTimeseriesLastTime", $this->response["data"]) and $this->response["data"]["updateTimeseriesLastTime"] === false) {
+			// Non sono state aggiornate le statistiche sulla serie temporale
+			$this->setStatusCode(202);
 		}
 
 		// evito di aggiungere l'input inviato nella risposta (in questi casi potrebbe essere molto grande)
@@ -947,8 +949,9 @@ Class TimeseriesValuesController extends RESTController {
 				if (
 					isset($result["drop_chunks"]) and 
 					$result["drop_chunks"]["status"] and 
-					array_key_exists("updatedTimeseriesTable", $result) and 
-					$result["updatedTimeseriesTable"]["status"]
+					array_key_exists("updateTimeseriesLastTime", $result) and 
+					array_key_exists("status", $result["updateTimeseriesLastTime"]) and
+					$result["updateTimeseriesLastTime"]["status"]
 				) {
 					$this->setStatusCode(202);
 				} else {
