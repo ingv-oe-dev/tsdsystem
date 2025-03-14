@@ -415,7 +415,6 @@ class FDSN_Station_Encoder extends FDSN_Station {
 		$channelItem->addAttribute("startDate", $this->sanitize($item["channel_startdate"]));
 		if (isset($item["channel_enddate"]))
 			$channelItem->addAttribute("endDate", $item["channel_enddate"]);
-		$channelItem->addAttribute("locationCode", "");
 		$channelItem->addChild("Description", $this->sanitize($item["channel_name"]));
 		$channelItem->addChild("Identifier", $this->sanitize($item["channel_id"]));
 		$channelItem->addChild("Latitude", $this->sanitize($item["station_latitude"]));
@@ -505,6 +504,8 @@ class FDSN_Station_Encoder extends FDSN_Station {
 		if (isset($item["channel_additional_info"])) {
 			$addInfo = $this->object_to_array($item["channel_additional_info"]); // convert to an associative array
 
+			$channelItem->addAttribute("locationCode", $this->isSetArrayVal($addInfo, "locationCode") ? strval($addInfo["locationCode"]) : "");
+			
 			if ($this->isSetArrayVal($addInfo, "Depth")) $channelItem->addChild("Depth", strval($addInfo["Depth"]));
 			if ($this->isSetArrayVal($addInfo, "Azimuth")) $channelItem->addChild("Azimuth", strval($addInfo["Azimuth"]));
 			if ($this->isSetArrayVal($addInfo, "Dip")) $channelItem->addChild("Dip", strval($addInfo["Dip"]));

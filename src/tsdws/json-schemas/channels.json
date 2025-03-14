@@ -3,7 +3,7 @@
     "title": "Channel",
     "description": "Set the properties of the channel",
     "type": "object",
-    "required": ["name", "station_config_id"],
+    "required": ["name", "station_config_id", "additional_info"],
     "additionalProperties": false,
     "format": "categories",
     "basicCategoryTitle": "Main",
@@ -33,8 +33,16 @@
         "additional_info": {
             "title": "Additional info",
             "type": "object",
+            "required": ["locationCode"],
             "additionalProperties": true,
             "properties": {
+                "locationCode": {
+                    "title": "locationCode",
+                    "description": "The locationCode is typically used to group channels from a common sensor in FDSN Station XML. For example, the channels of the primary sensor at global IDA-IRIS stations have locationCode = “00”: 00_BHZ, 00_BHE, 00_BHN, 00_LHZ, …, etc. Even though it is required, locationCode may be, and often is, an empty string, however, it is recommended that the locationCode not be empty.",
+                    "type": ["string", "null"],
+                    "default": "",
+                    "minLength": 1
+                },
                 "Depth": {
                     "title": "Depth",
                     "description": "Depth property also used in FDSN Station XML. The depth of the sensor relative to the local ground surface level, in meters",
