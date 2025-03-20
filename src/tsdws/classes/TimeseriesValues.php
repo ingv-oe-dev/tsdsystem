@@ -97,22 +97,27 @@ Class TimeseriesValues extends Timeseries {
 		// trim last $separator on row
 		$sql = rtrim($sql, $separator);
 		
-		// handling on conflict case
-		$sql .= " ON CONFLICT (" . $this->getTimeColumnName() . ") DO ";
-		if(strtoupper($insert_mode) == "UPDATE") {
-			$sql .= " UPDATE SET ";
-			
-			for($c=0; $c<count($columns); $c++) {
-				if ($c != $TIME_COLUMN_INDEX) {
-					$sql .= $columns[$c] . " = EXCLUDED." . $columns[$c] . $separator;
+		/*
+		NO_CONFLICT: Values corresponding to already stored timestamp will raise an error (this is useful when dealing with compressed tables because check on conflicts cannot be performed on compressed tables, then this mode avoids the ERROR: 'insert with ON CONFLICT or RETURNING clause is not supported on compressed chunks
+		*/
+		if(strtoupper($insert_mode) != "NO_CONFLICT") {
+			// handling on conflict case - default is IGNORE
+			$sql .= " ON CONFLICT (" . $this->getTimeColumnName() . ") DO ";
+			if(strtoupper($insert_mode) == "UPDATE") {
+				$sql .= " UPDATE SET ";
+				
+				for($c=0; $c<count($columns); $c++) {
+					if ($c != $TIME_COLUMN_INDEX) {
+						$sql .= $columns[$c] . " = EXCLUDED." . $columns[$c] . $separator;
+					}
 				}
+				
+				// trim last $separator on column
+				$sql = rtrim($sql, $separator);
+				
+			} else {
+				$sql .= " NOTHING ";
 			}
-			
-			// trim last $separator on column
-			$sql = rtrim($sql, $separator);
-			
-		} else {
-			$sql .= " NOTHING ";
 		}
 		//echo $sql;
 		return array(

@@ -754,9 +754,9 @@
                 }, {
                     "name": "insert",
                     "in": "query",
-                    "description": "Insertion mode.\nIGNORE: Values corresponding to already stored timestamp will be ignored.\nUPDATE: Values corresponding to already stored timestamp will be updated",
+                    "description": "Insertion mode.\nIGNORE: Values corresponding to already stored timestamp will be ignored.\nUPDATE: Values corresponding to already stored timestamp will be updated\nNO_CONFLICT: Values corresponding to already stored timestamp will raise an error (this is useful when dealing with compressed tables because check on conflicts cannot be performed on compressed tables, then this mode avoids the ERROR: 'insert with ON CONFLICT or RETURNING clause is not supported on compressed chunks').",
                     "type": "string",
-                    "enum": ["IGNORE", "UPDATE"],
+                    "enum": ["IGNORE", "UPDATE", "NO_CONFLICT"],
                     "default": "IGNORE"
                 }, {
                     "name": "update_last_time",
