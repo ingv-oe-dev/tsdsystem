@@ -16,6 +16,16 @@ Class TimeseriesValues extends Timeseries {
 		$insert_sql = array(
 			"status"=> false
 		);
+
+		// check if input data is empty (it can happen on chunked uploads)
+		if ($input["data"] == null or count($input["data"]) == 0) {
+			return array(
+				"status"=> true, 
+				"rows" => 0,
+				"message" => "No data to insert"
+			);
+		}
+		
 		try {
 			$insert_sql = $this->makeInsertSQL(
 				$input["id"], 
