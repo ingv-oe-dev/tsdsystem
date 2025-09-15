@@ -78,7 +78,7 @@ jobs:
       uses: docker/build-push-action@v6
       with:
         context: .
-        file: ./docker/timescale/Dockerfile
+        file: ./docker/timescale/Dockerfile.prod
         push: true
         tags: ${{ env.REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_DB_NAME }}:${{ env.IMAGE_TAG }}
         cache-from: type=gha
