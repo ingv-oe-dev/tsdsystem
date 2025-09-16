@@ -1,6 +1,7 @@
 FROM php:8.2.7-apache-bullseye
 
 LABEL Maintainer="Mario Torrisi <mario.torrisi@ingv.it>, Fabrizio Pistagna <fabrizio.pistagna@ingv.it>"
+LABEL org.opencontainers.image.description="TSDSystem Web Application"
 
 # Use the default production configuration
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"

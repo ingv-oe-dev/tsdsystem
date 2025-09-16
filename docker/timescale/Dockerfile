@@ -1,4 +1,5 @@
 FROM timescale/timescaledb-ha:pg14.2-ts2.6.0-oss-latest
+LABEL org.opencontainers.image.description="TimescaleDB for TSDSystem"
 
 # Copy init scripts into the image
 COPY sql/ /sql_create/
