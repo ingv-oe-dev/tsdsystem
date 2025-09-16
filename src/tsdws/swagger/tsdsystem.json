@@ -891,7 +891,7 @@
                 "consumes": [
                     "multipart/form-data"
                 ],
-                "description": "This end-point allows to upload a CSV file containing timeseries values.<br>Follow instructions at https://github.com/ingv-oe-dev/tsdsystem/wiki/4.-How-to-start#csv-file-structure.<br><b>IMPORTANT</b>: no 'update_last_time' is performed by this end-point. To force the update of timeseries statistics after loading data, use the specific end-point '/timeseries/{id}/update_stats'.",
+                "description": "**ONLY FOR NUMERICAL TIMESERIES**. This end-point allows to upload a CSV file containing timeseries values.<br>Follow instructions at https://github.com/ingv-oe-dev/tsdsystem/wiki/4.-How-to-start#csv-file-structure.<br><b>IMPORTANT</b>: no 'update_last_time' is performed by this end-point. To force the update of timeseries statistics after loading data, use the specific end-point '/timeseries/{id}/update_stats'.",
                 "operationId": "uploadFile",
                 "parameters": [{
                     "name": "id",
@@ -6967,9 +6967,9 @@
                     "type": "string",
                     "minLength": 1,
                     "default": "double precision",
-                    "enum": ["smallint", "integer", "double precision"],
+                    "enum": ["boolean", "smallint", "integer", "double precision", "text"],
                     "options": {
-                        "enum_titles": ["smallint (2 bytes)", "integer (4 bytes)", "double precision (8 bytes)"]
+                        "enum_titles": ["boolean (1 byte)", "smallint (2 bytes)", "integer (4 bytes)", "double precision (8 bytes)", "text (varying - minimum 4 bytes)"]
                     }
                 },
                 "unit": {

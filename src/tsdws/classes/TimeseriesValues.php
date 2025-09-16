@@ -65,12 +65,28 @@ Class TimeseriesValues extends Timeseries {
 		
 		$separator=", ";
 		
-		$tablename = $this->getTablename($id);
-		
-		if (empty($tablename)) return array(
+		$ts_info = $this->getInfo($id);
+
+		if (empty($ts_info)) return array(
 			"status"=> false, 
 			"error" => "Timeseries with id=$id not found"
 		);
+
+		// retrieve ts info and prepare indexes
+		$tablename = $ts_info["schema"] . "." . $ts_info["name"];
+		$ts_metadata = json_decode($ts_info["metadata"], true);
+		$STRING_COLUMN_INDEXES = array();
+		$BOOL_COLUMN_INDEXES = array();
+		for ($i=0; $i<count($ts_metadata["columns"]); $i++) {
+			for($j=0; $j<count($columns); $j++) {
+				if ($columns[$j] == $ts_metadata["columns"][$i]["name"] && strtolower($ts_metadata["columns"][$i]["type"]) == "text") {
+					array_push($STRING_COLUMN_INDEXES, $j);
+				}
+				if ($columns[$j] == $ts_metadata["columns"][$i]["name"] && strtolower($ts_metadata["columns"][$i]["type"]) == "boolean") {
+					array_push($BOOL_COLUMN_INDEXES, $j);
+				}
+			}
+		}
 		
 		$sql = "INSERT INTO " . $tablename . " (" . implode($separator, $columns) . ") VALUES ";
 		
@@ -88,6 +104,12 @@ Class TimeseriesValues extends Timeseries {
 					// check datetime format
 					if (!$this->verifyDate($str_value)) return $this->get_error("Invalid time format at row=" . strval($i) . ". Your value: '" . $str_value . "'");
 					$str_value = "'" . $str_value . "'"; 
+				} else if (in_array($j, $STRING_COLUMN_INDEXES)) {
+					// check text value
+					$str_value = "'" . pg_escape_string($str_value) . "'";
+				} else if (in_array($j, $BOOL_COLUMN_INDEXES)) {
+					// check text value
+					$str_value = "'" . $str_value . "'::boolean";
 				} else {
 					// check numeric format
 					if (isset($str_value) && !is_numeric($str_value)) return $this->get_error("Not a number for field '" . $columns[$j] . "' at row=" . strval($i) . ". Your value: " . $str_value. "'");

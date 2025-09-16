@@ -158,9 +158,9 @@
                     "type": "string",
                     "minLength": 1,
                     "default": "double precision",
-                    "enum": ["smallint", "integer", "double precision"],
+                    "enum": ["boolean", "smallint", "integer", "double precision", "text"],
                     "options": {
-                        "enum_titles": ["smallint (2 bytes)", "integer (4 bytes)", "double precision (8 bytes)"]
+                        "enum_titles": ["boolean (1 byte)", "smallint (2 bytes)", "integer (4 bytes)", "double precision (8 bytes)", "text (varying - minimum 4 bytes)"]
                     }
                 },
                 "unit": {
