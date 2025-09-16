@@ -824,6 +824,8 @@ Class TimeseriesValuesController extends RESTController {
 		}
 		// check singular settings for each column 
 		if (!$this->checkColumnSettings($input)) return false;
+		// check filters for each column 
+		if (!$this->checkFilterColumnSettings($input)) return false;
 
 		// timestamp
 		if(array_key_exists("timeformat", $input)) {
@@ -848,8 +850,6 @@ Class TimeseriesValuesController extends RESTController {
 		// suffixes used for columns relative parameters in querystring
 		$paramsToCheck = array(
 			"aggregate",
-			"minthreshold",
-			"maxthreshold",
 			"gain",
 			"offset"
 		);
@@ -927,6 +927,91 @@ Class TimeseriesValuesController extends RESTController {
 		$input["columns"] = $column_struct;
 
 		//var_dump($input["columns"]);
+		return true;
+	}
+
+	public function checkFilterColumnSettings(&$input) {
+
+		if (array_key_exists("filter_columns", $input)){
+			
+			// explode string list into array -> return an array (ALWAYS)
+			$input["filter_columns"] = is_array($input["filter_columns"]) ? $input["filter_columns"] : explode(",", $input["filter_columns"]);
+
+		} else {
+			$input["filter_columns"] = array(); // empty array avoid using filters
+			return true;
+		}
+		
+		// prefix for columns relative parameters in querystring
+		$prefix_parameter_name = "filter_columns_";
+		
+		// suffixes used for columns relative parameters in querystring
+		$paramsToCheck = array(
+			"minthreshold",
+			"maxthreshold",
+			"equalto",
+			"like"
+		);
+
+		// Make the columns structure used into TimeseriesValues class (TimeseriesValues.php)
+		$column_struct = array();
+
+		// get all timeseries columns names from database
+		$column_list = $this->obj->getColumnList($input["id"]);
+
+		// final check if columns name are in table
+		if (isset($column_list)) {
+
+			for($i=0; $i<count($input["filter_columns"]); $i++) {
+				
+				// get column name replacing all blank characters with empty string
+				$column_name = preg_replace('/\s+/', '', strval($input["filter_columns"][$i]));
+
+				// check if exists the current column name
+				if (!in_array($column_name, $column_list)) {
+					$this->setInputError("The column #$i (column indexes start from zero) with name '" . $column_name . "' does not exist. Available columns: [" . implode(", ", $column_list) . "]");
+					return false;
+				}
+
+				// add the current column name to the columns structure
+				array_push($column_struct, array(
+					"name" => $column_name
+				));
+			}
+		} else {
+			$this->setInputError("Unable to retrieve columns name for timeseries with id = '" . $input["id"] . "'.");
+			return false;
+		}
+		
+		// check for the other columns definitions (aggregate, gain, offset, etc.)
+		foreach($paramsToCheck as $paramName) {
+			
+			$column_def = $prefix_parameter_name . $paramName;
+			
+			if(array_key_exists($column_def, $input)) {
+
+				// explode string list into array -> return an array (ALWAYS)
+				$column_def_list = explode(",", $input[$column_def]);
+
+				// exit when $i value exceeds column names list or column def list (AVOID ARRAY INDEX ERRORS) 
+				for($i=0; $i<count($column_def_list) and $i<count($input["filter_columns"]); $i++) {
+				
+					// get value replacing all blank characters with empty string
+					$column_def_value = preg_replace('/\s+/', '', strval($column_def_list[$i]));
+	
+					// if not empty
+					if (!empty($column_def_value)) {		
+						// add the current column def to the ith columns structure
+						$column_struct[$i][$paramName] = $column_def_value;
+					}
+				}
+			}
+		}
+
+		// assign final struct to $input["filter_columns"]
+		$input["filter_columns"] = $column_struct;
+
+		//var_dump($input["filter_columns"]);
 		return true;
 	}
 
