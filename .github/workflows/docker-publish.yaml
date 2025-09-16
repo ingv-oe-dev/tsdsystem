@@ -67,6 +67,7 @@ jobs:
             echo "tag=latest" >> $GITHUB_OUTPUT
           else
             echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          fi
 
       - name: Build ${{ matrix.image_name }} locally
         id: build
