@@ -9,9 +9,25 @@ on:
 
 env:
   REGISTRY: ghcr.io
+  DB_HOST: ${{ vars.DB_HOST }}
+  DB_PORT: ${{ vars.DB_PORT }}
+  DB_NAME: ${{ vars.DB_NAME }}
+  APP_ALLOWED_HOSTS: ${{ vars.APP_ALLOWED_HOSTS }}
+  ADMIN_ID: ${{ vars.ADMIN_ID }}
+  TSD_DB: ${{ vars.TSD_DB }}
+  ENV: test
+
+  # Secrets
+  DB_USER: ${{ secrets.DB_USER }}
+  DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+  TSD_DB_USER: ${{ secrets.TSD_DB_USER }}
+  TSD_DB_PASSWORD: ${{ secrets.TSD_DB_PASSWORD }}
+  SERVER_KEY: ${{ secrets.SERVER_KEY }}
+  ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+  ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
 
 jobs:
-  build-and-push:
+  build-test-push:
     runs-on: ubuntu-latest
 
     permissions:
@@ -51,22 +67,29 @@ jobs:
             echo "tag=latest" >> $GITHUB_OUTPUT
           else
             echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-          fi
 
-      - name: Build and push ${{ matrix.image_name }}
+      - name: Build ${{ matrix.image_name }} locally
         id: build
         uses: docker/build-push-action@v6
         with:
           context: ${{ matrix.context }}
           file: ${{ matrix.dockerfile }}
-          push: true
+          load: true
+          push: false
           tags: ${{ env.REGISTRY }}/${{ github.repository }}/${{ matrix.image_name }}:${{ steps.tag.outputs.tag }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Test Run ${{ matrix.image_name }}
+      - name: Test app and DB with Docker Compose
+        if: matrix.image_name == 'tsdsystem-app'
         run: |
-          docker run --rm -d ${{ env.REGISTRY }}/${{ github.repository }}/${{ matrix.image_name }}:${{ steps.tag.outputs.tag }}
+          docker compose -f docker-compose.yaml up -d --build
+          docker exec app curl --fail http://localhost/tsdws/version
+          docker compose -f docker-compose.yaml down -v
+
+      - name: Push ${{ matrix.image_name }} (reuse built image)
+        run: |
+          docker push ${{ env.REGISTRY }}/${{ github.repository }}/${{ matrix.image_name }}:${{ steps.tag.outputs.tag }}
 
       - name: Logout from Docker Registry
         if: always()
