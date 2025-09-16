@@ -1,17 +1,14 @@
-name: Publish Docker Image
+name: Publish Docker Images
 
 on:
   push:
     branches:
-    - master
+      - master
     tags:
-    - 'v*'
+      - 'v*'
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: tsdsystem-app
-  IMAGE_DB_NAME: tsdsystem-db
-  IMAGE_TAG: latest
 
 jobs:
   build-and-push:
@@ -21,68 +18,56 @@ jobs:
       contents: read
       packages: write
 
+    strategy:
+      matrix:
+        include:
+          - image_name: tsdsystem-app
+            context: .
+            dockerfile: ./docker/php/Dockerfile.prod
+          - image_name: tsdsystem-db
+            context: ./docker/timescale
+            dockerfile: ./docker/timescale/Dockerfile
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        ref: gh-actions
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: gh-actions
 
-    - name: Login to Docker Registry
-      uses: docker/login-action@v3
-      with:
-        registry: ${{ env.REGISTRY }}
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Login to Docker Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-    - name: Determine image tag
-      id: tag
-      run: |
-        if [[ "${GITHUB_REF}" != refs/heads/master ]]; then
-            echo "IMAGE_TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
-        fi
+      - name: Determine image tag
+        id: tag
+        run: |
+          if [[ "${GITHUB_REF}" == refs/heads/master ]]; then
+            echo "tag=latest" >> $GITHUB_OUTPUT
+          else
+            echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          fi
 
-    - name: Build TSDSystem app and export to Docker
-      uses: docker/build-push-action@v6
-      with:
-        context: .
-        file: ./docker/php/Dockerfile.prod
-        load: true
-        tags: ${{ env.REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+      - name: Build and push ${{ matrix.image_name }}
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.dockerfile }}
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ github.repository }}/${{ matrix.image_name }}:${{ steps.tag.outputs.tag }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
-    - name: Build TSDSystem db and export to Docker
-      uses: docker/build-push-action@v6
-      with:
-        context: ./docker/timescale/
-        file: ./docker/timescale/Dockerfile
-        load: true
-        tags: ${{ env.REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_DB_NAME }}:${{ env.IMAGE_TAG }}
+      - name: Test Run ${{ matrix.image_name }}
+        run: |
+          docker run --rm -d ${{ env.REGISTRY }}/${{ github.repository }}/${{ matrix.image_name }}:${{ steps.tag.outputs.tag }}
 
-    - name: Test Run
-      run: |
-        docker run --rm -d ${{ env.REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
-
-    - name: Build and push TSDSystem app image
-      uses: docker/build-push-action@v6
-      with:
-        context: .
-        file: ./docker/php/Dockerfile.prod
-        push: true
-        tags: ${{ env.REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
-
-    - name: Build and push db image
-      uses: docker/build-push-action@v6
-      with:
-        context: ./docker/timescale/
-        file: ./docker/timescale/Dockerfile
-        push: true
-        tags: ${{ env.REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_DB_NAME }}:${{ env.IMAGE_TAG }}
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
-
-    - name: Logout from Docker Registry
-      run: docker logout ${{ env.REGISTRY }}
+      - name: Logout from Docker Registry
+        if: always()
+        run: docker logout ${{ env.REGISTRY }}
