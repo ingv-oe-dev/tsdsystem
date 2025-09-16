@@ -84,9 +84,9 @@ jobs:
       - name: Test app and DB with Docker Compose
         if: matrix.image_name == 'tsdsystem-app'
         run: |
-          docker compose -f docker-compose.yaml up -d --build
+          docker compose up -d --build
           docker exec app curl --fail http://localhost/tsdws/version
-          docker compose -f docker-compose.yaml down -v
+          docker compose down -v
 
       - name: Push ${{ matrix.image_name }} (reuse built image)
         run: |
