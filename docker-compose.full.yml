@@ -45,13 +45,17 @@ services:
     volumes:
       - ./src:/var/www/html
   db:
-    image: timescale/timescaledb-ha:pg14.2-ts2.6.0-oss-latest
+    build:
+      context: ./docker/timescale/
     container_name: db
     restart: unless-stopped
     environment:
       - "POSTGRES_USER=${DB_USER}"
       - "POSTGRES_PASSWORD=${DB_PASSWORD}"
       - "POSTGRES_DB=${DB_USER}"
+      - "TSD_DB_USER=${TSD_DB_USER}"
+      - "TSD_DB_PASSWORD=${TSD_DB_PASSWORD}"
+      - "TSD_DB=${TSD_DB}"
     ports:
       - 5432:5432
     healthcheck:
