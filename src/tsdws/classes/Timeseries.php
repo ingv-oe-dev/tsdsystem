@@ -212,6 +212,9 @@ Class Timeseries extends QueryManager {
 			// commit
 			$this->myConnection->commit();
 
+			// send timeseries registration email if enabled
+			$response["email_sent"] = $this->sendRegistrationEmail($input, $response);
+
 			// return result
 			return $response;
 		}
@@ -272,6 +275,35 @@ Class Timeseries extends QueryManager {
 		if ($sampling >= 86400) $chunk_time_interval = "INTERVAL '20 years'";
 		
 		return $chunk_time_interval;
+	}
+
+	function sendRegistrationEmail($input, $response) {
+
+		if (
+			(getenv("NOTIFY_TS_REG") and intval(getenv("NOTIFY_TS_REG")) == 0) or
+			!isset($response["id"]) or
+			!isset($response["rows"]) or
+			$response["rows"] < 1 or
+			!$response["status"]
+		) return null;
+
+		require_once('Mailer.php');
+
+		/** invio email **/
+		$subject = "NEW TS REG: " . $input["schema"] . "." . $input["name"] . " [" . $input["id"] . "]";
+		$body = "<h3>A new timeseries was registered with id = <b style='color:blue'>" . $input["id"] . "</b>:</h3>";
+		$body .= "<span style='background-color:green; color:white; padding:4px; font-size:16px'>" .  $input["schema"] . "." . $input["name"] . "</span><hr>";
+		$body .= "<b>INPUT:</b><pre>" . json_encode($input, JSON_PRETTY_PRINT) . "</pre><hr><b>RESPONSE:</b><pre>" . json_encode($response, JSON_PRETTY_PRINT) . "</pre>";
+
+		$mail_addresses = array();
+		array_push($mail_addresses, array(
+			"email" => getenv("ADMIN_EMAIL")
+		));
+		
+		$mail_addresses_sent = Mailer::sendMailSingly_PHPMailer($mail_addresses, $subject, $body);
+		
+		return $mail_addresses_sent;
+		
 	}
 	
 	// ====================================================================//
