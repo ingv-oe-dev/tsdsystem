@@ -168,18 +168,7 @@ Class TimeseriesFromCSVController extends TimeseriesController {
 		// (6) Validate uploaded file
 		if (!$this->validateUploadFile($input)) return false;
 
-		// (7) $input["columns"] 
-		$input = array_merge($input, $this->retrieveColumns($input)); // from CSV file
-		$timeColumnName = $this->TimeseriesInstanceObject->getTimeColumnName();
-		if (!in_array($timeColumnName, $input["colnames"])){
-			$this->setInputError("This required column is missing: '" . $timeColumnName . "'. Your columns:" . implode(",", $input["colnames"]));
-			return false;
-		}
-
-		// (8) $input["metadata"]
-		$input["metadata"] = array("columns" => $input["columns"]);
-		
-		// (9) $input["delimiter"]
+		// (7) $input["delimiter"]
 		if (array_key_exists("delimiter", $input)) {
 			if (!isset($input["delimiter"]) || !in_array($input['delimiter'], $this->allowed_delimiters)) {
 				$this->setInputError("Uncorrect input 'delimiter'. Must be a value in the following list: " . implode(", ", $this->allowed_delimiters) . ". Your value = " . strval($input["delimiter"]));
@@ -189,6 +178,17 @@ Class TimeseriesFromCSVController extends TimeseriesController {
 			// set default delimiter to comma
 			$input["delimiter"] = ",";
 		}
+
+		// (8) $input["columns"] 
+		$input = array_merge($input, $this->retrieveColumns($input)); // from CSV file
+		$timeColumnName = $this->TimeseriesInstanceObject->getTimeColumnName();
+		if (!in_array($timeColumnName, $input["colnames"])){
+			$this->setInputError("This required column is missing: '" . $timeColumnName . "'. Your columns:" . implode(",", $input["colnames"]));
+			return false;
+		}
+
+		// (9) $input["metadata"]
+		$input["metadata"] = array("columns" => $input["columns"]);
 		
 		$this->setParams($input);
 
@@ -243,7 +243,7 @@ Class TimeseriesFromCSVController extends TimeseriesController {
 			$csvFile = fopen($input['file']['tmp_name'], 'r');
 
 			// Read first line (header columns)
-			$header = fgetcsv($csvFile);
+			$header = fgetcsv($csvFile, null, $input["delimiter"]);
 
 			foreach($header as $key=>$val) {
 				if (!in_array($val, array("time"))) {
@@ -280,7 +280,7 @@ Class TimeseriesFromCSVController extends TimeseriesController {
 			$csvFile = fopen($input['file']['tmp_name'], 'r');
 
 			// Read first line (header columns)
-			$header = fgetcsv($csvFile);
+			$header = fgetcsv($csvFile, null, $input["delimiter"]);
 
 			// Read chunk by offset
 			$counter = 0;
