@@ -131,6 +131,10 @@
                         "id": id
                     },
                     "success": function(starting_value) {
+                        // fix channel_id nulls
+                        if (starting_value.data && starting_value.data[0] && starting_value.data[0]["mapping"] && starting_value.data[0]["mapping"]["channel_id"]) {
+                            starting_value.data[0]["mapping"]["channel_id"] = starting_value.data[0]["mapping"]["channel_id"].filter(item => item !== null)
+                        }
                         initializeEditor(starting_value.data[0]);
                     },
                     "error": function(jqXHR) {
