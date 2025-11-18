@@ -627,18 +627,6 @@
                         "type": "number"
                     },
                     {
-                        "name": "minthreshold",
-                        "in": "query",
-                        "description": "Filter all samples having values greater than the selected threshold (applied to each column value for multiple columns timeseries)",
-                        "type": "number"
-                    },
-                    {
-                        "name": "maxthreshold",
-                        "in": "query",
-                        "description": "Filter all samples having values less than the selected threshold (applied to each column value for multiple columns timeseries)",
-                        "type": "number"
-                    },
-                    {
                         "name": "columns",
                         "in": "query",
                         "description": "List of columns names",
@@ -675,21 +663,51 @@
                         }
                     },
                     {
-                        "name": "columns_minthreshold",
+                        "name": "filter_columns",
                         "in": "query",
-                        "description": "**SPECIFIC FOR COLUMNS (this list follows the ordering chosen for 'columns')**. Filter all samples having values greater than the selected threshold (rewrite the general 'minthreshold' value if specified for the column)",
+                        "description": "List of columns names using for filtering",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filter_columns_minthreshold",
+                        "in": "query",
+                        "description": "**SPECIFIC FOR NUMERICAL COLUMNS (this list follows the ordering chosen for 'filter_columns')**. Filter all samples having values greater than the selected threshold",
                         "type": "array",
                         "items": {
                             "type": "number"
                         }
                     },
                     {
-                        "name": "columns_maxthreshold",
+                        "name": "filter_columns_maxthreshold",
                         "in": "query",
-                        "description": "**SPECIFIC FOR COLUMNS (this list follows the ordering chosen for 'columns')**. Filter all samples having values less than the selected threshold (rewrite the general 'maxthreshold' value if specified for the column)",
+                        "description": "**SPECIFIC FOR NUMERICAL COLUMNS (this list follows the ordering chosen for 'filter_columns')**. Filter all samples having values less than the selected threshold",
                         "type": "array",
                         "items": {
                             "type": "number"
+                        }
+                    },
+                    {
+                        "name": "filter_columns_equalto",
+                        "in": "query",
+                        "description": "**SPECIFIC FOR NON-NUMERICAL COLUMNS (this list follows the ordering chosen for 'filter_columns')**. Filter all samples having string values equal to the selected value. **For boolean types use 'true' or 'false'**",
+                        "type": "array",
+                        "items": {
+                            "anyOf": [
+                                { "type": "string" },
+                                { "type": "boolean" }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "filter_columns_like",
+                        "in": "query",
+                        "description": "**SPECIFIC FOR STRING COLUMNS (this list follows the ordering chosen for 'filter_columns')**. Filter all samples having string values containing the selected string",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
                         }
                     },
                     {
@@ -891,7 +909,7 @@
                 "consumes": [
                     "multipart/form-data"
                 ],
-                "description": "This end-point allows to upload a CSV file containing timeseries values.<br>Follow instructions at https://github.com/ingv-oe-dev/tsdsystem/wiki/4.-How-to-start#csv-file-structure.<br><b>IMPORTANT</b>: no 'update_last_time' is performed by this end-point. To force the update of timeseries statistics after loading data, use the specific end-point '/timeseries/{id}/update_stats'.",
+                "description": "**ONLY FOR NUMERICAL TIMESERIES**. This end-point allows to upload a CSV file containing timeseries values.<br>Follow instructions at https://github.com/ingv-oe-dev/tsdsystem/wiki/4.-How-to-start#csv-file-structure.<br><b>IMPORTANT</b>: no 'update_last_time' is performed by this end-point. To force the update of timeseries statistics after loading data, use the specific end-point '/timeseries/{id}/update_stats'.",
                 "operationId": "uploadFile",
                 "parameters": [{
                     "name": "id",
@@ -6967,9 +6985,9 @@
                     "type": "string",
                     "minLength": 1,
                     "default": "double precision",
-                    "enum": ["smallint", "integer", "double precision"],
+                    "enum": ["boolean", "smallint", "integer", "double precision", "text"],
                     "options": {
-                        "enum_titles": ["smallint (2 bytes)", "integer (4 bytes)", "double precision (8 bytes)"]
+                        "enum_titles": ["boolean (1 byte)", "smallint (2 bytes)", "integer (4 bytes)", "double precision (8 bytes)", "text (varying - minimum 4 bytes)"]
                     }
                 },
                 "unit": {

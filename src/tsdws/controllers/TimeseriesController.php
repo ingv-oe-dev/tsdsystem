@@ -6,7 +6,7 @@ require_once("..".DIRECTORY_SEPARATOR."classes".DIRECTORY_SEPARATOR."Timeseries.
 // Timeseries class
 Class TimeseriesController extends RESTController {
 	
-	public $column_types_array = array("smallint", "integer", "double precision"); // valid for all columns (except for the default "time" column, handled by the system)
+	public $column_types_array = array("boolean", "smallint", "integer", "double precision", "text"); // valid for all columns (except for the default "time" column, handled by the system)
 
 	public function __construct() {
 		
