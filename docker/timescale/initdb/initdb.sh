@@ -1,36 +1,33 @@
 #!/bin/sh
+set -e
 
+# Set default user password
 PGPASSWORD=${DB_PASSWORD}
-echo "Executing scripts from directory initdb"
+echo "Executing initialization script ..."
 
-echo "RUN create_tsdsystem_role"
-sed -i "s/\bTSD_DB_USER\b/$TSD_DB_USER/g" /sql_create/role.sql
-sed -i "s/\bTSD_DB_PASSWORD\b/$TSD_DB_PASSWORD/g" /sql_create/role.sql
-psql -h ${DB_HOST} -U ${DB_USER} < /sql_create/role.sql
-echo "END create_tsdsystem_role"
+echo "RUN: Create user $TSD_DB_USER"
+cat /sql_create/role.sql \
+  | sed "s|\TSD_DB_USER|$TSD_DB_USER|g; s|\TSD_DB_PASSWORD|$TSD_DB_PASSWORD|g" \
+  | psql -a -b -v ON_ERROR_STOP=1 "$POSTGRES_USER" "$DB_NAME"
 
-echo "RUN init.sql"
-sed -i "s/CREATE DATABASE .*/CREATE DATABASE $TSD_DB/g" /sql_create/init.sql
-sed -i "s/connect .*/connect $TSD_DB/g" /sql_create/init.sql
-sed -i "s/\bTSD_DB_USER\b/$TSD_DB_USER/g" /sql_create/init.sql
-psql -h ${DB_HOST} -U ${DB_USER} < /sql_create/init.sql
-echo "END init.sql"
+echo "RUN: Initialize TSDSystem DB $TSD_DB"
+cat /sql_create/init.sql \
+  | sed "s|\bTSD_DB\b|$TSD_DB|g; s|\TSD_DB_USER|$TSD_DB_USER|g; s|\TSD_DB_PASSWORD|$TSD_DB_PASSWORD|g" \
+  | psql -a -b -v ON_ERROR_STOP=1 "$POSTGRES_USER" "$DB_NAME"
 
-# Set TSD User password
+# Set user password
 PGPASSWORD=${TSD_DB_PASSWORD}
 
-echo "RUN tsd_main.sql"
-psql -h ${DB_HOST} -U ${TSD_DB_USER} -d ${TSD_DB} < /sql_create/tsd_main.sql
-echo "END tsd_main.sql"
+echo "RUN: Create TSDSystem DB main schema"
+psql ${TSD_DB} ${TSD_DB_USER} < /sql_create/tsd_main.sql
 
-echo "RUN tsd_pnet.sql"
-psql -h ${DB_HOST} -U ${TSD_DB_USER} -d ${TSD_DB} < /sql_create/tsd_pnet.sql
-echo "END tsd_pnet.sql"
+echo "RUN: Create TSDSystem DB pnet schema"
+psql ${TSD_DB} ${TSD_DB_USER} < /sql_create/tsd_pnet.sql
 
-echo "RUN tsd_users.sql"
-psql -h ${DB_HOST} -U ${TSD_DB_USER} -d ${TSD_DB} < /sql_create/tsd_users.sql
-echo "END tsd_users.sql"
+echo "RUN: Create TSDSystem DB users schema"
+psql ${TSD_DB} ${TSD_DB_USER} < /sql_create/tsd_users.sql
 
-echo "RUN public.sql"
-psql -h ${DB_HOST} -U ${TSD_DB_USER} -d ${TSD_DB}  < /sql_create/public.sql
-echo "END public.sql"
+echo "RUN: Update TSDSystem DB public schema"
+psql ${TSD_DB} ${TSD_DB_USER} < /sql_create/public.sql
+
+echo "Initialization script finished."
