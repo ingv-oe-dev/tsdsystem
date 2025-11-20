@@ -4,8 +4,8 @@ require_once("..".DIRECTORY_SEPARATOR."classes".DIRECTORY_SEPARATOR."Tokens.php"
 
 Class TokensController extends RESTController {
 	
-    // Token validity in days
-    private $validity_days = 30;
+    // Token validity in seconds
+    private $validity_seconds = 600; // 10 minutes, narrower than Tokens class default (86400: 1 day)
 
     //CONSTRUCTOR
 	function __construct() {
@@ -82,19 +82,19 @@ Class TokensController extends RESTController {
             }
         }
 
-        // validity days
-        if (array_key_exists('validity_days',$input)) {
-            if (isset($input['validity_days']) and !empty($input['validity_days'])) {
-                if (!is_numeric($input['validity_days'])) {
-                    $this->setInputError("Uncorrect input 'validity_days' [integer]. Your value: " . $input['validity_days']);
+        // validity
+        if (array_key_exists('validity_seconds',$input)) {
+            if (isset($input['validity_seconds']) and !empty($input['validity_seconds'])) {
+                if (!is_numeric($input['validity_seconds'])) {
+                    $this->setInputError("Uncorrect input 'validity_seconds' [integer]. Your value: " . $input['validity_seconds']);
                     return false;
                 }
-                $input["validity_days"] = intval($input["validity_days"]);
+                $input["validity_seconds"] = intval($input["validity_seconds"]);
             } else {
-                $input["validity_days"] = $this->validity_days;
+                $input["validity_seconds"] = $this->validity_seconds;
             }
         } else {
-            $input["validity_days"] = $this->validity_days;
+            $input["validity_seconds"] = $this->validity_seconds;
         }
 
         $this->setParams($input);

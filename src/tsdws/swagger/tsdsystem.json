@@ -135,10 +135,10 @@
                         }
                     },
                     {
-                        "name": "validity_days",
+                        "name": "validity_seconds",
                         "in": "formData",
-                        "description": "Token validity (in days). Default 30 days.",
-                        "default": 30,
+                        "description": "Token validity (in seconds). Default 600 seconds (10 minutes).",
+                        "default": 600,
                         "type": "integer"
                     }
                 ],
