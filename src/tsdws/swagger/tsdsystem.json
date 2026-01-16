@@ -1109,6 +1109,18 @@
                         "in": "query",
                         "description": "Use exact match when filtering by query parameters",
                         "type": "boolean"
+                    },
+                    {
+                        "name": "old_channel",
+                        "in": "query",
+                        "description": "Filter for showing old_channels or not",
+                        "type": "boolean"
+                    },
+                    {
+                        "name": "deprecated",
+                        "in": "query",
+                        "description": "Filter for showing deprecated channels (i.e. mapped to removed station configurations) or not",
+                        "type": "boolean"
                     }
                 ],
                 "responses": {
