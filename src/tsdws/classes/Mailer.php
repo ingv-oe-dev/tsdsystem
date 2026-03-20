@@ -58,11 +58,13 @@ Class Mailer {
                 $mail = new PHPmailer();
                 $mail->IsSMTP();
                 $mail->Host = getenv("SMTP_HOST");
+                $mail->Port = getenv("SMTP_PORT") ? intval(getenv("SMTP_PORT")) : 25;
                 if (intval(getenv("SMTP_AUTH")) == 1) {
                     $mail->SMTPAuth = true;
                     $mail->Username = getenv("SMTP_USERNAME");
                     $mail->Password = getenv("SMTP_PASSWORD");
-                    $mail->SMTPSecure = getenv("SMTP_SECURE");
+                    $mail->SMTPSecure = getenv("SMTP_SECURE") ? getenv("SMTP_SECURE") : 'tls'; //getenv("SMTP_SECURE");
+                    $mail->Port = getenv("SMTP_PORT") ? intval(getenv("SMTP_PORT")) : 587;
                     $mail->SMTPOptions = array(
                         'ssl' => array(
                             'verify_peer' => false,
@@ -71,7 +73,7 @@ Class Mailer {
                         )
                     );
                 }
-                $mail->From = getenv("SMTP_FROM_ADDRESS") ? getenv("SMTP_FROM_ADDRESS") : "admin.tsdystem@ct.ingv.it";
+                $mail->From = getenv("SMTP_FROM_ADDRESS") ? getenv("SMTP_FROM_ADDRESS") : "mailbot-ufso@ct.ingv.it";
                 $mail->FromName = getenv("SMTP_FROM_NAME") ? getenv("SMTP_FROM_NAME") : "TSDSystem";
                 $mail->AddAddress($addresses[$i]["email"], $addresses[$i]["email"]);
                 $mail->Subject = $subject;
