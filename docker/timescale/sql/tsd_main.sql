@@ -81,3 +81,44 @@ $BODY$;
 
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------
+-- PROCEDURE: tsd_main.updateTimeseriesLastTime_light(varchar, varchar, timestamp, jsonb)
+
+-- DROP PROCEDURE tsd_main."updateTimeseriesLastTime_light"(varchar, varchar, timestamp, jsonb);
+
+CREATE OR REPLACE PROCEDURE tsd_main."updateTimeseriesLastTime_light"(
+    IN p_schema     character varying,
+    IN p_name       character varying,
+    IN p_last_time  timestamp,
+    IN p_last_value jsonb
+)
+LANGUAGE plpgsql
+AS $procedure$
+BEGIN
+    IF p_schema IS NULL OR p_name IS NULL THEN
+        RAISE EXCEPTION 'p_schema and p_name cannot be null';
+    END IF;
+
+    IF p_last_time IS NULL THEN
+        RAISE EXCEPTION 'p_last_time cannot be null';
+    END IF;
+
+    UPDATE tsd_main.timeseries t
+    SET last_time = CASE
+                        WHEN t.with_tz THEN p_last_time AT TIME ZONE 'utc'
+                        ELSE p_last_time
+                    END,
+        last_value = p_last_value,
+		update_time = now() AT TIME ZONE 'utc'
+    WHERE lower(t.schema) = lower(p_schema)
+      AND lower(t.name)   = lower(p_name)
+      AND (
+            t.last_time IS NULL
+            OR (
+                CASE
+                    WHEN t.with_tz THEN p_last_time AT TIME ZONE 'utc'
+                    ELSE p_last_time
+                END
+            ) >= t.last_time
+          );
+END;
+$procedure$;

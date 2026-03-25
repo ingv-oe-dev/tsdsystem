@@ -43,10 +43,21 @@ Class TimeseriesValues extends Timeseries {
 			if ($response["status"]) {
 				$input_params = explode(".", $insert_sql["tablename"]);
 				if (array_key_exists("update_last_time", $input) and $input["update_last_time"] === true) {
-					$output = $this->executeSQLCommand("CALL tsd_main.\"updateTimeseriesLastTime\"('".$input_params[0]."','".$input_params[1]."')");
+					// take last time and value from inserted data
+					$last_row = $this->takeLastRecentRecord($input["data"], $input["columns"]);
+					//$response["last_row"] = pg_escape_string(json_encode((object) $last_row, JSON_NUMERIC_CHECK)); // for debugging purpose only
+					$output = $this->executeSQLCommand("CALL tsd_main.\"updateTimeseriesLastTime_light\"('".$input_params[0]."','".$input_params[1]."', '". $last_row[$this->getTimeColumnName()] ."', '".pg_escape_string(json_encode((object) $last_row, JSON_NUMERIC_CHECK))."')");
+					
 					// hide sql query into response
 					unset($output[0]["query"]);
 					$response["updateTimeseriesLastTime"] = end($output);
+					if (isset($response["updateTimeseriesLastTime"]) and (is_array($response["updateTimeseriesLastTime"])) or (is_object($response["updateTimeseriesLastTime"]))) {
+						$response["updateTimeseriesLastTime"]["last_row"] = $last_row;
+					} else {
+						$response["updateTimeseriesLastTime"] = array(
+							"last_row" => $last_row
+						);
+					}
 				}
 			}
 			// hide sql query into response
@@ -56,6 +67,18 @@ Class TimeseriesValues extends Timeseries {
 			$response["make_sql_error"] = true;
 		}
 		return $response;
+	}
+
+	public function takeLastRecentRecord($data, $columns) {
+		$time_column_index = array_search($this->getTimeColumnName(), $columns);
+		$last_row = null;
+		foreach($data as $row) {
+			if (!isset($last_row) or strtotime($row[$time_column_index]) > strtotime($last_row[$time_column_index])) {
+				$last_row = $row;
+			}
+		}
+		$result = array_combine($columns, $last_row);
+		return $result;
 	}
 	
 	// ============== Make insert SQL for postgresql ======================
