@@ -280,7 +280,7 @@ Class RESTController extends SimpleREST {
 
         // Get authorization data
         $auth_data = $this->_get_auth_data();
-        //var_dump($auth_data);
+        // $this->response["debug"] = $auth_data;
 
 		// Check if present authorization data, exit otherwise
 		if(!isset($auth_data)) {
@@ -361,6 +361,13 @@ Class RESTController extends SimpleREST {
 			// var_dump($rights);
 		} catch (Exception $e) {
 			throw new Exception($errorMessagePrefix . $e->getMessage());
+		}
+
+		// Check if the $auth_data["userId"] is the "create_user" of the resource with id = $auth_params["resource_id"]
+		if (array_key_exists("resource_id", $auth_params) and isset($auth_params["resource_id"])) {
+			if ($this->obj->getCreateUser($auth_params["resource_id"]) == $auth_data["userId"]) {
+				return true;
+			}
 		}
 
 		// Check if exists 'rights' section

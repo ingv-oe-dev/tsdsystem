@@ -1,7 +1,7 @@
 <?php
-require_once("QueryManager.php");
+require_once("PNetManager.php");
 
-Class SensortypeCategories extends QueryManager {
+Class SensortypeCategories extends PNetManager {
 	
 	protected $tablename = "tsd_pnet.sensortype_categories";
 	
@@ -86,15 +86,5 @@ Class SensortypeCategories extends QueryManager {
 		return $this->genericUpdateRoutine($input, $updateFields, $whereStmt);
 	}
 
-	public function delete($input) {
-
-		$updateFields = array(
-			"remove_time" => array("quoted" => false),
-			"remove_user" => array("quoted" => false)
-		);
-
-		$whereStmt = " WHERE remove_time IS NULL AND id = " . $input["id"];
-		
-		return $this->genericUpdateRoutine($input, $updateFields, $whereStmt);
-	}
+	
 }
