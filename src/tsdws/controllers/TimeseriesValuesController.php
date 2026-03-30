@@ -186,6 +186,13 @@ Class TimeseriesValuesController extends RESTController {
 		if ($auth_params["scope"] == "admin") {
 			throw new Exception("Unauthorized action - Administrator privileges required");
 		}
+
+		// Check if the $auth_data["userId"] is the "create_user" of the resource with id = $auth_params["resource_id"]
+		if (array_key_exists("resource_id", $auth_params) and isset($auth_params["resource_id"])) {
+			if ($this->obj->getCreateUser($auth_params["resource_id"]) == $auth_data["userId"]) {
+				return true;
+			}
+		}
 		
 		// check if exists the section related to the scope
 		$scope = array();
