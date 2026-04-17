@@ -186,6 +186,13 @@ Class TimeseriesValuesController extends RESTController {
 		if ($auth_params["scope"] == "admin") {
 			throw new Exception("Unauthorized action - Administrator privileges required");
 		}
+
+		// Check if the $auth_data["userId"] is the "create_user" of the resource with id = $auth_params["resource_id"]
+		if (array_key_exists("resource_id", $auth_params) and isset($auth_params["resource_id"])) {
+			if ($this->obj->getCreateUser($auth_params["resource_id"]) == $auth_data["userId"]) {
+				return true;
+			}
+		}
 		
 		// check if exists the section related to the scope
 		$scope = array();
@@ -273,19 +280,11 @@ Class TimeseriesValuesController extends RESTController {
 			in_array($auth_params["resource_id"], $rights["permissions"]["id"])
 		) return true;
 
-		// Check if the timeseries with id = $auth_params["resource_id"] is into the not empty $rights["permissions"]["id"] array
-		if (
-			array_key_exists("resource_id", $auth_params) and 
-			array_key_exists("id", $rights["permissions"]) and 
-			is_array($rights["permissions"]["id"]) and 
-			count($rights["permissions"]["id"]) > 0 and
-			!in_array($auth_params["resource_id"], $rights["permissions"]["id"])
-		) throw new Exception($errorMessagePrefix . "Not allowed for id = " . $auth_params["resource_id"]);
-
 		// Launch db query to retrieve all timeseries (with id = $auth_params["resource_id"]) dependencies
 		$dependencies = $this->obj->getDependencies($auth_params["resource_id"]);
 		// echo "dependencies:";
 		// var_dump($dependencies);
+		// throw new Exception($errorMessagePrefix . "Rights: " . json_encode($rights) . ". Dependencies: " . json_encode($dependencies) . ". Intersection: " . strval(count(array_intersect($dependencies["net_id"], $rights["permissions"]["net_id"])))); // FOR DEBUGGING
 
 		// Check if empty or null dependencies
 		if (!isset($dependencies)) 
@@ -302,6 +301,18 @@ Class TimeseriesValuesController extends RESTController {
 			or 
 			(count(array_intersect($dependencies["net_id"], $rights["permissions"]["net_id"])) == 0)
 		) throw new Exception($errorMessagePrefix . " Resource dependencies (net) not satisfied");
+		else {
+			return true;
+		}
+
+		// Check if the timeseries with id = $auth_params["resource_id"] is into the not empty $rights["permissions"]["id"] array
+		if (
+			array_key_exists("resource_id", $auth_params) and 
+			array_key_exists("id", $rights["permissions"]) and 
+			is_array($rights["permissions"]["id"]) and 
+			count($rights["permissions"]["id"]) > 0 and
+			!in_array($auth_params["resource_id"], $rights["permissions"]["id"])
+		) throw new Exception($errorMessagePrefix . "Not allowed for id = " . $auth_params["resource_id"]);
 
 	}
 

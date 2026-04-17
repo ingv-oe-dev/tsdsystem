@@ -9,6 +9,7 @@ Class Tokens extends QueryManager {
     private $serverKey;
    
     protected $tablename = "tsd_users.tokens";
+    protected $validity_seconds = 86400; // 1 day
 
     public $input;
     public $userId;
@@ -26,9 +27,9 @@ Class Tokens extends QueryManager {
         if (
             isset($input) and 
             is_array($input) and 
-            !array_key_exists("validity_days", $input)
+            !array_key_exists("validity_seconds", $input)
         ) {
-            $this->input["validity_days"] = 1;
+            $this->input["validity_seconds"] = $this->validity_seconds;
         }
 	}
 
@@ -53,7 +54,7 @@ Class Tokens extends QueryManager {
          * Uncomment the following line and add an appropriate date and time to enable the 
          * "expire" feature.
          */
-        $this->exp = $now->add(new DateInterval('P'.$this->input["validity_days"].'D'))->getTimestamp(); // expire in days
+        $this->exp = $now->add(new DateInterval('PT'.$this->input["validity_seconds"].'S'))->getTimestamp(); // expire in seconds
         //var_dump($exp);
 
         /**

@@ -78,6 +78,7 @@ Spatial information:
 
 SMTP settings (for emails sending, e.g. on users registration):
 - `SMTP_HOST`
+- `SMTP_PORT`
 - If SMTP server requires credentials set `SMTP_AUTH = 1` and:
   - `SMTP_USERNAME`
   - `SMTP_PASSWORD`

@@ -1,7 +1,7 @@
 <?php
-require_once("QueryManager.php");
+require_once("PNetManager.php");
 
-Class Channels extends QueryManager {
+Class Channels extends PNetManager {
 	
 	protected $tablename = "tsd_pnet.channels";
 	
@@ -106,6 +106,16 @@ Class Channels extends QueryManager {
 				"digitizer_name" => array("quoted" => true, "alias" => "d.name"),
 				"digitizertype_name" => array("quoted" => true, "alias" => "dt.name")
 			));
+			// Filtro per old_channel
+			if (array_key_exists("old_channel", $input)) {
+				$val = filter_var($input["old_channel"], FILTER_VALIDATE_BOOLEAN) ? 'TRUE' : 'FALSE';
+				$query .= " AND (NOT sc.end_datetime IS NULL AND sc.end_datetime < now() at time zone 'utc') = $val";
+			}
+			// Filtro per deprecated
+			if (array_key_exists("deprecated", $input)) {
+				$val = filter_var($input["deprecated"], FILTER_VALIDATE_BOOLEAN) ? 'TRUE' : 'FALSE';
+				$query .= " AND (sc.remove_time IS NOT NULL) = $val";
+			}
 			// both start_datetime and end_datetime set
 			if (
 				array_key_exists("start_datetime", $input) and 
@@ -145,15 +155,5 @@ Class Channels extends QueryManager {
 		return $this->genericUpdateRoutine($input, $updateFields, $whereStmt);
 	}
 
-	public function delete($input) {
-
-		$updateFields = array(
-			"remove_time" => array("quoted" => false),
-			"remove_user" => array("quoted" => false)
-		);
-
-		$whereStmt = " WHERE remove_time IS NULL AND id = " . $input["id"];
-		
-		return $this->genericUpdateRoutine($input, $updateFields, $whereStmt);
-	}
+	
 }

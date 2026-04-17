@@ -135,10 +135,10 @@
                         }
                     },
                     {
-                        "name": "validity_days",
+                        "name": "validity_seconds",
                         "in": "formData",
-                        "description": "Token validity (in days). Default 30 days.",
-                        "default": 30,
+                        "description": "Token validity (in seconds). Default 600 seconds (10 minutes).",
+                        "default": 600,
                         "type": "integer"
                     }
                 ],
@@ -1108,6 +1108,18 @@
                         "name": "exact_match",
                         "in": "query",
                         "description": "Use exact match when filtering by query parameters",
+                        "type": "boolean"
+                    },
+                    {
+                        "name": "old_channel",
+                        "in": "query",
+                        "description": "Filter for showing old_channels or not",
+                        "type": "boolean"
+                    },
+                    {
+                        "name": "deprecated",
+                        "in": "query",
+                        "description": "Filter for showing deprecated channels (i.e. mapped to removed station configurations) or not",
                         "type": "boolean"
                     }
                 ],
