@@ -1014,6 +1014,8 @@ Class TimeseriesValuesController extends RESTController {
 					if (!empty($column_def_value)) {		
 						// add the current column def to the ith columns structure
 						$column_struct[$i][$paramName] = $column_def_value;
+					} else {
+						$column_struct[$i][$paramName] = $column_def_list[$i];
 					}
 				}
 			}
