@@ -115,12 +115,12 @@ Class StationConfigs extends PNetManager {
 		if (isset($input) and is_array($input)) { 
 			$query .= $this->composeWhereFilter($input, array(
 				"id" => array("id" => true, "alias" => $this->tablename . ".id", "quoted" => false),
-				"station_id" => array("alias" => $this->tablename . ".station_id", "quoted" => false),
+				"station_id" => array("id" => true, "alias" => $this->tablename . ".station_id", "quoted" => false),
 				"station_name" => array("alias" => "stat.name", "quoted" => true),
 				"additional_info" => array("quoted" => true, "alias" => $this->tablename . ".additional_info"),
-				"sensor_id" => array("alias" => $this->tablename . ".sensor_id", "quoted" => false),
+				"sensor_id" => array("id" => true, "alias" => $this->tablename . ".sensor_id", "quoted" => false),
 				"sensor_name" => array("alias" => "s.name", "quoted" => true),
-				"digitizer_id" => array("alias" => $this->tablename . ".digitizer_id", "quoted" => false),
+				"digitizer_id" => array("id" => true, "alias" => $this->tablename . ".digitizer_id", "quoted" => false),
 				"digitizer_name" => array("alias" => "d.name", "quoted" => true),
 				"additional_info" => array("quoted" => true, "alias" => $this->tablename . ".additional_info")
 			));
