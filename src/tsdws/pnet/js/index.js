@@ -892,13 +892,27 @@ var app = {
             //console.log(c.additional_info);
             return c.hasOwnProperty('additional_info') && c.additional_info != null && c.additional_info.hasOwnProperty('plugins') && Array.isArray(c.additional_info.plugins) && c.additional_info.plugins.length > 0;
         },
-        openPluginDialog(item) {
-            //console.log(item);
-            var querystring = "/?network="+item.net_name+"&station="+item.station_name+"&channel="+item.name;
+        openPluginDialog(item, type='channel') {
+            //console.log(item, type);
+            if (type == 'channel') {
             $("#sideR #editing").html("<div id='pluginDialog' style='padding:2em'><h3>Available add-on services (" + item.station_name + "." + item.name + ")</h3><ul></ul></div>");
             for (var i=0; i<item.additional_info.plugins.length; i++) {
-                var a = '<li><a href="'+ item.additional_info.plugins[i].url + querystring + '" style="cursor:pointer; text-decoration:none" target="_blank"><b>' + item.additional_info.plugins[i].name + '</b> <u>'+ item.additional_info.plugins[i].url + querystring + '</u></a></li>';
+                    var record = item.additional_info.plugins[i];
+                    var default_qs = "?network="+item.net_name+"&station="+item.station_name+"&channel="+item.name;
+                    var querystring = record.querystring ? ('?'+record.querystring.replace(/^\?+/, "")) : default_qs;
+                    var a = '<li><a href="'+ record.url + querystring + '" style="cursor:pointer; text-decoration:none" target="_blank"><b>' + record.name + '</b> <u>'+ record.url + querystring + '</u></a></li>';
                 $("#sideR #editing #pluginDialog ul").append(a);
+                }
+            }
+            if (type == 'station') {
+                $("#sideR #editing").html("<div id='pluginDialog' style='padding:2em'><h3>Available add-on services (" + item.name + ")</h3><ul></ul></div>");
+                for (var i=0; i<item.additional_info.plugins.length; i++) {
+                    var record = item.additional_info.plugins[i];
+                    var default_qs = "?network="+item.net_name+"&station="+item.name;
+                    var querystring = record.querystring ? ('?'+record.querystring.replace(/^\?+/, "")) : default_qs;
+                    var a = '<li><a href="'+ record.url + querystring + '" style="cursor:pointer; text-decoration:none" target="_blank"><b>' + record.name + '</b> <u>'+ record.url + querystring + '</u></a></li>';
+                    $("#sideR #editing #pluginDialog ul").append(a);
+                }
             }
             this.openSettings(false);
         }
