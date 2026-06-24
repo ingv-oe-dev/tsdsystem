@@ -64,6 +64,8 @@ Class Channels extends PNetManager {
 			s.name AS sensor_name, 
 			st.id AS sensortype_id,
 			st.name AS sensortype_name, 
+			stc.id AS sensortype_category_id,
+			stc.name AS sensortype_category_name, 
 			d.id AS digitizer_id, 
 			d.name AS digitizer_name, 
 			dt.id AS digitizertype_id, 
@@ -84,6 +86,7 @@ Class Channels extends PNetManager {
 		" LEFT JOIN tsd_pnet.stations stat ON stat.id = sc.station_id " .
 		" LEFT JOIN tsd_pnet.digitizers d ON d.id = sc.digitizer_id " .
 		" LEFT JOIN tsd_pnet.sensortypes st ON st.id = s.sensortype_id " .
+		" LEFT JOIN tsd_pnet.sensortype_categories stc ON stc.id = st.sensortype_category_id " .
 		" LEFT JOIN tsd_pnet.digitizertypes dt ON dt.id = d.digitizertype_id " .
 		" LEFT JOIN tsd_pnet.nets n ON n.id = stat.net_id " .
 		" WHERE c.remove_time IS NULL ";
@@ -97,6 +100,7 @@ Class Channels extends PNetManager {
 				"sensortype_id" => array("id" => true, "quoted" => false, "alias" => "s.sensortype_id"),
 				"station_id" => array("id" => true, "quoted" => false, "alias" => "sc.station_id"),
 				"digitizer_id" => array("id" => true, "quoted" => false, "alias" => "sc.digitizer_id"),
+				"sensortype_category_id" => array("id" => true, "quoted" => false, "alias" => "st.sensortype_category_id"),
 				"additional_info" => array("quoted" => true, "alias" => "c.additional_info"),
 				"net_id" => array("id"=>true, "quoted" => false, "alias" => "n.id"),
 				"net_name" => array("quoted" => true, "alias" => "n.name"),
@@ -104,7 +108,8 @@ Class Channels extends PNetManager {
 				"sensortype_name" => array("quoted" => true, "alias" => "st.name"),
 				"station_name" => array("quoted" => true, "alias" => "stat.name"),
 				"digitizer_name" => array("quoted" => true, "alias" => "d.name"),
-				"digitizertype_name" => array("quoted" => true, "alias" => "dt.name")
+				"digitizertype_name" => array("quoted" => true, "alias" => "dt.name"),
+				"sensortype_category_name" => array("quoted" => true, "alias" => "stc.name"),
 			));
 			// Filtro per old_channel
 			if (array_key_exists("old_channel", $input)) {
