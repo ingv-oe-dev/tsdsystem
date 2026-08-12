@@ -1,11 +1,11 @@
-FROM php:8.2.7-apache-bullseye
+FROM php:8.2.29-apache
 
 LABEL Maintainer="Mario Torrisi <mario.torrisi@ingv.it>, Fabrizio Pistagna <fabrizio.pistagna@ingv.it>"
 LABEL org.opencontainers.image.description="TSDSystem Web Application"
 
 # Use the default production configuration
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
-COPY php.ini "$PHP_INI_DIR/conf.d/php.ini"
+COPY ./docker/php/php.ini "$PHP_INI_DIR/conf.d/php.ini"
 
 # Install postgres pdo extension
 RUN apt-get update \
@@ -17,6 +17,8 @@ RUN docker-php-ext-install pdo pdo_pgsql pgsql
 RUN a2enmod rewrite
 
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+
+COPY ./src/ /var/www/html/
 
 WORKDIR /var/www/html/tsdws
 
@@ -31,7 +33,7 @@ RUN groupmod -o -g ${PGID} www-data && \
 
 RUN chown -R www-data:www-data /var/www
 
-COPY ./docker-entrypoint.sh /
+COPY ./docker/php/docker-entrypoint.sh /
 
 ENTRYPOINT ["/bin/bash", "/docker-entrypoint.sh"]
 

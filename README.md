@@ -138,11 +138,6 @@ A full installation using `docker-compose.full.yml` is recommended to expose the
 For a full installation run:
 - `docker compose -f docker-compose.full.yml up -d`
 
-## Database PostgreSQL initialization
-
-Regardless the choice of a [Basic](#basic-installation) or [Full](#full-installation) installation, the correct start up of the service requires the initialization of the PostgreSQL database structure by running the command:
-- `docker compose -f docker-compose.initdb.yml up -d`
-
 ## Update software with future commits
 Run the following commands:
 ```
