@@ -110,11 +110,11 @@ Class Stations extends PNetManager {
 			$query .= $this->composeWhereFilter($input, array(
 				"id" => array("id" => true, "alias" => $this->tablename . ".id", "quoted" => false),
 				"name" => array("alias" => $this->tablename . ".name", "quoted" => true),
-				"sensortype_id" => array("alias" => "s.sensortype_id", "quoted" => false),
+				"sensortype_id" => array("id" => true, "alias" => "s.sensortype_id", "quoted" => false),
 				"sensortype_name" => array("alias" => "st.name", "quoted" => true),
-				"net_id" => array("alias" => $this->tablename . ".net_id", "quoted" => false),
+				"net_id" => array("id" => true, "alias" => $this->tablename . ".net_id", "quoted" => false),
 				"net_name" => array("alias" => "n.name", "quoted" => true),
-				"site_id" => array("alias" => $this->tablename . ".site_id", "quoted" => false),
+				"site_id" => array("id" => true, "alias" => $this->tablename . ".site_id", "quoted" => false),
 				"site_name" => array("alias" => "ss.name", "quoted" => true),
 				"additional_info" => array("quoted" => true, "alias" => $this->tablename . ".additional_info")
 			));

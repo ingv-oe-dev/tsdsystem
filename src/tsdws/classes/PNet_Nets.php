@@ -60,7 +60,7 @@ Class Nets extends PNetManager {
 				"name" => array("quoted" => true, "alias" => "n.name"),
 				"description" => array("quoted" => true, "alias" => "n.description"),
 				"additional_info" => array("quoted" => true, "alias" => "n.additional_info"),
-				"owner_id" => array("quoted" => false, "alias" => "n.owner_id")
+				"owner_id" => array("id" => true, "quoted" => false, "alias" => "n.owner_id")
 			));
 		}
 

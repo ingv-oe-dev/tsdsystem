@@ -60,7 +60,7 @@ Class Digitizers extends PNetManager {
 				"id" => array("id" => true, "alias" => "d.id", "quoted" => false),
 				"name" => array("alias" => "d.name", "quoted" => true),
 				"serial_number" => array("alias" => "d.serial_number", "quoted" => true),
-				"digitizertype_id" => array("alias" => "d.digitizertype_id", "quoted" => false),
+				"digitizertype_id" => array("id" => true, "alias" => "d.digitizertype_id", "quoted" => false),
 				"digitizertype_name" => array("alias" => "dt.name", "quoted" => true),
 				"digitizertype_model" => array("alias" => "dt.model", "quoted" => true),
 				"additional_info" => array("quoted" => true, "alias" => "d.additional_info")

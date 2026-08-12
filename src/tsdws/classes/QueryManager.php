@@ -296,7 +296,8 @@ Class QueryManager extends Utils {
 					"fieldname" => array_key_exists("alias", $value) ? $value["alias"] : $key,
 					"value" => $input[$key],
 					"exact_match" => isset($value["id"]) or (array_key_exists("exact_match", $input) and ($input["exact_match"] == 'true')),
-					"quoted" => $value["quoted"]
+					"quoted" => $value["quoted"],
+					"multiple_match" => (isset($value["id"]) && is_string($input[$key]) && strpos($input[$key], ',') !== false)
 				));
 			}
 		}
@@ -305,6 +306,21 @@ Class QueryManager extends Utils {
 
 	public function matchFieldByValue($params) {
 		$str = " AND ";
+		// multiple_match (IN)
+		if (isset($params["multiple_match"]) && $params["multiple_match"]) {
+			if (is_array($params["value"])) {
+				$ids = $params["value"];
+			} else {
+				$ids = explode(',', $params["value"]);
+			}
+			if ($params["quoted"]) {
+				$ids = array_map(function($v) { return "'" . pg_escape_string(trim($v)) . "'"; }, $ids);
+			} else {
+				$ids = array_map('intval', $ids);
+			}
+			$str .= $params["fieldname"] . " IN (" . implode(",", $ids) . ")";
+			return $str;
+		}
 		if ($params["exact_match"]) {
 			if ($params["quoted"]) {
 				$str .= $params["fieldname"] . " = '" . pg_escape_string($params["value"]) . "'";

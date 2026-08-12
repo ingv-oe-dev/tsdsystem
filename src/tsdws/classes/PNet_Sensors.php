@@ -60,7 +60,7 @@ Class Sensors extends PNetManager {
 				"id" => array("id" => true, "alias" => "s.id", "quoted" => false),
 				"name" => array("alias" => "s.name", "quoted" => true),
 				"serial_number" => array("alias" => "s.serial_number", "quoted" => true),
-				"sensortype_id" => array("alias" => "s.sensortype_id", "quoted" => false),
+				"sensortype_id" => array("id" => true, "alias" => "s.sensortype_id", "quoted" => false),
 				"sensortype_name" => array("alias" => "st.name", "quoted" => true),
 				"sensortype_model" => array("alias" => "st.model", "quoted" => true),
 				"sensortype_components" => array("alias" => "st.components", "quoted" => true),

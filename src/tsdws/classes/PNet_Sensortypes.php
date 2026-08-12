@@ -62,7 +62,7 @@ Class Sensortypes extends PNetManager {
 				"name" => array("quoted" => true),
 				"model" => array("quoted" => true),
 				"components" => array("quoted" => true),
-				"sensortype_category_id" => array("quoted" => false),
+				"sensortype_category_id" => array("id" => true, "quoted" => false),
 				"response_parameters" => array("quoted" => true),
 				"additional_info" => array("quoted" => true)
 			));
