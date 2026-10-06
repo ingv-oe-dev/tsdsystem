@@ -147,3 +147,12 @@ docker compose -f docker-compose.full.yml build --no-cache frontend
 
 docker compose -f docker-compose.full.yml up -d
 ```
+
+## Final recommendations
+TSDSystem bases the archiviation of timeseries data on the [TimescaleDB](https://www.tigerdata.com/) solution. 
+
+This repository offers an initialization of the timescale database using an [Apache 2 Edition](https://www.tigerdata.com/docs/get-started/choose-your-path/timescaledb-editions#timescaledb-apache-2-edition), a classic open source license, meaning that it is completely unrestricted - anyone can take this code and offer it as a service. However, this edition restricts the use of some features (e.g. partitioning or compression policies).
+
+To take advantages of all features offered by TimescaldDB in the TSDSystem framework, it is recommended to run a [Community Edition](https://www.tigerdata.com/docs/get-started/choose-your-path/timescaledb-editions#timescaledb-community-edition). This edition is completely free if you manage your own service. **To do this edit the Docker file at the repository path: `\docker\timescale\Dockerfile`, by changing the [dockerhub image](https://hub.docker.com/r/timescale/timescaledb) reference (current used: `timescale/timescaledb-ha:pg14.2-ts2.6.0-oss-latest`)**.
+
+To learn more about the TimescaleDB editions feature comparison, read at https://www.tigerdata.com/docs/get-started/choose-your-path/timescaledb-editions#feature-comparison.
