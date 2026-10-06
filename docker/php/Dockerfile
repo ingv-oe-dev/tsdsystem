@@ -1,4 +1,4 @@
-FROM php:8.2.7-apache-bullseye
+FROM php:8.2.34-apache-trixie
 
 LABEL Maintainer="Mario Torrisi <mario.torrisi@ingv.it>, Fabrizio Pistagna <fabrizio.pistagna@ingv.it>"
 LABEL org.opencontainers.image.description="TSDSystem Web Application"
