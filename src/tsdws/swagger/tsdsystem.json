@@ -216,9 +216,9 @@
                 "parameters": [{
                         "name": "id",
                         "in": "query",
-                        "description": "Timeseries unique identifier (uuid)",
+                        "description": "Timeseries unique identifier (uuid). You can pass multiple ids separated by comma",
                         "type": "string",
-                        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+                        "pattern": "^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})(,[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})*$"
                     },
                     {
                         "name": "name",
@@ -241,8 +241,8 @@
                     {
                         "name": "channel_id",
                         "in": "query",
-                        "description": "Timeseries mapped to this Channel ID",
-                        "type": "integer"
+                        "description": "Timeseries mapped to this Channel ID. You can pass multiple ids separated by comma",
+                        "type": "string"
                     },
                     {
                         "name": "exact_match",
@@ -1043,8 +1043,8 @@
                 "parameters": [{
                         "name": "id",
                         "in": "query",
-                        "description": "Channel unique identifier",
-                        "type": "integer"
+                        "description": "Channel unique identifier. You can pass multiple ids separated by comma",
+                        "type": "string"
                     },
                     {
                         "name": "name",
@@ -1055,8 +1055,8 @@
                     {
                         "name": "station_id",
                         "in": "query",
-                        "description": "ID of the station whom the channel belongs to",
-                        "type": "integer"
+                        "description": "ID of the station whom the channel belongs to. You can pass multiple ids separated by comma",
+                        "type": "string"
                     },
                     {
                         "name": "station_name",
@@ -1065,10 +1065,15 @@
                         "type": "string"
                     },
                     {
+                        "name": "station_config_id",
+                        "in": "query",
+                        "description": "ID of the station config whom the channel belongs to. You can pass multiple ids separated by comma",
+                        "type": "string"
+                    },{
                         "name": "sensortype_id",
                         "in": "query",
-                        "description": "ID of the sensortype of the channel",
-                        "type": "integer"
+                        "description": "ID of the sensortype of the channel. You can pass multiple ids separated by comma",
+                        "type": "string"
                     },
                     {
                         "name": "sensortype_name",
@@ -1077,10 +1082,22 @@
                         "type": "string"
                     },
                     {
+                        "name": "sensor_id",
+                        "in": "query",
+                        "description": "ID of the sensor whom the channel belongs to. You can pass multiple ids separated by comma",
+                        "type": "string"
+                    },
+                    {
+                        "name": "digitizer_id",
+                        "in": "query",
+                        "description": "ID of the digitizer whom the channel belongs to. You can pass multiple ids separated by comma",
+                        "type": "string"
+                    },
+                    {
                         "name": "net_id",
                         "in": "query",
-                        "description": "ID of the net whom the channel refers to",
-                        "type": "integer"
+                        "description": "ID of the net whom the channel refers to. You can pass multiple ids separated by comma",
+                        "type": "string"
                     },
                     {
                         "name": "net_name",
@@ -1445,8 +1462,8 @@
                 "parameters": [{
                     "name": "id",
                     "in": "query",
-                    "description": "Sensor unique identifier",
-                    "type": "integer"
+                    "description": "Sensor unique identifier. You can pass multiple ids separated by comma",
+                    "type": "string"
                 }, {
                     "name": "name",
                     "in": "query",
@@ -1460,8 +1477,8 @@
                 }, {
                     "name": "sensortype_id",
                     "in": "query",
-                    "description": "ID of the sensortype",
-                    "type": "integer"
+                    "description": "ID of the sensortype. You can pass multiple ids separated by comma",
+                    "type": "string"
                 }, {
                     "name": "sensortype_name",
                     "in": "query",
@@ -1710,8 +1727,8 @@
                 "parameters": [{
                     "name": "id",
                     "in": "query",
-                    "description": "Digitizer unique identifier",
-                    "type": "integer"
+                    "description": "Digitizer unique identifier. You can pass multiple ids separated by comma",
+                    "type": "string"
                 }, {
                     "name": "name",
                     "in": "query",
@@ -1725,8 +1742,8 @@
                 }, {
                     "name": "digitizertype_id",
                     "in": "query",
-                    "description": "ID of the digitizertype",
-                    "type": "integer"
+                    "description": "ID of the digitizertype. You can pass multiple ids separated by comma",
+                    "type": "string"
                 }, {
                     "name": "digitizertype_name",
                     "in": "query",
@@ -1965,8 +1982,8 @@
                 "parameters": [{
                     "name": "id",
                     "in": "query",
-                    "description": "Sensortype unique identifier",
-                    "type": "integer"
+                    "description": "Sensortype unique identifier. You can pass multiple ids separated by comma",
+                    "type": "string"
                 }, {
                     "name": "name",
                     "in": "query",
@@ -1995,8 +2012,8 @@
                 }, {
                     "name": "sensortype_category_id",
                     "in": "query",
-                    "description": "Sensortype category unique identifier",
-                    "type": "integer"
+                    "description": "Sensortype category unique identifier. You can pass multiple ids separated by comma",
+                    "type": "string"
                 }, {
                     "name": "sort_by",
                     "in": "query",
@@ -2278,8 +2295,8 @@
                 "parameters": [{
                     "name": "id",
                     "in": "query",
-                    "description": "Sensortype category unique identifier",
-                    "type": "integer"
+                    "description": "Sensortype category unique identifier. You can pass multiple ids separated by comma",
+                    "type": "string"
                 }, {
                     "name": "name",
                     "in": "query",
@@ -2571,8 +2588,8 @@
                 "parameters": [{
                     "name": "id",
                     "in": "query",
-                    "description": "Digitizertype unique identifier",
-                    "type": "integer"
+                    "description": "Digitizertype unique identifier. You can pass multiple ids separated by comma",
+                    "type": "string"
                 }, {
                     "name": "name",
                     "in": "query",
@@ -2869,8 +2886,8 @@
                 "parameters": [{
                     "name": "id",
                     "in": "query",
-                    "description": "Station unique identifier",
-                    "type": "integer"
+                    "description": "Station unique identifier. You can pass multiple ids separated by comma",
+                    "type": "string"
                 }, {
                     "name": "name",
                     "in": "query",
@@ -2879,8 +2896,8 @@
                 }, {
                     "name": "sensortype_id",
                     "in": "query",
-                    "description": "ID of the sensortype",
-                    "type": "integer"
+                    "description": "ID of the sensortype. You can pass multiple ids separated by comma",
+                    "type": "string"
                 }, {
                     "name": "sensortype_name",
                     "in": "query",
@@ -2889,8 +2906,8 @@
                 }, {
                     "name": "net_id",
                     "in": "query",
-                    "description": "ID of the net whom the station refers to",
-                    "type": "integer"
+                    "description": "ID of the net whom the station refers to. You can pass multiple ids separated by comma",
+                    "type": "string"
                 }, {
                     "name": "net_name",
                     "in": "query",
@@ -2899,8 +2916,8 @@
                 }, {
                     "name": "site_id",
                     "in": "query",
-                    "description": "ID of the site whom the station belongs to",
-                    "type": "integer"
+                    "description": "ID of the site whom the station belongs to. You can pass multiple ids separated by comma",
+                    "type": "string"
                 }, {
                     "name": "site_name",
                     "in": "query",
@@ -3327,13 +3344,13 @@
                 "parameters": [{
                     "name": "id",
                     "in": "query",
-                    "description": "Station configuration unique identifier",
-                    "type": "integer"
+                    "description": "Station configuration unique identifier. You can pass multiple ids separated by comma",
+                    "type": "string"
                 }, {
                     "name": "station_id",
                     "in": "query",
-                    "description": "Station unique identifier",
-                    "type": "integer"
+                    "description": "Station unique identifier. You can pass multiple ids separated by comma",
+                    "type": "string"
                 }, {
                     "name": "station_name",
                     "in": "query",
@@ -3342,8 +3359,8 @@
                 }, {
                     "name": "sensor_id",
                     "in": "query",
-                    "description": "ID of the sensor",
-                    "type": "integer"
+                    "description": "ID of the sensor. You can pass multiple ids separated by comma",
+                    "type": "string"
                 }, {
                     "name": "sensor_name",
                     "in": "query",
@@ -3352,8 +3369,8 @@
                 }, {
                     "name": "digitizer_id",
                     "in": "query",
-                    "description": "ID of the digitizer",
-                    "type": "integer"
+                    "description": "ID of the digitizer. You can pass multiple ids separated by comma",
+                    "type": "string"
                 }, {
                     "name": "digitizer_name",
                     "in": "query",
@@ -3662,8 +3679,8 @@
                 "parameters": [{
                     "name": "id",
                     "in": "query",
-                    "description": "Net unique identifier",
-                    "type": "integer"
+                    "description": "Net unique identifier. You can pass multiple ids separated by comma",
+                    "type": "string"
                 }, {
                     "name": "name",
                     "in": "query",
@@ -3672,8 +3689,8 @@
                 }, {
                     "name": "owner_id",
                     "in": "query",
-                    "description": "ID of the owner",
-                    "type": "integer"
+                    "description": "ID of the owner. You can pass multiple ids separated by comma",
+                    "type": "string"
                 }, {
                     "name": "sort_by",
                     "in": "query",
@@ -3955,8 +3972,8 @@
                 "parameters": [{
                     "name": "id",
                     "in": "query",
-                    "description": "Site unique identifier",
-                    "type": "integer"
+                    "description": "Site unique identifier. You can pass multiple ids separated by comma",
+                    "type": "string"
                 }, {
                     "name": "name",
                     "in": "query",
@@ -4313,8 +4330,8 @@
                 "parameters": [{
                     "name": "id",
                     "in": "query",
-                    "description": "Owner unique identifier",
-                    "type": "integer"
+                    "description": "Owner unique identifier. You can pass multiple ids separated by comma",
+                    "type": "string"
                 }, {
                     "name": "name",
                     "in": "query",
@@ -4601,9 +4618,8 @@
                 "parameters": [{
                     "name": "id",
                     "in": "query",
-                    "description": "User ID",
-                    "type": "integer",
-                    "format": "int64"
+                    "description": "User ID. You can pass multiple ids separated by comma",
+                    "type": "string"
                 }, {
                     "name": "email",
                     "in": "query",
@@ -5183,9 +5199,8 @@
                 "parameters": [{
                     "name": "id",
                     "in": "query",
-                    "description": "Role ID",
-                    "type": "integer",
-                    "format": "int64"
+                    "description": "Role ID. You can pass multiple ids separated by comma",
+                    "type": "string"
                 }, {
                     "name": "name",
                     "in": "query",
