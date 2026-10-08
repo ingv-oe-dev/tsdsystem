@@ -31,7 +31,8 @@ Class TimeseriesValues extends Timeseries {
 				$input["id"], 
 				$input["columns"], 
 				$input["data"], 
-				$input["insert"]
+				$input["insert"],
+				$input["timeformat"]
 			);
 		} catch (Exception $e) {
 			$insert_sql["error"] = $e->getMessage();
@@ -44,9 +45,29 @@ Class TimeseriesValues extends Timeseries {
 				$input_params = explode(".", $insert_sql["tablename"]);
 				if (array_key_exists("update_last_time", $input) and $input["update_last_time"] === true) {
 					// take last time and value from inserted data
-					$last_row = $this->takeLastRecentRecord($input["data"], $input["columns"]);
+					$last_row = $this->takeLastRecentRecord($input["data"], $input["columns"], $input["timeformat"]);
 					//$response["last_row"] = pg_escape_string(json_encode((object) $last_row, JSON_NUMERIC_CHECK)); // for debugging purpose only
-					$output = $this->executeSQLCommand("CALL tsd_main.\"updateTimeseriesLastTime_light\"('".$input_params[0]."','".$input_params[1]."', '". $last_row[$this->getTimeColumnName()] ."', '".pg_escape_string(json_encode((object) $last_row, JSON_NUMERIC_CHECK))."')");
+					// Handle time format for last_row
+					$time_column_name = $this->getTimeColumnName();
+					$raw_last_time = $last_row[$time_column_name];
+					if (strtoupper($input["timeformat"]) == "UNIX") {
+						if (!is_numeric($raw_last_time)) {
+							throw new Exception("Invalid UNIX timestamp");
+						}
+						$last_time_sql = "to_timestamp(" . $raw_last_time . ") AT TIME ZONE 'UTC'";
+						$date = DateTimeImmutable::createFromFormat(
+							"U.u",
+							sprintf("%.6F", (float) $raw_last_time)
+						);
+						if ($date === false) {
+							throw new Exception("Unable to convert UNIX timestamp");
+						}
+						$last_row[$time_column_name] = $date->setTimezone(new DateTimeZone("UTC"))->format("Y-m-d\TH:i:s.u\Z");
+					} else {
+						$last_time_sql = "'" . pg_escape_string($raw_last_time) . "'";
+					}
+					$last_value_json = pg_escape_string(json_encode((object) $last_row, JSON_NUMERIC_CHECK));
+					$output = $this->executeSQLCommand("CALL tsd_main.\"updateTimeseriesLastTime_light\"('".$input_params[0]."','".$input_params[1]."', ". $last_time_sql .", '".$last_value_json."'::jsonb)");
 					
 					// hide sql query into response
 					unset($output[0]["query"]);
@@ -69,12 +90,30 @@ Class TimeseriesValues extends Timeseries {
 		return $response;
 	}
 
-	public function takeLastRecentRecord($data, $columns) {
+	public function takeLastRecentRecord($data, $columns, $timeformat = "ISO8601") {
 		$time_column_index = array_search($this->getTimeColumnName(), $columns);
 		$last_row = null;
+		$latest_timestamp = null;
+
 		foreach($data as $row) {
-			if (!isset($last_row) or strtotime($row[$time_column_index]) > strtotime($last_row[$time_column_index])) {
+			$raw_timestamp = $row[$time_column_index];
+
+			if (strtoupper($timeformat) === "UNIX") {
+				if (!is_numeric($raw_timestamp)) {
+					continue;
+				}
+				$timestamp = (float) $raw_timestamp;
+			} else {
+				$date = date_create($raw_timestamp);
+				if ($date === false) {
+					continue;
+				}
+				$timestamp = (float) $date->format("U.u");
+			}
+
+			if ($latest_timestamp === null || $timestamp > $latest_timestamp) {
 				$last_row = $row;
+				$latest_timestamp = $timestamp;
 			}
 		}
 		$result = array_combine($columns, $last_row);
@@ -82,7 +121,7 @@ Class TimeseriesValues extends Timeseries {
 	}
 	
 	// ============== Make insert SQL for postgresql ======================
-	private function makeInsertSQL($id, $columns, $data, $insert_mode="IGNORE") {
+	private function makeInsertSQL($id, $columns, $data, $insert_mode="IGNORE", $timeformat="ISO8601") {
 
 		$TIME_COLUMN_INDEX = array_search($this->getTimeColumnName(), $columns);
 		
@@ -124,9 +163,14 @@ Class TimeseriesValues extends Timeseries {
 				$str_value = $data[$i][$j];
 				
 				if ($j == $TIME_COLUMN_INDEX) {
-					// check datetime format
-					if (!$this->verifyDate($str_value)) return $this->get_error("Invalid time format at row=" . strval($i) . ". Your value: '" . $str_value . "'");
-					$str_value = "'" . $str_value . "'"; 
+					// UNIX format
+					if (strtoupper($timeformat) == "UNIX") {
+						$str_value = "to_timestamp(" . $str_value . ")";
+					} else {
+						// check datetime format
+						if (!$this->verifyDate($str_value)) return $this->get_error("Invalid time format at row=" . strval($i) . ". Your value: '" . $str_value . "'");
+						$str_value = "'" . $str_value . "'"; 
+					}
 				} else if (in_array($j, $STRING_COLUMN_INDEXES)) {
 					// check text value
 					$str_value = "'" . pg_escape_string($str_value) . "'";

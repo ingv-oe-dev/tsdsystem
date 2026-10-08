@@ -789,6 +789,16 @@
                     "type": "boolean",
                     "default": true
                 }, {
+                    "name": "timeformat",
+                    "in": "query",
+                    "description": "Sample time format. Default 'ISO 8601' [https://www.w3.org/TR/NOTE-datetime].",
+                    "type": "string",
+                    "default": "ISO8601",
+                    "enum": ["ISO8601", "UNIX"],
+                    "options": {
+                        "enum_titles": ["ISO 8601", "Unix timestamp"]
+                    }
+                }, {
                     "in": "body",
                     "name": "body",
                     "description": "JSON object that needs to be passed as input",

@@ -614,6 +614,7 @@ Class TimeseriesValuesController extends RESTController {
 				"id" => $input["id"],
 				"columns" => $input["columns"], 
 				"insert" => $input["insert"],
+				"timeformat" => $input["timeformat"],
 				"update_last_time" => ($input["update_last_time"] and (($offset + $this->chunk_size) >= $total_samples)) // update last time only at the end of the insertion
 			);
 
@@ -721,6 +722,16 @@ Class TimeseriesValuesController extends RESTController {
 			$input["chunked"] = false;
 		} else {
 			$input["chunked"] = true;
+		}
+
+		// timestamp
+		if(array_key_exists("timeformat", $input)) {
+			if(!in_array(strtoupper($input["timeformat"]), $this->time_format_array)) {
+				$this->setInputError("This input is incorrect: 'timeformat' [string], must be a value in the following list: " . implode(", ", $this->time_format_array) . ". Your value = " . strval($input["timeformat"]));
+				return false;
+			}
+		} else {
+			$input["timeformat"] = "ISO8601";
 		}
 
 		$this->setParams($input);
