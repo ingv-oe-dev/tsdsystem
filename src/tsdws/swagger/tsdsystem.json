@@ -3080,6 +3080,52 @@
                 }]
             }
         },
+        "/stations/brief": {
+            "get": {
+                "tags": [
+                    "stations"
+                ],
+                "summary": "Report stations list in brief",
+                "description": "",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "name",
+                    "in": "query",
+                    "description": "Station name. You can pass multiple names separated by comma",
+                    "type": "string"
+                }, {
+                    "name": "sensortype_category_name",
+                    "in": "query",
+                    "description": "Sensortype category name. You can pass multiple names separated by comma",
+                    "type": "string"
+                }, {
+                    "name": "pick_datetime",
+                    "in": "query",
+                    "description": "Limit search on instances that are active on the specified datetime. Standard ISO8601 datetime UTC",
+                    "type": "string",
+                    "format": "date-time"
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponseGet"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status value"
+                    },
+                    "401": {
+                        "description": "Authorization not found"
+                    }
+                },
+                "security": [{
+                    "Bearer": []
+                }]
+            }
+        },
         "/stations/{id}": {
             "get": {
                 "tags": [

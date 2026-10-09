@@ -212,6 +212,24 @@ Class StationsController extends RESTController {
 			$input["format"] = "json"; // default
 		}
 
+		// $input["brief"] 
+		if (array_key_exists("brief", $input) and (intval($input["brief"]) == 1 or strtolower($input["brief"]) == "true")){
+			$input["brief"] = true;
+
+			// $input["pick_datetime"] related to "brief" parameter 
+			if(array_key_exists("pick_datetime", $input)) {
+				if (!$this->verifyDate($input["pick_datetime"])) {
+					$this->setInputError("This input is incorrect: 'pick_datetime' [string] <format ISO 8601>. Your value = " . strval($input["pick_datetime"]));
+					return false;
+				}
+			} else {
+				$pick_datetime = new DateTime('now', new DateTimeZone('UTC'));
+				$input["pick_datetime"] = $pick_datetime->format(Datetime::ATOM);
+			}
+		} else {
+			$input["brief"] = false; // default
+		}
+
 		// if here, 'format' input is set
 		$input["contentType"] = $this->contentTypesArray[$input["format"]];
 
@@ -223,7 +241,27 @@ Class StationsController extends RESTController {
 	
 	public function get($jsonfields=array("coords","additional_info")) {
 		// coords will be returned in GeoJSON format (as in SitesController.php)
-		parent::get($jsonfields);
+
+		$input = $this->getParams();
+
+		if ($input["brief"]) {
+			$result = $this->obj->getListBrief($input);
+		} else {
+			$result = $this->obj->getList($input);
+		}
+	
+		if ($result["status"]) {
+			for($i=0; $i<count($result["data"]); $i++) {
+				foreach($jsonfields as $fieldname) {
+					$result["data"][$i][$fieldname] = isset($result["data"][$i][$fieldname]) ? json_decode($result["data"][$i][$fieldname]) : NULL;
+				}
+			}
+			$this->setData($result["data"]);
+			//$this->setAdditionalInfo($result["query"]);
+		} else {
+			$this->setStatusCode(404);
+			$this->setError($result);
+		}
 	}
 }
 ?>

@@ -158,6 +158,82 @@ Class Stations extends PNetManager {
 		return $response;
 	}
 
+	public function getListBrief($input) {
+
+		$MyDateTime = $input["pick_datetime"];
+		$MyStationList = (isset($input["name"]) and preg_match("/^([a-zA-Z0-9_]+)(,[a-zA-Z0-9_]+)*$/", $input["name"])) ? $input["name"] : null;
+		$MyTypeList = (isset($input["sensortype_category_name"]) and preg_match("/^([a-zA-Z0-9_]+)(,[a-zA-Z0-9_]+)*$/", $input["sensortype_category_name"])) ? $input["sensortype_category_name"] : null;
+
+		$sql_filter = "";
+		if (isset($MyStationList)) {
+			$MyStationList = implode(", ", array_map(function($name) { return strtolower("'$name'"); }, explode(",", $MyStationList)));
+			$sql_filter .= "and LOWER(stat.name) in ($MyStationList) ";
+		}
+		if (isset($MyTypeList)) {
+			$MyTypeList = implode(", ", array_map(function($name) { return strtolower("'$name'"); }, explode(",", $MyTypeList)));
+			$sql_filter .= "and LOWER(stc.name) in ($MyTypeList) ";
+		}
+		// var_dump($sql_filter);
+		$tablename = $this->tablename;
+		$query = "SELECT 
+            stat.name as \"SiteName\", 
+            ST_Y(stat.coords) as \"Lat\",
+            ST_X(stat.coords) as \"Lon\",
+            stat.quote as \"Quote\", 
+            json_extract_path(st.response_parameters::json,'S')::text::float as \"Sensitivity\",
+            trunc((1/dt.sensitivity*1000)::numeric, 7) as \"mVoltCountConverter\" ,
+            trim(json_extract_path(st.response_parameters::json,'PZ','Zeroes')::text, '\"') as \"Zeroes\",
+            trim(json_extract_path(st.response_parameters::json,'PZ','Poles')::text, '\"') as \"Poles\",
+            coalesce(json_extract_path(sc.additional_info::json,'velocityModel')::text::integer, 1) as \"vMod\",
+            sc.start_datetime as \"InstDateTime\", 
+            sc.end_datetime as \"RemDateTime\",
+			stc.\"name\" as \"SensorTypeCategory\"
+            /*,
+            s.\"name\" as \"SensorName\", 
+            concat(st.\"name\", ' ', st.model) as \"SensorModel\", 
+            s.serial_number as \"SensorSerialNumber\",
+            st.response_parameters,
+            st.additional_info ,
+            d.\"name\" as \"DigitizerName\",
+            concat(dt.\"name\", ' ', dt.model) as \"DigitizerModel\",
+            d.serial_number as \"DigitizerSerialNumber\",
+            dt.final_sample_rate as \"FinalSampleRate\",
+            dt.final_sample_rate_measure_unit as \"FinalSampleRateUnit\",
+            dt.sensitivity as \"DigitizerSensitivity\",
+            dt.sensitivity_measure_unit as \"DigitizerSensitivityMeasureUnit\",
+            dt.dynamical_range as \"DigitizerDynamicalRange\",
+            dt.dynamical_range_measure_unit as \"DigitizerDynamicalRangeMeasureUnit\"
+            */
+        from $tablename stat
+		left join tsd_pnet.station_configs sc on stat.id = sc.station_id
+        left join tsd_pnet.sensors s on sc.sensor_id = s.id
+        left join tsd_pnet.sensortypes st on s.sensortype_id = st.id
+        left join tsd_pnet.sensortype_categories stc on st.sensortype_category_id = stc.id 
+        left join tsd_pnet.digitizers d on sc.digitizer_id = d.id 
+        left join tsd_pnet.digitizertypes dt on d.digitizertype_id = dt.id
+        where stat.remove_time is null and sc.remove_time is null
+        and (
+            ('$MyDateTime' between sc.start_datetime and sc.end_datetime) 
+            or (sc.start_datetime is null and sc.end_datetime is null)
+            or (sc.start_datetime <= '$MyDateTime' and sc.end_datetime is null)
+            or (sc.start_datetime is null and '$MyDateTime' <= sc.end_datetime)
+        )
+        $sql_filter
+        order by stat.\"name\";";
+		//var_dump($query);
+		
+		//echo $query;
+		$response = $this->getRecordSet($query);
+		/*
+		return [
+			"status" => $response["status"],
+			"data" => $response["data"],
+			"query" => $query
+		];
+		*/
+		return $response;
+	}
+
 	public function update($input) {
 
 		$updateFields = array(
