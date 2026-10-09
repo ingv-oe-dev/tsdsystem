@@ -95,6 +95,10 @@ class SimpleREST extends Utils{
 			$this->response["records"] = count($data);
 		}
 	}
+
+	public function setAdditionalInfo($additional_info) {
+		$this->response["additional_info"] = $additional_info;
+	}
 	
 	public function readInput() {
 		
