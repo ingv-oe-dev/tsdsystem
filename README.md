@@ -90,6 +90,8 @@ SMTP settings (for emails sending, e.g. on users registration):
 Regexp pattern for users' email registration:
 - `REG_PATTERN` (PCRE2 [PHP >=7.3] - if not set, it allows any string) [*for example, to allow only INGV emails use the following regular expression*: `/[.]*@ingv\.it/i`]
 
+Notify TS registration to admin email:
+- `NOTIFY_TS_REG`
 
 ## TSDSystem installation
 

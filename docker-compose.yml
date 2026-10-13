@@ -35,6 +35,7 @@ services:
       SMTP_FROM_ADDRESS: "${SMTP_FROM_ADDRESS}"
       SMTP_FROM_NAME: "${SMTP_FROM_NAME}"
       REG_PATTERN: "${REG_PATTERN}"
+      NOTIFY_TS_REG: "${NOTIFY_TS_REG}"
     healthcheck:
       test:
         ["CMD", "curl", "--fail", "http://localhost/tsdws/version"]
