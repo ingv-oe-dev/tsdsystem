@@ -293,7 +293,7 @@ Class Timeseries extends QueryManager {
 	function sendRegistrationEmail($input, $response) {
 
 		if (
-			(getenv("NOTIFY_TS_REG") and intval(getenv("NOTIFY_TS_REG")) == 0) or
+			getenv("NOTIFY_TS_REG") === "0" or
 			!isset($response["id"]) or
 			!isset($response["rows"]) or
 			$response["rows"] < 1 or
