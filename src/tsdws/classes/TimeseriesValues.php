@@ -389,27 +389,24 @@ Class TimeseriesValues extends Timeseries {
 			
 			// start transaction
 			$this->myConnection->beginTransaction();
-			
-			$next_query = "DELETE FROM $tablename WHERE true ";
-			
+
+			/* ==== Count rows to be deleted ==== */
+			$next_query = "SELECT count(*) FROM $tablename WHERE true ";
 			// newer_than (starttime)
 			if (isset($input["newer_than"])){
 				$next_query .= " AND " . $this->getTimeColumnName() . " $utc_string >= '" . $input["newer_than"] . "'";
 			}
-			
 			// older_than (endtime)
 			if (isset($input["older_than"])){
 				$next_query .= " AND " . $this->getTimeColumnName() . " $utc_string <= '" . $input["older_than"] . "'";
 			}
-			
 			array_push($response["query"], $next_query);
 			$stmt = $this->myConnection->prepare($next_query);
-			$stmt->execute();		
-			$response["rows"] = $stmt->rowCount();
-			
-			// define update stats query
-			$update_stats_query = "CALL tsd_main.\"updateTimeseriesLastTime\"('".$ts_info["schema"]."','".$ts_info["name"]."')";
-			
+			$stmt->execute();
+			$response["rows"] = $stmt->fetchColumn();
+
+
+			/* ==== Delete rows using drop_chunks to avoid performance issues on large datasets ==== */
 			// delete all rows
 			if (!isset($input["older_than"]) and !isset($input["newer_than"])){
 				// drop all chunks
@@ -418,7 +415,7 @@ Class TimeseriesValues extends Timeseries {
 				// update timeseries stats
 				$update_stats_query = "UPDATE tsd_main.timeseries SET last_time = NULL, last_value = NULL, n_samples = 0 WHERE schema = '".$ts_info["schema"]."' AND name = '".$ts_info["name"]."'";
 			}
-			/* Handle a single record delete */
+			// Handle a single record delete
 			else if (isset($input["newer_than"]) and isset($input["older_than"]) and ($input["older_than"] == $input["newer_than"])){
 
 				// do nothing else
@@ -440,7 +437,6 @@ Class TimeseriesValues extends Timeseries {
 
 				$next_query .= ")";
 			}
-			
 			// check if $next_query is NOT null
 			if (isset($next_query)) {
 				
@@ -450,8 +446,29 @@ Class TimeseriesValues extends Timeseries {
 				$response["drop_chunks"] = $this->getRecordSet($next_query);
 			}
 
+
+			/* ==== Use DELETE for remaining records that are not handled by drop_chunks (e.g., single record delete) ==== */
+			$next_query = "DELETE FROM $tablename WHERE true ";
+			
+			// newer_than (starttime)
+			if (isset($input["newer_than"])){
+				$next_query .= " AND " . $this->getTimeColumnName() . " $utc_string >= '" . $input["newer_than"] . "'";
+			}
+			
+			// older_than (endtime)
+			if (isset($input["older_than"])){
+				$next_query .= " AND " . $this->getTimeColumnName() . " $utc_string <= '" . $input["older_than"] . "'";
+			}
+			
+			array_push($response["query"], $next_query);
+			$stmt = $this->myConnection->prepare($next_query);
+			$stmt->execute();		
+			
 			// commit
 			$this->myConnection->commit();
+
+			/* ==== Define update stats query ==== */
+			$update_stats_query = "CALL tsd_main.\"updateTimeseriesLastTime\"('".$ts_info["schema"]."','".$ts_info["name"]."')";		
 
 			// update timeseries stats
 			if (array_key_exists("update_last_time", $input) and $input["update_last_time"] === true) {
